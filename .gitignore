@@ -53,3 +53,6 @@ modules.yaml
 # Local env overrides
 .env.local
 .env.*.local
+
+# Environment files with real secrets — keep local only
+.env
