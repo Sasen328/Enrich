@@ -17,6 +17,7 @@
 import { db, companySignalsTable } from "@workspace/db";
 import { eq, desc, and, gte } from "drizzle-orm";
 import { nexusGenerate } from "./nexus/index.js";
+import { googleNewsForCompany } from "./google-news-scraper.js";
 import {
   scoutSignalsNews,
   scoutSignalsSanctions,
@@ -150,15 +151,18 @@ export async function scanCompanySignals(opts: {
   } = opts;
 
   // ── Fetch all signals in parallel ─────────────────────────────────────────
-  const [newsResult, sanctionsResult, contractsResult] = await Promise.allSettled([
+  const [newsResult, sanctionsResult, contractsResult, googleNewsResult] = await Promise.allSettled([
     scoutSignalsNews(companyName, companyNameAr, domain),
     scoutSignalsSanctions(companyName, companyNameAr ? [companyNameAr] : undefined),
     scoutSignalsContracts(companyName, companyNameAr),
+    // Free Google News RSS — adds outlets the Scout news endpoint may miss
+    googleNewsForCompany(companyName, { limit: 15 }),
   ]);
 
   const news: NewsSignalResult | null = newsResult.status === "fulfilled" ? newsResult.value : null;
   const sanctions: SanctionsResult | null = sanctionsResult.status === "fulfilled" ? sanctionsResult.value : null;
   const contracts: ContractsResult | null = contractsResult.status === "fulfilled" ? contractsResult.value : null;
+  const googleNewsHits = googleNewsResult.status === "fulfilled" ? googleNewsResult.value : [];
 
   // ── Merge all articles ─────────────────────────────────────────────────────
   const allArticles: Array<{
@@ -176,6 +180,23 @@ export async function scanCompanySignals(opts: {
 
   if (news?.articles) {
     allArticles.push(...news.articles);
+  }
+  // Merge Google News RSS hits, de-duplicating by URL against the Scout result
+  if (googleNewsHits.length > 0) {
+    const seenUrls = new Set(allArticles.map((a) => a.url));
+    for (const hit of googleNewsHits) {
+      if (seenUrls.has(hit.url)) continue;
+      allArticles.push({
+        title: hit.title,
+        summary: hit.snippet || "",
+        url: hit.url,
+        source: hit.source || "Google News",
+        published: hit.publishedAt || null,
+        category: "neutral",
+        event_types: ["news"],
+      });
+      seenUrls.add(hit.url);
+    }
   }
   if (contracts?.contracts) {
     for (const c of contracts.contracts) {

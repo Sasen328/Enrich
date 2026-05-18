@@ -33,6 +33,17 @@
       "env": {
         "TAVILY_API_KEY": "${TAVILY_API_KEY}"
       }
+    },
+    "omnisearch": {
+      "command": "npx",
+      "args": ["-y", "mcp-omnisearch@latest"],
+      "env": {
+        "TAVILY_API_KEY": "${TAVILY_API_KEY}",
+        "BRAVE_API_KEY": "${BRAVE_API_KEY}",
+        "KAGI_API_KEY": "${KAGI_API_KEY}",
+        "EXA_API_KEY": "${EXA_API_KEY}",
+        "PERPLEXITY_API_KEY": "${PERPLEXITY_API_KEY}"
+      }
     }
   }
 }
