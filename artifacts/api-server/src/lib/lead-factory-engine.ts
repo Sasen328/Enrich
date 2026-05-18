@@ -37,6 +37,7 @@ import {
 } from "./scout-client.js";
 import { nexusGenerate, nexusSynthesize } from "./nexus/index.js";
 import { freeWebSearch } from "./free-search.js";
+import { verifyLead } from "./lead-validator.js";
 import { scrapePage } from "./power-scraper.js";
 import { onLeadFactoryComplete } from "./activepieces-client.js";
 
@@ -1477,6 +1478,37 @@ async function agent5_validateAndDeduplicate(
     else rejectCount++;
 
     processed.push({ ...lead, ...validation });
+
+    // ── Active verification layer (DNS/MX, domain liveness, dummy detection,
+    //    cross-source corroboration). Augments validation but doesn't override
+    //    a clean PASS unless a hard failure is detected.
+    if (validation.status !== "reject") {
+      try {
+        const signals = await verifyLead({
+          companyName: lead.companyName,
+          domain: lead.domain,
+          email: lead.email,
+          phone: lead.phone,
+          crNumber: lead.crNumber,
+          sourceUsed: lead.sourceUsed,
+          rawData: lead.rawData as { sourcesAggregated?: string[] } | undefined,
+        });
+        // Persist signals into validation.reasons so downstream agents see them
+        for (const n of signals.notes) validation.reasons.push(n);
+        // Hard reject when the row looks dummy
+        if (signals.appearsDummy) {
+          validation.status = "reject";
+          validation.reasons.push("DUMMY_DETECTED");
+          rejectCount++; passCount = Math.max(0, passCount - (validation.status === "pass" ? 1 : 0));
+        } else if (signals.confidence < 35) {
+          // Low confidence → downgrade to warn
+          if (validation.status === "pass") { validation.status = "warn"; passCount--; warnCount++; }
+          validation.reasons.push(`LOW_CONFIDENCE:${signals.confidence}`);
+        }
+      } catch {
+        /* validator failure should never break the pipeline */
+      }
+    }
 
     if (validation.status === "reject") {
       emit(emitter, { type: "lead_rejected", agent: 5, companyName: lead.companyName, reasons: validation.reasons });
