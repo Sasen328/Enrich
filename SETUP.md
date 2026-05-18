@@ -1,6 +1,6 @@
 # ProspectSA — Setup
 
-End-to-end setup for local dev, VPS, cloud VM, or Docker. The Docker path is the fastest — see [`DEPLOY_README.md`](DEPLOY_README.md) for one-command bring-up.
+End-to-end setup for local dev, VPS, cloud VM, or Docker. The Docker path is the fastest — see [`DEPLOY.md`](DEPLOY.md) for one-command bring-up.
 
 **Required at minimum:**
 - Node.js 24, pnpm

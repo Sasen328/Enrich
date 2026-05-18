@@ -33,7 +33,7 @@ Full guides:
 
 | Goal | Read |
 |---|---|
-| Deploy with Docker (recommended) | [`DEPLOY_README.md`](DEPLOY_README.md) |
+| Deploy with Docker (recommended) | [`DEPLOY.md`](DEPLOY.md) |
 | Local development | [`SETUP.md`](SETUP.md) |
 | Operator manual | [`docs/OPERATOR_GUIDE.md`](docs/OPERATOR_GUIDE.md) |
 | Architecture overview | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) |
