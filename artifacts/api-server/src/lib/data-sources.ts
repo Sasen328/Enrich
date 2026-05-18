@@ -2,7 +2,7 @@ export interface DataSourceConfig {
   id: string;
   name: string;
   nameAr: string;
-  category: "government" | "directory" | "chamber" | "financial" | "wikidata";
+  category: "government" | "directory" | "chamber" | "financial" | "wikidata" | "media" | "exchange" | "jobs" | "enrichment";
   url: string;
   description: string;
   estimatedCompanies: number;
@@ -492,4 +492,288 @@ export const SAUDI_DATA_SOURCES: DataSourceConfig[] = [
     description: "Abu Dhabi Department of Economic Development trade-license registry.",
     estimatedCompanies: 200000,
   },
+  // ── Open-data enrichment endpoints (Open Data section 3C) ───────────────────
+  {
+    id: "clearbit-logo",
+    name: "Clearbit Logo CDN",
+    nameAr: "كليربيت — شعارات الشركات",
+    category: "enrichment",
+    url: "https://logo.clearbit.com",
+    description: "Company logos by domain (PNG/SVG) — no key, no rate limit. Used to enrich the CRM UI.",
+    estimatedCompanies: 0,
+  },
+  {
+    id: "github-org",
+    name: "GitHub Org",
+    nameAr: "GitHub — حسابات الشركات",
+    category: "enrichment",
+    url: "https://api.github.com",
+    description: "Org repositories, hiring signals, open issues, languages. Optional PAT for higher rate limits.",
+    estimatedCompanies: 0,
+  },
+  {
+    id: "wappalyzer",
+    name: "Wappalyzer — tech-stack fingerprint",
+    nameAr: "وابالايزر — بصمة المنصة التقنية",
+    category: "enrichment",
+    url: "https://www.wappalyzer.com",
+    description: "Tech-stack fingerprint, detects GCC payment rails (Tap, PayTabs, HyperPay, Mada). Runs locally; optional API.",
+    estimatedCompanies: 0,
+  },
+  // ── Hiring-signal / job-posting feeds (manual list 3H — free to scrape) ─────
+  {
+    id: "bayt",
+    name: "Bayt — Gulf job postings",
+    nameAr: "بيت.كوم",
+    category: "jobs",
+    url: "https://www.bayt.com/en/saudi-arabia/jobs/",
+    description: "Job postings + hiring signals; salary benchmarks across GCC. Already wired in Lead Factory harvester.",
+    estimatedCompanies: 0,
+  },
+  {
+    id: "gulftalent",
+    name: "GulfTalent — executive search",
+    nameAr: "غلف تالنت",
+    category: "jobs",
+    url: "https://www.gulftalent.com/saudi-arabia/jobs",
+    description: "GCC executive search + hiring signals. Free to browse.",
+    estimatedCompanies: 0,
+  },
+  {
+    id: "naukrigulf",
+    name: "Naukrigulf — job postings",
+    nameAr: "نوكري جلف",
+    category: "jobs",
+    url: "https://www.naukrigulf.com/saudi-arabia-jobs",
+    description: "Gulf job listings, company hiring activity signal.",
+    estimatedCompanies: 0,
+  },
+  // ── Saudi business media (section 6) ────────────────────────────────────────
+  {
+    id: "cnbc-arabia",
+    name: "CNBC Arabia",
+    nameAr: "سي إن بي سي عربية",
+    category: "media",
+    url: "https://cnbcarabia.com",
+    description: "Real-time Saudi business news, executive interviews, deal announcements, project launches. Free.",
+    estimatedCompanies: 0,
+  },
+  {
+    id: "al-arabiya-aswaq",
+    name: "Al Arabiya — Aswaq",
+    nameAr: "العربية - أسواق",
+    category: "media",
+    url: "https://www.alarabiya.net/aswaq",
+    description: "Al Arabiya financial portal — Saudi market news, exec profiles, M&A, government project news. Bilingual (AR/EN).",
+    estimatedCompanies: 0,
+  },
+  {
+    id: "asharq-al-awsat",
+    name: "Asharq Al-Awsat",
+    nameAr: "الشرق الأوسط",
+    category: "media",
+    url: "https://aawsat.com",
+    description: "Pan-Arab newspaper — Saudi business, GCC deal tracking, government policy, exec appointments. Freemium.",
+    estimatedCompanies: 0,
+  },
+  {
+    id: "arab-news",
+    name: "Arab News",
+    nameAr: "أرب نيوز",
+    category: "media",
+    url: "https://www.arabnews.com",
+    description: "English-language Saudi news — M&A, project awards, exec moves, Vision 2030 contracts. RSS at /rss.xml. Already wired in Lead Factory.",
+    estimatedCompanies: 0,
+  },
+  {
+    id: "forbes-middle-east",
+    name: "Forbes Middle East",
+    nameAr: "فوربس الشرق الأوسط",
+    category: "media",
+    url: "https://forbesmiddleeast.com",
+    description: "Annual Saudi Rich List, top-company lists, CEO profiles, family-wealth stories — HNW wealth signal source.",
+    estimatedCompanies: 0,
+  },
+  {
+    id: "wamda-media",
+    name: "Wamda — MENA entrepreneurship media",
+    nameAr: "ومضة",
+    category: "media",
+    url: "https://wamda.com",
+    description: "Browsing free: MENA deal announcements, exits, founder profiles, ecosystem reports. Best for SME/startup tier deal discovery.",
+    estimatedCompanies: 0,
+  },
+  // ── CMA Announcements (separate from CMA Issuers Registry) ──────────────────
+  {
+    id: "cma-announcements",
+    name: "CMA — corporate announcements",
+    nameAr: "هيئة السوق المالية — الإفصاحات",
+    category: "government",
+    url: "https://cma.org.sa",
+    description: "Board decisions, extraordinary GA notices, major acquisitions, compensation policies, exec changes. Cross-references with Tadawul.",
+    estimatedCompanies: 0,
+  },
+  {
+    id: "tadawul-disclosures",
+    name: "Tadawul — disclosures feed",
+    nameAr: "تداول - الإفصاحات",
+    category: "exchange",
+    url: "https://www.saudiexchange.sa",
+    description: "Mandatory CMA disclosures for listed companies: M&A, material contracts, ownership changes, compensation, liquidations.",
+    estimatedCompanies: 200,
+  },
+  {
+    id: "yahoo-finance-saudi",
+    name: "Yahoo Finance — Saudi tickers (.SR)",
+    nameAr: "ياهو فاينانس",
+    category: "exchange",
+    url: "https://finance.yahoo.com",
+    description: "Live prices for Saudi tickers with .SR suffix. Free, no key. Useful for live financial snapshots in profiles.",
+    estimatedCompanies: 200,
+  },
+  // ── GCC stock exchanges (free; section 5) ───────────────────────────────────
+  {
+    id: "dfm",
+    name: "DFM — Dubai Financial Market",
+    nameAr: "سوق دبي المالي",
+    category: "exchange",
+    url: "https://www.dfm.ae",
+    description: "Dubai Financial Market listings, financial disclosures.",
+    estimatedCompanies: 80,
+  },
+  {
+    id: "adx",
+    name: "ADX — Abu Dhabi Securities Exchange",
+    nameAr: "سوق أبوظبي للأوراق المالية",
+    category: "exchange",
+    url: "https://www.adx.ae",
+    description: "Abu Dhabi Securities Exchange listings.",
+    estimatedCompanies: 100,
+  },
+  {
+    id: "boursa-kuwait",
+    name: "Boursa Kuwait",
+    nameAr: "بورصة الكويت",
+    category: "exchange",
+    url: "https://www.boursakuwait.com.kw",
+    description: "Kuwait Stock Exchange listings.",
+    estimatedCompanies: 200,
+  },
+  {
+    id: "bahrain-bourse",
+    name: "Bahrain Bourse",
+    nameAr: "بورصة البحرين",
+    category: "exchange",
+    url: "https://www.bahrainbourse.com",
+    description: "Bahrain Exchange listings.",
+    estimatedCompanies: 50,
+  },
+  {
+    id: "muscat-msx",
+    name: "Muscat Securities Market (MSX)",
+    nameAr: "سوق مسقط للأوراق المالية",
+    category: "exchange",
+    url: "https://www.msx.om",
+    description: "Oman Stock Exchange listings.",
+    estimatedCompanies: 110,
+  },
+  // ── GCC neighbouring government registries (free) ───────────────────────────
+  {
+    id: "difc",
+    name: "DIFC — Dubai International Financial Centre",
+    nameAr: "مركز دبي المالي العالمي",
+    category: "government",
+    url: "https://www.difc.ae",
+    description: "DIFC-registered companies and funds (Dubai's financial free zone). Useful for Saudi-linked PE/VC entities domiciled in DIFC.",
+    estimatedCompanies: 6000,
+  },
+  {
+    id: "adgm",
+    name: "ADGM — Abu Dhabi Global Market",
+    nameAr: "سوق أبوظبي العالمي",
+    category: "government",
+    url: "https://www.adgm.com",
+    description: "Abu Dhabi Global Market entity registry (financial free zone).",
+    estimatedCompanies: 4500,
+  },
+  {
+    id: "qfc-qatar",
+    name: "QFC — Qatar Financial Centre",
+    nameAr: "مركز قطر للمال",
+    category: "government",
+    url: "https://www.qfc.qa",
+    description: "QFC-registered companies (Qatar financial free zone).",
+    estimatedCompanies: 1800,
+  },
+  {
+    id: "cipa-kuwait",
+    name: "CIPA — Kuwait Direct Investment Authority",
+    nameAr: "هيئة تشجيع الاستثمار المباشر - الكويت",
+    category: "government",
+    url: "https://www.cipa.gov.kw",
+    description: "Kuwait commercial registry (KDIPA — direct investment authority).",
+    estimatedCompanies: 0,
+  },
+  {
+    id: "sijilat-bahrain",
+    name: "Sijilat — Bahrain commercial registry",
+    nameAr: "سجلات - البحرين",
+    category: "government",
+    url: "https://www.sijilat.com.bh",
+    description: "Bahrain Ministry of Industry, Commerce & Tourism — commercial registry.",
+    estimatedCompanies: 70000,
+  },
+  {
+    id: "invest-oman",
+    name: "Invest in Oman — Ministry of Commerce, Industry & Investment Promotion",
+    nameAr: "وزارة التجارة والصناعة وتعزيز الاستثمار - عُمان",
+    category: "government",
+    url: "https://www.investinoman.com",
+    description: "Oman investment authority + company-registry lookups.",
+    estimatedCompanies: 0,
+  },
+  // ── Aamaly variants referenced in masar-harvester ──────────────────────────
+  {
+    id: "aamaly-emagazine",
+    name: "Aamaly — e-magazine (AOA pipeline)",
+    nameAr: "مجلة أعمالي الإلكترونية",
+    category: "directory",
+    url: "https://emagazine.aamaly.sa",
+    description: "Aamaly e-magazine search — Articles of Association (AOA) PDFs and corporate filings. Handled by Masar v2 pipeline with Playwright.",
+    estimatedCompanies: 8000,
+  },
+];
+
+// ─── Sector-keyword categories (driven from masar-harvester) ────────────────
+// These aren't standalone URL sources — they're the discovery-prompt categories
+// that the harvest layer feeds to Perplexity / Gemini / free-search to seed
+// company batches per industry. Centralised here so the engines can iterate.
+
+export interface SectorKeyword {
+  id: string;
+  name: string;
+  nameAr: string;
+  /** Keywords driven into Tavily / Perplexity / Gemini queries */
+  keywords: string[];
+}
+
+export const SAUDI_SECTOR_KEYWORDS: SectorKeyword[] = [
+  { id: "auditors-accountants", name: "Auditors & Accountants", nameAr: "مكاتب محاسبة ومراجعة",
+    keywords: ["audit firm", "chartered accountants", "tax advisory", "SOCPA certified", "external auditor"] },
+  { id: "banks-finance", name: "Banks & Finance", nameAr: "البنوك والمالية",
+    keywords: ["bank", "Islamic bank", "finance company", "investment bank", "SAMA licensed"] },
+  { id: "etimad-suppliers", name: "Etimad Gov. Suppliers", nameAr: "موردو منصة اعتماد",
+    keywords: ["government supplier", "Etimad qualified", "Saudi tender winner", "MOH supplier", "MOI contractor"] },
+  { id: "healthcare-medical", name: "Healthcare & Medical", nameAr: "الرعاية الصحية والطب",
+    keywords: ["hospital", "polyclinic", "medical center", "pharmacy chain", "MOH licensed"] },
+  { id: "industrial-manufacturing", name: "Industrial & Manufacturing", nameAr: "الصناعة والتصنيع",
+    keywords: ["manufacturer", "factory", "MODON tenant", "industrial production", "OEM"] },
+  { id: "law-firms-lawyers", name: "Law Firms & Lawyers", nameAr: "مكاتب المحاماة والقانون",
+    keywords: ["law firm", "advocates", "legal consultants", "MoJ licensed", "corporate counsel"] },
+  { id: "logistics-freight", name: "Logistics & Freight", nameAr: "اللوجستيات والشحن",
+    keywords: ["logistics company", "freight forwarder", "shipping", "customs clearance", "supply chain"] },
+  { id: "real-estate-developers", name: "Real Estate Developers", nameAr: "مطورو العقارات",
+    keywords: ["real estate developer", "property developer", "REGA licensed", "off-plan sales", "Wafi"] },
+  { id: "saudi-contractors", name: "Saudi Contractors", nameAr: "المقاولون السعوديون",
+    keywords: ["main contractor", "construction company", "EPC contractor", "Saudi Contractors Authority", "MEED tracked"] },
 ];
