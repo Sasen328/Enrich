@@ -20,7 +20,8 @@ ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 # ── System dependencies ───────────────────────────────────────────────────────
 # python3.11, pip, venv: for Python Scout microservice
 # Chromium system libs: required for headless Chromium on Debian Bookworm
-# NOTE: libasound2 was renamed to libasound2t64 in Debian Bookworm
+# (libasound2 is the Bookworm name; it was renamed to libasound2t64 in
+# Debian Trixie / 13 — when bumping the base image past Bookworm, update.)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3.11 \
     python3.11-venv \
@@ -48,7 +49,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libgbm1 \
     libpango-1.0-0 \
     libcairo2 \
-    libasound2t64 \
+    libasound2 \
     libx11-6 \
     libx11-xcb1 \
     libxcb1 \
