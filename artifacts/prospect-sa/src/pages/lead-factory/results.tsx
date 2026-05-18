@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Download, ArrowLeft, Building2, Loader2, ExternalLink, Mail, Phone, Linkedin,
   Sparkles, Network, ArrowRight, FileSpreadsheet, FileText, FileBarChart, Code,
@@ -230,10 +230,12 @@ function RowDrawer({ row, mode, onClose }: { row: LeadResult | null; mode: "pers
 
 export default function LeadFactoryResultsPage() {
   const [, navigate] = useLocation();
+  const qc = useQueryClient();
   const [jobId, setJobId] = useState<string | null>(getJobIdFromUrl());
   const [selected, setSelected] = useState<LeadResult | null>(null);
   const [mode, setMode] = useState<"person" | "company">("company");
   const [tierFilter, setTierFilter] = useState<string>("all");
+  const [checked, setChecked] = useState<Set<number>>(new Set());
 
   const { data, isLoading } = useQuery<ResultsResponse>({
     queryKey: ["lead-factory", "results", jobId],
@@ -243,6 +245,23 @@ export default function LeadFactoryResultsPage() {
       return r.json();
     },
     enabled: !!jobId,
+  });
+
+  const bulkAction = useMutation({
+    mutationFn: async (action: "publish" | "reject") => {
+      const r = await fetch(`${BASE}/api/lead-factory/results/${jobId}/bulk-action`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action, rowIds: Array.from(checked), autoEnrichDownstream: action === "publish" }),
+      });
+      const data = await r.json();
+      if (!r.ok || !data?.ok) throw new Error(data?.error || `HTTP ${r.status}`);
+      return data as { ok: true; affected: number };
+    },
+    onSuccess: () => {
+      setChecked(new Set());
+      qc.invalidateQueries({ queryKey: ["lead-factory", "results", jobId] });
+    },
   });
 
   const rows = (data?.results || []).filter((r) => tierFilter === "all" || r.priorityTier === tierFilter);
@@ -287,13 +306,28 @@ export default function LeadFactoryResultsPage() {
         </div>
       </div>
 
-      {/* Export controls */}
+      {/* Export controls + bulk actions */}
       <div className="flex items-center gap-2 mb-4">
         <Button size="sm" variant="outline" onClick={() => download("csv")}     className="gap-1.5"><Download className="w-3 h-3" /> CSV</Button>
         <Button size="sm" variant="outline" onClick={() => download("xlsx")}    className="gap-1.5"><FileSpreadsheet className="w-3 h-3" /> XLSX</Button>
+        <Button size="sm" variant="outline" onClick={() => download("pdf")}     className="gap-1.5"><FileText className="w-3 h-3" /> PDF</Button>
         <Button size="sm" variant="outline" onClick={() => download("ppt")}     className="gap-1.5"><FileText className="w-3 h-3" /> PPT</Button>
         <Button size="sm" variant="outline" onClick={() => download("json")}    className="gap-1.5"><Code className="w-3 h-3" /> JSON</Button>
+        {checked.size > 0 && (
+          <div className="ml-auto flex items-center gap-2 px-3 py-1 rounded-md bg-primary/10 border border-primary/30">
+            <span className="text-xs font-semibold text-primary">{checked.size} selected</span>
+            <Button size="sm" onClick={() => bulkAction.mutate("publish")} disabled={bulkAction.isPending} className="h-7 px-2 text-[11px] gap-1.5">
+              {bulkAction.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <ArrowRight className="w-3 h-3" />}
+              Publish
+            </Button>
+            <Button size="sm" variant="destructive" onClick={() => bulkAction.mutate("reject")} disabled={bulkAction.isPending} className="h-7 px-2 text-[11px]">
+              Reject
+            </Button>
+            <Button size="sm" variant="ghost" onClick={() => setChecked(new Set())} className="h-7 px-2 text-[11px]">Clear</Button>
+          </div>
+        )}
       </div>
+      {bulkAction.error && <div className="mb-2 text-xs text-red-400">{(bulkAction.error as Error).message}</div>}
 
       {/* Empty/loading states */}
       {!jobId && (
@@ -310,6 +344,19 @@ export default function LeadFactoryResultsPage() {
             <table className="w-full text-xs">
               <thead className="bg-card/60 border-b border-border/40">
                 <tr>
+                  <th className="px-2 py-2">
+                    <input
+                      type="checkbox"
+                      checked={rows.length > 0 && rows.every((r) => checked.has(r.id))}
+                      onChange={(e) => {
+                        const next = new Set(checked);
+                        if (e.target.checked) rows.forEach((r) => next.add(r.id));
+                        else rows.forEach((r) => next.delete(r.id));
+                        setChecked(next);
+                      }}
+                      aria-label="Select all"
+                    />
+                  </th>
                   <th className="text-left px-3 py-2 font-semibold">Company</th>
                   <th className="text-left px-3 py-2 font-semibold">Domain</th>
                   <th className="text-left px-3 py-2 font-semibold">Contact</th>
@@ -324,9 +371,21 @@ export default function LeadFactoryResultsPage() {
                 {rows.map((r) => (
                   <tr
                     key={r.id}
-                    className={cn("border-b border-border/20 hover:bg-card/60 cursor-pointer", selected?.id === r.id && "bg-primary/5")}
+                    className={cn("border-b border-border/20 hover:bg-card/60 cursor-pointer", selected?.id === r.id && "bg-primary/5", checked.has(r.id) && "bg-primary/10")}
                     onClick={() => setSelected(r)}
                   >
+                    <td className="px-2 py-2" onClick={(e) => e.stopPropagation()}>
+                      <input
+                        type="checkbox"
+                        checked={checked.has(r.id)}
+                        onChange={(e) => {
+                          const next = new Set(checked);
+                          if (e.target.checked) next.add(r.id); else next.delete(r.id);
+                          setChecked(next);
+                        }}
+                        aria-label={`Select ${r.companyName}`}
+                      />
+                    </td>
                     <td className="px-3 py-2">
                       <div className="font-medium truncate max-w-[220px]">{r.companyName}</div>
                       {r.companyNameAr && <div className="text-[10px] text-muted-foreground truncate max-w-[220px]" dir="rtl">{r.companyNameAr}</div>}
