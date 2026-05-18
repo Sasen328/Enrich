@@ -43,6 +43,18 @@ docker compose up --build # first run (5–10 min)
 docker compose up -d      # daily
 ```
 
+### Live harvester modules (free, no key — already wired)
+
+These modules run automatically inside the listed engines on every relevant call:
+
+| Module | File | Used by | What it pulls |
+|---|---|---|---|
+| Free web search | `lib/free-search.ts` | Lead Factory (Agent 2 harvester fallback) | Tavily → SearXNG → Google HTML |
+| Google News RSS | `lib/google-news-scraper.ts` | Signals (`scanCompanySignals`) | news.google.com/rss/search |
+| Saudi RSS aggregator | `lib/saudi-news-rss.ts` | Signals (`scanCompanySignals`) | Maal, Mubasher, Al Eqtisadiah, Argaam (AR+EN), Arab News |
+| Sanctions screen | `lib/sanctions-screen.ts` | Signals (`scanCompanySignals`) | OFAC SDN, UN consolidated, EU consolidated (daily cache) |
+| Deep research | `orcengine/deep-research.ts` | OrcEngine route `POST /api/orcengine/deep-research` | Recursive search via free-search + Nexus |
+
 ### Smoke tests after first boot
 
 ```bash

@@ -18,6 +18,8 @@ import { db, companySignalsTable } from "@workspace/db";
 import { eq, desc, and, gte } from "drizzle-orm";
 import { nexusGenerate } from "./nexus/index.js";
 import { googleNewsForCompany } from "./google-news-scraper.js";
+import { fetchSaudiNewsForCompany } from "./saudi-news-rss.js";
+import { screenSanctions } from "./sanctions-screen.js";
 import {
   scoutSignalsNews,
   scoutSignalsSanctions,
@@ -151,18 +153,26 @@ export async function scanCompanySignals(opts: {
   } = opts;
 
   // ── Fetch all signals in parallel ─────────────────────────────────────────
-  const [newsResult, sanctionsResult, contractsResult, googleNewsResult] = await Promise.allSettled([
+  // Scout sidecar provides the rich/AI-classified streams; the local helpers
+  // (Google News, Saudi RSS, free sanctions APIs) keep the engine functional
+  // even when Scout is down or the consumer wants $0 sources only.
+  const [newsResult, sanctionsResult, contractsResult, googleNewsResult, saudiNewsResult, freeSanctionsResult] = await Promise.allSettled([
     scoutSignalsNews(companyName, companyNameAr, domain),
     scoutSignalsSanctions(companyName, companyNameAr ? [companyNameAr] : undefined),
     scoutSignalsContracts(companyName, companyNameAr),
-    // Free Google News RSS — adds outlets the Scout news endpoint may miss
     googleNewsForCompany(companyName, { limit: 15 }),
+    // Saudi Arabic newswires (Maal + Mubasher + Al Eqtisadiah + Argaam + ArabNews)
+    fetchSaudiNewsForCompany(companyName, companyNameAr, { limit: 25, windowDays: 90 }),
+    // Free consolidated sanctions screen (OFAC SDN + UN + EU)
+    screenSanctions(companyName, companyNameAr ? [companyNameAr] : []),
   ]);
 
   const news: NewsSignalResult | null = newsResult.status === "fulfilled" ? newsResult.value : null;
   const sanctions: SanctionsResult | null = sanctionsResult.status === "fulfilled" ? sanctionsResult.value : null;
   const contracts: ContractsResult | null = contractsResult.status === "fulfilled" ? contractsResult.value : null;
   const googleNewsHits = googleNewsResult.status === "fulfilled" ? googleNewsResult.value : [];
+  const saudiNewsHits = saudiNewsResult.status === "fulfilled" ? saudiNewsResult.value : [];
+  const freeSanctionsMatch = freeSanctionsResult.status === "fulfilled" ? freeSanctionsResult.value : null;
 
   // ── Merge all articles ─────────────────────────────────────────────────────
   const allArticles: Array<{
@@ -181,22 +191,39 @@ export async function scanCompanySignals(opts: {
   if (news?.articles) {
     allArticles.push(...news.articles);
   }
-  // Merge Google News RSS hits, de-duplicating by URL against the Scout result
-  if (googleNewsHits.length > 0) {
-    const seenUrls = new Set(allArticles.map((a) => a.url));
-    for (const hit of googleNewsHits) {
-      if (seenUrls.has(hit.url)) continue;
-      allArticles.push({
-        title: hit.title,
-        summary: hit.snippet || "",
-        url: hit.url,
-        source: hit.source || "Google News",
-        published: hit.publishedAt || null,
-        category: "neutral",
-        event_types: ["news"],
-      });
-      seenUrls.add(hit.url);
-    }
+  // Merge free RSS / news hits, de-duplicating by URL against the Scout result
+  const seenUrls = new Set(allArticles.map((a) => a.url));
+  const pushHit = (hit: { title: string; url: string; snippet?: string; source?: string; publishedAt?: string }) => {
+    if (!hit.url || seenUrls.has(hit.url)) return;
+    allArticles.push({
+      title: hit.title,
+      summary: hit.snippet || "",
+      url: hit.url,
+      source: hit.source || "Free RSS",
+      published: hit.publishedAt || null,
+      category: "neutral",
+      event_types: ["news"],
+    });
+    seenUrls.add(hit.url);
+  };
+  for (const h of googleNewsHits) pushHit(h);
+  for (const h of saudiNewsHits) pushHit(h);
+
+  // Free consolidated sanctions screen — surface as a hard negative if matched
+  if (freeSanctionsMatch?.matched && freeSanctionsMatch.score >= 0.85) {
+    allArticles.push({
+      title: `Sanctions match: ${freeSanctionsMatch.entry?.name} (${freeSanctionsMatch.source})`,
+      summary: `${companyName} matched ${freeSanctionsMatch.source} consolidated sanctions list with score ${freeSanctionsMatch.score.toFixed(2)}.`,
+      url: freeSanctionsMatch.source === "OFAC"
+        ? "https://sanctionssearch.ofac.treas.gov"
+        : freeSanctionsMatch.source === "UN"
+          ? "https://scsanctions.un.org"
+          : "https://data.europa.eu/data/datasets/consolidated-list-of-persons-groups-and-entities-subject-to-eu-financial-sanctions",
+      source: `${freeSanctionsMatch.source} consolidated list`,
+      published: new Date().toISOString(),
+      category: "negative",
+      event_types: ["sanctions"],
+    });
   }
   if (contracts?.contracts) {
     for (const c of contracts.contracts) {
