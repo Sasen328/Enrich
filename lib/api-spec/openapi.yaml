@@ -1,0 +1,1797 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: ProspectSA - Saudi B2B Intelligence Platform API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: companies
+    description: Company database operations
+  - name: prospecting
+    description: Smart Prospecting Engine
+  - name: builder
+    description: AI Database Builder
+  - name: leads
+    description: Lead management
+  - name: meshbase
+    description: MeshBase company & executive intelligence
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  # ── Companies ────────────────────────────────────────────────────────────────
+  /companies:
+    get:
+      operationId: listCompanies
+      tags: [companies]
+      summary: List all companies in the database
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: search
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: industry
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: city
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: minEmployees
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: maxEmployees
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: enrichmentStatus
+          in: query
+          schema:
+            type: ["string", "null"]
+            enum: ["enriched", "partial", "pending", null]
+        - name: companyType
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: revenueRange
+          in: query
+          schema:
+            type: ["string", "null"]
+      responses:
+        "200":
+          description: List of companies
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompanyListResponse"
+
+  /companies/{id}:
+    get:
+      operationId: getCompany
+      tags: [companies]
+      summary: Get a single company by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Company details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Company"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateCompany
+      tags: [companies]
+      summary: Update a company record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCompanyBody"
+      responses:
+        "200":
+          description: Updated company
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Company"
+    delete:
+      operationId: deleteCompany
+      tags: [companies]
+      summary: Delete a company
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /companies/{id}/enrich:
+    post:
+      operationId: enrichCompany
+      tags: [companies]
+      summary: Re-enrich a single company
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Enrichment triggered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /companies/bulk-delete:
+    post:
+      operationId: bulkDeleteCompanies
+      tags: [companies]
+      summary: Delete multiple companies
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BulkIdsBody"
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /companies/export:
+    get:
+      operationId: exportCompanies
+      tags: [companies]
+      summary: Export companies as CSV/JSON
+      parameters:
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [csv, json]
+            default: csv
+        - name: ids
+          in: query
+          schema:
+            type: ["string", "null"]
+            description: Comma-separated list of company IDs to export
+      responses:
+        "200":
+          description: Exported data
+          content:
+            text/csv:
+              schema:
+                type: string
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Company"
+
+  # ── Smart Prospecting Engine ──────────────────────────────────────────────────
+  /prospecting/scan:
+    post:
+      operationId: scanUrl
+      tags: [prospecting]
+      summary: Phase 1 - Scan a URL to identify type and companies
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ScanUrlBody"
+      responses:
+        "200":
+          description: Scan result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScanResult"
+
+  /prospecting/extract:
+    post:
+      operationId: extractCompanies
+      tags: [prospecting]
+      summary: Phase 2 - Extract structured company data from scanned URL
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExtractBody"
+      responses:
+        "200":
+          description: Extraction result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExtractionResult"
+
+  /prospecting/enrich:
+    post:
+      operationId: enrichProspects
+      tags: [prospecting]
+      summary: Phase 3 - AI-enrich extracted companies
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EnrichBody"
+      responses:
+        "200":
+          description: Enrichment started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EnrichmentJobResponse"
+
+  /prospecting/jobs/{jobId}:
+    get:
+      operationId: getProspectingJob
+      tags: [prospecting]
+      summary: Get status of a prospecting job
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Job status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProspectingJob"
+
+  /prospecting/sessions:
+    get:
+      operationId: listProspectingSessions
+      tags: [prospecting]
+      summary: List recent prospecting sessions
+      responses:
+        "200":
+          description: Session list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProspectingSession"
+
+  # ── AI Database Builder ───────────────────────────────────────────────────────
+  /builder/sources:
+    get:
+      operationId: listBuilderSources
+      tags: [builder]
+      summary: List all 14 pre-configured Saudi data sources
+      responses:
+        "200":
+          description: Data sources
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DataSource"
+
+  /builder/harvest:
+    post:
+      operationId: startHarvest
+      tags: [builder]
+      summary: Start a multi-agent harvest job from selected sources
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HarvestBody"
+      responses:
+        "200":
+          description: Harvest job started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HarvestJob"
+
+  /builder/jobs:
+    get:
+      operationId: listBuilderJobs
+      tags: [builder]
+      summary: List all builder harvest jobs
+      responses:
+        "200":
+          description: Job list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/HarvestJob"
+
+  /builder/jobs/{jobId}:
+    get:
+      operationId: getBuilderJob
+      tags: [builder]
+      summary: Get detailed status of a harvest job
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Job details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HarvestJob"
+
+  /builder/jobs/{jobId}/cancel:
+    post:
+      operationId: cancelBuilderJob
+      tags: [builder]
+      summary: Cancel a running harvest job
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Cancelled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /builder/results:
+    get:
+      operationId: listBuilderResults
+      tags: [builder]
+      summary: List all companies discovered by the builder
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: status
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: industry
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: revenueRange
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: companyType
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: jobId
+          in: query
+          schema:
+            type: ["string", "null"]
+      responses:
+        "200":
+          description: Builder company results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BuilderResultsResponse"
+
+  /builder/results/{id}/enrich:
+    post:
+      operationId: enrichBuilderCompany
+      tags: [builder]
+      summary: Re-enrich a specific builder company
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Enrichment triggered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /builder/bulk-enrich:
+    post:
+      operationId: bulkEnrichBuilderCompanies
+      tags: [builder]
+      summary: Re-enrich multiple builder companies
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BulkIdsBody"
+      responses:
+        "200":
+          description: Bulk enrichment started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /builder/clean-data:
+    post:
+      operationId: cleanBuilderData
+      tags: [builder]
+      summary: Validate and clean all builder company data (dedup + validation)
+      responses:
+        "200":
+          description: Clean result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CleanDataResult"
+
+  /builder/push-to-database:
+    post:
+      operationId: pushBuilderToDatabase
+      tags: [builder]
+      summary: Push enriched builder companies to main database
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BulkIdsBody"
+      responses:
+        "200":
+          description: Pushed to database
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  # ── Leads ─────────────────────────────────────────────────────────────────────
+  /leads:
+    get:
+      operationId: listLeads
+      tags: [leads]
+      summary: List all saved leads
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: companyId
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: search
+          in: query
+          schema:
+            type: ["string", "null"]
+      responses:
+        "200":
+          description: Lead list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeadListResponse"
+    post:
+      operationId: createLead
+      tags: [leads]
+      summary: Create a lead manually
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateLeadBody"
+      responses:
+        "201":
+          description: Created lead
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lead"
+
+  /leads/{id}:
+    patch:
+      operationId: updateLead
+      tags: [leads]
+      summary: Update a lead
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateLeadBody"
+      responses:
+        "200":
+          description: Updated lead
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lead"
+    delete:
+      operationId: deleteLead
+      tags: [leads]
+      summary: Delete a lead
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  # ── MeshBase Executives ───────────────────────────────────────────────────────
+  /executives:
+    get:
+      operationId: listExecutives
+      tags: [meshbase]
+      summary: List executives with search and pagination
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: search
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: companyId
+          in: query
+          schema:
+            type: ["integer", "null"]
+      responses:
+        "200":
+          description: Executive list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExecutiveListResponse"
+    post:
+      operationId: createExecutive
+      tags: [meshbase]
+      summary: Create an executive
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateExecutiveBody"
+      responses:
+        "201":
+          description: Created executive
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Executive"
+
+  /executives/{id}:
+    get:
+      operationId: getExecutive
+      tags: [meshbase]
+      summary: Get a single executive
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Executive details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Executive"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deleteExecutive
+      tags: [meshbase]
+      summary: Delete an executive
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /companies/{id}/executives:
+    get:
+      operationId: getCompanyExecutives
+      tags: [meshbase]
+      summary: Get executives for a company
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Company executives
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompanyExecutivesResponse"
+
+  /enrichment/stats:
+    get:
+      operationId: getEnrichmentStats
+      tags: [meshbase]
+      summary: Get enrichment statistics
+      responses:
+        "200":
+          description: Enrichment stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EnrichmentStats"
+
+  /enrichment/run:
+    post:
+      operationId: runBatchEnrichment
+      tags: [meshbase]
+      summary: Run batch enrichment via Apollo
+      responses:
+        "200":
+          description: Enrichment job started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EnrichmentJobStarted"
+
+  /enrichment/single/{companyId}:
+    post:
+      operationId: enrichSingleCompany
+      tags: [meshbase]
+      summary: Enrich a single company via Apollo
+      parameters:
+        - name: companyId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Enrichment started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /enrichment/add-team:
+    post:
+      operationId: addTeamMembers
+      tags: [meshbase]
+      summary: Find and add executives for companies with no team data
+      responses:
+        "200":
+          description: Team enrichment started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  # ── Analytics ─────────────────────────────────────────────────────────────────
+  /analytics/dashboard:
+    get:
+      operationId: getDashboardStats
+      tags: [companies]
+      summary: Get dashboard analytics stats
+      responses:
+        "200":
+          description: Dashboard stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+      required:
+        - success
+
+    BulkIdsBody:
+      type: object
+      properties:
+        ids:
+          type: array
+          items:
+            type: integer
+      required:
+        - ids
+
+    # ── Company ──────────────────────────────────────────────────────────────
+    Company:
+      type: object
+      properties:
+        id:
+          type: integer
+        nameAr:
+          type: ["string", "null"]
+        nameEn:
+          type: ["string", "null"]
+        industry:
+          type: ["string", "null"]
+        industryAr:
+          type: ["string", "null"]
+        city:
+          type: ["string", "null"]
+        region:
+          type: ["string", "null"]
+        country:
+          type: string
+          default: "Saudi Arabia"
+        website:
+          type: ["string", "null"]
+        phone:
+          type: ["string", "null"]
+        email:
+          type: ["string", "null"]
+        description:
+          type: ["string", "null"]
+        descriptionAr:
+          type: ["string", "null"]
+        employeeCount:
+          type: ["integer", "null"]
+        revenue:
+          type: ["string", "null"]
+        foundingYear:
+          type: ["integer", "null"]
+        crNumber:
+          type: ["string", "null"]
+        capitalAmount:
+          type: ["string", "null"]
+        entityType:
+          type: ["string", "null"]
+        companyType:
+          type: ["string", "null"]
+        ownerName:
+          type: ["string", "null"]
+        ownerNameAr:
+          type: ["string", "null"]
+        ownerTitle:
+          type: ["string", "null"]
+        ownerPhone:
+          type: ["string", "null"]
+        ownerEmail:
+          type: ["string", "null"]
+        ownerLinkedin:
+          type: ["string", "null"]
+        estimatedWealth:
+          type: ["string", "null"]
+        shareholders:
+          type: ["string", "null"]
+          description: JSON array of shareholders with ownership percentage
+        keyExecutives:
+          type: ["string", "null"]
+          description: JSON array of key executives
+        marketPositioning:
+          type: ["string", "null"]
+        recentNews:
+          type: ["string", "null"]
+          description: JSON array of recent news items
+        linkedinUrl:
+          type: ["string", "null"]
+        twitterUrl:
+          type: ["string", "null"]
+        enrichmentScore:
+          type: ["integer", "null"]
+          description: 0-100 enrichment completeness score
+        enrichmentStatus:
+          type: ["string", "null"]
+          enum: ["enriched", "partial", "pending", null]
+        dataSource:
+          type: ["string", "null"]
+        tags:
+          type: ["string", "null"]
+          description: Comma-separated tags
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - country
+        - createdAt
+        - updatedAt
+
+    CompanyListResponse:
+      type: object
+      properties:
+        companies:
+          type: array
+          items:
+            $ref: "#/components/schemas/Company"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+        totalPages:
+          type: integer
+      required:
+        - companies
+        - total
+        - page
+        - limit
+        - totalPages
+
+    UpdateCompanyBody:
+      type: object
+      properties:
+        nameAr:
+          type: ["string", "null"]
+        nameEn:
+          type: ["string", "null"]
+        industry:
+          type: ["string", "null"]
+        city:
+          type: ["string", "null"]
+        website:
+          type: ["string", "null"]
+        phone:
+          type: ["string", "null"]
+        email:
+          type: ["string", "null"]
+        description:
+          type: ["string", "null"]
+        employeeCount:
+          type: ["integer", "null"]
+        revenue:
+          type: ["string", "null"]
+        tags:
+          type: ["string", "null"]
+
+    # ── Prospecting ───────────────────────────────────────────────────────────
+    ScanUrlBody:
+      type: object
+      properties:
+        url:
+          type: string
+        maxPages:
+          type: integer
+          default: 10
+      required:
+        - url
+
+    ScanResult:
+      type: object
+      properties:
+        sessionId:
+          type: string
+        url:
+          type: string
+        websiteType:
+          type: string
+          description: e.g. directory, association, government, corporate, marketplace
+        detectedCategories:
+          type: array
+          items:
+            type: string
+        estimatedCompanyCount:
+          type: ["integer", "null"]
+        pagesFound:
+          type: integer
+        sampleCompanies:
+          type: array
+          items:
+            type: string
+        language:
+          type: string
+          enum: [ar, en, bilingual]
+        status:
+          type: string
+      required:
+        - sessionId
+        - url
+        - websiteType
+        - detectedCategories
+        - pagesFound
+        - sampleCompanies
+        - language
+        - status
+
+    ExtractBody:
+      type: object
+      properties:
+        sessionId:
+          type: string
+        maxPages:
+          type: integer
+          default: 50
+      required:
+        - sessionId
+
+    ExtractionResult:
+      type: object
+      properties:
+        sessionId:
+          type: string
+        companiesExtracted:
+          type: integer
+        rawCompanies:
+          type: array
+          items:
+            $ref: "#/components/schemas/RawCompany"
+        status:
+          type: string
+      required:
+        - sessionId
+        - companiesExtracted
+        - rawCompanies
+        - status
+
+    RawCompany:
+      type: object
+      properties:
+        id:
+          type: integer
+        nameAr:
+          type: ["string", "null"]
+        nameEn:
+          type: ["string", "null"]
+        website:
+          type: ["string", "null"]
+        phone:
+          type: ["string", "null"]
+        email:
+          type: ["string", "null"]
+        industry:
+          type: ["string", "null"]
+        city:
+          type: ["string", "null"]
+        description:
+          type: ["string", "null"]
+        sourceUrl:
+          type: ["string", "null"]
+      required:
+        - id
+
+    EnrichBody:
+      type: object
+      properties:
+        sessionId:
+          type: string
+        depth:
+          type: string
+          enum: [basic, standard, deep]
+          default: standard
+        companyIds:
+          type: array
+          items:
+            type: integer
+          description: Specific companies to enrich; if empty, enrich all from session
+      required:
+        - sessionId
+
+    EnrichmentJobResponse:
+      type: object
+      properties:
+        jobId:
+          type: string
+        sessionId:
+          type: string
+        status:
+          type: string
+        companiesQueued:
+          type: integer
+      required:
+        - jobId
+        - sessionId
+        - status
+        - companiesQueued
+
+    ProspectingJob:
+      type: object
+      properties:
+        jobId:
+          type: string
+        sessionId:
+          type: string
+        status:
+          type: string
+          enum: [pending, running, completed, failed, cancelled]
+        phase:
+          type: string
+          enum: [scan, extract, enrich]
+        progress:
+          type: integer
+        total:
+          type: integer
+        companiesProcessed:
+          type: integer
+        companiesEnriched:
+          type: integer
+        errorMessage:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - jobId
+        - status
+        - phase
+        - progress
+        - total
+        - companiesProcessed
+        - companiesEnriched
+        - createdAt
+        - updatedAt
+
+    ProspectingSession:
+      type: object
+      properties:
+        sessionId:
+          type: string
+        url:
+          type: string
+        websiteType:
+          type: ["string", "null"]
+        companiesFound:
+          type: integer
+        enrichmentStatus:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - sessionId
+        - url
+        - companiesFound
+        - createdAt
+
+    # ── Builder ───────────────────────────────────────────────────────────────
+    DataSource:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        nameAr:
+          type: ["string", "null"]
+        category:
+          type: string
+          enum: [government, directory, chamber, financial, wikidata]
+        url:
+          type: string
+        description:
+          type: ["string", "null"]
+        isEnabled:
+          type: boolean
+        estimatedCompanies:
+          type: ["integer", "null"]
+        lastHarvestedAt:
+          type: ["string", "null"]
+          format: date-time
+      required:
+        - id
+        - name
+        - category
+        - url
+        - isEnabled
+
+    HarvestBody:
+      type: object
+      properties:
+        sourceIds:
+          type: array
+          items:
+            type: string
+          description: Source IDs to harvest from; if empty, harvest from all enabled sources
+        batchSize:
+          type: integer
+          default: 5
+          description: Number of sources to process in parallel
+        enrichmentDepth:
+          type: string
+          enum: [basic, standard, deep]
+          default: standard
+      required: []
+
+    HarvestJob:
+      type: object
+      properties:
+        jobId:
+          type: string
+        status:
+          type: string
+          enum: [pending, harvesting, enriching, completed, failed, cancelled]
+        sourceIds:
+          type: array
+          items:
+            type: string
+        sourcesTotal:
+          type: integer
+        sourcesCompleted:
+          type: integer
+        companiesHarvested:
+          type: integer
+        companiesEnriched:
+          type: integer
+        companiesDuplicated:
+          type: integer
+        progress:
+          type: integer
+        agentStatuses:
+          type: array
+          items:
+            $ref: "#/components/schemas/AgentStatus"
+        errorMessage:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - jobId
+        - status
+        - sourceIds
+        - sourcesTotal
+        - sourcesCompleted
+        - companiesHarvested
+        - companiesEnriched
+        - companiesDuplicated
+        - progress
+        - agentStatuses
+        - createdAt
+        - updatedAt
+
+    AgentStatus:
+      type: object
+      properties:
+        agentId:
+          type: string
+        sourceId:
+          type: string
+        sourceName:
+          type: string
+        status:
+          type: string
+          enum: [idle, harvesting, enriching, completed, failed]
+        companiesFound:
+          type: integer
+        progress:
+          type: integer
+      required:
+        - agentId
+        - sourceId
+        - sourceName
+        - status
+        - companiesFound
+        - progress
+
+    BuilderCompany:
+      type: object
+      properties:
+        id:
+          type: integer
+        jobId:
+          type: string
+        sourceId:
+          type: string
+        sourceName:
+          type: ["string", "null"]
+        nameAr:
+          type: ["string", "null"]
+        nameEn:
+          type: ["string", "null"]
+        industry:
+          type: ["string", "null"]
+        industryAr:
+          type: ["string", "null"]
+        city:
+          type: ["string", "null"]
+        region:
+          type: ["string", "null"]
+        country:
+          type: string
+          default: "Saudi Arabia"
+        website:
+          type: ["string", "null"]
+        phone:
+          type: ["string", "null"]
+        email:
+          type: ["string", "null"]
+        description:
+          type: ["string", "null"]
+        descriptionAr:
+          type: ["string", "null"]
+        employeeCount:
+          type: ["integer", "null"]
+        revenue:
+          type: ["string", "null"]
+        foundingYear:
+          type: ["integer", "null"]
+        crNumber:
+          type: ["string", "null"]
+        capitalAmount:
+          type: ["string", "null"]
+        entityType:
+          type: ["string", "null"]
+        companyType:
+          type: ["string", "null"]
+        ownerName:
+          type: ["string", "null"]
+        ownerNameAr:
+          type: ["string", "null"]
+        ownerTitle:
+          type: ["string", "null"]
+        ownerPhone:
+          type: ["string", "null"]
+        ownerEmail:
+          type: ["string", "null"]
+        ownerLinkedin:
+          type: ["string", "null"]
+        estimatedWealth:
+          type: ["string", "null"]
+        shareholders:
+          type: ["string", "null"]
+        keyExecutives:
+          type: ["string", "null"]
+        marketPositioning:
+          type: ["string", "null"]
+        recentNews:
+          type: ["string", "null"]
+        linkedinUrl:
+          type: ["string", "null"]
+        enrichmentScore:
+          type: ["integer", "null"]
+        enrichmentStatus:
+          type: ["string", "null"]
+          enum: ["enriched", "partial", "pending", null]
+        isDuplicate:
+          type: boolean
+          default: false
+        isValidated:
+          type: boolean
+          default: false
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - jobId
+        - sourceId
+        - country
+        - isDuplicate
+        - isValidated
+        - createdAt
+        - updatedAt
+
+    BuilderResultsResponse:
+      type: object
+      properties:
+        companies:
+          type: array
+          items:
+            $ref: "#/components/schemas/BuilderCompany"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+        totalPages:
+          type: integer
+      required:
+        - companies
+        - total
+        - page
+        - limit
+        - totalPages
+
+    CleanDataResult:
+      type: object
+      properties:
+        duplicatesRemoved:
+          type: integer
+        invalidPhones:
+          type: integer
+        invalidEmails:
+          type: integer
+        invalidWebsites:
+          type: integer
+        totalProcessed:
+          type: integer
+        totalCleaned:
+          type: integer
+      required:
+        - duplicatesRemoved
+        - invalidPhones
+        - invalidEmails
+        - invalidWebsites
+        - totalProcessed
+        - totalCleaned
+
+    # ── Leads ─────────────────────────────────────────────────────────────────
+    Lead:
+      type: object
+      properties:
+        id:
+          type: integer
+        companyId:
+          type: ["integer", "null"]
+        firstName:
+          type: ["string", "null"]
+        lastName:
+          type: ["string", "null"]
+        firstNameAr:
+          type: ["string", "null"]
+        lastNameAr:
+          type: ["string", "null"]
+        title:
+          type: ["string", "null"]
+        titleAr:
+          type: ["string", "null"]
+        email:
+          type: ["string", "null"]
+        phone:
+          type: ["string", "null"]
+        linkedinUrl:
+          type: ["string", "null"]
+        twitterUrl:
+          type: ["string", "null"]
+        department:
+          type: ["string", "null"]
+        seniority:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [new, contacted, qualified, converted, disqualified]
+          default: new
+        company:
+          $ref: "#/components/schemas/Company"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - status
+        - createdAt
+        - updatedAt
+
+    LeadListResponse:
+      type: object
+      properties:
+        leads:
+          type: array
+          items:
+            $ref: "#/components/schemas/Lead"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+        totalPages:
+          type: integer
+      required:
+        - leads
+        - total
+        - page
+        - limit
+        - totalPages
+
+    CreateLeadBody:
+      type: object
+      properties:
+        companyId:
+          type: ["integer", "null"]
+        firstName:
+          type: ["string", "null"]
+        lastName:
+          type: ["string", "null"]
+        title:
+          type: ["string", "null"]
+        email:
+          type: ["string", "null"]
+        phone:
+          type: ["string", "null"]
+        linkedinUrl:
+          type: ["string", "null"]
+        department:
+          type: ["string", "null"]
+        seniority:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+
+    UpdateLeadBody:
+      type: object
+      properties:
+        firstName:
+          type: ["string", "null"]
+        lastName:
+          type: ["string", "null"]
+        title:
+          type: ["string", "null"]
+        email:
+          type: ["string", "null"]
+        phone:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+        status:
+          type: ["string", "null"]
+          enum: [new, contacted, qualified, converted, disqualified, null]
+
+    # ── Dashboard ─────────────────────────────────────────────────────────────
+    DashboardStats:
+      type: object
+      properties:
+        totalCompanies:
+          type: integer
+        enrichedCompanies:
+          type: integer
+        totalLeads:
+          type: integer
+        builderCompanies:
+          type: integer
+        activeJobs:
+          type: integer
+        industriesBreakdown:
+          type: array
+          items:
+            $ref: "#/components/schemas/IndustryCount"
+        citiesBreakdown:
+          type: array
+          items:
+            $ref: "#/components/schemas/CityCount"
+        recentActivity:
+          type: array
+          items:
+            $ref: "#/components/schemas/ActivityItem"
+      required:
+        - totalCompanies
+        - enrichedCompanies
+        - totalLeads
+        - builderCompanies
+        - activeJobs
+        - industriesBreakdown
+        - citiesBreakdown
+        - recentActivity
+
+    IndustryCount:
+      type: object
+      properties:
+        industry:
+          type: string
+        count:
+          type: integer
+      required:
+        - industry
+        - count
+
+    CityCount:
+      type: object
+      properties:
+        city:
+          type: string
+        count:
+          type: integer
+      required:
+        - city
+        - count
+
+    ActivityItem:
+      type: object
+      properties:
+        type:
+          type: string
+        description:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+      required:
+        - type
+        - description
+        - timestamp
+
+    # ── MeshBase ────────────────────────────────────────────────────────────────
+    Executive:
+      type: object
+      properties:
+        id:
+          type: integer
+        companyId:
+          type: ["integer", "null"]
+        companyName:
+          type: ["string", "null"]
+        name:
+          type: ["string", "null"]
+        nameAr:
+          type: ["string", "null"]
+        position:
+          type: ["string", "null"]
+        positionAr:
+          type: ["string", "null"]
+        email:
+          type: ["string", "null"]
+        phone:
+          type: ["string", "null"]
+        linkedinUrl:
+          type: ["string", "null"]
+        location:
+          type: ["string", "null"]
+        biography:
+          type: ["string", "null"]
+        education:
+          type: ["string", "null"]
+        salary:
+          type: ["string", "null"]
+        seniorityLevel:
+          type: ["string", "null"]
+        department:
+          type: ["string", "null"]
+        apolloId:
+          type: ["string", "null"]
+        enrichmentStatus:
+          type: ["string", "null"]
+        dataSource:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - createdAt
+        - updatedAt
+
+    ExecutiveListResponse:
+      type: object
+      properties:
+        executives:
+          type: array
+          items:
+            $ref: "#/components/schemas/Executive"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+        totalPages:
+          type: integer
+      required:
+        - executives
+        - total
+        - page
+        - limit
+        - totalPages
+
+    CompanyExecutivesResponse:
+      type: object
+      properties:
+        executives:
+          type: array
+          items:
+            $ref: "#/components/schemas/Executive"
+      required:
+        - executives
+
+    CreateExecutiveBody:
+      type: object
+      properties:
+        companyId:
+          type: ["integer", "null"]
+        companyName:
+          type: ["string", "null"]
+        name:
+          type: ["string", "null"]
+        position:
+          type: ["string", "null"]
+        email:
+          type: ["string", "null"]
+        phone:
+          type: ["string", "null"]
+        linkedinUrl:
+          type: ["string", "null"]
+        location:
+          type: ["string", "null"]
+        seniorityLevel:
+          type: ["string", "null"]
+        department:
+          type: ["string", "null"]
+
+    EnrichmentStats:
+      type: object
+      properties:
+        companies:
+          type: object
+          properties:
+            total:
+              type: integer
+            enriched:
+              type: integer
+            partial:
+              type: integer
+            unenriched:
+              type: integer
+          required:
+            - total
+            - enriched
+            - partial
+            - unenriched
+        executives:
+          type: object
+          properties:
+            total:
+              type: integer
+            enriched:
+              type: integer
+            unenriched:
+              type: integer
+          required:
+            - total
+            - enriched
+            - unenriched
+      required:
+        - companies
+        - executives
+
+    EnrichmentJobStarted:
+      type: object
+      properties:
+        success:
+          type: boolean
+        jobId:
+          type: string
+        message:
+          type: string
+      required:
+        - success
+        - jobId
+        - message

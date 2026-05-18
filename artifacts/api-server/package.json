@@ -1,0 +1,52 @@
+{
+  "name": "@workspace/api-server",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "NODE_ENV=development tsx ./src/index.ts",
+    "build": "tsx ./build.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.78.0",
+    "@google/genai": "^1.47.0",
+    "@types/pdf-parse": "^1.1.5",
+    "@types/turndown": "^5.0.6",
+    "@workspace/api-zod": "workspace:*",
+    "@workspace/db": "workspace:*",
+    "@workspace/integrations-openai-ai-server": "workspace:*",
+    "axios": "^1.13.6",
+    "cheerio": "^1.2.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2",
+    "docx": "^9.6.1",
+    "drizzle-orm": "catalog:",
+    "exceljs": "^4.4.0",
+    "express": "^5",
+    "node-html-parser": "^7.1.0",
+    "openai": "^6.29.0",
+    "pdf-parse": "^2.4.5",
+    "pdfkit": "^0.18.0",
+    "playwright": "^1.58.2",
+    "playwright-extra": "^4.3.6",
+    "playwright-extra-plugin-stealth": "^0.0.1",
+    "pptxgenjs": "^4.0.1",
+    "puppeteer": "^24.43.1",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
+    "turndown": "^7.2.2",
+    "uuid": "^13.0.0",
+    "xlsx": "^0.18.5",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.10",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "catalog:",
+    "@types/pdfkit": "^0.17.5",
+    "esbuild": "^0.27.3",
+    "tsx": "catalog:"
+  }
+}

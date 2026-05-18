@@ -1,0 +1,17 @@
+fastapi
+uvicorn[standard]
+httpx
+pydantic
+scrapy
+playwright
+beautifulsoup4
+lxml
+aiohttp
+python-multipart
+requests
+tldextract
+fake-useragent
+python-dotenv
+google-generativeai
+tenacity
+chardet

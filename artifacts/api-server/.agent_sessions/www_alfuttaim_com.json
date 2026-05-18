@@ -1,0 +1,35 @@
+{
+  "cookies": [
+    {
+      "name": "pll_language",
+      "value": "en",
+      "domain": "www.alfuttaim.com",
+      "path": "/",
+      "expires": 1806448832.461526,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "cookieyes-consent",
+      "value": "consentid:dlZhY0l3YWc4YXdzd1Q5T1dwNElpSjdWMEczUXEyd1c,consent:no,action:,necessary:yes,functional:no,analytics:no,performance:no,advertisement:no",
+      "domain": "www.alfuttaim.com",
+      "path": "/",
+      "expires": 1806448834,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "Strict"
+    }
+  ],
+  "origins": [
+    {
+      "origin": "https://www.alfuttaim.com",
+      "localStorage": [
+        {
+          "name": "elementor",
+          "value": "{\"__expiration\":{},\"pageViews\":1,\"sessions\":1}"
+        }
+      ]
+    }
+  ]
+}

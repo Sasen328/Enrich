@@ -1,0 +1,147 @@
+{
+  "cookies": [
+    {
+      "name": "_gcl_au",
+      "value": "1.1.1751671892.1774898895",
+      "domain": ".sabbar.com",
+      "path": "/",
+      "expires": 1782674895,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "_ga",
+      "value": "GA1.1.944508241.1774898895",
+      "domain": ".sabbar.com",
+      "path": "/",
+      "expires": 1809487697.554956,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "_fbp",
+      "value": "fb.1.1774898895732.14070874829182744",
+      "domain": ".sabbar.com",
+      "path": "/",
+      "expires": 1782703697,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "intercom-id-rhmrs5dr",
+      "value": "5b9c7c77-db16-4530-9ad8-16d063c5b06b",
+      "domain": ".sabbar.com",
+      "path": "/",
+      "expires": 1798257698,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "intercom-session-rhmrs5dr",
+      "value": "",
+      "domain": ".sabbar.com",
+      "path": "/",
+      "expires": 1775532498,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "intercom-device-id-rhmrs5dr",
+      "value": "3c07cd0e-7d9a-4872-8b02-d832362179f1",
+      "domain": ".sabbar.com",
+      "path": "/",
+      "expires": 1798257698,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "_hjSessionUser_2112832",
+      "value": "eyJpZCI6IjAzNjFiZTNmLTBjOTItNWFiOS1iODlkLTQyMTZjZjEzNjI2MyIsImNyZWF0ZWQiOjE3NzQ4OTg4OTU2OTEsImV4aXN0aW5nIjp0cnVlfQ==",
+      "domain": ".sabbar.com",
+      "path": "/",
+      "expires": 1806463697,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "IDE",
+      "value": "AHWqTUmkuOQIqBCyRBV7GExAv1YiJXEqnwoK0lt3Xp8k3P3FmT_a6umL6VTHkoa7",
+      "domain": ".doubleclick.net",
+      "path": "/",
+      "expires": 1809473617.822447,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "_ga_1LT1V98QVN",
+      "value": "GS2.1.s1774927697$o4$g0$t1774927697$j60$l0$h0",
+      "domain": ".sabbar.com",
+      "path": "/",
+      "expires": 1809487697.554277,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "_hjSession_2112832",
+      "value": "eyJpZCI6IjY4ZGQ0NjlhLTI3MzctNDhhZC1hYzczLTlhM2M1NmQ5NDlhNSIsImMiOjE3NzQ5Mjc2OTc3NTUsInMiOjAsInIiOjAsInNiIjowLCJzciI6MCwic2UiOjAsImZzIjowLCJzcCI6MH0=",
+      "domain": ".sabbar.com",
+      "path": "/",
+      "expires": 1774929497,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "utm_first_visit",
+      "value": "{\"utm_source\":null,\"utm_medium\":null,\"utm_campaign\":null,\"utm_content\":null,\"utm_term\":null,\"gclid\":null,\"created_at\":\"2026-03-31T03:28:18.013Z\",\"referrer\":\"\"}",
+      "domain": ".sabbar.com",
+      "path": "/",
+      "expires": 1775791698,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "utm_last_visit",
+      "value": "{\"utm_source\":null,\"utm_medium\":null,\"utm_campaign\":null,\"utm_content\":null,\"utm_term\":null,\"gclid\":null,\"created_at\":\"2026-03-31T03:28:18.013Z\",\"referrer\":\"\"}",
+      "domain": ".sabbar.com",
+      "path": "/",
+      "expires": 1775791698,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": [
+    {
+      "origin": "https://sabbar.com",
+      "localStorage": [
+        {
+          "name": "lastExternalReferrer",
+          "value": "empty"
+        },
+        {
+          "name": "lastExternalReferrerTime",
+          "value": "1774927697764"
+        },
+        {
+          "name": "_gcl_ls",
+          "value": "{\"schema\":\"gcl\",\"version\":1,\"gcl_ctr\":{\"value\":{\"value\":0,\"timeouts\":0,\"errors\":0,\"creationTimeMs\":1774898895417},\"expires\":1782674895417}}"
+        },
+        {
+          "name": "intercom.intercom-state-rhmrs5dr",
+          "value": "{\"app\":{\"openConfig\":{\"unifiedStyling\":true,\"openTo\":\"home\",\"spaces\":[{\"type\":\"home\",\"label\":\"الصفحة الرئيسية\",\"navigationLabel\":\"الصفحة الرئيسية\",\"badge\":null},{\"type\":\"messages\",\"label\":\"الرسائل\",\"navigationLabel\":\"الرسائل\",\"badge\":null}],\"userHasReceivedChecklists\":false,\"userHasLiveNewsfeed\":false,\"userHasTickets\":false},\"selfServeSuggestionsMatch\":false,\"name\":\"صبّار للتوظيف 🌵\",\"features\":{\"anonymousInboundMessages\":true,\"googleAnalytics\":true,\"hubspotInstalled\":false,\"inboundMessages\":true,\"marketoEnrichmentInstalled\":false,\"googleAnalytics4Integration\":true},\"helpCenterSiteUrl\":\"https://intercom.help/sabbar-280665753720\",\"inboundConversationsDisabled\":false,\"isDeveloperWorkspace\":false,\"customGoogleAnalyticsTrackerId\":null},\"launcher\":{\"isLauncherEnabled\":false},\"launcherDiscoveryMode\":{\"hasDiscoveredLauncher\":false},\"launcherSettings\":{\"alignment\":\"right\",\"color\":\"#FA4F0D\",\"colorDark\":\"#FA4F0D\",\"hasRequiredFeatures\":true,\"horizontalPadding\":20,\"instantBootEnabled\":false,\"launcherLogoUrl\":null,\"launcherLogoDarkUrl\":null,\"secondaryColor\":\"#FA4F0D\",\"secondaryColorDark\":\"#FA4F0D\",\"showLauncher\":false,\"themeMode\":\"light\",\"updatedAt\":1774912597,\"verticalPadding\":20,\"isLoading\":false},\"user\":{\"role\":\"visitor\",\"locale\":\"ar\",\"hasConversations\":false},\"message\":{},\"conversations\":{\"byId\":{}},\"openOnBoot\":{\"type\":null,\"metadata\":{},\"lastOpenAtTimestamp\":1774927698905},\"operator\":{\"lastComposerEvent\":0},\"router\":{\"isInitialized\":false,\"navigationQueue\":[]}}"
+        }
+      ]
+    }
+  ]
+}

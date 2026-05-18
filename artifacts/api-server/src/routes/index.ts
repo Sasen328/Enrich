@@ -1,0 +1,40 @@
+import { Router, type IRouter } from "express";
+import healthRouter from "./health";
+import companiesRouter from "./companies";
+import leadsRouter from "./leads";
+import leadListsRouter from "./lead-lists";
+import builderRouter from "./builder";
+import meshbaseRouter from "./meshbase";
+import masaarRouter from "./masaar";
+import masarDatabaseRouter from "./masar-database";
+import saMarketRouter from "./sa-market";
+import personIntelRouter from "./person-intel";
+import companyIntelRouter from "./company-intel";
+import prosEngineChatRouter from "./prosengine-chat";
+import orcengineRouter from "./orcengine";
+import nexusRouter from "./nexus";
+import scoutRouter from "./scout";
+import signalsRouter from "./signals";
+import leadFactoryRouter from "./lead-factory.js";
+
+const router: IRouter = Router();
+
+router.use(healthRouter);
+router.use(companiesRouter);
+router.use(leadsRouter);
+router.use(leadListsRouter);
+router.use(builderRouter);
+router.use(meshbaseRouter);
+router.use(masaarRouter);
+router.use(masarDatabaseRouter);
+router.use(saMarketRouter);
+router.use(personIntelRouter);
+router.use(companyIntelRouter);
+router.use(prosEngineChatRouter);
+router.use(orcengineRouter);
+router.use(nexusRouter);
+router.use(scoutRouter);
+router.use(signalsRouter);
+router.use(leadFactoryRouter);
+
+export default router;

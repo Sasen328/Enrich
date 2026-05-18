@@ -1,0 +1,196 @@
+{
+  "cookies": [
+    {
+      "name": "X-AB",
+      "value": "dcfc88f2df9f4978b7d500b372f571bd",
+      "domain": "sc-static.net",
+      "path": "/scevent.min.js",
+      "expires": 1774909986.06892,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "_gcl_au",
+      "value": "1.1.916710919.1774823586",
+      "domain": ".tfoco.com",
+      "path": "/",
+      "expires": 1782599586,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "_gid",
+      "value": "GA1.2.1906833469.1774823586",
+      "domain": ".tfoco.com",
+      "path": "/",
+      "expires": 1774910999,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "_scid",
+      "value": "3Rkxu9mkHwQWEQSQvEMMweEu_TARnBwe",
+      "domain": ".tfoco.com",
+      "path": "/",
+      "expires": 1809037986,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "_hjSessionUser_1627382",
+      "value": "eyJpZCI6IjI2NmIwN2YyLTgxNzEtNTFhZi05ZDNjLTJmYmY1YzBjNDk0YSIsImNyZWF0ZWQiOjE3NzQ4MjM1ODY1MzEsImV4aXN0aW5nIjp0cnVlfQ==",
+      "domain": ".tfoco.com",
+      "path": "/",
+      "expires": 1806360599,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "_hjSession_1627382",
+      "value": "eyJpZCI6IjJiMDc2NjcxLWU4NDQtNDU3Ni04MzNjLTMwZDBkMmI3MWFkMSIsImMiOjE3NzQ4MjM1ODY1MzMsInMiOjEsInIiOjEsInNiIjowLCJzciI6MCwic2UiOjAsImZzIjoxLCJzcCI6MH0=",
+      "domain": ".tfoco.com",
+      "path": "/",
+      "expires": 1774825386,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "_ScCbts",
+      "value": "%5B%5D",
+      "domain": ".tfoco.com",
+      "path": "/",
+      "expires": 1775428386,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "_gat_UA-161729414-1",
+      "value": "1",
+      "domain": ".tfoco.com",
+      "path": "/",
+      "expires": 1774824659,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "_ga",
+      "value": "GA1.1.128208774.1774823586",
+      "domain": ".tfoco.com",
+      "path": "/",
+      "expires": 1809384599.491805,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "_ga_GHZ9W1443Z",
+      "value": "GS2.1.s1774823586$o1$g1$t1774824599$j60$l0$h0",
+      "domain": ".tfoco.com",
+      "path": "/",
+      "expires": 1809384599.42544,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "_ga_9Y0W9ENK9F",
+      "value": "GS2.1.s1774823586$o1$g1$t1774824599$j60$l0$h0",
+      "domain": ".tfoco.com",
+      "path": "/",
+      "expires": 1809384599.491458,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "_scid_r",
+      "value": "1pkxu9mkHwQWEQSQvEMMweEu_TARnBwedzsZAA",
+      "domain": ".tfoco.com",
+      "path": "/",
+      "expires": 1809038999,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "_sc_cspv",
+      "value": "https%3A%2F%2Ftr.snapchat.com%2F",
+      "domain": ".tfoco.com",
+      "path": "/",
+      "expires": 1809038999,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "ph_phc_D3Wr2gXPEbMlJEv14QUP7yqd3zVxSIle01y2lEr2o16_posthog",
+      "value": "%7B%22%24device_id%22%3A%22019d3bba-b74e-719b-adea-aae48392a5a8%22%2C%22distinct_id%22%3A%22019d3bba-b74e-719b-adea-aae48392a5a8%22%2C%22%24sesid%22%3A%5B1774824604114%2C%22019d3bba-b90e-7827-99ca-b94cb6d94f9a%22%2C1774823586062%5D%2C%22%24initial_person_info%22%3A%7B%22r%22%3A%22%24direct%22%2C%22u%22%3A%22https%3A%2F%2Ftfoco.com%2Far%2F%22%7D%7D",
+      "domain": ".tfoco.com",
+      "path": "/",
+      "expires": 1806360604,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": [
+    {
+      "origin": "https://tfoco.com",
+      "localStorage": [
+        {
+          "name": "u_sclid_r",
+          "value": "B5BKU_DrvyMZGYROwcPs5QEkBtg407w9jLv5JNaZMbvZpB8EFhEEkLxDDMHhLv0wEZwcHnc7GQA"
+        },
+        {
+          "name": "u_sclid",
+          "value": "DhBKU_DrvyMZGYROwcPs5QEkBtg407w93Rkxu9mkHwQWEQSQvEMMweEu_TARnBwe"
+        },
+        {
+          "name": "hjActiveViewportIds",
+          "value": "[{\"id\":\"a9d98cdb-9390-4b19-8af7-5d8f2af6988d\",\"expireTimestamp\":1774845187007},{\"id\":\"b342c642-66d2-4b3f-b3a0-399af027b2d4\",\"expireTimestamp\":1774846199917}]"
+        },
+        {
+          "name": "ucData",
+          "value": "{\"gcm\":{\"adsDataRedaction\":true,\"adStorage\":\"denied\",\"adPersonalization\":\"denied\",\"adUserData\":\"denied\",\"analyticsStorage\":\"denied\"},\"consent\":{\"services\":{\"HkIVcNiuoZX\":{\"name\":\"Cloudflare\",\"consent\":true},\"HkPBYFofN\":{\"name\":\"Google Fonts\",\"consent\":true},\"BkW7DxlpN\":{\"name\":\"Storyblok\",\"consent\":true},\"H1Vl5NidjWX\":{\"name\":\"Usercentrics Consent Management Platform\",\"consent\":true},\"LykAT-gy\":{\"name\":\"Conversion Linker\",\"consent\":false},\"9V8bg4D63\":{\"name\":\"DoubleClick Ad\",\"consent\":false},\"ko1w5PpFl\":{\"name\":\"Facebook Pixel\",\"consent\":false},\"XYQZBUojc\":{\"name\":\"Facebook Social Plugins\",\"consent\":false},\"HkocEodjb7\":{\"name\":\"Google Analytics\",\"consent\":false},\"BJ59EidsWQ\":{\"name\":\"Google Tag Manager\",\"consent\":false},\"S1kgcNo_j-m\":{\"name\":\"Hotjar\",\"consent\":false},\"ry0QcNodoWQ\":{\"name\":\"HubSpot\",\"consent\":false},\"JQ2XQxIk\":{\"name\":\"LinkedIn Insight Tag\",\"consent\":false},\"Hkx754i_iWm\":{\"name\":\"LinkedIn Plugin\",\"consent\":false},\"PrLTkYnq\":{\"name\":\"Microsoft Azure\",\"consent\":false},\"QcD9GVNXZ\":{\"name\":\"Snapchat\",\"consent\":false},\"Z0TcXjY0P\":{\"name\":\"TikTok\",\"consent\":false},\"Skj79NodobQ\":{\"name\":\"Twitter Advertising\",\"consent\":false},\"S1hmcVouiZm\":{\"name\":\"Twitter Analytics\",\"consent\":false}}},\"ui\":{\"language\":\"ar\"}}"
+        },
+        {
+          "name": "_gcl_ls",
+          "value": "{\"schema\":\"gcl\",\"version\":1,\"gcl_ctr\":{\"value\":{\"value\":0,\"timeouts\":0,\"errors\":0,\"creationTimeMs\":1774823585959},\"expires\":1782599585959}}"
+        },
+        {
+          "name": "ph_phc_D3Wr2gXPEbMlJEv14QUP7yqd3zVxSIle01y2lEr2o16_posthog",
+          "value": "{\"$device_id\":\"019d3bba-b74e-719b-adea-aae48392a5a8\",\"distinct_id\":\"019d3bba-b74e-719b-adea-aae48392a5a8\",\"$sesid\":[1774824604114,\"019d3bba-b90e-7827-99ca-b94cb6d94f9a\",1774823586062],\"$initial_person_info\":{\"r\":\"$direct\",\"u\":\"https://tfoco.com/ar/\"},\"$initialization_time\":\"2026-03-29T22:49:58.835Z\",\"$configured_session_timeout_ms\":1800000,\"$user_state\":\"anonymous\",\"$session_recording_remote_config\":{\"enabled\":true,\"canvasFps\":null,\"canvasQuality\":null,\"consoleLogRecordingEnabled\":true,\"endpoint\":\"/s/\",\"eventTriggers\":[],\"linkedFlag\":null,\"masking\":null,\"minimumDurationMilliseconds\":null,\"networkPayloadCapture\":{\"capturePerformance\":{\"network_timing\":true,\"web_vitals\":true,\"web_vitals_allowed_metrics\":null}},\"recordCanvas\":false,\"recorderVersion\":\"v2\",\"sampleRate\":null,\"scriptConfig\":{\"script\":\"posthog-recorder\"},\"triggerMatchType\":null,\"urlBlocklist\":[],\"urlTriggers\":[],\"version\":1,\"canvasRecording\":{\"enabled\":false,\"fps\":null,\"quality\":null}},\"$autocapture_disabled_server_side\":false,\"$heatmaps_enabled_server_side\":true,\"$product_tours_enabled_server_side\":false,\"$web_vitals_enabled_server_side\":true,\"$web_vitals_allowed_metrics\":null,\"$exception_capture_enabled_server_side\":false,\"$error_tracking_suppression_rules\":[],\"$dead_clicks_enabled_server_side\":false,\"$active_feature_flags\":[],\"$enabled_feature_flags\":{},\"$feature_flag_payloads\":{},\"$feature_flag_details\":{},\"$feature_flag_request_id\":\"b2bad5c2-575a-49bc-ac78-73302e3dc182\",\"$feature_flag_evaluated_at\":1774824599044,\"$client_session_props\":{\"sessionId\":\"019d3bba-b90e-7827-99ca-b94cb6d94f9a\",\"props\":{\"r\":\"$direct\",\"u\":\"https://tfoco.com/ar/\"}},\"$sess_rec_flush_size\":742234,\"$capture_rate_limit\":{\"tokens\":99,\"last\":1774824604113},\"$debug_first_full_snapshot_timestamp\":1774824599054}"
+        },
+        {
+          "name": "ucString",
+          "value": "N4IgbgpgTgzglgewHYgFwEYA0ICucBq08yaIAzAHToAMAnBdSNgMbIAuUCANl9AJIATUmQBsEdAFYALAA4A7DPQiJEuSICGUgExyAZpoHqtAshABGImWcMRqZ6hK3VdCqRFoW5EmRNrUIAlroZsy6EiJMIFzqSADmOOqxEKTqUJEwEGxscHFooHBCqCBsAMIAqsw4cggAngBCABIAVgi0AFqRkLCIKEWUWhQyWpFsNQAOyUUA4gAiAAoASiAAvtg4Y4ZsAQCCbGjocnKyWmTeUlLUMmsb6lsCdTWkyHxIcNnqXHOJEAAyCOpCFhQCC3HZ7DCHY6nGTnS7YYEARzwwMKHBwEGwMDYtxwMFI2x+PwA+jMAKIAOT4pJmI3GkxAfAAsnMfnwSnwACqRAAW6hg3NIZgkJmYl2Y6FOtECEAgvgEYXQtBkZHQINoqtOXmF1AE/ikpzMOl08nsZlozHUlzI6hcMlo6WgYDgzAggjxqAA2gBdbCxMbMADKcFiSA+aH0XAy2ByWyg6mY2RIRVx0BWQA==="
+        },
+        {
+          "name": "uc:analytics:firedEvents:tCUcu7oyBHjo9Z",
+          "value": "[\"CMP_ELIGIBLE\",\"CMP_SHOWN\"]"
+        }
+      ]
+    },
+    {
+      "origin": "https://cdn.openwidget.com",
+      "localStorage": [
+        {
+          "name": "68dcd97a-09b2-4ee6-ab7a-af4ce43e61b9:state",
+          "value": "{\"messageDraft\":{\"value\":null,\"expires\":1774826399701},\"clientLimitExceededLifted\":{\"value\":false,\"expires\":1774826399701},\"eyeCatcherHidden\":{\"value\":false,\"expires\":1774826399701},\"invitationHiddenIds\":{\"value\":[],\"expires\":1774826399701},\"invitationDisplayedIds\":{\"value\":[],\"expires\":1774826399701},\"maximized\":{\"value\":false,\"expires\":1774826399701},\"visibility\":{\"value\":{\"state\":\"minimized\"},\"expires\":1774826399701},\"muted\":{\"value\":false,\"expires\":1774826399701},\"limitReached\":{\"value\":false,\"expires\":1774826399701},\"greetingsMuted\":{\"value\":false,\"expires\":1774826399701},\"wasActivated\":{\"value\":false,\"expires\":1774826399701},\"currentView\":{\"value\":\"Homescreen\",\"expires\":1774826399701},\"locationHistory\":{\"value\":{\"history\":[],\"updatedAt\":1774823586393},\"expires\":1774826399701},\"recommendations\":{\"value\":{\"id\":\"\",\"products\":[],\"hiddenIds\":[]},\"expires\":1774826399701},\"pendingOpenAIRunId\":{\"value\":null,\"expires\":1774826399701},\"contactInvitation\":{\"value\":{\"hidden\":false,\"hasSeen\":false},\"expires\":1774826399701},\"chatBotGreeting\":{\"value\":{\"hidden\":false,\"hasSeen\":false},\"expires\":1774826399701},\"postponedGreeting\":{\"value\":null,\"expires\":1774826399701},\"pipConsent\":{\"value\":null,\"expires\":1774826399701},\"minimizedMessageInput\":{\"value\":false,\"expires\":1774826399701},\"welcomeMessageId\":{\"value\":null,\"expires\":1774826399701},\"isLargeWidget\":{\"value\":false,\"expires\":1774826399701}}"
+        },
+        {
+          "name": "_livechat_has_visited",
+          "value": "true"
+        }
+      ]
+    }
+  ]
+}

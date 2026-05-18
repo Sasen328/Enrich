@@ -1,0 +1,99 @@
+{
+  "cookies": [
+    {
+      "name": "_ss",
+      "value": "eja4fs0cquplei3ce2jzbtfs",
+      "domain": "mc.gov.sa",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "ABC",
+      "value": "!NZC/AqJOwP9L2CmCftY2x8bsK8OKutvZC9Xt+kt1G2pWSyCZWMt3MXnp/joamWVaZp7h4HFFTNdMmn4=",
+      "domain": "mc.gov.sa",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "TS01da5094",
+      "value": "018aaa1e6ca2b52bbea39d95cdbb0b4aa0f70f5eff9558ad52a7fbe47efaa5b440f2684b30bbabf03c7408df9b599096a79f560a923a3d37efb20b94401e8215cfd164509be48f0cb20d2f9f2d898cdd643db8da3d",
+      "domain": ".mc.gov.sa",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "_gid",
+      "value": "GA1.3.474400817.1778630272",
+      "domain": ".mc.gov.sa",
+      "path": "/",
+      "expires": 1778716684,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "emqtt-live-chatCORS",
+      "value": "7da459f06f54e24d97a2f8157b91b6a5",
+      "domain": "prod2-live-chat-mqtt.sprinklr.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "WSS_FullScreenMode",
+      "value": "false",
+      "domain": "mc.gov.sa",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "_ga_4YR34K1HVZ",
+      "value": "GS2.1.s1778630271$o1$g1$t1778630284$j47$l0$h0",
+      "domain": ".mc.gov.sa",
+      "path": "/",
+      "expires": 1813190284.831022,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "_ga",
+      "value": "GA1.1.690843520.1778630272",
+      "domain": ".mc.gov.sa",
+      "path": "/",
+      "expires": 1813190284.831551,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": [
+    {
+      "origin": "https://mc.gov.sa",
+      "localStorage": [
+        {
+          "name": "spr-chat-token-6163e3a5f66b903b0180785d_app_100323869",
+          "value": "\"eyJhbGciOiJSUzI1NiJ9.eyJ2aXNpdFNlc3Npb25JZCI6IjZhMDNiZTgwODU5MDA2MThiMzU2OTgxZiIsInN1YiI6IkFjY2VzcyBUb2tlbiBHZW5lcmF0ZWQgQnkgU3ByaW5rbHIiLCJjaGF0TG9jYWxlIjoiYXIiLCJjaGF0VXNlckhhc0NvbnZlcnNhdGlvblN0YXJ0ZWQiOmZhbHNlLCJpc3MiOiJTUFJJTktMUiIsInZpc2l0U2Vzc2lvbklkRXhwaXJlQXQiOjE3Nzg2NzM0ODU4NjIsInR5cCI6IkpXVCIsImlzRGVmbGVjdGlvblRva2VuIjpmYWxzZSwidXNlclNlc3Npb25Mb2dpbk1ldGhvZCI6IntcInR5cGVcIjpcIkFOT05ZTU9VU1wifSIsImNoYXRVc2VySWQiOiJBXzZhMDNiZTgwODU5MDA2MThiMzU2OTgxZSIsImFwcElkIjoiYXBwXzEwMDMyMzg2OSIsInNjb3BlIjpbIlJFQUQiLCJXUklURSJdLCJjaGF0VXNlclByb2ZpbGVDcmVhdGlvblNraXBwZWQiOnRydWUsImV4cCI6MTc3ODY3MzQ4NSwiYXV0aFR5cGUiOiJTUFJfS0VZX1BBU1NfTE9HSU4iLCJpYXQiOjE3Nzg2MzAyODUsImp0aSI6ImM3ZjE2ODAxLTI0YzQtNDc2Yy1iZWZkLTdiYWE5NWQ2YWI1ZSIsImFub255bW91c0lkIjoiQV82YTAzYmU4MDg1OTAwNjE4YjM1Njk4MWUiLCJjbGllbnRJZCI6Mjg2Miwic3RyaWN0VXNlckF1dGhlbnRpY2F0aW9uIjpmYWxzZSwidXNlcklkIjowLCJhdWQiOiJTUFJJTktMUiIsIm5iZiI6MTc3ODYyOTA4NSwidmlzaXRTZXNzaW9uU3RhcnRUaW1lIjoxNzc4NjMwMjcyNzY2LCJtcXR0QWNsIjoie1wicFwiOltcInB1Ymxpc2gvQV82YTAzYmU4MDg1OTAwNjE4YjM1Njk4MWUvcHRyLTUwNzM5LXRvcGljXCJdLFwic1wiOltcImluYm94L0FfNmEwM2JlODA4NTkwMDYxOGIzNTY5ODFlXCIsXCJhcHBfMTAwMzIzODY5X2luYm94L0FfNmEwM2JlODA4NTkwMDYxOGIzNTY5ODFlXCJdfSIsImNoYXRVc2VyVHlwZSI6IkFOT05ZTU9VUyIsInBhcnRuZXJJZCI6NTA3MzksInRva2VuVHlwZSI6IkFDQ0VTUyJ9.NClUAt5k6H-_mzmSyLlZErq28byFSHUEX2GjJbzYM1YyI6-UK9g3KoTVAXbbNWZyRPnksT1icckNrXI2D_i1FktAuCxlgx34jUZBI5QGMW8wQnO2uC_sJ4_Jl8PIeZ3bcq3QtQnDshzkaPpZQGFoEsWtcWLq-npA74CBm0KrZ1GOOh_-mDIBhs_fdPRTiyscRCZ0jfeJukg7KTJCCOvDhD4FZNF4dpeSBeaKYqtFg4_T0yppibsubCLiqm9ZHtKPojaXOyrcx31FRX2RvHGBEXVI8DXtbHVhypf1nbtUGt0o1R_TGajuUGm3UHN0YZUBY7FQW2Me5fvRRuggI3DPcA\""
+        },
+        {
+          "name": "SPAnimationEnabled",
+          "value": "1"
+        }
+      ]
+    }
+  ]
+}

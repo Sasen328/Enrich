@@ -1,0 +1,136 @@
+# ============================================================
+#  ProspectSA — Docker Compose
+#  Services:
+#    db       — PostgreSQL 16
+#    app      — Full ProspectSA stack (Node + Python Scout)
+#
+#  Usage:
+#    docker compose up --build        # First run (builds image)
+#    docker compose up                # Subsequent runs
+#    docker compose down              # Stop
+#    docker compose down -v           # Stop + wipe database
+# ============================================================
+
+version: "3.9"
+
+services:
+
+  # ── PostgreSQL 16 ────────────────────────────────────────────────────────────
+  db:
+    image: postgres:16-bookworm
+    container_name: prospectsa_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: prospectsa
+      POSTGRES_USER: prospectsa
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-prospectsa_secret}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U prospectsa -d prospectsa"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - prospectsa_net
+
+  # ── ProspectSA App (Node API + Python Scout) ──────────────────────────────
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: prospectsa_app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "3000:3000"    # Main app — open this in browser
+      - "8099:8099"    # Python Scout (internal, exposed for debugging)
+    environment:
+      # ── Runtime ──────────────────────────────────────────────────────────
+      NODE_ENV: production
+      PORT: 3000
+
+      # ── Database (auto-wired to the db service above) ─────────────────
+      DATABASE_URL: postgresql://prospectsa:${POSTGRES_PASSWORD:-prospectsa_secret}@db:5432/prospectsa
+
+      # ── Security (set API_TOKEN to require Bearer auth) ───────────────
+      # API_TOKEN: your_secret_token_here
+      # FRONTEND_ORIGIN: http://localhost:3000
+
+      # ── AI Providers (at least one required for core features) ────────
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      PERPLEXITY_API_KEY: ${PERPLEXITY_API_KEY:-}
+      HUGGING_FACE_API_KEY: ${HUGGING_FACE_API_KEY:-}
+
+      # ── Contact Data APIs (optional) ──────────────────────────────────
+      APOLLO_API_KEY: ${APOLLO_API_KEY:-}
+      APOLLO_CLIENT_SECRET: ${APOLLO_CLIENT_SECRET:-}
+      APOLLO_ACCESS_TOKEN: ${APOLLO_ACCESS_TOKEN:-}
+      EXPLORER_API_KEY: ${EXPLORIUM_API_KEY:-}
+
+      # ── Scout microservice (internal — do not change) ─────────────────
+      SCOUT_URL: http://localhost:8099
+
+      # ── Proxies (optional — all features work without proxies) ────────
+      NEXUS_PROXY_ENABLED: "false"
+      WEBSHARE_PROXY_LIST: ${WEBSHARE_PROXY_LIST:-}
+      IPROYAL_USER: ${IPROYAL_USER:-}
+      IPROYAL_PASS: ${IPROYAL_PASS:-}
+      LUNAPROXY_USER: ${LUNAPROXY_USER:-}
+      LUNAPROXY_PASS: ${LUNAPROXY_PASS:-}
+      SIMPLYNODE_USER: ${SIMPLYNODE_USER:-}
+      SIMPLYNODE_PASS: ${SIMPLYNODE_PASS:-}
+
+      # ── CAPTCHA solvers (optional) ────────────────────────────────────
+      NEXUS_CAPTCHA_ENABLED: "false"
+      NOPECHA_API_KEY: ${NOPECHA_API_KEY:-}
+      AZCAPTCHA_API_KEY: ${AZCAPTCHA_API_KEY:-}
+      CAPMONSTER_API_KEY: ${CAPMONSTER_API_KEY:-}
+      DEATHBYCAPTCHA_USER: ${DEATHBYCAPTCHA_USER:-}
+      DEATHBYCAPTCHA_PASS: ${DEATHBYCAPTCHA_PASS:-}
+
+      # ── Activepieces (optional webhook automation) ─────────────────────
+      ACTIVEPIECES_URL: ${ACTIVEPIECES_URL:-}
+      ACTIVEPIECES_API_KEY: ${ACTIVEPIECES_API_KEY:-}
+      ACTIVEPIECES_FLOW_BUILDER: ${ACTIVEPIECES_FLOW_BUILDER:-}
+      ACTIVEPIECES_FLOW_LEAD_FACTORY: ${ACTIVEPIECES_FLOW_LEAD_FACTORY:-}
+      ACTIVEPIECES_FLOW_MASAAR: ${ACTIVEPIECES_FLOW_MASAAR:-}
+      ACTIVEPIECES_FLOW_PROSPENGINE: ${ACTIVEPIECES_FLOW_PROSPENGINE:-}
+      ACTIVEPIECES_FLOW_SIGNAL_PUSH: ${ACTIVEPIECES_FLOW_SIGNAL_PUSH:-}
+
+      # ── Apify (optional scraping API) ─────────────────────────────────
+      APIFY_API_KEY: ${APIFY_API_KEY:-}
+
+      # ── Shutdown grace ────────────────────────────────────────────────
+      SHUTDOWN_GRACE_MS: 15000
+
+    # Chromium needs these kernel capabilities for sandboxing
+    cap_add:
+      - SYS_ADMIN
+    # Shared memory for Chromium (prevents crashes in headless mode)
+    shm_size: '2gb'
+    networks:
+      - prospectsa_net
+    volumes:
+      # Persist agent sessions (Masaar scrape state)
+      - agent_sessions:/app/artifacts/api-server/.agent_sessions
+      # Persist Playwright browser cache across rebuilds
+      - playwright_cache:/ms-playwright
+
+volumes:
+  postgres_data:
+    driver: local
+  agent_sessions:
+    driver: local
+  playwright_cache:
+    driver: local
+
+networks:
+  prospectsa_net:
+    driver: bridge

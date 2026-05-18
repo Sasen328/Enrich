@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://prospector-engine.replit.app/sitemap.xml

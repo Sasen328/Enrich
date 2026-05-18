@@ -1,0 +1,19 @@
+packages:
+  "recharts": "Required for dashboard analytics charts"
+  "framer-motion": "For page transitions and complex UI animations"
+  "date-fns": "For formatting timestamps"
+  "clsx": "Utility for constructing className strings conditionally"
+  "tailwind-merge": "Utility to safely merge Tailwind classes"
+
+images:
+  - path: "artifacts/prospect-sa/public/images/auth-bg.png"
+    description: "Dark, moody abstract data mesh visualization with deep navy background and glowing cyan/teal nodes connecting"
+    aspect_ratio: "16:9"
+  - path: "artifacts/prospect-sa/public/images/logo.png"
+    description: "Minimalist modern tech logo, glowing teal geometric prism on transparent background"
+    aspect_ratio: "1:1"
+
+notes:
+  - "Import React Query hooks directly from @workspace/api-client-react as per monorepo structure"
+  - "Using dark mode professional enterprise theme as the default"
+  - "Using Wouter for routing"
