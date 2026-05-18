@@ -37,7 +37,8 @@ Set in `artifacts/prospect-sa/.env.local`:
 | `AI_INTEGRATIONS_ANTHROPIC_API_KEY` + `AI_INTEGRATIONS_ANTHROPIC_BASE_URL` | Optional Anthropic proxy |
 | `GEMINI_API_KEY` | Google Gemini (Nexus waterfall) |
 | `GROQ_API_KEY` | Groq fast inference (Nexus waterfall) |
-| `OPENROUTER_API_KEY` | OpenRouter aggregator (Nexus fallback) |
+| `OPENROUTER_API_KEY` | OpenRouter aggregator (Nexus fallback) — use with `NEXUS_PREFER_FREE_MODELS=true` to prefer `:free` model variants (DeepSeek-V3, R1, Llama 3.3, Qwen) in every tier before falling back to paid endpoints. Rate-limited but zero cost. |
+| `NEXUS_PREFER_FREE_MODELS` | When `true`, Nexus tries OpenRouter `:free` model IDs before any paid provider in every tier. Requires `OPENROUTER_API_KEY`. |
 | `HUGGING_FACE_API_KEY` | HuggingFace models |
 | `PERPLEXITY_API_KEY` | Web research — Signals, Lead Factory, Person Intel, Company Intel |
 | `DISABLE_PERPLEXITY` | Force-disable Perplexity even if key is set |

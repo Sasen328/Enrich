@@ -281,9 +281,20 @@ function buildAttemptChain(tier: TaskTier): Attempt[] {
   const hasGemini = !!process.env.GEMINI_API_KEY;
   const hasAnthropic = !!(process.env.ANTHROPIC_API_KEY);
 
+  // When NEXUS_PREFER_FREE_MODELS=true, prepend OpenRouter :free variants to
+  // every tier. Free endpoints are rate-limited but cost nothing — useful for
+  // dev, bulk enrichment, and high-volume scoring loops.
+  const preferFree = process.env.NEXUS_PREFER_FREE_MODELS === "true";
+  const freeHead = (models: string[]): Attempt[] =>
+    preferFree && hasOR ? models.map((m) => ({ provider: "openrouter" as const, model: m })) : [];
+
   switch (tier) {
     case "extraction":
       return [
+        ...freeHead([
+          "deepseek/deepseek-chat-v3-0324:free",
+          "meta-llama/llama-3.3-70b-instruct:free",
+        ]),
         ...(hasOR    ? [{ provider: "openrouter" as const, model: "deepseek/deepseek-chat" }]       : []),
         ...(hasGroq   ? [{ provider: "groq" as const,       model: "llama-3.3-70b-versatile" }]     : []),
         ...(hasOR    ? [{ provider: "openrouter" as const, model: "qwen/qwen-2.5-72b-instruct" }]   : []),
@@ -293,6 +304,10 @@ function buildAttemptChain(tier: TaskTier): Attempt[] {
 
     case "arabic":
       return [
+        ...freeHead([
+          "qwen/qwen-2.5-72b-instruct:free",
+          "deepseek/deepseek-chat-v3-0324:free",
+        ]),
         // orpheus-arabic-saudi: Groq's dedicated Saudi Arabic model
         ...(hasGroq   ? [{ provider: "groq" as const,       model: "canopylabs/orpheus-arabic-saudi" }] : []),
         ...(hasOR    ? [{ provider: "openrouter" as const, model: "qwen/qwen-2.5-72b-instruct" }]   : []),
@@ -303,6 +318,7 @@ function buildAttemptChain(tier: TaskTier): Attempt[] {
 
     case "realtime":
       return [
+        ...freeHead(["meta-llama/llama-3.3-70b-instruct:free"]),
         ...(hasGroq   ? [{ provider: "groq" as const,       model: "llama-3.3-70b-versatile" }]     : []),
         ...(hasOR    ? [{ provider: "openrouter" as const, model: "deepseek/deepseek-chat" }]        : []),
         ...(hasGemini ? [{ provider: "gemini" as const,     model: "gemini-2.5-flash" }]             : []),
@@ -310,6 +326,10 @@ function buildAttemptChain(tier: TaskTier): Attempt[] {
 
     case "bulk":
       return [
+        ...freeHead([
+          "deepseek/deepseek-chat-v3-0324:free",
+          "meta-llama/llama-3.3-70b-instruct:free",
+        ]),
         { provider: "ollama" as const, model: process.env.OLLAMA_MODEL || "llama3.1" },
         ...(hasOR    ? [{ provider: "openrouter" as const, model: "deepseek/deepseek-chat-v3-5" }]   : []),
         ...(hasGroq   ? [{ provider: "groq" as const,       model: "llama-3.1-8b-instant" }]         : []),
@@ -318,6 +338,7 @@ function buildAttemptChain(tier: TaskTier): Attempt[] {
     case "synthesis":
     default:
       return [
+        ...freeHead(["deepseek/deepseek-r1:free"]),
         ...(hasGemini    ? [{ provider: "gemini" as const,     model: "gemini-2.5-flash" }]           : []),
         ...(hasAnthropic ? [{ provider: "anthropic" as const,  model: "anthropic/claude-sonnet-4-5" }]: []),
         ...(hasOpenAI    ? [{ provider: "openai" as const,     model: "gpt-4o" }]                     : []),
