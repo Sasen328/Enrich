@@ -423,7 +423,7 @@ export default function SignalIntelligencePage() {
       {/* Header */}
       <div>
         <div className="flex items-center gap-3 mb-1">
-          <div className="w-9 h-9 rounded-xl bg-primary/15 border border-primary/25 flex items-center justify-center glow-purple-sm">
+          <div className="w-9 h-9 rounded-xl bg-primary/15 border border-primary/25 flex items-center justify-center glow-brand-sm">
             <Activity className="w-5 h-5 text-primary" />
           </div>
           <h1 className="text-3xl font-display font-bold text-foreground">Signal Intelligence</h1>
