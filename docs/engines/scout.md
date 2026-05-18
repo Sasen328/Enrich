@@ -25,7 +25,7 @@ All under `/api/scout/*`. The Node side just forwards to `${SCOUT_URL}/...`.
 | Env | Default | Notes |
 |---|---|---|
 | `SCOUT_URL` | `http://localhost:8099` | Where the Python service listens |
-| `CHROMIUM_EXECUTABLE_PATH` | – | Override for Nix/Replit Chromium |
+| `CHROMIUM_EXECUTABLE_PATH` | – | Override Chromium binary path (Nix / non-standard installs) |
 
 ## Run locally
 

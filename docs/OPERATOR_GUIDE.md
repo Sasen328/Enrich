@@ -59,7 +59,7 @@ ANTHROPIC_API_KEY=sk-ant-...
 | **Database Builder** | `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` | `PERPLEXITY_API_KEY` for the deep-enrichment tier |
 | **Nexus** (LLM router) | At least one of: `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, `GROQ_API_KEY`, `OPENROUTER_API_KEY` | `OLLAMA_BASE_URL` (default `http://localhost:11434`), `HUGGING_FACE_API_KEY` |
 | **OrcEngine** | `OPENAI_API_KEY`, `PERPLEXITY_API_KEY` | — |
-| **Scout** (OSINT microservice) | `SCOUT_URL` (default `http://localhost:8099`) | `CHROMIUM_EXECUTABLE_PATH` on Replit/Nix |
+| **Scout** (OSINT microservice) | `SCOUT_URL` (default `http://localhost:8099`) | `CHROMIUM_EXECUTABLE_PATH` on Nix / non-standard Chromium installs |
 | **Signals** | `PERPLEXITY_API_KEY`, `SCOUT_URL` | `DISABLE_PERPLEXITY=true` to force fallback |
 | **Lead Factory** | `OPENAI_API_KEY` or `ANTHROPIC_API_KEY`, `PERPLEXITY_API_KEY` | `APOLLO_API_KEY`, `HUNTER_API_KEY` |
 | **Company Intel / Person Intel** | `PERPLEXITY_API_KEY`, `OPENAI_API_KEY` | `APOLLO_API_KEY` for Person Intel |
@@ -378,7 +378,7 @@ Before deploying past local dev:
 | Masaar captcha endpoints hang | No captcha solver key set | Add one of `CAPMONSTER_API_KEY`/`AZCAPTCHA_API_KEY`/`NOPECHA_API_KEY`. |
 | Lead Factory job never completes | Perplexity rate limit or Apollo key invalid | Watch SSE stream; agent logs say which sub-call failed. |
 | `companies` table empty after seed | JSON fixtures missing | Confirm `scripts/attached_assets/companies_*.json` exists. |
-| Playwright errors on Replit | Wrong Chromium path | Set `CHROMIUM_EXECUTABLE_PATH` to the Nix-provided binary. |
+| Playwright errors (Chromium not found) | Wrong path / missing system libs | Set `CHROMIUM_EXECUTABLE_PATH` to the installed binary; on Debian/Bookworm the Dockerfile installs the right libs. |
 | `pnpm install` fails with "use pnpm" | A different package manager was tried | The `preinstall` hook enforces pnpm. Run `corepack enable && corepack prepare pnpm@latest --activate`. |
 | Auto-downstream seeding never fires | `autoEnrichDownstream` not set | Pass `"autoEnrichDownstream": true` in the start body, or call `POST /api/lead-factory/results/:jobId/publish` after the fact. |
 

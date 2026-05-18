@@ -44,6 +44,12 @@ Thumbs.db
 .cursor/rules/nx-rules.mdc
 .github/instructions/nx.instructions.md
 
-# Replit
+# Build / cache state
 .cache/
 .local/
+modules.yaml
+.modules.yaml
+
+# Local env overrides
+.env.local
+.env.*.local
