@@ -1951,9 +1951,13 @@ async function upsertExecutivesFromLead(lead: ScoredLead, companyId: number): Pr
  */
 export async function publishExistingResults(
   jobDbId: number,
-  opts: { autoEnrichDownstream?: boolean } = {},
+  opts: { autoEnrichDownstream?: boolean; onlyRowIds?: number[] } = {},
 ): Promise<{ seededToPool: number; alreadyPublished: number; downstreamTriggered: boolean }> {
-  const rows = await db.select().from(leadFactoryResultsTable).where(eq(leadFactoryResultsTable.jobId, jobDbId));
+  const allRows = await db.select().from(leadFactoryResultsTable).where(eq(leadFactoryResultsTable.jobId, jobDbId));
+  // When onlyRowIds is provided, restrict to that subset (bulk-action path).
+  const rows = Array.isArray(opts.onlyRowIds) && opts.onlyRowIds.length > 0
+    ? allRows.filter((r) => opts.onlyRowIds!.includes(r.id))
+    : allRows;
 
   let seededToPool = 0;
   let alreadyPublished = 0;

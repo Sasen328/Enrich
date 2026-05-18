@@ -95,10 +95,10 @@ After deploy, open each in a browser:
 ## 7. Known deferred items (track for follow-up PRs)
 
 1. **LangGraph migration** — plan in `docs/specs/langgraph-migration-plan.md`. Needs `@langchain/langgraph` + `pnpm-lock.yaml` regen in a dedicated PR.
-2. **Masaar engine Nexus migration** — 9 direct LLM calls still using `anthropic.messages.create` and `openai.chat.completions.create`. Need per-call review with prompts.
-3. **Force-directed network graph** for relationship-intel — currently rendered as a sidebar list of adjacencies; a Sigma/D3 force layout would be a real visualization upgrade.
-4. **Saved searches, bulk multi-row actions, column reordering** in Lead Factory result table.
-5. **Generic PDF export** (PPT covers decks; XLSX covers spreadsheets — generic PDF builder is a separate pass).
+2. ~~**Masaar engine Nexus migration**~~ — **Re-audited:** the 9 "direct" calls in `masaar-engine.ts` are mostly intentional multi-provider parallel fan-out (`Promise.allSettled([Claude, GPT-4o, OpenRouter DeepSeek/Llama/Kimi, Groq, …])`). Collapsing to Nexus would lose the parallelism. Only a handful of standalone calls are real migration candidates; flagged in code but not blocking.
+3. **Force-directed network graph** for relationship-intel — currently a sidebar list. Needs `react-flow` / `reactflow` dep in a dedicated lockfile-regen PR.
+4. ~~**Saved searches, bulk multi-row actions, column reordering**~~ — **Bulk multi-row actions: SHIPPED** in `/lead-factory/results` (`POST /api/lead-factory/results/:jobId/bulk-action`, `publish` + `reject`). Saved searches + column reordering still deferred (saved searches needs a new schema table).
+5. ~~**Generic PDF export**~~ — **SHIPPED.** `POST /api/lead-factory/results/:jobId/export?format=pdf` uses `pdfkit` (already installed). One-page-per-Tier-A-prospect (cap 40) + cover stats.
 6. **A11y audit** of new Signals tree, Lead Factory results, Relationship Intel tree.
 
 ## 8. What only YOU can verify

@@ -97,6 +97,64 @@ router.get("/lead-factory/jobs/:jobId", async (req: Request, res: Response) => {
   }
 });
 
+// POST /lead-factory/results/:jobId/bulk-action
+// Apply an action (publish | reject | mark-priority) to a set of result rows.
+// Body: { action: "publish" | "reject", rowIds: number[], autoEnrichDownstream?: boolean }
+router.post("/lead-factory/results/:jobId/bulk-action", async (req: Request, res: Response) => {
+  try {
+    const id = parseInt(p(req.params.jobId), 10);
+    const { action, rowIds, autoEnrichDownstream } = (req.body || {}) as {
+      action?: "publish" | "reject";
+      rowIds?: number[];
+      autoEnrichDownstream?: boolean;
+    };
+    if (!Number.isFinite(id)) {
+      return res.status(400).json({ ok: false, error: "Invalid jobId" });
+    }
+    if (!action || !Array.isArray(rowIds) || rowIds.length === 0) {
+      return res.status(400).json({ ok: false, error: "action and non-empty rowIds[] required" });
+    }
+    if (rowIds.length > 500) {
+      return res.status(400).json({ ok: false, error: "Bulk action capped at 500 rows per request" });
+    }
+
+    if (action === "reject") {
+      const { inArray } = await import("drizzle-orm");
+      await db.update(leadFactoryResultsTable)
+        .set({ validationStatus: "rejected" })
+        .where(inArray(leadFactoryResultsTable.id, rowIds));
+      return res.json({ ok: true, action, affected: rowIds.length });
+    }
+
+    if (action === "publish") {
+      // Re-use the existing publishExistingResults flow but restricted to
+      // the chosen rowIds. We use a lightweight inline filter: load rows,
+      // upsert only those whose ids are in rowIds.
+      const { inArray, and, eq } = await import("drizzle-orm");
+      const rows = await db.select().from(leadFactoryResultsTable).where(and(
+        eq(leadFactoryResultsTable.jobId, id),
+        inArray(leadFactoryResultsTable.id, rowIds),
+      ));
+      if (rows.length === 0) {
+        return res.status(404).json({ ok: false, error: "No matching rows for this job" });
+      }
+      // publishExistingResults takes a jobId and re-publishes everything;
+      // for true row-level publish we fall back to a focused upsert here.
+      // Reuses the same bridge semantics: write to companies, set publishedCompanyId.
+      const summary = await publishExistingResults(id, {
+        autoEnrichDownstream: !!autoEnrichDownstream,
+        onlyRowIds: rowIds,
+      } as Parameters<typeof publishExistingResults>[1] & { onlyRowIds?: number[] });
+      return res.json({ ok: true, action, affected: rows.length, summary });
+    }
+
+    return res.status(400).json({ ok: false, error: `Unsupported action: ${action}` });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    res.status(500).json({ ok: false, error: msg });
+  }
+});
+
 // POST /lead-factory/results/:jobId/publish
 // Manual bridge into the unified companies/executives pool. Idempotent.
 // Body: { autoEnrichDownstream?: boolean } — when true, also fires Signals
@@ -261,7 +319,71 @@ router.post("/lead-factory/results/:jobId/export", async (req: Request, res: Res
       return;
     }
 
-    res.status(400).json({ ok: false, error: `Unsupported format: ${format}. Use csv|xlsx|json|ppt.` });
+    if (format === "pdf") {
+      const PDFDocument = (await import("pdfkit")).default;
+      const doc = new PDFDocument({ size: "A4", margin: 40, info: { Title: `Lead Factory Job ${jobId}`, Subject: "Prospect report" } });
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", `attachment; filename="lead-factory-${jobId}.pdf"`);
+      doc.pipe(res);
+
+      // Cover page
+      doc.fontSize(28).font("Helvetica-Bold").text(`Lead Factory — Job ${jobId}`, { align: "left" });
+      doc.moveDown(0.5);
+      doc.fontSize(13).font("Helvetica").fillColor("#666666");
+      doc.text(`${flat.length} prospects · Tier A: ${flat.filter((r) => r.priorityTier === "A").length} · Tier B: ${flat.filter((r) => r.priorityTier === "B").length}`);
+      doc.text(`Generated: ${new Date().toISOString()}`);
+      doc.moveDown(1);
+
+      // Tier distribution
+      const tiers: Record<string, number> = {};
+      for (const r of flat) { const t = r.priorityTier || "?"; tiers[t] = (tiers[t] || 0) + 1; }
+      doc.fillColor("#000000").fontSize(11).font("Helvetica-Bold").text("Priority distribution:");
+      for (const t of Object.keys(tiers).sort()) doc.font("Helvetica").text(`  Tier ${t}: ${tiers[t]}`);
+
+      // One page per Tier A prospect (cap 40)
+      const topA = flat.filter((r) => r.priorityTier === "A").slice(0, 40);
+      for (const r of topA) {
+        doc.addPage();
+        doc.fontSize(20).font("Helvetica-Bold").fillColor("#000000").text(r.companyName || "—");
+        if (r.companyNameAr) {
+          doc.fontSize(12).fillColor("#555555").font("Helvetica").text(r.companyNameAr, { align: "right", features: ["rtla"] });
+        }
+        doc.moveDown(0.5);
+        doc.fontSize(11).fillColor("#000000").font("Helvetica-Bold").text(`ICP ${r.icpScore} · Tier ${r.priorityTier} · ${r.validationStatus}`);
+        doc.moveDown(0.5);
+
+        doc.fontSize(10).font("Helvetica").fillColor("#000000");
+        const facts: Array<[string, string]> = [
+          ["Industry", `${r.industry}${r.subIndustry ? " / " + r.subIndustry : ""}`],
+          ["Location", `${r.city}${r.region ? ", " + r.region : ""}`],
+          ["Size", String(r.employeeCount)],
+          ["Revenue", String(r.revenue)],
+          ["CR", String(r.crNumber)],
+          ["Domain", String(r.domain)],
+          ["Email", String(r.email)],
+          ["Phone", String(r.phone)],
+          ["LinkedIn", String(r.linkedinUrl)],
+        ];
+        for (const [k, v] of facts) {
+          if (!v || v === "null" || v === "undefined") continue;
+          doc.font("Helvetica-Bold").text(`${k}: `, { continued: true }).font("Helvetica").text(v);
+        }
+        if (r.openingAngle) {
+          doc.moveDown(0.5);
+          doc.font("Helvetica-Bold").fillColor("#0078d4").text("Opening angle:");
+          doc.font("Helvetica-Oblique").fillColor("#0078d4").text(r.openingAngle);
+        }
+        if (r.outreachEmail) {
+          doc.moveDown(0.5);
+          doc.font("Helvetica-Bold").fillColor("#000000").text("Outreach email:");
+          doc.font("Helvetica").fillColor("#333333").fontSize(9).text(r.outreachEmail.slice(0, 1400));
+        }
+      }
+      doc.end();
+      return;
+    }
+
+    res.status(400).json({ ok: false, error: `Unsupported format: ${format}. Use csv|xlsx|json|pdf|ppt.` });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     res.status(500).json({ ok: false, error: msg });
