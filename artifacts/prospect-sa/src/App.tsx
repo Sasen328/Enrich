@@ -28,6 +28,7 @@ import SAMarketExecutivesPage from "@/pages/sa-market/executives";
 import NotFound from "@/pages/not-found";
 import LeadFactoryPage from "@/pages/lead-factory";
 import SignalIntelligencePage from "@/pages/signal-intelligence";
+import SignalsTreePage from "@/pages/signal-intelligence/tree";
 import RelationshipIntelPage from "@/pages/relationship-intel";
 import { TrendingUp, Users } from "lucide-react";
 
@@ -89,6 +90,7 @@ function Router() {
         <Route path="/masaar/database" component={MasaarDatabasePage} />
         <Route path="/lead-factory" component={LeadFactoryPage} />
         <Route path="/masaar" component={MasaarPage} />
+        <Route path="/signal-intelligence/tree" component={SignalsTreePage} />
         <Route path="/signal-intelligence" component={SignalIntelligencePage} />
         <Route path="/relationship-intel" component={RelationshipIntelPage} />
         <Route path="/sa-market/shareholders" component={() => <SAMarketLayout tab="shareholders"><SAMarketShareholdersPage /></SAMarketLayout>} />
