@@ -1,9 +1,14 @@
 // ─── Free Web Search Client ───────────────────────────────────────────────────
-// Zero-cost discovery: SearXNG (self-hosted or public instance) and Google's
-// HTML search results page. Used as a Perplexity fallback in Lead Factory and
-// anywhere else discovery is needed without a paid API key.
+// Zero / low-cost discovery. Preference order:
+//   1. Tavily        — clean JSON API with free dev tier (1000 queries/month)
+//   2. SearXNG       — self-hosted or public instance (rotates across instances)
+//   3. Google HTML   — last-resort scrape of the public results page
+//
+// Used as a Perplexity fallback in Lead Factory and anywhere else discovery
+// is needed without paying for a search API.
 //
 // Env:
+//   TAVILY_API_KEY           Free dev tier at https://tavily.com
 //   SEARXNG_URL              Single SearXNG endpoint (e.g. https://searx.be)
 //   SEARXNG_INSTANCES        Comma-separated fallback list (rotates on 429/5xx)
 //   FREE_SEARCH_USER_AGENT   Override the default UA (recommended for Google)
@@ -15,7 +20,9 @@ export interface FreeSearchHit {
   title: string;
   url: string;
   snippet: string;
-  source: "searxng" | "google";
+  source: "tavily" | "searxng" | "google";
+  rawContent?: string;
+  score?: number;
 }
 
 const DEFAULT_UA =
@@ -29,6 +36,52 @@ function getSearxngEndpoints(): string[] {
     .filter(Boolean);
   if (process.env.SEARXNG_URL) list.unshift(process.env.SEARXNG_URL);
   return Array.from(new Set(list));
+}
+
+// ── Tavily ─────────────────────────────────────────────────────────────────────
+// POST https://api.tavily.com/search with JSON body. Free dev tier:
+// 1000 queries/month. Returns ranked results with optional rawContent
+// (full-page text extracted server-side — saves a Cheerio pass downstream).
+export async function tavilySearch(
+  query: string,
+  opts: {
+    limit?: number;
+    searchDepth?: "basic" | "advanced";
+    includeRawContent?: boolean;
+    includeDomains?: string[];
+    excludeDomains?: string[];
+  } = {},
+): Promise<FreeSearchHit[]> {
+  const key = process.env.TAVILY_API_KEY;
+  if (!key) return [];
+  try {
+    const r = await axios.post(
+      "https://api.tavily.com/search",
+      {
+        api_key: key,
+        query,
+        search_depth: opts.searchDepth ?? "basic",
+        max_results: opts.limit ?? 10,
+        include_raw_content: opts.includeRawContent ?? false,
+        include_answer: false,
+        include_images: false,
+        include_domains: opts.includeDomains,
+        exclude_domains: opts.excludeDomains,
+      },
+      { headers: { "Content-Type": "application/json" }, timeout: 20000 },
+    );
+    const rows = Array.isArray(r.data?.results) ? r.data.results : [];
+    return rows.map((row: { title?: string; url?: string; content?: string; raw_content?: string; score?: number }) => ({
+      title: row.title || "",
+      url: row.url || "",
+      snippet: row.content || "",
+      rawContent: row.raw_content || undefined,
+      score: typeof row.score === "number" ? row.score : undefined,
+      source: "tavily" as const,
+    }));
+  } catch {
+    return [];
+  }
 }
 
 // ── SearXNG ────────────────────────────────────────────────────────────────────
@@ -103,20 +156,25 @@ export async function googleHtmlSearch(
   }
 }
 
-// ── Combined: prefer SearXNG, fall back to Google ────────────────────────────
+// ── Combined: prefer Tavily → SearXNG → Google ───────────────────────────────
 export async function freeWebSearch(
   query: string,
-  opts: { limit?: number } = {},
+  opts: { limit?: number; searchDepth?: "basic" | "advanced" } = {},
 ): Promise<FreeSearchHit[]> {
+  if (process.env.TAVILY_API_KEY) {
+    const tv = await tavilySearch(query, opts);
+    if (tv.length > 0) return tv;
+  }
   const sx = await searxngSearch(query, opts);
   if (sx.length > 0) return sx;
   return googleHtmlSearch(query, opts);
 }
 
-/** True when at least one free search path is reachable (SearXNG configured
- *  or Google HTML is allowed to be hit). Google is always available as a
- *  best-effort fallback, so this returns true unconditionally — callers can
- *  still gate on SearXNG availability via `getSearxngEndpoints().length > 0`. */
+/** True when at least one free search path is reachable. Google HTML is the
+ *  unconditional fallback, so this is effectively always true; callers can
+ *  still inspect TAVILY_API_KEY or `getSearxngEndpoints().length` to decide
+ *  whether to enable depth-search features that only the better backends
+ *  support. */
 export function isFreeSearchEnabled(): boolean {
   return true;
 }
