@@ -35,49 +35,48 @@ Ordered by blast radius. Each item carries a rough effort estimate.
 
 ### Correctness tier — silent failures + broken contracts
 
-4. **FK constraints on cross-table IDs** — ✅ DONE (mostly).
+6. **FK constraints on cross-table IDs** — ✅ DONE (mostly).
    `lead_factory_results.jobId` → cascade; `publishedLeadId`, `publishedCompanyId` → set null. `prospecting_results.jobId` → cascade. **Blocked:** `builder_companies.job_id` is `text` while `builder_jobs.id` is `serial` — type mismatch; add a follow-up migration that picks the canonical key (either change `builder_companies.job_id` to int + join, or join via `builder_jobs.legacy_job_id`). TODO comment left in `lib/db/src/schema/builder_companies.ts`.
 
-5. **Surface SSE errors to the client** — ✅ DONE.
+7. **Surface SSE errors to the client** — ✅ DONE.
    New `lib/sse.ts` exposes `pipeEmitterToSse(req, res, emitter)`. Wraps `res.write` in try/catch, emits `{ type: "stream_error", message }` on `emitter.emit("error", ...)`, ships a periodic heartbeat, cleans up listeners on client disconnect. Lead Factory, Relationship Intel, and Signals stream routes adopted it.
 
-6. **Stop returning 200 from `lead-factory/start` when the job will fail** — ✅ DONE.
+8. **Stop returning 200 from `lead-factory/start` when the job will fail** — ✅ DONE.
    Brief is now Zod-validated via `leadFactoryBriefSchema` at the route boundary; bad requests get 400 + `issues`. Pipeline crashes after that point are written to `lead_factory_jobs.errorMessage` so polling clients see the failure.
 
-7. **Audit `Promise.allSettled` + `catch(() => {})` usage** (~2 h)
+9. **Audit `Promise.allSettled` + `catch(() => {})` usage** (~2 h)
    68+ instances swallow rejections. For each: either log+emit, or convert to `Promise.all` if rejection should kill the job.
 
 ### Functional tier — features the user expects to work but don't
 
-8. **Frontend → generated React Query client** — ⚠ PARTIAL.
+10. **Frontend → generated React Query client** — ⚠ PARTIAL.
    The generated client (`@workspace/api-client-react`) now auto-attaches the bearer token via `setAuthToken()` (called from `prospect-sa/src/main.tsx` reading `VITE_API_TOKEN`). 141+ raw `fetch()` calls across the pages still need to migrate to the generated React Query hooks for type-safe caching/revalidation. Regenerate OpenAPI spec first (`orval`).
 
-9. **`autoEnrichDownstream` UI toggle** (~30 min)
+11. **`autoEnrichDownstream` UI toggle** (~30 min)
    The flag is wired in the engine and route. Add a checkbox to the Lead Factory wizard so users can enable per-run downstream seeding.
 
-10. **Nexus migration phases 1–4** (~1–2 days)
+12. **Nexus migration phases 1–4** (~1–2 days)
     Catalogued in [NEXUS_MIGRATION.md](NEXUS_MIGRATION.md). Migrate `sa-market`, `masar`, `masaar`, `orcengine`, `company-intel`, `person-intel` off direct SDK calls. Phase 5 (chat streaming) is blocked on Nexus growing a `nexusStream`.
 
 ### Quality tier — won't block launch but compounds tech debt
 
-11. **Centralize normalizers** (~1 h) — three copies of phone/domain normalizers across `lead-factory-engine.ts`, `harvest-2k-push.ts`, `builder-engine.ts`. Move to `lib/utils/normalize.ts`.
-12. **Fix `withTimezone: true` on `builder_custom_sources` + `masar_custom_sources` timestamps** (~5 min + migration).
-13. **Replace sync `fs` reads in request paths** (`browser-helper.ts`, `crawl4ai-engine.ts`) (~30 min).
-14. **Disambiguate `prospecting_*` vs `lead_factory_*` tables** — pick canonical, deprecate the other.
-15. **Delete `docs/docs/frontend-source-code.md`** (~500k line code dump, not documentation).
+13. **Centralize normalizers** (~1 h) — three copies of phone/domain normalizers across `lead-factory-engine.ts`, `harvest-2k-push.ts`, `builder-engine.ts`. Move to `lib/utils/normalize.ts`.
+14. **Fix `withTimezone: true` on `builder_custom_sources` + `masar_custom_sources` timestamps** (~5 min + migration).
+15. **Replace sync `fs` reads in request paths** (`browser-helper.ts`, `crawl4ai-engine.ts`) (~30 min).
+16. **Disambiguate `prospecting_*` vs `lead_factory_*` tables** — pick canonical, deprecate the other.
 
 ### Operational tier — observability + hardening (newly identified)
 
-16. **No tests exist anywhere** (~2 days for a useful baseline) — zero `*.test.ts`/`*.spec.ts` files, no vitest/jest config. Even smoke tests for the bridge logic, auth middleware, and the Lead Factory pipeline orchestrator would catch most regressions.
+17. **No tests exist anywhere** (~2 days for a useful baseline) — zero `*.test.ts`/`*.spec.ts` files, no vitest/jest config. Even smoke tests for the bridge logic, auth middleware, and the Lead Factory pipeline orchestrator would catch most regressions.
 
-17. **Job cancellation** — ✅ MOSTLY DONE.
+18. **Job cancellation** — ✅ MOSTLY DONE.
    `JobRegistry` now mints an `AbortController` per job and exposes `cancel(jobId)`. Cancel endpoints added for Lead Factory, Relationship Intel, Signal Monitor, Masar Harvest. Engines emit a final `{ type: "cancelled" }` SSE event then `done`. **Caveat:** engine internals do not yet poll `getSignal()` between agents — calling cancel will end the SSE stream immediately, but the pipeline may keep running until the next natural breakpoint. Adding `if (signal.aborted) return` checks inside each agent is a small follow-up.
 
-18. **Structured logging** (~2 h) — switch from `console.log` to `pino` with a request-ID middleware. Required for any log aggregator.
+19. **Structured logging** (~2 h) — switch from `console.log` to `pino` with a request-ID middleware. Required for any log aggregator.
 
-19. **Rate limiting** (~1 h) — add `express-rate-limit` on POST endpoints that trigger LLM/Perplexity calls. Combined with auth (#1 done), prevents one bad client from draining the budget.
+20. **Rate limiting** (~1 h) — add `express-rate-limit` on POST endpoints that trigger LLM/Perplexity calls. Combined with auth (#1 done), prevents one bad client from draining the budget.
 
-20. **Cost guardrail on Nexus** (~2 h) — `getSessionUsage()` tracks spend but there's no hard cap. Add a per-job budget that aborts when exceeded.
+21. **Cost guardrail on Nexus** (~2 h) — `getSessionUsage()` tracks spend but there's no hard cap. Add a per-job budget that aborts when exceeded.
 
 ## Definition of "100% functional"
 
