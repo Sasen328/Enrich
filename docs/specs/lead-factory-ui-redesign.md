@@ -176,6 +176,52 @@ Add report cover stats: total discovered / enriched / validated / published, bre
 
 **Total estimate: 2,200–2,800 LOC across 9 files. ~3 working days.**
 
+## Reuse the Person / Company Intel report shape
+
+The Lead Factory drawer (per-row, slides from right) should render the **same report sections** the existing Intel engines return, so the UX is consistent across the app.
+
+### `POST /api/person-intel/profile` returns
+
+```jsonc
+{
+  "sections": [
+    { "title": "...", "content": "...", "citations": [...] }
+    // 6–10 sections: background, career, achievements, network, signals,
+    // approach strategy, cultural notes, etc.
+  ],
+  "hasRealData": true,
+  "researchThreads": 8,
+  "geminiAgents": 5,
+  "discoveredLinkedIn": "https://linkedin.com/in/..." | null
+}
+```
+
+### `POST /api/company-intel/profile` returns the same `sections[]` shape
+
+- Different section titles (firmographics, leadership, financials, signals, intent, approach…)
+- Same structure → same rendering component.
+
+### Lead Factory drawer plan
+
+- **Default view (no extra call):** show what's in `lead_factory_results` for the row (firmographics, scoring, outreach previews, signal flags).
+- **"Deep view" button:** fires `POST /api/company-intel/profile` (Company mode) or `POST /api/person-intel/profile` (Person mode) on demand. Renders the returned `sections[]` array in a single shared `<IntelReport sections={...} />` component.
+- **Action buttons in the drawer mirror Signals tree:** Run Company Intel · Run Person Intel · Run Relationship Intel · Publish to Leads.
+
+### New shared component
+
+`components/intel/IntelReport.tsx` — props: `{ sections: { title, content, citations? }[] }`. Used by:
+
+- `pages/prospecting/person.tsx` (existing)
+- `pages/prospecting/company.tsx` (existing)
+- `pages/signal-intelligence/tree.tsx` side panel
+- New `pages/lead-factory/{person,company}.tsx` drawers
+
+Extract once, reuse everywhere. No duplicated markup.
+
+### Saved reports
+
+When a user marks a Lead Factory row "Save deep report," call the corresponding `POST /api/person-intel/save` or `POST /api/company-intel/save` — these already persist into `prosengine_research`. The Lead Factory job row gets a `savedReports: number[]` reference so the report is available from the Lead Factory results page too.
+
 ## Out of scope for v1
 
 - CRM push (HubSpot / Salesforce / Pipedrive integrations) — adds OAuth + per-provider mapping.
