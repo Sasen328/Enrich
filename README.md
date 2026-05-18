@@ -1,5 +1,6 @@
 # ProspectSA
-A multi-engine Saudi-market B2B intelligence platform. Discovers, enriches, and tracks companies and executives across the Saudi market using a stack of LLM-powered research agents, web scrapers, and external data APIs.
+
+A multi-engine Saudi-market B2B intelligence platform. Discovers, enriches, and tracks companies and executives across the Saudi market using a stack of LLM-powered research agents, web scrapers, and free open-data sources. Combines the capabilities of ZoomInfo, Apollo, Crunchbase, SignalHire, and Lusha into one self-hostable system.
 
 ## What's inside
 
@@ -15,7 +16,7 @@ A pnpm monorepo combining a TypeScript/Express API server, a React/Vite frontend
 | **OrcEngine** | Multi-source research orchestrator with HTML/PDF/PPT export |
 | **Scout** | Python OSINT microservice: site intel, contact discovery, subdomains |
 | **Signals** | Event-driven scoring: news, sanctions, regulatory, individual risk |
-| **Lead Factory** | 4-phase automated lead discovery + enrichment pipeline |
+| **Lead Factory** | 7-agent automated lead discovery + enrichment pipeline |
 | **Company Intel** | 50-field deep company profiles |
 | **Person Intel** | Executive dossiers (work history, social, seniority) |
 | **SA Market** | Tadawul + open-data: listed companies, shareholders, sectors |
@@ -28,7 +29,18 @@ pnpm install
 pnpm --filter @workspace/api-server run dev
 ```
 
-See [docs/SETUP.md](docs/SETUP.md) for the full guide.
+Full guides:
+
+| Goal | Read |
+|---|---|
+| Deploy with Docker (recommended) | [`DEPLOY_README.md`](DEPLOY_README.md) |
+| Local development | [`SETUP.md`](SETUP.md) |
+| Operator manual | [`docs/OPERATOR_GUIDE.md`](docs/OPERATOR_GUIDE.md) |
+| Architecture overview | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) |
+| Environment variables | [`docs/ENV.md`](docs/ENV.md) |
+| API surface | [`docs/API.md`](docs/API.md) |
+| Database schema | [`docs/DATABASE.md`](docs/DATABASE.md) |
+| Current status / gaps | [`docs/STATUS.md`](docs/STATUS.md) |
 
 ## Documentation
 
@@ -40,53 +52,18 @@ See [docs/SETUP.md](docs/SETUP.md) for the full guide.
 - [DATABASE.md](docs/DATABASE.md) — Drizzle schema reference
 
 **Engines** (`docs/engines/`)
-- [orcengine.md](docs/engines/orcengine.md), [scout.md](docs/engines/scout.md), [signals.md](docs/engines/signals.md), [lead-factory.md](docs/engines/lead-factory.md), [company-intel.md](docs/engines/company-intel.md), [person-intel.md](docs/engines/person-intel.md), [sa-market.md](docs/engines/sa-market.md)
+- [lead-factory.md](docs/engines/lead-factory.md), [orcengine.md](docs/engines/orcengine.md), [scout.md](docs/engines/scout.md), [signals.md](docs/engines/signals.md), [company-intel.md](docs/engines/company-intel.md), [person-intel.md](docs/engines/person-intel.md), [sa-market.md](docs/engines/sa-market.md), [prosengine.md](docs/engines/prosengine.md)
 
-**Deeper references** (`docs/docs/`)
-- Engine-specific: [masaar-engine.md](docs/docs/masaar-engine.md), [masar-database.md](docs/docs/masar-database.md), [pros-engine.md](docs/docs/pros-engine.md), [ai-database-builder.md](docs/docs/ai-database-builder.md)
-- Full replication guides for each engine + frontend
-- [tech-stack-full.md](docs/docs/tech-stack-full.md) — dependency inventory
+**Replication guides** (`docs/replication/`)
+- [01-masaar-engine-replication.md](docs/replication/01-masaar-engine-replication.md)
+- [02-masar-database-replication.md](docs/replication/02-masar-database-replication.md)
+
+**Canonical feature refs (root)**
 - [NEXUS_ENGINE.md](NEXUS_ENGINE.md), [DATABASEBUILDER_FEATURE_DOC.md](DATABASEBUILDER_FEATURE_DOC.md)
 
 ## Tech stack
 
-Node 24 · pnpm workspaces · TypeScript 5.9 · Express 5 · PostgreSQL + Drizzle ORM · Zod 4 · React + Vite + Tailwind + shadcn/ui · Playwright/Puppeteer/Cheerio · Python 3.11 + FastAPI (Scout) · OpenAI · Anthropic · Perplexity · Apollo · Hunter.
-
-Full-stack B2B intelligence platform for Saudi Arabia — combines the capabilities of ZoomInfo, Apollo, Crunchbase, SignalHire, and Lusha into one self-hostable system. AI-driven enrichment, web scraping, and signal monitoring; no external data APIs required to boot.
-
-## Quick start
-
-| Goal | Read |
-|---|---|
-| Deploy with Docker (recommended) | [`DEPLOY_README.md`](DEPLOY_README.md) |
-| Local development | [`SETUP.md`](SETUP.md) |
-| Full operator manual | [`docs/OPERATOR_GUIDE.md`](docs/OPERATOR_GUIDE.md) |
-| Architecture overview | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) |
-| Environment variables | [`docs/ENV.md`](docs/ENV.md) |
-| API surface | [`docs/API.md`](docs/API.md) |
-| Database schema | [`docs/DATABASE.md`](docs/DATABASE.md) |
-| Current status / gaps | [`docs/STATUS.md`](docs/STATUS.md) |
-
-## Engines
-
-Each engine has a dedicated doc in [`docs/engines/`](docs/engines/):
-
-- **Lead Factory** — 7-agent automated lead discovery, enrichment, scoring, outreach.
-- **Signals** — buying-signal detection across web + regulatory feeds.
-- **Scout** — Python OSINT microservice (site intel, social, deep scan).
-- **OrcEngine** — multi-agent research orchestrator.
-- **Company Intel / Person Intel / SA Market** — single-target deep profiles.
-- **ProsEngine** — chat-driven research and seeding.
-- **MeshBase / Masaar** — unified Saudi company pool + CR-database harvest.
-- **NEXUS** — LLM router with provider waterfall + cost tracking. See [`NEXUS_ENGINE.md`](NEXUS_ENGINE.md).
-- **Database Builder** — schema-driven scrape + dedupe. See [`DATABASEBUILDER_FEATURE_DOC.md`](DATABASEBUILDER_FEATURE_DOC.md).
-
-## Stack
-
-- **Backend:** Node 24, Express, TypeScript, Drizzle ORM, PostgreSQL 16
-- **Frontend:** React 19, Vite, Tailwind, shadcn/ui, Wouter, TanStack Query
-- **Microservice:** Python 3.11 + Playwright + FastAPI (Scout)
-- **Monorepo:** pnpm workspaces
+Node 24 · pnpm workspaces · TypeScript 5.9 · Express 5 · PostgreSQL + Drizzle ORM · Zod · React 19 + Vite + Tailwind + shadcn/ui + Wouter + TanStack Query · Playwright/Puppeteer/Cheerio · Python 3.11 + FastAPI (Scout).
 
 ## Layout
 
@@ -100,7 +77,7 @@ lib/
 ├── db/                          Drizzle schema + client (@workspace/db)
 ├── api-spec/, api-zod/, api-client-react/   Generated API surface
 └── integrations-openai-ai-*/    Shared LLM helpers
-docs/                            Authoritative docs (see table above)
+docs/                            Authoritative docs (see tables above)
 scripts/                         Seed + migration helpers
 ```
 
