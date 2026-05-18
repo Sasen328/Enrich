@@ -42,65 +42,104 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+/* ─────────────────────────────────────────────────────────────────────────
+ *  Chameleon DNA palette (HSL)
+ *  Primary  Lavender    #B8A0C8  →  276 32% 71%
+ *  Secondary Rose-Mauve #C0A0B8  →  322 23% 69%
+ *  Growth   Seafoam     #88B8B0  →  170 25% 63%
+ *  Wealth   Sand        #C8A880  →   33 41% 64%
+ *  Interface Mist       #90B8B8  →  180 22% 64%
+ *  Highlight Olive      #B8B880  →   60 32% 61%
+ *  Base     Off-white   #F5F2F6  →  285 25% 96%
+ *  Ink      Deep Plum   #3E2F4A  →  273 22% 24%
+ * ───────────────────────────────────────────────────────────────────────── */
+
 :root {
   --radius: 0.75rem;
-  --background:   250 30% 96%;
-  --foreground:   260 40% 10%;
-  --card:         250 25% 99%;
-  --card-foreground: 260 40% 10%;
-  --popover:      250 25% 99%;
-  --popover-foreground: 260 30% 15%;
-  --primary:      263 70% 60%;
-  --primary-foreground: 0 0% 100%;
-  --secondary:    250 20% 90%;
-  --secondary-foreground: 260 40% 12%;
-  --muted:        250 18% 90%;
-  --muted-foreground: 250 12% 40%;
-  --accent:       263 70% 60%;
-  --accent-foreground: 0 0% 100%;
-  --destructive:  0 72% 51%;
+
+  /* Chameleon hue tokens — read from anywhere via `hsl(var(--brand-X))` */
+  --brand-lavender:   276 32% 71%;
+  --brand-rose-mauve: 322 23% 69%;
+  --brand-seafoam:    170 25% 63%;
+  --brand-sand:        33 41% 64%;
+  --brand-mist:       180 22% 64%;
+  --brand-olive:       60 32% 61%;
+  --brand-base:       285 25% 96%;
+  --brand-ink:        273 22% 24%;
+
+  /* shadcn / app tokens mapped to Chameleon */
+  --background:   285 25% 96%;            /* Base */
+  --foreground:   273 22% 24%;            /* Ink */
+  --card:         285 30% 99%;
+  --card-foreground: 273 22% 24%;
+  --popover:      285 30% 99%;
+  --popover-foreground: 273 22% 24%;
+  --primary:      276 32% 71%;            /* Lavender */
+  --primary-foreground: 273 22% 24%;      /* Ink on Lavender — passes WCAG */
+  --secondary:    322 23% 69%;            /* Rose-Mauve */
+  --secondary-foreground: 273 22% 24%;
+  --muted:        285 12% 92%;
+  --muted-foreground: 273 12% 40%;
+  --accent:       170 25% 63%;            /* Seafoam */
+  --accent-foreground: 273 22% 24%;
+  --destructive:  0 55% 56%;              /* muted, not neon */
   --destructive-foreground: 0 0% 100%;
-  --border:       250 20% 84%;
-  --input:        250 20% 84%;
-  --ring:         263 70% 60%;
-  --sidebar:      252 40% 96%;
-  --sidebar-foreground: 260 40% 12%;
-  --sidebar-border: 250 20% 84%;
-  --sidebar-primary: 263 70% 60%;
-  --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 250 20% 90%;
-  --sidebar-accent-foreground: 260 40% 12%;
-  --sidebar-ring: 263 70% 60%;
+  --border:       285 12% 85%;
+  --input:        285 12% 85%;
+  --ring:         276 32% 71%;            /* Lavender focus ring */
+
+  --sidebar:      285 25% 97%;
+  --sidebar-foreground: 273 22% 24%;
+  --sidebar-border: 285 12% 85%;
+  --sidebar-primary: 276 32% 71%;
+  --sidebar-primary-foreground: 273 22% 24%;
+  --sidebar-accent: 285 14% 91%;
+  --sidebar-accent-foreground: 273 22% 24%;
+  --sidebar-ring: 276 32% 71%;
+
+  /* Motion tokens — durations */
+  --motion-instant:  100ms;
+  --motion-quick:    180ms;
+  --motion-default:  280ms;
+  --motion-slow:     480ms;
+  --motion-breathe: 2400ms;
+
+  /* Motion tokens — easings */
+  --ease-out:       cubic-bezier(0.16, 1, 0.30, 1);
+  --ease-in-out:    cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-circ-out:  cubic-bezier(0.00, 0.55, 0.45, 1);
 }
 
 .dark {
-  --background:   230 25% 8%;
-  --foreground:   220 20% 92%;
-  --card:         232 22% 11%;
-  --card-foreground: 220 20% 92%;
-  --popover:      232 22% 11%;
-  --popover-foreground: 220 15% 75%;
-  --primary:      263 70% 70%;
-  --primary-foreground: 230 25% 8%;
-  --secondary:    232 20% 16%;
-  --secondary-foreground: 220 20% 88%;
-  --muted:        232 18% 16%;
-  --muted-foreground: 220 14% 55%;
-  --accent:       263 70% 70%;
-  --accent-foreground: 230 25% 8%;
-  --destructive:  0 62% 42%;
+  /* Ink-based dark surface; chameleon hues unchanged (calibrated muted) */
+  --background:   273 22% 11%;
+  --foreground:   285 25% 92%;
+  --card:         273 20% 14%;
+  --card-foreground: 285 25% 92%;
+  --popover:      273 20% 14%;
+  --popover-foreground: 285 18% 80%;
+  --primary:      276 32% 71%;
+  --primary-foreground: 273 22% 14%;
+  --secondary:    322 22% 56%;
+  --secondary-foreground: 285 25% 95%;
+  --muted:        273 14% 18%;
+  --muted-foreground: 273 10% 65%;
+  --accent:       170 25% 55%;
+  --accent-foreground: 273 22% 12%;
+  --destructive:  0 55% 52%;
   --destructive-foreground: 0 0% 100%;
-  --border:       232 18% 18%;
-  --input:        232 18% 18%;
-  --ring:         263 70% 70%;
-  --sidebar:      230 28% 7%;
-  --sidebar-foreground: 220 18% 85%;
-  --sidebar-border: 232 18% 14%;
-  --sidebar-primary: 263 70% 70%;
-  --sidebar-primary-foreground: 230 25% 8%;
-  --sidebar-accent: 232 20% 13%;
-  --sidebar-accent-foreground: 220 18% 85%;
-  --sidebar-ring: 263 70% 70%;
+  --border:       273 14% 20%;
+  --input:        273 14% 20%;
+  --ring:         276 32% 71%;
+
+  --sidebar:      273 24% 9%;
+  --sidebar-foreground: 285 22% 88%;
+  --sidebar-border: 273 14% 16%;
+  --sidebar-primary: 276 32% 71%;
+  --sidebar-primary-foreground: 273 22% 12%;
+  --sidebar-accent: 273 14% 15%;
+  --sidebar-accent-foreground: 285 22% 88%;
+  --sidebar-ring: 276 32% 71%;
 }
 
 @layer base {
@@ -111,48 +150,142 @@
   body::-webkit-scrollbar { width: 6px; height: 6px; }
   body::-webkit-scrollbar-track { background: hsl(var(--background)); }
   body::-webkit-scrollbar-thumb { background: hsl(var(--muted)); border-radius: 4px; }
-  body::-webkit-scrollbar-thumb:hover { background: hsl(263 70% 60%); }
+  body::-webkit-scrollbar-thumb:hover { background: hsl(var(--primary)); }
 }
 
+/* ── The Living Mesh background — 6 chameleon nodes drifting on coprime loops ──
+ *  Use as: <div class="mesh-gradient-bg" /> behind the app.
+ *  Per the brand spec: never put text directly on the mesh; always overlay a
+ *  .glass-panel card. */
 .mesh-gradient-bg {
-  background-color: hsl(var(--background));
+  background-color: hsl(var(--brand-base));
   background-image:
-    radial-gradient(ellipse 80% 60% at 20% 10%, hsla(263,70%,70%,0.08) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 50% at 80% 80%, hsla(200,80%,60%,0.05) 0%, transparent 55%),
-    radial-gradient(ellipse 50% 40% at 60% 40%, hsla(280,60%,65%,0.04) 0%, transparent 50%);
+    radial-gradient(60% 50% at 18% 12%,  hsla(var(--brand-lavender) / 0.30) 0%, transparent 60%),
+    radial-gradient(55% 45% at 82% 22%,  hsla(var(--brand-seafoam)  / 0.22) 0%, transparent 60%),
+    radial-gradient(50% 45% at 12% 78%,  hsla(var(--brand-sand)     / 0.20) 0%, transparent 60%),
+    radial-gradient(55% 50% at 88% 82%,  hsla(var(--brand-rose-mauve) / 0.22) 0%, transparent 60%),
+    radial-gradient(40% 35% at 45% 50%,  hsla(var(--brand-mist)     / 0.16) 0%, transparent 55%),
+    radial-gradient(35% 30% at 65% 35%,  hsla(var(--brand-olive)    / 0.12) 0%, transparent 50%);
+  background-attachment: fixed;
 }
 
 .glass-panel {
-  background: hsla(232, 22%, 13%, 0.6);
+  background: hsl(var(--card) / 0.65);
   backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid hsla(263, 70%, 70%, 0.10);
-  box-shadow: 0 4px 24px hsla(230, 25%, 4%, 0.3), inset 0 1px 0 hsla(220,20%,100%,0.04);
+  border: 1px solid hsl(var(--brand-lavender) / 0.20);
+  box-shadow:
+    0 4px 24px hsl(var(--brand-ink) / 0.10),
+    inset 0 1px 0 hsl(0 0% 100% / 0.30);
 }
 
 .glass-card {
-  background: hsla(232, 22%, 12%, 0.75);
+  background: hsl(var(--card) / 0.80);
   backdrop-filter: blur(16px);
-  border: 1px solid hsla(263, 70%, 70%, 0.08);
-  box-shadow: 0 2px 16px hsla(230, 25%, 4%, 0.25);
+  border: 1px solid hsl(var(--brand-lavender) / 0.16);
+  box-shadow: 0 2px 16px hsl(var(--brand-ink) / 0.08);
 }
 
-.glow-purple    { box-shadow: 0 0 20px hsla(263,70%,70%,0.25); }
-.glow-purple-sm { box-shadow: 0 0 8px hsla(263,70%,70%,0.2); }
-.font-display   { font-family: "DM Serif Display", serif; }
-.font-mono      { font-family: "JetBrains Mono", monospace; }
+/* Brand gradient utility (Lavender → Seafoam → Sand) — reserved for hero
+ * CTAs, brand pills, active-nav indicator. Per spec: never apply to body
+ * backgrounds; reserved for surfaces ≤120 px wide. */
+.brand-gradient {
+  background-image: linear-gradient(
+    135deg,
+    hsl(var(--brand-lavender)) 0%,
+    hsl(var(--brand-seafoam))  50%,
+    hsl(var(--brand-sand))     100%
+  );
+}
+.brand-gradient-text {
+  background: linear-gradient(135deg,
+    hsl(var(--brand-lavender)) 0%,
+    hsl(var(--brand-seafoam))  50%,
+    hsl(var(--brand-sand))     100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
 
-.animate-in { animation: slideIn 0.4s cubic-bezier(.4,0,.2,1) both; }
-@keyframes slideIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+/* Decorative glows reskinned from purple-only to Lavender + Seafoam */
+.glow-brand    { box-shadow: 0 0 20px hsl(var(--brand-lavender) / 0.30); }
+.glow-brand-sm { box-shadow: 0 0  8px hsl(var(--brand-lavender) / 0.24); }
+.font-display  { font-family: "DM Serif Display", serif; }
+.font-mono     { font-family: "JetBrains Mono", monospace; }
+
+/* ── Motion library ──────────────────────────────────────────────────────── */
+
+.animate-in {
+  animation: slideIn var(--motion-slow) var(--ease-out) both;
+}
+@keyframes slideIn {
+  from { opacity:0; transform:translateY(12px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+.fade-blur {
+  animation: fadeBlur var(--motion-default) var(--ease-out) both;
+}
+@keyframes fadeBlur {
+  from { opacity:0; filter:blur(12px); }
+  to   { opacity:1; filter:blur(0); }
+}
+
+.scale-fade {
+  animation: scaleFade var(--motion-default) var(--ease-out) both;
+}
+@keyframes scaleFade {
+  from { opacity:0; transform:scale(0.96); }
+  to   { opacity:1; transform:scale(1); }
+}
+
+/* "Breathe" pulse for hero marks and brand pills — 2.4s circOut loop */
+.brand-pulse {
+  animation: brandPulse var(--motion-breathe) var(--ease-circ-out) infinite;
+}
+@keyframes brandPulse {
+  0%, 100% { transform: scale(1.00); }
+  50%      { transform: scale(1.05); }
+}
+
+/* Slow gradient sweep for hero pills / brand chips */
+.brand-gradient-sweep {
+  background-size: 200% 100%;
+  animation: gradientSweep 6s linear infinite;
+}
+@keyframes gradientSweep {
+  0%   { background-position:   0% 50%; }
+  100% { background-position: 200% 50%; }
+}
 
 .pulse-dot {
   width: 6px; height: 6px; border-radius: 50%;
-  background: hsl(263,70%,70%);
-  box-shadow: 0 0 6px hsla(263,70%,70%,0.6);
-  animation: pulseDot 2s ease-in-out infinite;
+  background: hsl(var(--brand-lavender));
+  box-shadow: 0 0 6px hsl(var(--brand-lavender) / 0.60);
+  animation: pulseDot 2s var(--ease-in-out) infinite;
 }
-@keyframes pulseDot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.8)} }
+@keyframes pulseDot {
+  0%, 100% { opacity:1; transform: scale(1); }
+  50%      { opacity:.5; transform: scale(.8); }
+}
 
-.badge-a { background: hsla(263,70%,70%,0.15); color: hsl(263,70%,78%); border: 1px solid hsla(263,70%,70%,0.25); }
-.badge-b { background: hsla(200,80%,60%,0.12); color: hsl(200,80%,72%); border: 1px solid hsla(200,80%,60%,0.22); }
-.badge-c { background: hsla(38,80%,60%,0.12);  color: hsl(38,80%,72%);  border: 1px solid hsla(38,80%,60%,0.22); }
-.badge-d { background: hsla(0,62%,50%,0.12);   color: hsl(0,62%,68%);   border: 1px solid hsla(0,62%,50%,0.22); }
+/* ── Priority-tier badges remapped to chameleon hues ─────────────────────── */
+.badge-a {
+  background: hsl(var(--brand-seafoam) / 0.18);
+  color:      hsl(var(--brand-seafoam));
+  border:     1px solid hsl(var(--brand-seafoam) / 0.40);
+}
+.badge-b {
+  background: hsl(var(--brand-lavender) / 0.18);
+  color:      hsl(var(--brand-lavender));
+  border:     1px solid hsl(var(--brand-lavender) / 0.40);
+}
+.badge-c {
+  background: hsl(var(--brand-sand) / 0.18);
+  color:      hsl(var(--brand-sand));
+  border:     1px solid hsl(var(--brand-sand) / 0.40);
+}
+.badge-d {
+  background: hsl(var(--brand-rose-mauve) / 0.18);
+  color:      hsl(var(--brand-rose-mauve));
+  border:     1px solid hsl(var(--brand-rose-mauve) / 0.40);
+}

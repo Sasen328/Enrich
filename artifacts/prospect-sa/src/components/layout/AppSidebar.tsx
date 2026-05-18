@@ -91,7 +91,7 @@ function NavItem({ item }: { item: { title: string; url: string; icon: React.Com
   const isActive = location === item.url || (item.url !== "/" && location.startsWith(item.url));
   return (
     <SidebarMenuItem>
-      <SidebarMenuButton asChild isActive={isActive} className={`h-10 rounded-xl transition-all duration-200 ${isActive ? "bg-primary/15 text-primary glow-purple-sm" : "text-muted-foreground hover:bg-white/5 hover:text-foreground"}`}>
+      <SidebarMenuButton asChild isActive={isActive} className={`h-10 rounded-xl transition-all duration-200 ${isActive ? "bg-primary/15 text-primary glow-brand-sm" : "text-muted-foreground hover:bg-white/5 hover:text-foreground"}`}>
         <Link href={item.url} className="flex items-center gap-3 px-3">
           <item.icon className={`w-4 h-4 ${isActive ? "text-primary" : "text-muted-foreground"}`} />
           <span className="font-medium text-sm flex-1">{item.title}</span>
@@ -113,7 +113,7 @@ export function AppSidebar() {
     <Sidebar variant="inset" className="border-r border-white/5 bg-sidebar/70 backdrop-blur-2xl">
       <SidebarHeader className="px-5 py-5 pb-3">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center glow-purple-sm">
+          <div className="w-8 h-8 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center glow-brand-sm">
             <Radar className="w-4 h-4 text-primary" />
           </div>
           <div>
