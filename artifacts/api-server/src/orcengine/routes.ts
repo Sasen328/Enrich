@@ -9,8 +9,27 @@ import { crawlUrls } from "./crawler";
 import { getTemplates, createTemplate, getTemplateById, executeTemplate } from "./templates";
 import { createScrapeSession, getScrapeSession, getAllScrapeSessions, deleteScrapeSession, addUrlsToSession, chatWithSession, crawlFullWebsite, generateKnowledgeReport } from "./scraper";
 import { generateStructuredReport, generateCompanyReportHTML, generatePersonReportHTML, type ExportFormat } from "./export-service";
+import { deepResearch } from "./deep-research";
 
 export function registerOrcEngineRoutes(app: Express) {
+  // ── Deep Research (recursive web research via Nexus + free search) ─────────
+  app.post("/api/orcengine/deep-research", async (req, res) => {
+    try {
+      const { query, depth, breadth, hitsPerQuery } = req.body as {
+        query?: string; depth?: number; breadth?: number; hitsPerQuery?: number;
+      };
+      if (!query?.trim()) {
+        res.status(400).json({ ok: false, error: "query is required" });
+        return;
+      }
+      const result = await deepResearch({ query, depth, breadth, hitsPerQuery });
+      res.json({ ok: true, ...result });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      res.status(500).json({ ok: false, error: msg });
+    }
+  });
+
   app.post("/api/orcengine/research", async (req, res) => {
     try {
       const { query, sources, filters, deepVerify } = req.body;

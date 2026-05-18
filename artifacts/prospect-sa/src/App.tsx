@@ -27,6 +27,8 @@ import SAMarketShareholdersPage from "@/pages/sa-market/shareholders";
 import SAMarketExecutivesPage from "@/pages/sa-market/executives";
 import NotFound from "@/pages/not-found";
 import LeadFactoryPage from "@/pages/lead-factory";
+import LeadFactoryPersonPage from "@/pages/lead-factory/person";
+import LeadFactoryCompanyPage from "@/pages/lead-factory/company";
 import SignalIntelligencePage from "@/pages/signal-intelligence";
 import SignalsTreePage from "@/pages/signal-intelligence/tree";
 import RelationshipIntelPage from "@/pages/relationship-intel";
@@ -88,6 +90,8 @@ function Router() {
         <Route path="/meshbase" component={MeshBase} />
         <Route path="/orcengine" component={OrcEnginePage} />
         <Route path="/masaar/database" component={MasaarDatabasePage} />
+        <Route path="/lead-factory/person" component={LeadFactoryPersonPage} />
+        <Route path="/lead-factory/company" component={LeadFactoryCompanyPage} />
         <Route path="/lead-factory" component={LeadFactoryPage} />
         <Route path="/masaar" component={MasaarPage} />
         <Route path="/signal-intelligence/tree" component={SignalsTreePage} />

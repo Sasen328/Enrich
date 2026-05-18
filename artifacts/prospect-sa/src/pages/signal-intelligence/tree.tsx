@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import {
@@ -390,17 +390,37 @@ export default function SignalsTreePage() {
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [selected, setSelected] = useState<CompanyNode | null>(null);
 
-  // Poll every 8s for near-live feed. SSE upgrade tracked in
-  // docs/specs/signals-tree-redesign.md.
+  // SSE-first: subscribe to /api/signals/feed for push updates; the query
+  // serves as the initial snapshot and the fallback if SSE fails.
   const { data, isLoading, refetch, isFetching } = useQuery<RecentSignalsResponse>({
     queryKey: ["signals", "recent"],
     queryFn: async () => {
       const r = await fetch(`${BASE}/api/signals/recent`);
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      return r.json();
+      const j = await r.json();
+      // /signals/recent wraps in { ok, data: { signals, ... } } — normalize
+      return { alerts: j?.data?.signals || j?.alerts || [] };
     },
-    refetchInterval: 8000,
+    refetchInterval: 15000, // background safety net; SSE is primary
   });
+
+  const [livePulse, setLivePulse] = useState(false);
+  useEffect(() => {
+    const es = new EventSource(`${BASE}/api/signals/feed`);
+    es.addEventListener("signals", (evt: MessageEvent) => {
+      try {
+        const payload = JSON.parse(evt.data) as { signals: SignalAlert[]; newSinceLastTick: number };
+        if (payload.newSinceLastTick > 0) {
+          setLivePulse(true);
+          setTimeout(() => setLivePulse(false), 1200);
+        }
+        // Just trigger a refetch so the query cache stays canonical
+        refetch();
+      } catch { /* ignore */ }
+    });
+    es.onerror = () => { /* keep retrying via EventSource default behavior */ };
+    return () => es.close();
+  }, [refetch]);
 
   const nodes = useMemo(() => {
     const all = groupByCompany(data?.alerts || []);
@@ -435,8 +455,9 @@ export default function SignalsTreePage() {
             <Activity className="w-6 h-6 text-primary" />
             Signal Intelligence — Tree
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            {data?.alerts?.length ?? 0} signals · {nodes.length} companies · auto-refreshes every 8s
+          <p className="text-sm text-muted-foreground mt-1 flex items-center gap-2">
+            {data?.alerts?.length ?? 0} signals · {nodes.length} companies · live SSE feed
+            {livePulse && <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />}
           </p>
         </div>
         <div className="flex items-center gap-2">

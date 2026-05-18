@@ -135,6 +135,49 @@ router.post("/signals/sanctions", async (req: Request, res: Response) => {
   }
 });
 
+// ── GET /api/signals/feed (SSE — live push) ──────────────────────────────────
+// Streams the recent-signals payload every N seconds, plus a fast push when a
+// new signal lands (detected by polling the table for ids > maxIdSeen).
+// Frontend can EventSource this instead of polling /signals/recent every 8s.
+
+router.get("/signals/feed", async (req: Request, res: Response) => {
+  res.set({
+    "Content-Type": "text/event-stream",
+    "Cache-Control": "no-cache, no-transform",
+    Connection: "keep-alive",
+    "X-Accel-Buffering": "no",
+  });
+  res.flushHeaders?.();
+
+  let closed = false;
+  req.on("close", () => { closed = true; });
+
+  let maxIdSeen = 0;
+  const tick = async () => {
+    if (closed) return;
+    try {
+      const rows = await db
+        .select()
+        .from(companySignalsTable)
+        .orderBy(desc(companySignalsTable.createdAt))
+        .limit(50);
+      const newRows = rows.filter((r) => r.id > maxIdSeen);
+      if (newRows.length > 0) maxIdSeen = Math.max(maxIdSeen, ...newRows.map((r) => r.id));
+      const payload = JSON.stringify({
+        signals: rows,
+        total: rows.length,
+        newSinceLastTick: newRows.length,
+        ts: new Date().toISOString(),
+      });
+      res.write(`event: signals\ndata: ${payload}\n\n`);
+    } catch (err) {
+      res.write(`event: error\ndata: ${JSON.stringify({ error: String(err) })}\n\n`);
+    }
+    if (!closed) setTimeout(tick, 3000);
+  };
+  tick();
+});
+
 // ── GET /api/signals/recent ───────────────────────────────────────────────────
 
 router.get("/signals/recent", async (_req: Request, res: Response) => {

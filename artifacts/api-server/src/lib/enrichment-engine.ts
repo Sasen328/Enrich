@@ -6,7 +6,7 @@ import { researchCompanyWithPerplexity, searchNewsWithPerplexity, researchOwnerW
 import { enrichWithClaude, isAnthropicConfigured } from "./anthropic-service.js";
 import { synthesizeWithGemini, isGeminiConfigured } from "../gemini-search.js";
 import { enrichWithFreeSources, type FreeSourceEnrichmentResult } from "./free-sources.js";
-import { nexusSynthesize } from "./nexus/index.js";
+import { nexusGenerate, nexusSynthesize } from "./nexus/index.js";
 import { scoutSiteIntel, scoutSignalsFull } from "./scout-client.js";
 
 export interface CompanyEnrichmentInput {
@@ -539,13 +539,13 @@ Determine:
 Respond with JSON only.`;
 
   try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [{ role: "user", content: prompt }],
-      response_format: { type: "json_object" },
+    const response = await nexusGenerate(prompt + "\n\nReturn JSON only.", {
+      tier: "extraction",
+      maxTokens: 2000,
+      temperature: 0,
     });
-
-    const result = JSON.parse(response.choices[0]?.message?.content || "{}");
+    const match = response.text.match(/\{[\s\S]*\}/);
+    const result = match ? JSON.parse(match[0]) : {};
     return {
       websiteType: result.websiteType || "directory",
       detectedCategories: result.detectedCategories || [],
@@ -585,14 +585,13 @@ For each company found, extract available fields:
 Return a JSON array of company objects. If no companies found, return empty array.`;
 
   try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [{ role: "user", content: prompt }],
-      response_format: { type: "json_object" },
+    const response = await nexusGenerate(prompt + "\n\nReturn JSON: {\"companies\":[...]}.", {
+      tier: "extraction",
+      maxTokens: 4000,
+      temperature: 0,
     });
-
-    const content = response.choices[0]?.message?.content || '{"companies":[]}';
-    const parsed = JSON.parse(content);
+    const match = response.text.match(/\{[\s\S]*\}/);
+    const parsed = match ? JSON.parse(match[0]) : { companies: [] };
     return Array.isArray(parsed) ? parsed : (parsed.companies || []);
   } catch {
     return [];
@@ -905,13 +904,13 @@ RULES:
 - If a company has both Arabic and English names, include both
 - Skip generic words — only extract actual company names`;
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [{ role: "user", content: prompt }],
-      response_format: { type: "json_object" },
-      max_completion_tokens: 6000,
+    const response = await nexusGenerate(prompt + "\n\nReturn JSON: {\"companies\":[...]}.", {
+      tier: "extraction",
+      maxTokens: 6000,
+      temperature: 0,
     });
-    const raw = response.choices[0]?.message?.content || '{"companies":[]}';
+    const match = response.text.match(/\{[\s\S]*\}/);
+    const raw = match ? match[0] : '{"companies":[]}';
     return (JSON.parse(raw).companies || []) as CompanyEnrichmentInput[];
   }
 
@@ -941,13 +940,13 @@ IMPORTANT:
 - Cover multiple cities across Saudi Arabia — not just Riyadh
 - Aim for at least 40 companies`;
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [{ role: "user", content: prompt }],
-      response_format: { type: "json_object" },
-      max_completion_tokens: 4000,
+    const response = await nexusGenerate(prompt + "\n\nReturn JSON: {\"companies\":[...]}.", {
+      tier: "extraction",
+      maxTokens: 4000,
+      temperature: 0,
     });
-    const raw = response.choices[0]?.message?.content || '{"companies":[]}';
+    const match = response.text.match(/\{[\s\S]*\}/);
+    const raw = match ? match[0] : '{"companies":[]}';
     return (JSON.parse(raw).companies || []) as CompanyEnrichmentInput[];
   }
 
