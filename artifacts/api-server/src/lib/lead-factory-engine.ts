@@ -36,6 +36,7 @@ import {
   scoutSignalsRegulatory,
 } from "./scout-client.js";
 import { nexusGenerate, nexusSynthesize } from "./nexus/index.js";
+import { freeWebSearch } from "./free-search.js";
 import { scrapePage } from "./power-scraper.js";
 import { onLeadFactoryComplete } from "./activepieces-client.js";
 
@@ -705,11 +706,53 @@ async function agent2_harvestLeads(
     }
   }
 
+  // ── Source: Free Web Search (SearXNG → Google HTML) ─────────────────────────
+  // Zero-cost discovery channel. Used as a Perplexity replacement when no
+  // PERPLEXITY_API_KEY is set, and as an *additional* source even when it is.
+  // Pulls SERP hits per query, then asks Nexus to extract company JSON from
+  // the title+snippet text so we stay within the free LLM tier.
+  async function harvestFreeWebSearch() {
+    const queries = searchQueries
+      .filter((q) => q.sourceId === "perplexity" || q.sourceId === "free_search")
+      .slice(0, 5);
+    if (queries.length === 0) return;
+
+    for (const { query } of queries) {
+      try {
+        const hits = await freeWebSearch(query, { limit: 10 });
+        if (hits.length === 0) continue;
+
+        // Compact prompt: feed titles+snippets+URLs, let Nexus pull entities.
+        const block = hits
+          .map((h, i) => `${i + 1}. ${h.title}\n   ${h.url}\n   ${h.snippet}`)
+          .join("\n\n");
+
+        const res = await nexusGenerate(
+          `Search query: ${query}\n\nSearch results:\n${block}\n\n` +
+            `Extract Saudi B2B companies as a JSON array. Each item: ` +
+            `{companyName, companyNameAr, domain, phone, email, city, industry, description, sourceUsed: "FreeWebSearch"}. ` +
+            `Return only JSON, no prose, no markdown.`,
+          { tier: "extraction", maxTokens: 2500, temperature: 0 },
+        );
+
+        const parsed = (await parseJsonFromGemini(res.text, [])) as RawLead[];
+        if (Array.isArray(parsed)) {
+          for (const lead of parsed.slice(0, 10)) {
+            if (lead.companyName) addLead({ ...lead, sourceUsed: "FreeWebSearch", emailTrusted: false });
+          }
+        }
+      } catch {
+        /* skip query */
+      }
+    }
+  }
+
   // ── Source: Perplexity AI Discovery ─────────────────────────────────────────
   async function harvestPerplexity() {
     const PERPLEXITY_API_KEY = process.env.PERPLEXITY_API_KEY;
     if (!PERPLEXITY_API_KEY) {
-      emit(emitter, { type: "agent_log", agent: 2, message: "Perplexity not configured — skipping AI discovery" });
+      emit(emitter, { type: "agent_log", agent: 2, message: "Perplexity not configured — using free web search instead" });
+      await harvestFreeWebSearch();
       return;
     }
     const pQueries = searchQueries.filter(q => q.sourceId === "perplexity").slice(0, 5);

@@ -58,6 +58,9 @@ Set in `artifacts/prospect-sa/.env.local`:
 | Var | Purpose |
 |---|---|
 | `SCOUT_URL` | Python Scout microservice endpoint (default `http://localhost:8099`) |
+| `SEARXNG_URL` | Primary SearXNG endpoint (e.g. `https://searx.be`) for free web-search discovery in Lead Factory. |
+| `SEARXNG_INSTANCES` | Comma-separated SearXNG fallback list; rotates on rate-limit or failure. |
+| `FREE_SEARCH_USER_AGENT` | Override the User-Agent used by the free-search client (recommended when scraping Google HTML). |
 | `APIFY_API_KEY` | Apify managed scraping |
 | `CHROMIUM_EXECUTABLE_PATH` | Override Playwright Chromium binary path (Nix / non-standard installs) |
 | `IPROYAL_USER`, `IPROYAL_PASS`, `IPROYAL_ENDPOINT` | IPRoyal residential proxy |
