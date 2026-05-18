@@ -5,10 +5,10 @@
 #  Browsers: Single shared Chromium for Playwright (Node + Python) + Puppeteer
 # ============================================================
 
-FROM --platform=${TARGETPLATFORM:-linux/amd64} node:22-bookworm
-
-# ── Build arguments (passed via docker-compose or --build-arg) ───────────────
-ARG TARGETPLATFORM
+# BuildKit automatically picks up TARGETPLATFORM from the host or
+# --platform=… on the build command line, so no explicit flag is needed
+# here. To force a different target, use `docker buildx build --platform`.
+FROM node:22-bookworm
 
 # ── Shared Playwright/Puppeteer browser path ─────────────────────────────────
 # All three browser consumers (Node Playwright, Python Playwright, Puppeteer)
