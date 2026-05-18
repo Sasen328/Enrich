@@ -11,8 +11,6 @@
 #    docker compose down -v           # Stop + wipe database
 # ============================================================
 
-version: "3.9"
-
 services:
 
   # ── PostgreSQL 16 ────────────────────────────────────────────────────────────
@@ -47,6 +45,14 @@ services:
     ports:
       - "3000:3000"    # Main app — open this in browser
       - "8099:8099"    # Python Scout (internal, exposed for debugging)
+    # Load every variable from .env into the container in one shot. The
+    # `environment:` block below still sets the runtime-fixed values (DB
+    # url, NODE_ENV, etc) — env_file fills in everything else.
+    # required: false → first-time clones can run `docker compose config`
+    # before they've created their .env.
+    env_file:
+      - path: .env
+        required: false
     environment:
       # ── Runtime ──────────────────────────────────────────────────────────
       NODE_ENV: production
@@ -56,8 +62,8 @@ services:
       DATABASE_URL: postgresql://prospectsa:${POSTGRES_PASSWORD:-prospectsa_secret}@db:5432/prospectsa
 
       # ── Security (set API_TOKEN to require Bearer auth) ───────────────
-      # API_TOKEN: your_secret_token_here
-      # FRONTEND_ORIGIN: http://localhost:3000
+      API_TOKEN: ${API_TOKEN:-}
+      FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:3000}
 
       # ── AI Providers (at least one required for core features) ────────
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
@@ -67,12 +73,25 @@ services:
       GROQ_API_KEY: ${GROQ_API_KEY:-}
       PERPLEXITY_API_KEY: ${PERPLEXITY_API_KEY:-}
       HUGGING_FACE_API_KEY: ${HUGGING_FACE_API_KEY:-}
+      MANUS_API_KEY: ${MANUS_API_KEY:-}
+
+      # ── Nexus router config (zero-cost path) ──────────────────────────
+      NEXUS_PREFER_FREE_MODELS: ${NEXUS_PREFER_FREE_MODELS:-true}
+
+      # ── Free web search backends ──────────────────────────────────────
+      TAVILY_API_KEY: ${TAVILY_API_KEY:-}
+      SEARXNG_URL: ${SEARXNG_URL:-}
+      SEARXNG_INSTANCES: ${SEARXNG_INSTANCES:-}
+      FREE_SEARCH_USER_AGENT: ${FREE_SEARCH_USER_AGENT:-}
 
       # ── Contact Data APIs (optional) ──────────────────────────────────
       APOLLO_API_KEY: ${APOLLO_API_KEY:-}
+      APOLLO_CLIENT_ID: ${APOLLO_CLIENT_ID:-}
       APOLLO_CLIENT_SECRET: ${APOLLO_CLIENT_SECRET:-}
       APOLLO_ACCESS_TOKEN: ${APOLLO_ACCESS_TOKEN:-}
-      EXPLORER_API_KEY: ${EXPLORIUM_API_KEY:-}
+      EXPLORIUM_API_KEY: ${EXPLORIUM_API_KEY:-}
+      HUNTER_API_KEY: ${HUNTER_API_KEY:-}
+      WAPPALYZER_API_KEY: ${WAPPALYZER_API_KEY:-}
 
       # ── Scout microservice (internal — do not change) ─────────────────
       SCOUT_URL: http://localhost:8099
