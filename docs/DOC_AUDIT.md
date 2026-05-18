@@ -44,7 +44,7 @@ The repo has accumulated ~26k lines of overlapping docs from multiple "replicati
 | `docs/docs/masaar-engine.md` | 388 | Shallow teaser; superseded by 01-masaar-engine-replication.md and `docs/engines/masaar.md` (TBD). |
 | `docs/docs/masar-database.md` | 524 | Subsumed by `docs/DATABASE.md` + 02-masar-database-replication.md. |
 | `docs/docs/pros-engine.md` | 644 | Shallow teaser; replaced by the merge above. |
-| `replit.md` (root) | ~500 | Content now in `README.md` + `docs/SETUP.md`. Keep only if Replit auto-renders it on the Replit dashboard; otherwise delete. |
+| `replit.md` (root) | ~500 | Deleted — repo no longer targets Replit; content is in `README.md` + `docs/SETUP.md`. |
 
 ## After the cleanup, the doc tree looks like
 

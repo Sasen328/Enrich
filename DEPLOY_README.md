@@ -1,187 +1,147 @@
 # ProspectSA — Deployment Guide
-## Docker Desktop + Cloudflare Tunnel (Free, POC)
+
+End-to-end production bring-up via Docker. The image bundles the Node API, the React frontend (served as static files by the API), and the Python Scout sidecar.
+
+For local development without Docker, see [`SETUP.md`](SETUP.md).
 
 ---
 
-## What's in this package
+## What's in the deployment surface
 
 | File | Purpose |
 |------|---------|
-| `Dockerfile` | Builds full stack — Node + Python Scout + browsers |
-| `docker-compose.yml` | Wires app + PostgreSQL, single command startup |
-| `start.sh` | Container process orchestrator |
-| `.env.docker` | Environment variable template |
-| `patches/lead-factory.ts` | **Bug fix** — replaces `artifacts/api-server/src/routes/lead-factory.ts` |
-| `patches/main.tsx` | **Bug fix** — replaces `artifacts/prospect-sa/src/main.tsx` |
-| `patches/orcengine-seed-endpoint.ts` | **Missing endpoint** — insert into `artifacts/api-server/src/orcengine/routes.ts` |
+| `Dockerfile` | Builds Node API + Vite frontend + Python Scout into one image |
+| `docker-compose.yml` | Wires the app + PostgreSQL 16; single-command bring-up |
+| `start.sh` | Container entrypoint — runs migrations, starts Scout, starts API |
+| `stop.sh` | Graceful stop helper |
+| `.env.docker` | Environment template — copy to `.env` and fill in keys |
+
+The deployment is self-contained: no patch files, no Replit dependency, no external build steps.
 
 ---
 
 ## Prerequisites
 
-Install these once on your machine:
-
-1. **Docker Desktop** → https://www.docker.com/products/docker-desktop/
-2. **Cloudflare CLI** → https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/get-started/
+- **Docker Desktop** (or Docker Engine + Compose on Linux) — https://www.docker.com/products/docker-desktop/
+- (Optional, for public URL) **Cloudflare Tunnel** — https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/get-started/
 
 ---
 
-## Step 1 — Apply the patches to your codebase
+## Step 1 — Configure environment
 
-Copy the deployment files into the ROOT of your ProspectSA repo:
-
-```bash
-# From inside your ProspectSA repo root:
-
-# Copy deployment files
-cp /path/to/this-package/Dockerfile .
-cp /path/to/this-package/docker-compose.yml .
-cp /path/to/this-package/start.sh .
-cp /path/to/this-package/.env.docker .
-
-# Apply Bug Fix 1: lead-factory double-prefix (kills Lead Factory + Signals + Relationship Intel)
-cp /path/to/this-package/patches/lead-factory.ts artifacts/api-server/src/routes/lead-factory.ts
-
-# Apply Bug Fix 2: auth token on raw fetch calls
-cp /path/to/this-package/patches/main.tsx artifacts/prospect-sa/src/main.tsx
-```
-
-For the **missing seed endpoint**, open:
-`artifacts/api-server/src/orcengine/routes.ts`
-
-Find this line (around line 452):
-```
-  app.get("/api/orcengine/templates", async (req, res) => {
-```
-
-Insert the entire contents of `patches/orcengine-seed-endpoint.ts`
-**directly above** that line.
-
----
-
-## Step 2 — Configure your environment
+From the repo root:
 
 ```bash
 cp .env.docker .env
 ```
 
-Open `.env` and fill in at minimum:
+Edit `.env` and set, at minimum:
 
-```
-ANTHROPIC_API_KEY=sk-ant-...     ← REQUIRED for OrcEngine, Lead Factory, Masaar
-GEMINI_API_KEY=AIza...           ← Recommended for SA Market + bilingual features
-OPENAI_API_KEY=sk-...            ← Optional fallback
+```env
+DATABASE_URL=postgresql://prospectsa:prospectsa_secret@db:5432/prospectsa
+PORT=3000
+API_TOKEN=<openssl rand -hex 32>
+FRONTEND_ORIGIN=http://localhost:3000
+
+# At least one LLM key:
+ANTHROPIC_API_KEY=sk-ant-...   # OrcEngine, Lead Factory, Masaar
+OPENAI_API_KEY=sk-...          # GPT-4o paths
+GEMINI_API_KEY=AIza...         # SA Market, bilingual
+PERPLEXITY_API_KEY=pplx-...    # Signals, Lead Factory, Intel
 ```
 
-Everything else is optional. The app boots and most features work with just `ANTHROPIC_API_KEY`.
+Everything else in `ENV.md` is optional. The app boots with just `DATABASE_URL` + one LLM key.
 
 ---
 
-## Step 3 — Build and start
+## Step 2 — Build and start
 
 ```bash
-# First run — builds the Docker image (takes 5-10 minutes)
+# First run — builds the image (5–10 min)
 docker compose up --build
 
-# Subsequent runs — fast start
-docker compose up
+# Subsequent runs — fast
+docker compose up -d
 ```
 
-Watch the logs. You should see:
+Healthy log output:
+
 ```
-✓  Database schema up to date
-✓  Python Scout running (PID ...)
-   ProspectSA ready → http://localhost:3000
+[db]  PostgreSQL ready to accept connections
+[app] ✓ Database schema up to date
+[app] ✓ Python Scout running on :8099
+[app]   Server listening on port 3000
 ```
 
-Open http://localhost:3000 — your app is live locally.
+Open **http://localhost:3000** — the React frontend is served by the API server at the root.
 
 ---
 
-## Step 4 — Expose publicly with Cloudflare Tunnel
+## Step 3 — Verify
 
-Open a NEW terminal window while docker compose is running:
+```bash
+curl http://localhost:3000/api/healthz                              # {"status":"ok"}
+curl http://localhost:3000/api/readyz                               # {"status":"ok"} — DB connected
+curl -H "Authorization: Bearer $API_TOKEN" \
+     http://localhost:3000/api/lead-factory/jobs                    # auth gate works
+```
+
+---
+
+## Step 4 — (Optional) Expose publicly with Cloudflare Tunnel
+
+In a separate terminal while `docker compose` is running:
 
 ```bash
 cloudflared tunnel --url http://localhost:3000
 ```
 
-Cloudflare prints a URL like:
-```
-https://some-random-words.trycloudflare.com
-```
+Cloudflare prints a public URL like `https://some-words.trycloudflare.com`. The tunnel stays up as long as the command runs.
 
-Share that URL. Anyone with it can access your live app from anywhere.
-The tunnel stays active as long as the command is running.
+For a permanent tunnel (named, with DNS), follow the Cloudflare named-tunnel docs and run `cloudflared` as a systemd service.
 
 ---
 
-## Stopping the app
+## Stopping
 
 ```bash
-# Stop containers (keeps database data)
-docker compose down
-
-# Stop + wipe all data (clean slate)
-docker compose down -v
+docker compose down              # Stop containers (data persists in the postgres_data volume)
+docker compose down -v           # Stop + wipe the database
 ```
+
+---
+
+## Production deployment (Oracle Cloud Always-Free, or any VPS)
+
+1. Provision a Linux VM (Oracle Cloud Ampere A1 — 4 OCPU / 24 GB RAM is free-tier).
+2. Install Docker + Compose.
+3. Clone the repo onto the VM.
+4. `cp .env.docker .env`, fill in keys.
+5. `docker compose up -d --build`.
+6. Set up Cloudflare Tunnel as a systemd service for a permanent public URL.
 
 ---
 
 ## Troubleshooting
 
-**App won't start — database connection refused**
-→ Wait 10 seconds and check `docker compose ps` — PostgreSQL takes a moment to be ready.
-→ The app auto-retries via the healthcheck dependency.
-
-**Build fails at pnpm install**
-→ Make sure `pnpm-lock.yaml` is committed and unchanged.
-→ Run `docker compose build --no-cache` to force a clean build.
-
-**Playwright/Chromium errors in logs**
-→ These are non-fatal warnings. The app falls back to Cheerio for most scraping.
-→ Masaar CR scraping (mc.gov.sa) requires a CAPTCHA solver key — add `NOPECHA_API_KEY` or `AZCAPTCHA_API_KEY`.
-
-**Port 3000 already in use**
-→ Change the port mapping in `docker-compose.yml`:
-```yaml
-ports:
-  - "4000:3000"   # Access on http://localhost:4000
-```
-
-**Python Scout failed to start**
-→ Non-fatal. The Node API server runs fine without it.
-→ Scout provides deep crawl, OSINT harvest, and social scan features.
-→ Check logs with: `docker compose logs app | grep Scout`
+| Symptom | Cause | Fix |
+|---|---|---|
+| `app` container restarts repeatedly | DB not ready on first boot | `docker compose ps` — wait for `db` healthcheck to pass; healthcheck dependency auto-retries the app. |
+| Build fails at `pnpm install` | Lockfile drift | `docker compose build --no-cache`; ensure `pnpm-lock.yaml` is committed. |
+| Playwright / Chromium errors | Missing system libs | Already handled in the Dockerfile. For Masaar CR scraping (mc.gov.sa) add `NOPECHA_API_KEY` or `AZCAPTCHA_API_KEY`. |
+| Port 3000 in use | Another service | Change `"3000:3000"` → `"4000:3000"` in `docker-compose.yml`. |
+| Python Scout failed | Non-fatal | The API runs fine without it; Scout adds OSINT / site-intel features. `docker compose logs app \| grep Scout`. |
+| 401 on every API call | `API_TOKEN` set but client missing it | Set `VITE_API_TOKEN` in `artifacts/prospect-sa/.env.local` to the same value, rebuild the frontend (or leave `API_TOKEN` unset in dev). |
 
 ---
 
-## Features that work without any optional keys
+## What works without optional keys
 
-| Feature | Works without optional keys? |
-|---------|------------------------------|
-| MeshBase (companies + executives) | ✅ Yes — uses seeded data |
-| Dashboard stats | ✅ Yes |
-| OrcEngine research | ✅ Yes — needs ANTHROPIC_API_KEY |
-| Lead Factory | ✅ Yes — needs ANTHROPIC_API_KEY |
-| SA Market shareholders/executives | ✅ Yes — uses seeded data |
-| Signal Intelligence (scan) | ✅ Yes — needs ANTHROPIC_API_KEY |
-| Masaar database harvest | ⚠️ Partial — needs CAPTCHA solver for mc.gov.sa |
-| AI enrichment (deep) | ⚠️ Partial — needs ANTHROPIC + GEMINI |
-| Apollo contact enrichment | ❌ Needs APOLLO_API_KEY |
-| Proxy rotation | ❌ Needs proxy provider keys |
-
----
-
-## Production (Oracle Cloud Always Free)
-
-When ready to move from local to always-on cloud:
-
-1. Create Oracle Cloud account (free, credit card for verification only)
-2. Provision ARM VM: 4 OCPUs, 24GB RAM (Ampere A1 — Always Free tier)
-3. Install Docker on the VM
-4. Push your repo to GitHub
-5. Clone on Oracle VM and run `docker compose up -d`
-6. Set up Cloudflare Tunnel as a systemd service for permanent public URL
-
-That gives you a permanent free URL with the full engine running 24/7.
+| Feature | Needs |
+|---|---|
+| MeshBase (companies + executives), Dashboard, SA Market shareholders | Seed data only |
+| OrcEngine, Lead Factory, Signal Intelligence | `ANTHROPIC_API_KEY` (or `OPENAI_API_KEY`) |
+| Masaar CR harvest | LLM key + CAPTCHA solver key |
+| Deep AI enrichment | `ANTHROPIC_API_KEY` + `GEMINI_API_KEY` |
+| Apollo contact enrichment | `APOLLO_API_KEY` |
+| Proxy rotation | Proxy provider keys |

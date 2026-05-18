@@ -62,7 +62,7 @@ export function registerOrcEngineRoutes(app: Express) {
     }
   });
 
-  // AI Enhance endpoint - improves search queries using OpenAI via Replit AI Integrations
+  // AI Enhance endpoint — improves search queries via OpenAI (direct or AI_INTEGRATIONS proxy)
   app.post("/api/orcengine/enhance", async (req, res) => {
     try {
       const { query } = req.body;
@@ -70,7 +70,7 @@ export function registerOrcEngineRoutes(app: Express) {
         return res.status(400).json({ error: "Query is required" });
       }
 
-      // Use Replit AI Integrations for OpenAI access
+      // Prefer AI_INTEGRATIONS proxy if configured, otherwise direct OpenAI
       const baseUrl = process.env.AI_INTEGRATIONS_BASE_URL || process.env.OPENAI_BASE_URL || "https://api.openai.com/v1";
       const apiKey = process.env.AI_INTEGRATIONS_OPENAI_API_KEY || process.env.OPENAI_API_KEY || "";
       if (!baseUrl || !apiKey) {

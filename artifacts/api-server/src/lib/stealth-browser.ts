@@ -299,7 +299,7 @@ export class StealthBrowser {
     const userAgent = USER_AGENTS[Math.floor(Math.random() * USER_AGENTS.length)];
     const savedSession = this.sessions.load(domain);
 
-    // Resolve system Chromium: prefer nix-installed binary for Replit sandbox compatibility
+    // Resolve system Chromium: prefer the binary on PATH (set CHROMIUM_EXECUTABLE_PATH to override)
     const { execSync } = await import("child_process");
     let executablePath: string | undefined;
     try {

@@ -115,10 +115,10 @@ export const env = {
 
   // ── Derived / resolved values ────────────────────────────────────────────
 
-  /** Resolved OpenAI API key (direct > Replit proxy). */
+  /** Resolved OpenAI API key (direct > AI_INTEGRATIONS proxy). */
   openaiKey: raw.OPENAI_API_KEY,
 
-  /** Resolved Anthropic API key (direct > Replit proxy). */
+  /** Resolved Anthropic API key (direct > AI_INTEGRATIONS proxy). */
   anthropicKey: raw.ANTHROPIC_API_KEY,
 
   /** Whether Perplexity is reachable. */
@@ -137,8 +137,6 @@ export const env = {
       raw.NOPECHA_API_KEY ||
       (raw.DEATHBYCAPTCHA_USER && raw.DEATHBYCAPTCHA_PASS)
     ),
-
-  /** Whether running on Replit. */
 
   /** Whether running in production. */
   isProduction: raw.NODE_ENV === "production",

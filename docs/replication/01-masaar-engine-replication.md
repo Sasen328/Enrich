@@ -375,7 +375,7 @@ async function openRouterQuery(model: string, prompt: string, maxTokens = 2000):
         headers: {
           Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
           "Content-Type": "application/json",
-          "HTTP-Referer": "https://yourapp.replit.app",
+          "HTTP-Referer": "https://your-app.example.com",
         },
         timeout: 45000,
       },

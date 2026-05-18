@@ -19,12 +19,12 @@ This installs all workspace packages: `artifacts/api-server`, `artifacts/prospec
 
 ## 2. Configure environment
 
-Create `.env` at the repo root (or use Replit Secrets). The bare minimum:
+Create `.env` at the repo root. The bare minimum:
 
 ```bash
 DATABASE_URL=postgresql://user:pass@localhost:5432/enrich
 PORT=3000
-OPENAI_API_KEY=sk-...      # or AI_INTEGRATIONS_OPENAI_API_KEY on Replit
+OPENAI_API_KEY=sk-...
 ANTHROPIC_API_KEY=sk-ant-...
 ```
 
@@ -70,11 +70,9 @@ pnpm run typecheck   # full monorepo TypeScript check
 pnpm run build       # builds all workspaces with esbuild
 ```
 
-## Replit notes
+## Optional: AI-integrations proxy
 
-- `modules.yaml` declares the Nix toolchain.
-- `replit.md` documents the canonical Replit workflow.
-- AI keys are exposed as `AI_INTEGRATIONS_*` env vars when using Replit's AI Integrations — the code falls back to direct `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` if those are absent.
+`lib/config/env.ts` checks for `AI_INTEGRATIONS_OPENAI_API_KEY` / `AI_INTEGRATIONS_ANTHROPIC_API_KEY` (plus matching `_BASE_URL`) and routes through that proxy if present, falling back to direct `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` otherwise. Useful when a corporate gateway sits in front of the providers.
 
 ## Troubleshooting
 
@@ -82,7 +80,7 @@ pnpm run build       # builds all workspaces with esbuild
 - **Empty company pool** — run the seed script, or let the server auto-seed MeshBase on first boot.
 - **Scout endpoints 502** — Python service isn't running, or `SCOUT_URL` is wrong.
 - **Captcha endpoints hanging** — set one of `CAPMONSTER_API_KEY` / `AZCAPTCHA_API_KEY` / `NOPECHA_API_KEY`.
-- **Playwright errors on Replit** — point `CHROMIUM_EXECUTABLE_PATH` at the Nix-provided binary.
+- **Playwright errors (Chromium not found)** — point `CHROMIUM_EXECUTABLE_PATH` at the installed Chromium binary, or rely on the Dockerfile which installs the right system libs.
 
 ---
 
@@ -239,7 +237,7 @@ export default function App() {
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
-          {/* base= strips the Vite preview path prefix so routes work in Replit */}
+          {/* base= strips the Vite preview path prefix so routes work under a sub-path mount */}
           <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
             <Router />
           </WouterRouter>
@@ -283,7 +281,7 @@ Plain `<a>` links (outside Wouter context):
 <a href={`${BASE}/masaar/database`}>Go to database</a>
 ```
 
-**Why this matters on Replit:** Your app runs under a path prefix (e.g. `/prospect-sa/`). Without `BASE_URL` in API calls, every fetch hits the wrong URL and returns 404.
+**Why this matters under a sub-path mount:** If the app is served under a path prefix (e.g. `/prospect-sa/`), without `BASE_URL` in API calls every fetch hits the wrong URL and returns 404. Leave `BASE_PATH` unset for root-mounted deployments and this is a no-op.
 
 ---
 
@@ -449,7 +447,7 @@ No engine component is imported in this file. Navigation is the only action on c
 - [ ] `/prospecting` shows ONLY the 4 mode cards — no engine forms visible
 - [ ] Clicking a ProsEngine card changes the URL to `/prospecting/company` (etc.) and shows the engine form — sidebar stays
 - [ ] Refreshing the browser on `/prospecting/person` loads Person Intel directly, not the hub
-- [ ] API calls work (check Network tab — URLs should include the Replit path prefix)
+- [ ] API calls work (check Network tab — URLs include the sub-path prefix when `BASE_PATH` is set)
 - [ ] Masaar is in the sidebar under its own collapsible — NOT nested under ProsEngine
 
 ---

@@ -30,7 +30,7 @@ A pnpm-managed TypeScript monorepo around a single PostgreSQL database. An Expre
 ├── docs/                    this folder
 ├── main.py                  ad-hoc Python entry
 ├── prospectsa_schema.sql    raw schema snapshot (informational)
-├── replit.md, NEXUS_ENGINE.md, DATABASEBUILDER_FEATURE_DOC.md   legacy docs
+├── NEXUS_ENGINE.md, DATABASEBUILDER_FEATURE_DOC.md   canonical feature refs
 └── package.json             pnpm workspace root
 ```
 

@@ -1,6 +1,6 @@
 # Environment Variables
 
-All vars are read via `process.env.*` (TypeScript) or `os.environ[*]` (Python Scout). Group them in `.env` or Replit Secrets.
+All vars are read via `process.env.*` (TypeScript) or `os.environ[*]` (Python Scout). Set them in `.env` at the repo root (or via your host's secret store).
 
 ## Required
 
@@ -31,10 +31,10 @@ Set in `artifacts/prospect-sa/.env.local`:
 
 | Var | Used by |
 |---|---|
-| `AI_INTEGRATIONS_OPENAI_API_KEY` + `AI_INTEGRATIONS_OPENAI_BASE_URL` | OpenAI via Replit AI Integrations (preferred on Replit) |
-| `OPENAI_API_KEY` | Direct OpenAI fallback (GPT-4o, used heavily by OrcEngine, Builder) |
-| `AI_INTEGRATIONS_ANTHROPIC_API_KEY` + `AI_INTEGRATIONS_ANTHROPIC_BASE_URL` | Anthropic via Replit |
-| `ANTHROPIC_API_KEY` | Direct Anthropic fallback (Claude Sonnet, Nexus router default) |
+| `OPENAI_API_KEY` | Direct OpenAI (GPT-4o, used heavily by OrcEngine, Builder) |
+| `ANTHROPIC_API_KEY` | Direct Anthropic (Claude Sonnet, Nexus router default) |
+| `AI_INTEGRATIONS_OPENAI_API_KEY` + `AI_INTEGRATIONS_OPENAI_BASE_URL` | Optional OpenAI proxy (e.g. internal gateway) — `lib/config/env.ts` falls back to direct keys if unset |
+| `AI_INTEGRATIONS_ANTHROPIC_API_KEY` + `AI_INTEGRATIONS_ANTHROPIC_BASE_URL` | Optional Anthropic proxy |
 | `GEMINI_API_KEY` | Google Gemini (Nexus waterfall) |
 | `GROQ_API_KEY` | Groq fast inference (Nexus waterfall) |
 | `OPENROUTER_API_KEY` | OpenRouter aggregator (Nexus fallback) |
@@ -58,7 +58,7 @@ Set in `artifacts/prospect-sa/.env.local`:
 |---|---|
 | `SCOUT_URL` | Python Scout microservice endpoint (default `http://localhost:8099`) |
 | `APIFY_API_KEY` | Apify managed scraping |
-| `CHROMIUM_EXECUTABLE_PATH` | Override Playwright Chromium binary path (Replit/Nix) |
+| `CHROMIUM_EXECUTABLE_PATH` | Override Playwright Chromium binary path (Nix / non-standard installs) |
 | `IPROYAL_USER`, `IPROYAL_PASS`, `IPROYAL_ENDPOINT` | IPRoyal residential proxy |
 | `LUNAPROXY_USER`, `LUNAPROXY_PASS`, `LUNAPROXY_ENDPOINT` | Luna proxy |
 | `SIMPLYNODE_USER`, `SIMPLYNODE_PASS`, `SIMPLYNODE_ENDPOINT` | SimplyNode proxy |
@@ -94,5 +94,4 @@ Any one of these unblocks the Masaar captcha flow:
 | Var | Purpose |
 |---|---|
 | `NODE_ENV` | `development` / `production` |
-| `BASE_PATH` | URL base path (when mounted under a subpath) |
-| `REPL_ID` | Set automatically by Replit |
+| `BASE_PATH` | URL base path (when the frontend is mounted under a subpath) |
