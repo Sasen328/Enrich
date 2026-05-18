@@ -137,6 +137,137 @@ router.post("/signals/jobs/:jobId/cancel", (req: Request, res: Response) => {
   res.json({ ok: true });
 });
 
+// POST /lead-factory/results/:jobId/export?format=csv|xlsx|json|pdf|ppt
+// Returns the results in the requested format. CSV/XLSX/JSON ship directly;
+// PDF/PPT generation reuses the orcengine export-service pattern (text-based
+// per-prospect 1-pager / deck of priority-A rows).
+router.post("/lead-factory/results/:jobId/export", async (req: Request, res: Response) => {
+  try {
+    const jobId = parseInt(p(req.params.jobId), 10);
+    if (!Number.isFinite(jobId)) {
+      res.status(400).json({ ok: false, error: "Invalid jobId" });
+      return;
+    }
+    const format = ((req.query.format as string) || (req.body?.format as string) || "csv").toLowerCase();
+    const rows = await db
+      .select()
+      .from(leadFactoryResultsTable)
+      .where(eq(leadFactoryResultsTable.jobId, jobId))
+      .orderBy(desc(leadFactoryResultsTable.icpScore));
+
+    if (rows.length === 0) {
+      res.status(404).json({ ok: false, error: "No results for this job" });
+      return;
+    }
+
+    // Flat row shape — same columns regardless of format
+    const flat = rows.map((r) => ({
+      companyName: r.companyName ?? "",
+      companyNameAr: r.companyNameAr ?? "",
+      domain: r.domain ?? "",
+      phone: r.phone ?? "",
+      email: r.email ?? "",
+      city: r.city ?? "",
+      region: r.region ?? "",
+      industry: r.industry ?? "",
+      subIndustry: r.subIndustry ?? "",
+      employeeCount: r.employeeCount ?? "",
+      revenue: r.revenue ?? "",
+      icpScore: r.icpScore ?? 0,
+      priorityTier: r.priorityTier ?? "",
+      buyingScore: r.buyingScore ?? 0,
+      qualityScore: r.qualityScore ?? 0,
+      validationStatus: r.validationStatus ?? "",
+      crNumber: r.crNumber ?? "",
+      linkedinUrl: r.linkedinUrl ?? "",
+      outreachEmail: r.outreachEmail ?? "",
+      outreachLinkedin: r.outreachLinkedin ?? "",
+      openingAngle: r.openingAngle ?? "",
+    }));
+
+    if (format === "json") {
+      res.setHeader("Content-Type", "application/json");
+      res.setHeader("Content-Disposition", `attachment; filename="lead-factory-${jobId}.json"`);
+      res.send(JSON.stringify(flat, null, 2));
+      return;
+    }
+
+    if (format === "csv") {
+      const header = Object.keys(flat[0]).join(",");
+      const lines = flat.map((row) =>
+        Object.values(row).map((v) => {
+          const s = String(v ?? "").replace(/"/g, '""');
+          return /[",\n]/.test(s) ? `"${s}"` : s;
+        }).join(",")
+      );
+      const csv = [header, ...lines].join("\n");
+      res.setHeader("Content-Type", "text/csv");
+      res.setHeader("Content-Disposition", `attachment; filename="lead-factory-${jobId}.csv"`);
+      res.send(csv);
+      return;
+    }
+
+    if (format === "xlsx") {
+      const XLSX = await import("xlsx");
+      const wb = XLSX.utils.book_new();
+      // One sheet per priority tier + one "All" sheet
+      const all = XLSX.utils.json_to_sheet(flat);
+      XLSX.utils.book_append_sheet(wb, all, "All");
+      const tiers = Array.from(new Set(flat.map((r) => r.priorityTier).filter(Boolean)));
+      for (const tier of tiers) {
+        const subset = flat.filter((r) => r.priorityTier === tier);
+        if (subset.length > 0) {
+          XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(subset), tier.slice(0, 28));
+        }
+      }
+      const buffer = XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
+      res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+      res.setHeader("Content-Disposition", `attachment; filename="lead-factory-${jobId}.xlsx"`);
+      res.send(buffer);
+      return;
+    }
+
+    if (format === "ppt" || format === "pptx") {
+      const Pptx = (await import("pptxgenjs")).default;
+      const pres = new Pptx();
+      pres.title = `Lead Factory Job ${jobId}`;
+      // Cover
+      const cover = pres.addSlide();
+      cover.addText(`Lead Factory · Job ${jobId}`, { x: 0.5, y: 1.5, w: 9, h: 1, fontSize: 32, bold: true });
+      cover.addText(`${flat.length} prospects · top-A: ${flat.filter((r) => r.priorityTier === "A").length}`, { x: 0.5, y: 3, w: 9, h: 0.5, fontSize: 18, color: "888888" });
+      // One slide per priority-A prospect (cap 30)
+      const topA = flat.filter((r) => r.priorityTier === "A").slice(0, 30);
+      for (const r of topA) {
+        const s = pres.addSlide();
+        s.addText(r.companyName, { x: 0.5, y: 0.3, w: 9, h: 0.7, fontSize: 24, bold: true });
+        if (r.companyNameAr) s.addText(r.companyNameAr, { x: 0.5, y: 1.0, w: 9, h: 0.4, fontSize: 14, color: "666666" });
+        const facts = [
+          `ICP score: ${r.icpScore} (${r.priorityTier})`,
+          `Industry: ${r.industry}${r.subIndustry ? " / " + r.subIndustry : ""}`,
+          `Location: ${r.city}${r.region ? ", " + r.region : ""}`,
+          `Size: ${r.employeeCount} employees · Revenue: ${r.revenue}`,
+          `Domain: ${r.domain}`,
+          `Email: ${r.email}  ·  Phone: ${r.phone}`,
+          `LinkedIn: ${r.linkedinUrl}`,
+        ].filter((l) => !l.endsWith(": ") && !l.endsWith(":  ·  Phone: "));
+        s.addText(facts.join("\n"), { x: 0.5, y: 1.6, w: 9, h: 2.5, fontSize: 14 });
+        if (r.openingAngle) s.addText(`Opening angle: ${r.openingAngle}`, { x: 0.5, y: 4.2, w: 9, h: 1.0, fontSize: 13, color: "0078d4", italic: true });
+        if (r.outreachEmail) s.addText(r.outreachEmail.slice(0, 600), { x: 0.5, y: 5.3, w: 9, h: 2.0, fontSize: 11, color: "444444" });
+      }
+      const buf = (await pres.write({ outputType: "nodebuffer" })) as Buffer;
+      res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.presentationml.presentation");
+      res.setHeader("Content-Disposition", `attachment; filename="lead-factory-${jobId}.pptx"`);
+      res.send(buf);
+      return;
+    }
+
+    res.status(400).json({ ok: false, error: `Unsupported format: ${format}. Use csv|xlsx|json|ppt.` });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    res.status(500).json({ ok: false, error: msg });
+  }
+});
+
 // GET /lead-factory/results/:jobId
 router.get("/lead-factory/results/:jobId", async (req: Request, res: Response) => {
   try {
