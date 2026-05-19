@@ -10,6 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { IntelReport, type IntelSection } from "@/components/intel/IntelReport";
+import { LeadFactoryTabs } from "@/components/lead-factory/LeadFactoryTabs";
 import { cn } from "@/lib/utils";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -279,6 +280,7 @@ export default function LeadFactoryResultsPage() {
 
   return (
     <div className="container mx-auto px-4 py-6 max-w-[1400px]">
+      <LeadFactoryTabs />
       <div className="flex items-center justify-between mb-4">
         <div>
           <Button variant="ghost" size="sm" onClick={() => navigate("/lead-factory")} className="gap-1.5 mb-2">
