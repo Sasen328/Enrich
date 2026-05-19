@@ -52,14 +52,25 @@ fi
 # ── 2a. Safety net: apply lib/db/drizzle/*.sql unconditionally via psql ──────
 MIGRATIONS_DIR="$SCRIPT_DIR/lib/db/drizzle"
 if command -v psql >/dev/null 2>&1 && [ -d "$MIGRATIONS_DIR" ]; then
-    info "Applying SQL migration files (idempotent)..."
-    MIGRATION_COUNT=0
-    for sql in $(ls "$MIGRATIONS_DIR"/*.sql 2>/dev/null | sort); do
-        info "  → $(basename "$sql")"
-        psql "$DATABASE_URL" -v ON_ERROR_STOP=0 -q -f "$sql" 2>&1 | grep -vE "already exists|ERROR:.*already" || true
-        MIGRATION_COUNT=$((MIGRATION_COUNT + 1))
-    done
-    ok "Applied $MIGRATION_COUNT SQL migration file(s)"
+    info "Looking for SQL migrations in $MIGRATIONS_DIR ..."
+    MIGRATION_FILES=$(ls "$MIGRATIONS_DIR"/*.sql 2>/dev/null | sort)
+    if [ -z "$MIGRATION_FILES" ]; then
+        warn "NO .sql files found in $MIGRATIONS_DIR — volume mount may not be applied"
+    else
+        info "Found these migration files (in apply order):"
+        echo "$MIGRATION_FILES" | while read f; do echo "      $(basename "$f") ($(wc -l <"$f") lines, $(stat -c%s "$f") bytes)"; done
+        info "Applying each via psql..."
+        MIGRATION_COUNT=0
+        for sql in $MIGRATION_FILES; do
+            info "  → Applying $(basename "$sql") ..."
+            # Don't filter output — we need to see real errors
+            psql "$DATABASE_URL" -v ON_ERROR_STOP=0 -f "$sql" 2>&1 \
+                | grep -vE "^NOTICE|^CREATE TABLE$|^ALTER TABLE$|^CREATE INDEX$|^INSERT |^$" \
+                | sed 's/^/      /' || true
+            MIGRATION_COUNT=$((MIGRATION_COUNT + 1))
+        done
+        ok "Applied $MIGRATION_COUNT SQL migration file(s)"
+    fi
 else
     warn "psql not installed OR migration dir missing — skipping SQL safety net"
 fi
