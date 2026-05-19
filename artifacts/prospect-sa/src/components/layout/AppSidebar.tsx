@@ -17,8 +17,9 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 
 const coreNav = [
   { title: "Dashboard",    url: "/",             icon: LayoutDashboard },
-  { title: "Leads",        url: "/leads",        icon: Target },
-  { title: "Lead Factory", url: "/lead-factory", icon: Zap },
+  { title: "Leads",            url: "/leads",                 icon: Target },
+  { title: "Lead Factory",     url: "/lead-factory/company",  icon: Zap },
+  { title: "  ↳ Person Hunt",  url: "/lead-factory/person",   icon: Zap },
 ];
 
 const prosEngineTools = [
@@ -133,7 +134,7 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu className="gap-0.5">
               {coreNav.map((item) => (
-                <NavItem key={item.url} item={{ ...item, badge: item.url === "/lead-factory" ? "7-Agent" : undefined }} />
+                <NavItem key={item.url} item={{ ...item, badge: item.url === "/lead-factory/company" ? "7-Agent" : undefined }} />
               ))}
             </SidebarMenu>
           </SidebarGroupContent>
