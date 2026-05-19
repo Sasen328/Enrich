@@ -3,6 +3,20 @@ import { setAuthToken, getAuthToken } from "@workspace/api-client-react";
 import App from "./App";
 import "./index.css";
 
+// ── One-time theme migration ─────────────────────────────────────────────────
+// Earlier deploys defaulted to "dark" and persisted that in localStorage. The
+// Chameleon palette is designed for light by default; force-reset to light
+// on first load after this migration so returning users see the new design.
+// Marker bumps so the migration only runs once.
+const THEME_MIGRATION_KEY = "prospectsa-theme-migrated";
+const THEME_MIGRATION_VERSION = "chameleon-v1";
+if (typeof window !== "undefined") {
+  if (localStorage.getItem(THEME_MIGRATION_KEY) !== THEME_MIGRATION_VERSION) {
+    localStorage.setItem("prospectsa-theme", "light");
+    localStorage.setItem(THEME_MIGRATION_KEY, THEME_MIGRATION_VERSION);
+  }
+}
+
 // ── Wire bearer token for the generated API client ────────────────────────────
 // The backend requires it when API_TOKEN is set there; in local dev
 // VITE_API_TOKEN is typically unset and the backend allows unauthenticated calls.

@@ -30,6 +30,7 @@ import LeadFactoryPage from "@/pages/lead-factory";
 import LeadFactoryPersonPage from "@/pages/lead-factory/person";
 import LeadFactoryCompanyPage from "@/pages/lead-factory/company";
 import LeadFactoryResultsPage from "@/pages/lead-factory/results";
+import { Redirect } from "wouter";
 import RelationshipIntelTreePage from "@/pages/relationship-intel/tree";
 import SignalIntelligencePage from "@/pages/signal-intelligence";
 import SignalsTreePage from "@/pages/signal-intelligence/tree";
@@ -95,7 +96,11 @@ function Router() {
         <Route path="/lead-factory/results" component={LeadFactoryResultsPage} />
         <Route path="/lead-factory/person" component={LeadFactoryPersonPage} />
         <Route path="/lead-factory/company" component={LeadFactoryCompanyPage} />
-        <Route path="/lead-factory" component={LeadFactoryPage} />
+        <Route path="/lead-factory/legacy" component={LeadFactoryPage} />
+        {/* Default /lead-factory → Person hunt. Person mode is the primary
+            workflow (lead = person; company is harvested as a byproduct).
+            The old hub is still reachable at /lead-factory/legacy. */}
+        <Route path="/lead-factory">{() => <Redirect to="/lead-factory/person" />}</Route>
         <Route path="/masaar" component={MasaarPage} />
         <Route path="/signal-intelligence/tree" component={SignalsTreePage} />
         <Route path="/signal-intelligence" component={SignalIntelligencePage} />
