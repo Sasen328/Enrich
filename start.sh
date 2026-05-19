@@ -37,45 +37,47 @@ else
     warn "Shared Chromium not found at /ms-playwright — Puppeteer will attempt its own download"
 fi
 
-# ── 2. Drizzle DB push (idempotent — safe to run every boot) ─────────────────
+# ── 2. Database schema sync ──────────────────────────────────────────────────
+# Strategy: try drizzle-kit push first (idiomatic), then ALWAYS apply the
+# committed SQL migration files via psql as a safety net. ON_ERROR_STOP=0
+# absorbs "relation already exists" so repeat boots are idempotent. After
+# both, verify the critical tables exist; bail loudly if not.
 info "Running database schema sync (drizzle-kit push)..."
 if DATABASE_URL="${DATABASE_URL}" pnpm --filter @workspace/db push --force 2>&1; then
-    ok "Database schema up to date (drizzle-kit push succeeded)"
+    ok "drizzle-kit push reported success"
 else
-    warn "Drizzle push had warnings — applying SQL migrations as fallback"
+    warn "drizzle-kit push had errors — relying on SQL migration fallback"
 fi
 
-# ── 2a. Safety net: apply lib/db/drizzle/*.sql directly via psql ──────────────
-# Some Codespaces / Docker environments cause drizzle-kit push to bail silently
-# (e.g. when stdin is not a TTY and the interactive prompt is auto-declined).
-# Verify the critical tables exist; if any are missing, apply the SQL migration
-# files directly. Idempotent: `CREATE TABLE` errors with "already exists" are
-# captured and ignored.
+# ── 2a. Safety net: apply lib/db/drizzle/*.sql unconditionally via psql ──────
 MIGRATIONS_DIR="$SCRIPT_DIR/lib/db/drizzle"
 if command -v psql >/dev/null 2>&1 && [ -d "$MIGRATIONS_DIR" ]; then
-    NEEDS_SCHEMA=0
-    for tbl in companies executives masar_companies lead_factory_jobs leads; do
-        if ! psql "$DATABASE_URL" -tAc "SELECT 1 FROM information_schema.tables WHERE table_name='$tbl'" 2>/dev/null | grep -q 1; then
-            NEEDS_SCHEMA=1
-            warn "Table '$tbl' missing — will apply SQL migrations"
-            break
-        fi
+    info "Applying SQL migration files (idempotent)..."
+    MIGRATION_COUNT=0
+    for sql in $(ls "$MIGRATIONS_DIR"/*.sql 2>/dev/null | sort); do
+        info "  → $(basename "$sql")"
+        psql "$DATABASE_URL" -v ON_ERROR_STOP=0 -q -f "$sql" 2>&1 | grep -vE "already exists|ERROR:.*already" || true
+        MIGRATION_COUNT=$((MIGRATION_COUNT + 1))
     done
-    if [ "$NEEDS_SCHEMA" = "1" ]; then
-        for sql in $(ls "$MIGRATIONS_DIR"/*.sql 2>/dev/null | sort); do
-            info "Applying $(basename "$sql")..."
-            # ON_ERROR_STOP=0 keeps going past "relation already exists" errors
-            # from partial drizzle-kit pushes.
-            psql "$DATABASE_URL" -v ON_ERROR_STOP=0 -q -f "$sql" >/tmp/migrate.log 2>&1 || true
-        done
-        # Verify again
-        if psql "$DATABASE_URL" -tAc "SELECT 1 FROM information_schema.tables WHERE table_name='masar_companies'" 2>/dev/null | grep -q 1; then
-            ok "Schema applied via SQL migration files"
-        else
-            err "Schema migration FAILED — masar_companies still missing after SQL apply. See /tmp/migrate.log"
-        fi
-    fi
+    ok "Applied $MIGRATION_COUNT SQL migration file(s)"
+else
+    warn "psql not installed OR migration dir missing — skipping SQL safety net"
 fi
+
+# ── 2b. Verify the critical tables exist; abort boot if not ──────────────────
+info "Verifying critical tables exist..."
+MISSING_TABLES=()
+for tbl in companies executives masar_companies lead_factory_jobs lead_lists leads; do
+    if ! psql "$DATABASE_URL" -tAc "SELECT 1 FROM information_schema.tables WHERE table_name='$tbl'" 2>/dev/null | grep -q 1; then
+        MISSING_TABLES+=("$tbl")
+    fi
+done
+if [ ${#MISSING_TABLES[@]} -gt 0 ]; then
+    err "Required tables missing after migration: ${MISSING_TABLES[*]}"
+    err "The database is in an unrecoverable state. Run: docker compose down -v && docker compose up -d --build"
+    exit 1
+fi
+ok "All critical tables present"
 
 # ── 2b. Load seed_data.sql on first boot (when companies table is empty) ─────
 # Idempotent: runs only when SELECT count(*) FROM companies = 0. Loads ~2k
