@@ -12,6 +12,6 @@ requests
 tldextract
 fake-useragent
 python-dotenv
-google-generativeai
+google-genai
 tenacity
 chardet
