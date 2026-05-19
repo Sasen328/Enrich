@@ -92,7 +92,14 @@ const RawEnv = z.object({
   ACTIVEPIECES_FLOW_SIGNAL_PUSH: optional,
 });
 
-const parsed = RawEnv.safeParse(process.env);
+// Empty strings in process.env (e.g. `ACTIVEPIECES_FLOW_MASAAR=` in .env)
+// would otherwise be parsed as `""` and fail `z.string().min(1).optional()`,
+// which only allows the value to be missing entirely, not blank. Strip them
+// so blank values are treated as "not set".
+const rawProcessEnv: Record<string, string | undefined> = Object.fromEntries(
+  Object.entries(process.env).filter(([, v]) => v !== "")
+);
+const parsed = RawEnv.safeParse(rawProcessEnv);
 
 if (!parsed.success) {
   const issues = parsed.error.issues
