@@ -6,7 +6,7 @@ There are four sections:
 
 - **Section 1 — Quick start on your laptop** (≈ 30 min, zero coding skills required)
 - **Section 2 — Share a public URL** (free, temporary or permanent)
-- **Section 3 — Always-on hosting** — 3 options: Railway (1-click, $5/mo) · Render (free with sleep) · Oracle Cloud (free, more setup)
+- **Section 3 — Always-on hosting** — there's no "free + mobile-only + always-on" option for this app size. Options: Railway ($5/mo, mobile) · Render Starter ($7/mo, mobile) · Oracle Cloud (truly free, one-time desktop setup) · Your own laptop + Cloudflare Tunnel (truly free, only "up" when laptop is on)
 - **Section 4 — Technical reference** (env vars, smoke tests, ops, troubleshooting, pre-deploy checklist)
 
 ---
@@ -184,18 +184,27 @@ The repo ships a `railway.toml` so Railway auto-detects the Dockerfile, the `/ap
 
 For a custom domain: **Networking → Custom Domain →** add `app.yourdomain.com` and copy the CNAME they show to your DNS provider.
 
-### Option B · Render (free tier with sleep)
+### Option B · Render Starter ($7/mo — mobile-friendly)
 
-**Cost:** $0 — but the web service sleeps after 15 min idle and takes ~30 s to wake on the next request. Database is free 90 days, then $7/month, or use a Neon/Supabase free Postgres instead.
-
-The repo ships a `render.yaml` Blueprint that creates the web service + Postgres + `DATABASE_URL` wiring in a single click.
+**Cost:** Render no longer offers a reliably-free web service tier suitable for this app. The Starter plan is ~$7/month per service. The repo ships `render.yaml` so the Blueprint flow handles port, healthcheck, and Postgres wiring in one click.
 
 1. Sign up at https://render.com using GitHub.
-2. **New + → Blueprint → connect your `ProspectSA_Full` repo**. Render reads `render.yaml` and shows the planned services.
-3. Click **Apply**. Render generates a random `API_TOKEN` and prompts you to paste the keys marked `sync: false` (at minimum `OPENROUTER_API_KEY` + `TAVILY_API_KEY`, or one of the paid LLM keys).
-4. First build takes 8–12 minutes. URL appears at the top of the service page.
+2. **New + → Blueprint → connect your `ProspectSA_Full` repo**. Render reads `render.yaml`.
+3. Click **Apply**. Render generates a random `API_TOKEN` and prompts you to paste `OPENROUTER_API_KEY`, `TAVILY_API_KEY`, `FRONTEND_ORIGIN`, etc.
+4. First build takes 8–12 minutes.
 
-If you'd rather not pay the $7/month after Render's 90-day Postgres free trial: provision a free Postgres at **Neon** (https://neon.tech) or **Supabase** (https://supabase.com), delete the `databases:` block from `render.yaml`, and paste the external connection string as `DATABASE_URL` in step 3.
+To get the cost down: use external **Neon** (https://neon.tech, permanent free Postgres) instead of Render's bundled DB. Delete the `databases:` block in `render.yaml`, set `DATABASE_URL` to `sync: false`, and paste the Neon connection string when prompted.
+
+### Option B′ · Truly free, mobile-deployable: laptop + Cloudflare Tunnel
+
+This is the **only** path that's reliably **$0 forever AND mobile-controllable** for an app this size. It's not always-on — only "up" when your laptop is on — but every other constraint is met.
+
+1. **One-time:** install Docker Desktop on your laptop ([instructions in Section 1](#section-1--quick-start-on-your-laptop)). After this, you control everything from your phone.
+2. **From your phone:** open the GitHub mobile app or `github.com` in your phone browser. Any commit you push triggers a redeploy when you run `git pull && docker compose up -d --build` on the laptop. (Or use GitHub Desktop's auto-fetch + a small shell script that re-runs compose.)
+3. **For a public URL:** install `cloudflared` on the laptop once and run `cloudflared tunnel --url http://localhost:3000` in a terminal. It prints a `https://*.trycloudflare.com` URL anyone can open. No DNS, no firewall, no payment.
+4. **To make it permanent:** create a named tunnel in your Cloudflare dashboard (also free) and run `cloudflared` as a system service so it survives reboots.
+
+Honest caveat: the moment your laptop sleeps or loses power, the app goes down. For a B2B prospecting tool that needs to harvest leads overnight, that's a real limitation. If you need 24/7 uptime AND $0, the only option is **Oracle Cloud Always-Free (Option C)** — set it up once with a friend, and it runs forever on Oracle's machines.
 
 ### Option C · Oracle Cloud Always-Free (most powerful, most setup)
 

@@ -1,8 +1,15 @@
 # Render Blueprint — https://render.com/docs/blueprint-spec
 #
-# What this creates with one click:
-#   • A Postgres database (free tier).
-#   • A web service that builds from the Dockerfile.
+# Cost note (May 2026): Render's free web tier is unreliable for this
+# app — the "Starter" plan (~$7/mo) is the smallest plan that runs
+# Chromium + Python + Node + Postgres without OOM. The bundled "free"
+# Postgres also expires after 90 days. If you want truly $0, use the
+# laptop + Cloudflare Tunnel path in DEPLOY.md Section 3 Option B′
+# instead — this file is for paid Render deployments only.
+#
+# What this Blueprint creates:
+#   • A Postgres database (Render-managed; 90-day free then $7/mo).
+#   • A web service that builds from the Dockerfile (Starter, ~$7/mo).
 #   • DATABASE_URL auto-wired from the database to the web service.
 #
 # Operator flow:
@@ -10,17 +17,21 @@
 #   2. Connect the ProspectSA_Full repo. Render reads this file.
 #   3. Click Apply. Paste API keys when prompted (sync: false vars below).
 #   4. Wait for first build (8–12 min). Open the public URL.
+#
+# To cut the database cost: use Neon (https://neon.tech, permanent free
+# Postgres). Delete the `databases:` block below, set DATABASE_URL to
+# `sync: false`, and paste the Neon connection string in step 3.
 
 databases:
   - name: prospectsa-db
-    plan: free
+    plan: basic-256mb
     databaseName: prospectsa
     user: prospectsa
 
 services:
   - type: web
     name: prospectsa
-    plan: free
+    plan: starter
     runtime: docker
     dockerfilePath: ./Dockerfile
     autoDeploy: true
