@@ -1,15 +1,14 @@
 import { useState } from "react";
-import { useLocation } from "wouter";
 import { useMutation } from "@tanstack/react-query";
 import { Building2 } from "lucide-react";
 import { FilterPanel, type LeadFactoryBrief } from "@/components/lead-factory/FilterPanel";
 import { AgentPreview } from "@/components/lead-factory/AgentPreview";
 import { LeadFactoryTabs } from "@/components/lead-factory/LeadFactoryTabs";
+import { useLeadFactoryStream } from "@/hooks/useLeadFactoryStream";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 export default function LeadFactoryCompanyPage() {
-  const [, navigate] = useLocation();
   const [brief, setBrief] = useState<LeadFactoryBrief>({
     inputMode: "segment",
     mode: "company",
@@ -19,6 +18,7 @@ export default function LeadFactoryCompanyPage() {
   });
   const [error, setError] = useState<string | null>(null);
   const [jobId, setJobId] = useState<string | null>(null);
+  const agentState = useLeadFactoryStream(jobId);
 
   const run = useMutation({
     mutationFn: async () => {
@@ -34,8 +34,7 @@ export default function LeadFactoryCompanyPage() {
     },
     onSuccess: (data) => {
       setJobId(data.jobId);
-      const numeric = data.jobId?.split("-")[1] || data.jobId;
-      navigate(`/lead-factory/results?jobId=${numeric}`);
+      // Stay on the page so the 7-agent stream renders in the right pane.
     },
     onError: (e) => setError(e instanceof Error ? e.message : String(e)),
   });
@@ -77,6 +76,7 @@ export default function LeadFactoryCompanyPage() {
           jobId={jobId}
           estMatches={estMatches}
           targetCount={brief.targetCount}
+          agentState={agentState}
           error={error}
         />
       </div>

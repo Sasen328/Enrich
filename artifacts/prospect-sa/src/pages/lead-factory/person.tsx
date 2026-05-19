@@ -1,15 +1,14 @@
 import { useState } from "react";
-import { useLocation } from "wouter";
 import { useMutation } from "@tanstack/react-query";
 import { Users } from "lucide-react";
 import { FilterPanel, type LeadFactoryBrief } from "@/components/lead-factory/FilterPanel";
 import { AgentPreview } from "@/components/lead-factory/AgentPreview";
 import { LeadFactoryTabs } from "@/components/lead-factory/LeadFactoryTabs";
+import { useLeadFactoryStream } from "@/hooks/useLeadFactoryStream";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 export default function LeadFactoryPersonPage() {
-  const [, navigate] = useLocation();
   const [brief, setBrief] = useState<LeadFactoryBrief>({
     inputMode: "segment",
     mode: "person",
@@ -18,6 +17,7 @@ export default function LeadFactoryPersonPage() {
   });
   const [error, setError] = useState<string | null>(null);
   const [jobId, setJobId] = useState<string | null>(null);
+  const agentState = useLeadFactoryStream(jobId);
 
   const run = useMutation({
     mutationFn: async () => {
@@ -33,8 +33,9 @@ export default function LeadFactoryPersonPage() {
     },
     onSuccess: (data) => {
       setJobId(data.jobId);
-      const numeric = data.jobId?.split("-")[1] || data.jobId;
-      navigate(`/lead-factory/results?jobId=${numeric}`);
+      // Don't navigate away — stay on the page so the user can watch the
+      // 7-agent stream in the right pane. They can tap "Results" in the
+      // tabs strip after agent_complete agent: 7.
     },
     onError: (e) => setError(e instanceof Error ? e.message : String(e)),
   });
@@ -78,6 +79,7 @@ export default function LeadFactoryPersonPage() {
           jobId={jobId}
           estMatches={estMatches}
           targetCount={brief.targetCount}
+          agentState={agentState}
           error={error}
         />
       </div>

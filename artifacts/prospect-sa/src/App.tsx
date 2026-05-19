@@ -30,6 +30,7 @@ import LeadFactoryPage from "@/pages/lead-factory";
 import LeadFactoryPersonPage from "@/pages/lead-factory/person";
 import LeadFactoryCompanyPage from "@/pages/lead-factory/company";
 import LeadFactoryResultsPage from "@/pages/lead-factory/results";
+import AIChatPage from "@/pages/ai-chat";
 import { Redirect } from "wouter";
 import RelationshipIntelTreePage from "@/pages/relationship-intel/tree";
 import SignalIntelligencePage from "@/pages/signal-intelligence";
@@ -106,6 +107,9 @@ function Router() {
         <Route path="/lead-factory/relationship" component={RelationshipIntelPage} />
         <Route path="/lead-factory/legacy" component={LeadFactoryPage} />
         <Route path="/lead-factory">{() => <Redirect to="/lead-factory/person" />}</Route>
+
+        {/* ── AI Chat Agent (ProsEngine /chat/stream) ─────────────────── */}
+        <Route path="/ai-chat" component={AIChatPage} />
 
         {/* Old paths redirect into the Lead Factory namespace */}
         <Route path="/signal-intelligence/tree">{() => <Redirect to="/lead-factory/signals/tree" />}</Route>
