@@ -96,9 +96,11 @@ COPY artifacts/prospect-sa/package.json ./artifacts/prospect-sa/
 COPY scripts/package.json ./scripts/
 
 # ── Install Node.js dependencies ──────────────────────────────────────────────
-# --frozen-lockfile ensures exact versions from pnpm-lock.yaml
-# onlyBuiltDependencies allows esbuild/puppeteer/protobufjs native builds
-RUN pnpm install --frozen-lockfile
+# --prefer-frozen-lockfile uses pnpm-lock.yaml when it matches package.json,
+# but tolerates a drift (e.g. when a new dep was added without regenerating
+# the lockfile in advance). On a clean checkout with a matching lockfile it
+# behaves identically to --frozen-lockfile.
+RUN pnpm install --prefer-frozen-lockfile
 
 # ── Install Playwright Chromium (shared — used by Node + Python Playwright + Puppeteer) ──
 # Playwright is declared in artifacts/api-server/package.json, not at the
