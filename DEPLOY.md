@@ -6,7 +6,7 @@ There are four sections:
 
 - **Section 1 — Quick start on your laptop** (≈ 30 min, zero coding skills required)
 - **Section 2 — Share a public URL** (free, temporary or permanent)
-- **Section 3 — Always-on hosting** — there's no "free + mobile-only + always-on" option for this app size. Options: Railway ($5/mo, mobile) · Render Starter ($7/mo, mobile) · Oracle Cloud (truly free, one-time desktop setup) · Your own laptop + Cloudflare Tunnel (truly free, only "up" when laptop is on)
+- **Section 3 — Always-on hosting** — there's no "free + mobile-only + always-on" option for this app size. Options: Your own laptop + Cloudflare Tunnel (truly free, only "up" when laptop is on) · Oracle Cloud Ampere A1 (truly free + always-on, one-time desktop setup)
 - **Section 4 — Technical reference** (env vars, smoke tests, ops, troubleshooting, pre-deploy checklist)
 
 ---
@@ -157,45 +157,9 @@ Caddy auto-issues Let's Encrypt certs. Or use the standard nginx + certbot recip
 
 ## Section 3 · Always-on hosting
 
-**Three options, easiest first.** Pick whichever matches your comfort level. All three run the same `docker compose` stack you tested locally in Section 1.
+**Two truly-free options.** Both run the same `docker compose` stack you tested locally in Section 1.
 
-### Option A · Railway (truly one-click — recommended)
-
-**Cost:** $5/month after a $5 free trial. No SSH, no firewall rules, no manual installs. If Oracle Cloud felt heavy, this is the antidote.
-
-The repo ships a `railway.toml` so Railway auto-detects the Dockerfile, the `/api/healthz` healthcheck, and the restart policy — you don't configure any of it in the UI.
-
-1. Sign up at https://railway.com using your GitHub account.
-2. Click **New Project → Deploy from GitHub repo → ProspectSA_Full**. Railway reads `railway.toml` and picks up the Dockerfile.
-3. In the project view, click **+ New → Database → Postgres**. Railway provisions Postgres and exposes `DATABASE_URL` to your app automatically.
-4. Open the **app** service → **Variables** tab. Paste each value from your local `.env`:
-   ```
-   OPENROUTER_API_KEY=...
-   NEXUS_PREFER_FREE_MODELS=true
-   TAVILY_API_KEY=...
-   ANTHROPIC_API_KEY=...        (optional)
-   API_TOKEN=<openssl rand -hex 32>
-   FRONTEND_ORIGIN=https://<your-railway-domain>
-   PORT=3000
-   ```
-   Don't paste `DATABASE_URL` — Railway sets it from the Postgres service.
-5. **Networking → Generate Domain.** Railway gives you `https://prospectsa-<hash>.up.railway.app`.
-6. Done. Push to `main` and Railway redeploys automatically.
-
-For a custom domain: **Networking → Custom Domain →** add `app.yourdomain.com` and copy the CNAME they show to your DNS provider.
-
-### Option B · Render Starter ($7/mo — mobile-friendly)
-
-**Cost:** Render no longer offers a reliably-free web service tier suitable for this app. The Starter plan is ~$7/month per service. The repo ships `render.yaml` so the Blueprint flow handles port, healthcheck, and Postgres wiring in one click.
-
-1. Sign up at https://render.com using GitHub.
-2. **New + → Blueprint → connect your `ProspectSA_Full` repo**. Render reads `render.yaml`.
-3. Click **Apply**. Render generates a random `API_TOKEN` and prompts you to paste `OPENROUTER_API_KEY`, `TAVILY_API_KEY`, `FRONTEND_ORIGIN`, etc.
-4. First build takes 8–12 minutes.
-
-To get the cost down: use external **Neon** (https://neon.tech, permanent free Postgres) instead of Render's bundled DB. Delete the `databases:` block in `render.yaml`, set `DATABASE_URL` to `sync: false`, and paste the Neon connection string when prompted.
-
-### Option B′ · Truly free, mobile-deployable: laptop + Cloudflare Tunnel
+### Option A · Laptop + Cloudflare Tunnel — free, mobile-deployable
 
 This is the **only** path that's reliably **$0 forever AND mobile-controllable** for an app this size. It's not always-on — only "up" when your laptop is on — but every other constraint is met.
 
@@ -204,9 +168,9 @@ This is the **only** path that's reliably **$0 forever AND mobile-controllable**
 3. **For a public URL:** install `cloudflared` on the laptop once and run `cloudflared tunnel --url http://localhost:3000` in a terminal. It prints a `https://*.trycloudflare.com` URL anyone can open. No DNS, no firewall, no payment.
 4. **To make it permanent:** create a named tunnel in your Cloudflare dashboard (also free) and run `cloudflared` as a system service so it survives reboots.
 
-Honest caveat: the moment your laptop sleeps or loses power, the app goes down. For a B2B prospecting tool that needs to harvest leads overnight, that's a real limitation. If you need 24/7 uptime AND $0, the only option is **Oracle Cloud Always-Free (Option C)** — set it up once with a friend, and it runs forever on Oracle's machines.
+Honest caveat: the moment your laptop sleeps or loses power, the app goes down. For a B2B prospecting tool that needs to harvest leads overnight, that's a real limitation. If you need 24/7 uptime AND $0, the only option is **Oracle Cloud Always-Free (Option B)** — set it up once with a friend, and it runs forever on Oracle's machines.
 
-### Option C · Oracle Cloud Always-Free (most powerful, most setup)
+### Option B · Oracle Cloud Always-Free — free + always-on
 
 Puts ProspectSA on a server that runs 24/7 even when your laptop is off. **Permanently free** with Oracle Cloud's "Always Free" Ampere A1 tier (4 ARM cores + 24 GB RAM — plenty for ProspectSA). The Dockerfile is multi-arch so it runs on ARM.
 
