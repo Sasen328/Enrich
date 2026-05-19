@@ -54,15 +54,42 @@ async function buildAll() {
   console.log("building server...");
   const pkgPath = path.resolve(__dirname, "package.json");
   const pkg = JSON.parse(await readFile(pkgPath, "utf-8"));
+
+  // ── Externals strategy ────────────────────────────────────────────────────
+  // Previously: bundled allowlisted packages, externalized everything else.
+  // That assumed every non-bundled dep would resolve at runtime via
+  // node_modules walking, which breaks in pnpm symlink farms and when running
+  // the CJS bundle from /app/artifacts/api-server/dist/. The result was
+  // "Cannot find module" crashes the moment the container booted.
+  //
+  // New strategy: externalize ONLY the deps that are known to be incompatible
+  // with bundling (native bindings, dynamic-require packages, browser binaries).
+  // Everything else gets bundled. Workspace deps (workspace:*) stay inlined.
+  const KNOWN_INCOMPATIBLE = new Set([
+    "playwright",
+    "playwright-core",
+    "puppeteer",
+    "puppeteer-core",
+    "puppeteer-extra",
+    "puppeteer-extra-plugin-stealth",
+    "pdfkit",          // native pdf rendering
+    "@types/pdfkit",
+    "drizzle-kit",     // CLI, not a runtime dep
+    "tsx",             // build-time only
+    "typescript",      // build-time only
+    "esbuild",         // build-time only
+    "vite",            // build-time only
+  ]);
   const allDeps = [
     ...Object.keys(pkg.dependencies || {}),
     ...Object.keys(pkg.devDependencies || {}),
   ];
   const externals = allDeps.filter(
     (dep) =>
-      !allowlist.includes(dep) &&
+      KNOWN_INCOMPATIBLE.has(dep) &&
       !(pkg.dependencies?.[dep]?.startsWith("workspace:")),
   );
+  console.log(`externals: ${externals.join(", ") || "(none)"}`);
 
   await esbuild({
     entryPoints: [path.resolve(__dirname, "src/index.ts")],
@@ -73,7 +100,10 @@ async function buildAll() {
     define: {
       "process.env.NODE_ENV": '"production"',
     },
-    minify: true,
+    // Preserve readable error stacks so runtime crashes are debuggable.
+    // Re-enable minify once the deploy is stable.
+    minify: false,
+    sourcemap: "inline",
     external: externals,
     logLevel: "info",
   });
