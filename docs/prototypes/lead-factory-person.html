@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ProspectSA — Lead Factory · Person Hunt (prototype)</title>
+<style>
+  /* ── Chameleon DNA palette ───────────────────────────────────────── */
+  :root {
+    --brand-lavender:   hsl(276 32% 71%);
+    --brand-rose:       hsl(322 23% 69%);
+    --brand-seafoam:    hsl(170 25% 63%);
+    --brand-sand:       hsl( 33 41% 64%);
+    --brand-mist:       hsl(180 22% 64%);
+    --brand-olive:      hsl( 60 32% 61%);
+    --brand-base:       hsl(285 25% 96%);
+    --brand-ink:        hsl(273 22% 24%);
+    --bg:               hsl(285 25% 96%);
+    --surface:          hsl(285 30% 99%);
+    --surface-soft:     hsl(285 14% 91%);
+    --border:           hsl(285 12% 85%);
+    --text:             hsl(273 22% 24%);
+    --text-muted:       hsl(273 12% 40%);
+    --primary:          var(--brand-lavender);
+    --primary-ink:      hsl(273 22% 24%);
+    --accent:           var(--brand-seafoam);
+    --wealth:           var(--brand-sand);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: "DM Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+    color: var(--text);
+    background: var(--bg);
+    background-image:
+      radial-gradient(60% 50% at 18% 12%,  hsla(276 32% 71% / 0.18) 0%, transparent 60%),
+      radial-gradient(55% 45% at 82% 22%,  hsla(170 25% 63% / 0.14) 0%, transparent 60%),
+      radial-gradient(50% 45% at 12% 78%,  hsla( 33 41% 64% / 0.13) 0%, transparent 60%),
+      radial-gradient(55% 50% at 88% 82%,  hsla(322 23% 69% / 0.14) 0%, transparent 60%);
+    background-attachment: fixed;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  .display {
+    font-family: "DM Serif Display", Georgia, serif;
+    letter-spacing: -0.01em;
+  }
+  /* ── Layout ─────────────────────────────────────────────────────── */
+  .app {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    min-height: 100vh;
+  }
+  @media (max-width: 720px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+  }
+  /* ── Sidebar ────────────────────────────────────────────────────── */
+  .sidebar {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 16px 12px;
+  }
+  .brand {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 8px 18px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 12px;
+  }
+  .brand-mark {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-seafoam) 50%, var(--brand-sand) 100%);
+  }
+  .brand-name { font-weight: 700; font-size: 16px; }
+  .brand-status { font-size: 10px; color: var(--text-muted); }
+  .nav-section { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin: 16px 8px 6px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 13px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .nav-item:hover { background: var(--surface-soft); }
+  .nav-item.active {
+    background: hsla(276 32% 71% / 0.20);
+    color: var(--text);
+    font-weight: 600;
+  }
+  .nav-item.sub { padding-left: 28px; font-size: 12px; color: var(--text-muted); }
+  .nav-item .badge {
+    margin-left: auto;
+    font-size: 9px; font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 999px;
+    background: hsla(170 25% 63% / 0.20);
+    color: hsl(170 25% 40%);
+    border: 1px solid hsla(170 25% 63% / 0.40);
+  }
+  .nav-icon { width: 16px; height: 16px; opacity: 0.7; }
+  /* ── Main ───────────────────────────────────────────────────────── */
+  .main { padding: 20px clamp(16px, 4vw, 32px); }
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 18px;
+  }
+  .theme-toggle {
+    width: 32px; height: 32px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--surface);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+  .live-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: hsla(170 25% 63% / 0.15);
+    color: hsl(170 25% 30%);
+    font-size: 11px; font-weight: 600;
+    border: 1px solid hsla(170 25% 63% / 0.35);
+  }
+  .live-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: hsl(170 50% 45%);
+    box-shadow: 0 0 6px hsla(170 50% 45% / 0.6);
+  }
+  .h1 {
+    font-size: 28px; font-weight: 700;
+    margin: 0 0 4px;
+  }
+  .subtitle { color: var(--text-muted); font-size: 13px; margin-bottom: 18px; }
+  /* ── Two-column form ───────────────────────────────────────────── */
+  .columns {
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    gap: 18px;
+  }
+  @media (max-width: 980px) {
+    .columns { grid-template-columns: 1fr; }
+  }
+  .panel {
+    background: hsla(285 30% 99% / 0.65);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    backdrop-filter: blur(20px) saturate(180%);
+    overflow: hidden;
+    box-shadow: 0 4px 24px hsla(273 22% 24% / 0.08);
+  }
+  .panel-head {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 14px;
+    background: hsla(285 30% 99% / 0.6);
+    border-bottom: 1px solid var(--border);
+    font-size: 13px; font-weight: 600;
+  }
+  .section {
+    border-bottom: 1px solid hsla(285 12% 85% / 0.6);
+  }
+  .section:last-child { border-bottom: 0; }
+  .section-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px;
+    cursor: pointer;
+    font-size: 11px; font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .section-body { padding: 4px 14px 14px; }
+  .label { font-size: 11px; color: var(--text-muted); margin-bottom: 5px; }
+  .chips {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    margin-bottom: 10px;
+  }
+  .chip {
+    font-size: 11px;
+    padding: 4px 9px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: hsla(285 30% 99% / 0.7);
+    color: var(--text-muted);
+    cursor: pointer;
+    user-select: none;
+  }
+  .chip.on {
+    background: hsla(276 32% 71% / 0.22);
+    border-color: hsla(276 32% 71% / 0.55);
+    color: hsl(273 22% 24%);
+    font-weight: 600;
+  }
+  .input {
+    width: 100%;
+    padding: 6px 10px;
+    font-size: 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: hsla(285 30% 99% / 0.8);
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .range { display: flex; gap: 8px; align-items: center; font-size: 12px; }
+  .checkbox-row {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; padding: 3px 0;
+  }
+  /* ── Submit ─────────────────────────────────────────────────────── */
+  .submit-bar {
+    padding: 12px 14px;
+    border-top: 1px solid var(--border);
+    background: hsla(285 30% 99% / 0.6);
+  }
+  .btn-primary {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 0;
+    cursor: pointer;
+    font-weight: 700;
+    color: var(--text);
+    background: linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-seafoam) 50%, var(--brand-sand) 100%);
+    box-shadow: 0 0 20px hsla(276 32% 71% / 0.30);
+  }
+  /* ── Right pane: preview / progress ─────────────────────────────── */
+  .preview { padding: 16px; min-height: 360px; }
+  .stats {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+    margin: 12px 0 16px;
+  }
+  .stat {
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: hsla(285 30% 99% / 0.6);
+    text-align: center;
+  }
+  .stat .v { font-size: 22px; font-weight: 700; }
+  .stat .v.lav { color: hsl(276 32% 50%); }
+  .stat .v.sea { color: hsl(170 25% 38%); }
+  .stat .v.sand { color: hsl(33 41% 42%); }
+  .stat .l { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .agent-list { display: flex; flex-direction: column; gap: 6px; }
+  .agent {
+    display: grid; grid-template-columns: 32px 1fr auto; gap: 12px;
+    align-items: center;
+    padding: 9px 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: hsla(285 30% 99% / 0.6);
+  }
+  .agent .n {
+    width: 24px; height: 24px; border-radius: 6px;
+    background: hsla(276 32% 71% / 0.20);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 12px;
+  }
+  .agent .t { font-size: 13px; }
+  .agent .st { font-size: 11px; color: var(--text-muted); }
+  .agent.done .n { background: hsla(170 25% 63% / 0.25); color: hsl(170 25% 30%); }
+  .agent.running .n { background: hsla(33 41% 64% / 0.25); color: hsl(33 41% 30%); }
+  .footer-hint {
+    margin-top: 20px;
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- ── Sidebar ───────────────────────────────────────────────── -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div>
+        <div class="brand-name display">ProspectSA</div>
+        <div class="brand-status">● Live · Codespace</div>
+      </div>
+    </div>
+
+    <div class="nav-section">Platform</div>
+    <div class="nav-item">📊 Dashboard</div>
+    <div class="nav-item">🎯 Leads</div>
+    <div class="nav-item active">⚡ Lead Factory <span class="badge">7-Agent</span></div>
+    <div class="nav-item sub">↳ Company Hunt</div>
+
+    <div class="nav-section">Intelligence</div>
+    <div class="nav-item">🧠 ProsEngine</div>
+    <div class="nav-item">🏛 Masaar</div>
+    <div class="nav-item">🌐 OrcEngine</div>
+    <div class="nav-item">🗄 AI Database Builder</div>
+    <div class="nav-item">📡 Signal Intelligence</div>
+    <div class="nav-item">🕸 Relationship Intel</div>
+  </aside>
+
+  <!-- ── Main ──────────────────────────────────────────────────── -->
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <div class="h1 display">Lead Factory <span style="color: var(--text-muted); font-size: 18px;">/ Person Hunt</span></div>
+        <div class="subtitle">Search by the <strong>person</strong> you want to reach. Their company is harvested as a side-effect.</div>
+      </div>
+      <div style="display:flex; gap: 10px; align-items: center;">
+        <button class="theme-toggle">☀</button>
+        <span class="live-pill"><span class="live-dot"></span>System Operational</span>
+      </div>
+    </div>
+
+    <div class="columns">
+
+      <!-- ── Filter panel ──────────────────────────────────────── -->
+      <div class="panel">
+        <div class="panel-head">🔧 Filters — Person mode</div>
+
+        <div class="section">
+          <div class="section-head">ICP description ▾</div>
+          <div class="section-body">
+            <input class="input" placeholder='e.g. "SaaS CTOs in Riyadh, fintech-leaning, 5+ yrs in role"' />
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-head">Person identity ▾</div>
+          <div class="section-body">
+            <div class="label">Target titles</div>
+            <input class="input" placeholder="CTO, VP Engineering, Head of Data, …" />
+            <div class="label" style="margin-top: 6px;">Seniority</div>
+            <div class="chips">
+              <span class="chip on">c_level</span>
+              <span class="chip on">vp</span>
+              <span class="chip">director</span>
+              <span class="chip">manager</span>
+              <span class="chip">senior</span>
+              <span class="chip">mid</span>
+            </div>
+            <div class="label">Department</div>
+            <div class="chips">
+              <span class="chip on">engineering</span>
+              <span class="chip">product</span>
+              <span class="chip">it</span>
+              <span class="chip">executive</span>
+              <span class="chip">sales</span>
+            </div>
+            <div class="label">Languages</div>
+            <div class="chips">
+              <span class="chip on">Arabic</span>
+              <span class="chip on">English</span>
+              <span class="chip">Hindi</span>
+              <span class="chip">Urdu</span>
+            </div>
+            <div class="label">Years in current role</div>
+            <div class="range">
+              <input class="input" style="margin: 0;" type="number" value="0" />
+              <span>to</span>
+              <input class="input" style="margin: 0;" type="number" value="40" />
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-head">Their company (firmographic) ▾</div>
+          <div class="section-body">
+            <div class="label">Industry</div>
+            <div class="chips">
+              <span class="chip on">Technology</span>
+              <span class="chip">Financial Services</span>
+              <span class="chip">Healthcare</span>
+              <span class="chip">Retail</span>
+              <span class="chip">Manufacturing</span>
+            </div>
+            <div class="label">Employees</div>
+            <div class="chips">
+              <span class="chip">1-10</span>
+              <span class="chip on">11-50</span>
+              <span class="chip on">51-200</span>
+              <span class="chip">201-500</span>
+              <span class="chip">501-1000</span>
+              <span class="chip">5001+</span>
+            </div>
+            <div class="label">Revenue (SAR)</div>
+            <div class="chips">
+              <span class="chip">&lt;1M</span>
+              <span class="chip on">1-10M</span>
+              <span class="chip on">10-50M</span>
+              <span class="chip">50-250M</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-head">Location ▾</div>
+          <div class="section-body">
+            <div class="label">Region</div>
+            <div class="chips">
+              <span class="chip on">Riyadh</span>
+              <span class="chip on">Eastern Province</span>
+              <span class="chip">Makkah</span>
+              <span class="chip">Madinah</span>
+              <span class="chip">Asir</span>
+            </div>
+            <div class="label">City</div>
+            <div class="chips">
+              <span class="chip on">Riyadh</span>
+              <span class="chip on">Jeddah</span>
+              <span class="chip">Dammam</span>
+              <span class="chip">Khobar</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-head">Buying signals ▾</div>
+          <div class="section-body">
+            <div class="chips">
+              <span class="chip on">hiring_surge</span>
+              <span class="chip on">funding_round</span>
+              <span class="chip">leadership_change</span>
+              <span class="chip">expansion</span>
+              <span class="chip">contract_award</span>
+            </div>
+            <div class="label">Recency (days)</div>
+            <input class="input" type="number" value="30" />
+            <div class="label">Min ICP score</div>
+            <input class="input" type="number" value="60" />
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-head">Output ▾</div>
+          <div class="section-body">
+            <div class="chips">
+              <span class="chip">25</span>
+              <span class="chip on">50</span>
+              <span class="chip">100</span>
+              <span class="chip">250</span>
+            </div>
+            <div class="label">Enrichment depth</div>
+            <div class="chips">
+              <span class="chip">shallow</span>
+              <span class="chip on">standard</span>
+              <span class="chip">deep</span>
+            </div>
+            <label class="checkbox-row">
+              <input type="checkbox" checked /> Auto-trigger Signals + Relationship Intel for each new company
+            </label>
+          </div>
+        </div>
+
+        <div class="submit-bar">
+          <button class="btn-primary">Run Person Hunt →</button>
+        </div>
+      </div>
+
+      <!-- ── Right pane: 7-agent run preview ───────────────────── -->
+      <div class="panel preview">
+        <div style="font-weight:700; font-size: 14px;">Run preview · 7-agent pipeline</div>
+
+        <div class="stats">
+          <div class="stat"><div class="v lav">~84</div><div class="l">Est. matches</div></div>
+          <div class="stat"><div class="v sea">50</div><div class="l">Target count</div></div>
+          <div class="stat"><div class="v sand">$0</div><div class="l">Marginal cost</div></div>
+        </div>
+
+        <div class="agent-list">
+          <div class="agent done">
+            <span class="n">1</span>
+            <div><div class="t">ICP Mapper &amp; Source Orchestrator</div><div class="st">Brief → prioritised sourcing plan</div></div>
+            <div class="st">✓ done</div>
+          </div>
+          <div class="agent done">
+            <span class="n">2</span>
+            <div><div class="t">Lead Harvester</div><div class="st">40+ free sources · Tavily · SearXNG · Google News · Saudi RSS</div></div>
+            <div class="st">✓ 167 raw</div>
+          </div>
+          <div class="agent running">
+            <span class="n">3</span>
+            <div><div class="t">Deep Enrichment</div><div class="st">Scout · GLEIF · OpenCorporates · Wikidata · Gemini</div></div>
+            <div class="st">⚡ 62 / 167</div>
+          </div>
+          <div class="agent">
+            <span class="n">4</span>
+            <div><div class="t">Signal Intelligence</div><div class="st">News · sanctions · regulatory · hiring · contracts</div></div>
+            <div class="st">queued</div>
+          </div>
+          <div class="agent">
+            <span class="n">5</span>
+            <div><div class="t">Validate, Verify &amp; Deduplicate</div><div class="st">MX · domain liveness · dummy detection · fingerprint dedup</div></div>
+            <div class="st">queued</div>
+          </div>
+          <div class="agent">
+            <span class="n">6</span>
+            <div><div class="t">ICP Scoring &amp; AI Copywriter</div><div class="st">Composite score · email · LinkedIn · WhatsApp · opening angle</div></div>
+            <div class="st">queued</div>
+          </div>
+          <div class="agent">
+            <span class="n">7</span>
+            <div><div class="t">Publish &amp; Seed</div><div class="st">Bridges into companies / leads / executives · fires Signals</div></div>
+            <div class="st">queued</div>
+          </div>
+        </div>
+
+        <div class="footer-hint">
+          When the pipeline completes, results land at <code>/lead-factory/results?jobId=…</code> with the row table + drawer (firmographics · signals timeline · outreach previews · Run Person Intel · Run Company Intel · Run Relationship Intel · Publish).
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  // Toggle chips on click for the demo
+  document.querySelectorAll('.chip').forEach(c => {
+    c.addEventListener('click', () => c.classList.toggle('on'));
+  });
+</script>
+</body>
+</html>
