@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ProspectSA — Live Prototype (sidebar + Lead Factory tabs + agents + AI Chat)</title>
+<style>
+:root {
+  --brand-lavender:   hsl(276 32% 71%);
+  --brand-rose:       hsl(322 23% 69%);
+  --brand-seafoam:    hsl(170 25% 63%);
+  --brand-sand:       hsl( 33 41% 64%);
+  --brand-mist:       hsl(180 22% 64%);
+  --brand-olive:      hsl( 60 32% 61%);
+  --brand-base:       hsl(285 25% 96%);
+  --brand-ink:        hsl(273 22% 24%);
+  --bg:               hsl(285 25% 96%);
+  --surface:          hsl(285 30% 99%);
+  --surface-soft:     hsl(285 14% 91%);
+  --border:           hsl(285 12% 85%);
+  --text:             hsl(273 22% 24%);
+  --text-muted:       hsl(273 12% 40%);
+  --primary:          var(--brand-lavender);
+  --accent:           var(--brand-seafoam);
+  --wealth:           var(--brand-sand);
+  --emerald:          hsl(155 50% 45%);
+  --amber:            hsl( 40 80% 50%);
+  --red:              hsl(  0 70% 55%);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; height: 100%; }
+body {
+  font-family: "DM Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  background-image:
+    radial-gradient(60% 50% at 18% 12%,  hsla(276 32% 71% / 0.18) 0%, transparent 60%),
+    radial-gradient(55% 45% at 82% 22%,  hsla(170 25% 63% / 0.14) 0%, transparent 60%),
+    radial-gradient(50% 45% at 12% 78%,  hsla( 33 41% 64% / 0.13) 0%, transparent 60%),
+    radial-gradient(55% 50% at 88% 82%,  hsla(322 23% 69% / 0.14) 0%, transparent 60%);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+.display { font-family: "DM Serif Display", Georgia, serif; letter-spacing: -0.01em; }
+.app { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
+@media (max-width: 720px) { .app { grid-template-columns: 1fr; } .sidebar { display: none; } }
+/* Sidebar */
+.sidebar { background: var(--surface); border-right: 1px solid var(--border); padding: 16px 12px; }
+.brand { display: flex; align-items: center; gap: 10px; padding: 8px 8px 18px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
+.brand-mark { width: 32px; height: 32px; border-radius: 8px; background: linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-seafoam) 50%, var(--brand-sand) 100%); }
+.brand-name { font-weight: 700; font-size: 16px; }
+.brand-status { font-size: 10px; color: var(--text-muted); }
+.nav-section { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin: 16px 8px 6px; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; color: var(--text); font-size: 13px; cursor: pointer; user-select: none; }
+.nav-item:hover { background: var(--surface-soft); }
+.nav-item.active { background: hsla(276 32% 71% / 0.20); font-weight: 600; }
+.nav-item.sub { padding-left: 28px; font-size: 12px; color: var(--text-muted); }
+.nav-item .badge { margin-left: auto; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 999px; background: hsla(170 25% 63% / 0.20); color: hsl(170 25% 40%); border: 1px solid hsla(170 25% 63% / 0.40); }
+.icon { width: 14px; height: 14px; display: inline-block; }
+/* Main */
+.main { padding: 20px clamp(16px, 4vw, 32px); }
+.topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.live-pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: hsla(170 25% 63% / 0.15); color: hsl(170 25% 30%); font-size: 11px; font-weight: 600; border: 1px solid hsla(170 25% 63% / 0.35); }
+.live-dot { width: 6px; height: 6px; border-radius: 50%; background: hsl(170 50% 45%); box-shadow: 0 0 6px hsla(170 50% 45% / 0.6); }
+.h1 { font-size: 26px; font-weight: 700; margin: 0 0 4px; }
+.subtitle { color: var(--text-muted); font-size: 13px; margin-bottom: 14px; }
+/* Lead Factory tabs strip */
+.lf-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 18px; overflow-x: auto; padding-bottom: 1px; }
+.lf-tab { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 8px 8px 0 0; font-size: 13px; font-weight: 500; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; margin-bottom: -1px; }
+.lf-tab:hover { background: var(--surface-soft); color: var(--text); }
+.lf-tab.active { color: var(--primary); border-bottom-color: var(--primary); background: hsla(276 32% 71% / 0.06); font-weight: 600; }
+/* Columns */
+.columns { display: grid; grid-template-columns: 420px 1fr; gap: 18px; }
+@media (max-width: 980px) { .columns { grid-template-columns: 1fr; } }
+.panel { background: hsla(285 30% 99% / 0.7); border: 1px solid var(--border); border-radius: 14px; backdrop-filter: blur(20px) saturate(180%); overflow: hidden; box-shadow: 0 4px 24px hsla(273 22% 24% / 0.08); }
+.panel-head { display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: hsla(285 30% 99% / 0.6); border-bottom: 1px solid var(--border); font-size: 13px; font-weight: 600; }
+.section { border-bottom: 1px solid hsla(285 12% 85% / 0.6); }
+.section:last-child { border-bottom: 0; }
+.section-head { padding: 10px 14px; cursor: pointer; font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.section-body { padding: 4px 14px 14px; }
+.label { font-size: 11px; color: var(--text-muted); margin-bottom: 5px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.chip { font-size: 11px; padding: 4px 9px; border-radius: 8px; border: 1px solid var(--border); background: hsla(285 30% 99% / 0.7); color: var(--text-muted); cursor: pointer; user-select: none; }
+.chip.on { background: hsla(276 32% 71% / 0.22); border-color: hsla(276 32% 71% / 0.55); color: hsl(273 22% 24%); font-weight: 600; }
+.input { width: 100%; padding: 6px 10px; font-size: 12px; border: 1px solid var(--border); border-radius: 8px; background: hsla(285 30% 99% / 0.8); color: var(--text); margin-bottom: 6px; }
+.submit-bar { padding: 12px 14px; border-top: 1px solid var(--border); background: hsla(285 30% 99% / 0.6); }
+.btn-primary { width: 100%; padding: 10px 14px; border-radius: 10px; border: 0; cursor: pointer; font-weight: 700; color: var(--text); background: linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-seafoam) 50%, var(--brand-sand) 100%); box-shadow: 0 0 20px hsla(276 32% 71% / 0.30); }
+.preview { padding: 16px; min-height: 360px; }
+.status-pill { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
+.status-pill.running { background: hsla(40 80% 50% / 0.15); color: hsl(40 80% 35%); }
+.status-pill.done { background: hsla(155 50% 45% / 0.15); color: hsl(155 50% 30%); }
+.status-pill.failed { background: hsla(0 70% 55% / 0.15); color: hsl(0 70% 40%); }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 12px 0 16px; }
+.stat { padding: 12px; border: 1px solid var(--border); border-radius: 10px; background: hsla(285 30% 99% / 0.6); text-align: center; }
+.stat .v { font-size: 22px; font-weight: 700; }
+.stat .v.lav { color: hsl(276 32% 50%); }
+.stat .v.sea { color: hsl(170 25% 38%); }
+.stat .v.sand { color: hsl(33 41% 42%); }
+.stat .l { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+/* Agent rows */
+.agent-list { display: flex; flex-direction: column; gap: 6px; }
+.agent { display: grid; grid-template-columns: 32px 1fr auto; gap: 12px; align-items: center; padding: 9px 12px; border: 1px solid var(--border); border-radius: 10px; background: hsla(285 30% 99% / 0.6); transition: all 200ms; }
+.agent .n { width: 24px; height: 24px; border-radius: 6px; background: var(--surface-soft); color: var(--text-muted); display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; }
+.agent .t { font-size: 13px; font-weight: 500; }
+.agent .st { font-size: 11px; color: var(--text-muted); font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+.agent .log { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+.agent.done { border-color: hsla(155 50% 45% / 0.3); }
+.agent.done .n { background: hsla(155 50% 45% / 0.2); color: var(--emerald); }
+.agent.running { border-color: hsla(276 32% 71% / 0.5); background: hsla(276 32% 71% / 0.06); box-shadow: 0 0 0 1px hsla(276 32% 71% / 0.18); }
+.agent.running .n { background: hsla(276 32% 71% / 0.2); color: hsl(276 32% 35%); }
+.spin { display: inline-block; animation: spin 1s linear infinite; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+/* AI Chat */
+.chat-wrap { height: 78vh; display: flex; flex-direction: column; }
+.chat-header { border-bottom: 1px solid var(--border); padding: 12px 16px; background: hsla(285 30% 99% / 0.6); }
+.chat-body { flex: 1; overflow-y: auto; padding: 24px 16px; }
+.chat-suggest { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; max-width: 720px; margin: 18px auto 0; }
+@media (max-width: 600px) { .chat-suggest { grid-template-columns: 1fr; } }
+.chat-suggest button { text-align: left; font-size: 12px; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: hsla(285 30% 99% / 0.6); cursor: pointer; color: var(--text); }
+.chat-suggest button:hover { border-color: hsla(276 32% 71% / 0.5); background: hsla(285 30% 99% / 0.9); }
+.chat-greet { text-align: center; padding: 48px 0; }
+.chat-greet-mark { display: inline-flex; width: 56px; height: 56px; border-radius: 16px; background: linear-gradient(135deg, var(--brand-lavender), var(--brand-seafoam), var(--brand-sand)); align-items: center; justify-content: center; color: white; font-size: 24px; }
+.chat-msg-row { display: flex; gap: 12px; margin-bottom: 16px; max-width: 720px; margin-left: auto; margin-right: auto; }
+.chat-msg-row.user { justify-content: flex-end; }
+.chat-avatar { width: 32px; height: 32px; border-radius: 8px; flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; color: white; }
+.chat-avatar.ai { background: linear-gradient(135deg, var(--brand-lavender), var(--brand-seafoam), var(--brand-sand)); }
+.chat-avatar.user { background: var(--surface-soft); color: var(--text); }
+.chat-bubble { font-size: 13px; padding: 12px 14px; border-radius: 14px; max-width: 80%; white-space: pre-wrap; }
+.chat-bubble.user { background: var(--primary); color: var(--text); }
+.chat-bubble.ai { background: hsla(285 30% 99% / 0.7); border: 1px solid var(--border); }
+.chat-tool { font-size: 10px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+.chat-tool .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--primary); display: inline-block; }
+.chat-footer { border-top: 1px solid var(--border); padding: 10px 16px; background: hsla(285 30% 99% / 0.6); }
+.chat-input-row { display: flex; gap: 8px; max-width: 720px; margin: 0 auto; }
+.chat-input { flex: 1; padding: 10px 14px; border: 1px solid var(--border); border-radius: 999px; background: white; font-size: 13px; }
+.chat-send { padding: 0 16px; border-radius: 999px; border: 0; background: var(--primary); color: var(--text); font-weight: 600; cursor: pointer; }
+/* View routing */
+.view { display: none; }
+.view.active { display: block; }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div>
+        <div class="brand-name display">ProspectSA</div>
+        <div class="brand-status">● Live · Codespace</div>
+      </div>
+    </div>
+    <div class="nav-section">Platform</div>
+    <div class="nav-item" data-view="dashboard">📊 Dashboard</div>
+    <div class="nav-item" data-view="aichat">✨ AI Chat</div>
+    <div class="nav-item" data-view="leads">🎯 Leads</div>
+    <div class="nav-item active" data-view="person">⚡ Lead Factory <span class="badge">7-Agent</span></div>
+    <div class="nav-item sub" data-view="company">↳ Company Hunt</div>
+    <div class="nav-section">Intelligence</div>
+    <div class="nav-item">🧠 ProsEngine</div>
+    <div class="nav-item">🏛 Masaar</div>
+    <div class="nav-item">🌐 OrcEngine</div>
+    <div class="nav-item">🗄 AI Database Builder</div>
+    <!-- Signal + Relationship intentionally NOT here — they're tabs inside Lead Factory now -->
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- ── VIEW: Person Hunt with live agent state ────────────────────────── -->
+    <div class="view active" id="view-person">
+      <div class="topbar">
+        <div>
+          <div class="h1 display">Lead Factory <span style="color: var(--text-muted); font-size: 18px;">/ Person Hunt</span></div>
+          <div class="subtitle">Search by the <strong>person</strong> you want to reach. Their company is harvested as a side-effect.</div>
+        </div>
+        <div style="display:flex; gap:10px; align-items:center;">
+          <span class="live-pill"><span class="live-dot"></span>System Operational</span>
+        </div>
+      </div>
+
+      <!-- Lead Factory tabs strip -->
+      <div class="lf-tabs">
+        <div class="lf-tab active">👥 Person Hunt</div>
+        <div class="lf-tab" data-view="company">🏢 Company Hunt</div>
+        <div class="lf-tab" data-view="results">📊 Results</div>
+        <div class="lf-tab" data-view="signals">📡 Signals</div>
+        <div class="lf-tab" data-view="relationship">🕸 Relationship</div>
+      </div>
+
+      <div class="columns">
+        <!-- Filter panel -->
+        <div class="panel">
+          <div class="panel-head">🔧 Filters — Person mode</div>
+          <div class="section">
+            <div class="section-head">Person identity ▾</div>
+            <div class="section-body">
+              <div class="label">Target titles</div>
+              <input class="input" placeholder="CTO, VP Engineering, …" />
+              <div class="label">Seniority</div>
+              <div class="chips">
+                <span class="chip on">c_level</span><span class="chip on">vp</span><span class="chip">director</span><span class="chip">manager</span>
+              </div>
+              <div class="label">Department</div>
+              <div class="chips">
+                <span class="chip on">engineering</span><span class="chip">product</span><span class="chip">it</span>
+              </div>
+              <div class="label">Languages</div>
+              <div class="chips">
+                <span class="chip on">Arabic</span><span class="chip on">English</span><span class="chip">Hindi</span>
+              </div>
+            </div>
+          </div>
+          <div class="section">
+            <div class="section-head">Firmographics ▾</div>
+            <div class="section-body">
+              <div class="label">Industry</div>
+              <div class="chips">
+                <span class="chip on">Technology</span><span class="chip">Financial Services</span><span class="chip">Healthcare</span>
+              </div>
+              <div class="label">Employees</div>
+              <div class="chips">
+                <span class="chip on">11-50</span><span class="chip on">51-200</span><span class="chip">201-500</span>
+              </div>
+            </div>
+          </div>
+          <div class="section">
+            <div class="section-head">Location ▾</div>
+            <div class="section-body">
+              <div class="label">City</div>
+              <div class="chips">
+                <span class="chip on">Riyadh</span><span class="chip on">Jeddah</span><span class="chip">Dammam</span>
+              </div>
+            </div>
+          </div>
+          <div class="section">
+            <div class="section-head">Buying signals ▾</div>
+            <div class="section-body">
+              <div class="chips">
+                <span class="chip on">hiring_surge</span><span class="chip on">funding_round</span><span class="chip">expansion</span>
+              </div>
+            </div>
+          </div>
+          <div class="submit-bar"><button class="btn-primary" id="runBtn">Run Person Hunt →</button></div>
+        </div>
+
+        <!-- Live agent preview -->
+        <div class="panel preview">
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+            <span style="font-weight:700; font-size: 14px;">⚡ Run · job <span id="jobLabel" style="font-family:ui-monospace,Menlo,monospace; color:var(--text-muted);">lf-42</span></span>
+            <span class="status-pill running" id="statusPill">⚡ running</span>
+          </div>
+          <div class="stats">
+            <div class="stat"><div class="v lav">~84</div><div class="l">Est. matches</div></div>
+            <div class="stat"><div class="v sea">50</div><div class="l">Target count</div></div>
+            <div class="stat"><div class="v sand">$0</div><div class="l">Marginal cost</div></div>
+          </div>
+          <div class="agent-list" id="agentList">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── VIEW: AI Chat ──────────────────────────────────────────────────── -->
+    <div class="view" id="view-aichat">
+      <div class="topbar">
+        <div>
+          <div class="h1 display">AI Chat Agent</div>
+          <div class="subtitle">Powered by ProsEngine · Perplexity · Tavily · deep research</div>
+        </div>
+      </div>
+      <div class="panel chat-wrap">
+        <div class="chat-header">
+          <div style="font-size:14px; font-weight:700; display:flex; align-items:center; gap:8px;">
+            ✨ Conversation
+            <span style="font-size:10px; font-weight:400; color:var(--text-muted);">Streaming · Claude-routed</span>
+          </div>
+        </div>
+        <div class="chat-body" id="chatBody">
+          <div class="chat-greet">
+            <div class="chat-greet-mark">✨</div>
+            <h2 class="display" style="margin: 14px 0 6px;">What do you want to research?</h2>
+            <div style="color:var(--text-muted); font-size:13px; max-width: 480px; margin: 0 auto;">
+              Ask in plain English. The agent will route to Perplexity, deep research, URL crawl, or knowledge as needed.
+            </div>
+            <div class="chat-suggest">
+              <button>Find me 5 SaaS CTOs in Riyadh actively hiring engineers</button>
+              <button>Research stc.com.sa and summarise the board</button>
+              <button>Who at Aramco handles digital-transformation procurement?</button>
+              <button>Saudi manufacturers exporting to UAE that raised in 2024</button>
+            </div>
+          </div>
+          <!-- Live messages appear here when the demo is animated -->
+        </div>
+        <div class="chat-footer">
+          <div class="chat-input-row">
+            <input class="chat-input" placeholder="Ask anything… (e.g. 'Find CTOs at Saudi fintechs that raised in 2024')" />
+            <button class="chat-send">➤</button>
+          </div>
+          <div style="font-size:10px; color:var(--text-muted); text-align:center; margin-top:6px;">
+            Calls Perplexity, Tavily and deep-research tools as needed.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── VIEW: Company Hunt ─────────────────────────────────────────────── -->
+    <div class="view" id="view-company">
+      <div class="topbar">
+        <div>
+          <div class="h1 display">Lead Factory <span style="color: var(--text-muted); font-size: 18px;">/ Company Hunt</span></div>
+          <div class="subtitle">Search by company-level ICP. Contacts are harvested per company.</div>
+        </div>
+      </div>
+      <div class="lf-tabs">
+        <div class="lf-tab" data-view="person">👥 Person Hunt</div>
+        <div class="lf-tab active">🏢 Company Hunt</div>
+        <div class="lf-tab" data-view="results">📊 Results</div>
+        <div class="lf-tab" data-view="signals">📡 Signals</div>
+        <div class="lf-tab" data-view="relationship">🕸 Relationship</div>
+      </div>
+      <div style="padding: 60px 20px; text-align: center; color: var(--text-muted);">Same FilterPanel layout in Company mode — quality flags, Tadawul-listed checkbox, etc.</div>
+    </div>
+
+    <!-- ── VIEW: Results ──────────────────────────────────────────────────── -->
+    <div class="view" id="view-results">
+      <div class="topbar">
+        <div><div class="h1 display">Lead Factory <span style="color: var(--text-muted); font-size: 18px;">/ Results</span></div></div>
+      </div>
+      <div class="lf-tabs">
+        <div class="lf-tab" data-view="person">👥 Person Hunt</div>
+        <div class="lf-tab" data-view="company">🏢 Company Hunt</div>
+        <div class="lf-tab active">📊 Results</div>
+        <div class="lf-tab" data-view="signals">📡 Signals</div>
+        <div class="lf-tab" data-view="relationship">🕸 Relationship</div>
+      </div>
+      <div class="panel" style="padding: 14px;">
+        <div style="display:flex; gap:8px; margin-bottom:10px;">
+          <span class="chip on">All</span><span class="chip">Tier A · 12</span><span class="chip">Tier B · 18</span><span class="chip">Tier C · 9</span>
+          <span style="margin-left:auto; display:flex; gap:6px;">
+            <button class="chip on">⬇ CSV</button><button class="chip on">⬇ XLSX</button><button class="chip on">⬇ PDF</button><button class="chip on">⬇ PPT</button>
+          </span>
+        </div>
+        <table style="width:100%; font-size:12px; border-collapse: collapse;">
+          <thead style="background: var(--surface-soft); text-align:left;">
+            <tr><th style="padding:8px;">Company</th><th>Domain</th><th>Contact</th><th>City</th><th>Industry</th><th style="text-align:right;">ICP</th><th>Tier</th></tr>
+          </thead>
+          <tbody>
+            <tr style="border-top:1px solid var(--border);"><td style="padding:8px;">Saudi Aramco</td><td>aramco.com</td><td>📧 📞 🔗</td><td>Dhahran</td><td>Energy</td><td style="text-align:right;">94</td><td><span class="status-pill done">A</span></td></tr>
+            <tr style="border-top:1px solid var(--border);"><td style="padding:8px;">STC</td><td>stc.com.sa</td><td>📧 🔗</td><td>Riyadh</td><td>Telecom</td><td style="text-align:right;">87</td><td><span class="status-pill done">A</span></td></tr>
+            <tr style="border-top:1px solid var(--border);"><td style="padding:8px;">Saudia</td><td>saudia.com</td><td>📧</td><td>Jeddah</td><td>Aviation</td><td style="text-align:right;">82</td><td><span class="status-pill running">B</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── VIEW: Signals ──────────────────────────────────────────────────── -->
+    <div class="view" id="view-signals">
+      <div class="topbar"><div><div class="h1 display">Lead Factory <span style="color: var(--text-muted); font-size: 18px;">/ Signals</span></div></div></div>
+      <div class="lf-tabs">
+        <div class="lf-tab" data-view="person">👥 Person Hunt</div>
+        <div class="lf-tab" data-view="company">🏢 Company Hunt</div>
+        <div class="lf-tab" data-view="results">📊 Results</div>
+        <div class="lf-tab active">📡 Signals</div>
+        <div class="lf-tab" data-view="relationship">🕸 Relationship</div>
+      </div>
+      <div style="padding: 60px 20px; text-align:center; color:var(--text-muted);">Signals tree — companies grouped by signal type, side panel with Run Person Intel / Company Intel / Push to Lead Factory.</div>
+    </div>
+
+    <!-- ── VIEW: Relationship ─────────────────────────────────────────────── -->
+    <div class="view" id="view-relationship">
+      <div class="topbar"><div><div class="h1 display">Lead Factory <span style="color: var(--text-muted); font-size: 18px;">/ Relationship</span></div></div></div>
+      <div class="lf-tabs">
+        <div class="lf-tab" data-view="person">👥 Person Hunt</div>
+        <div class="lf-tab" data-view="company">🏢 Company Hunt</div>
+        <div class="lf-tab" data-view="results">📊 Results</div>
+        <div class="lf-tab" data-view="signals">📡 Signals</div>
+        <div class="lf-tab active">🕸 Relationship</div>
+      </div>
+      <div style="padding: 60px 20px; text-align:center; color:var(--text-muted);">Org chart + adjacency list + outreach plan for a target company.</div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// View routing
+function activate(view) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + view)?.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const navItem = document.querySelector('.nav-item[data-view="' + view + '"]');
+  if (navItem) navItem.classList.add('active');
+  window.scrollTo(0, 0);
+}
+document.querySelectorAll('[data-view]').forEach(el => {
+  el.addEventListener('click', () => activate(el.dataset.view));
+});
+// Chip toggle
+document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => c.classList.toggle('on')));
+
+// Animated agent list
+const AGENTS = [
+  { n:1, title:"ICP Mapper & Source Orchestrator", subtitle:"Brief → prioritised sourcing plan" },
+  { n:2, title:"Lead Harvester", subtitle:"40+ free sources · Tavily · SearXNG · Google News · Saudi RSS" },
+  { n:3, title:"Deep Enrichment", subtitle:"Scout · GLEIF · OpenCorporates · Wikidata · Gemini" },
+  { n:4, title:"Signal Intelligence", subtitle:"News · sanctions · regulatory · hiring · contracts" },
+  { n:5, title:"Validate, Verify & Deduplicate", subtitle:"MX · domain liveness · dummy detection · fingerprint dedup" },
+  { n:6, title:"ICP Scoring & AI Copywriter", subtitle:"Composite score · email · LinkedIn · WhatsApp" },
+  { n:7, title:"Publish & Seed", subtitle:"Bridges into companies / leads / executives" },
+];
+const LIVE_LOGS = {
+  1: ["Brief parsed: SaaS CTOs in Riyadh, 11–200 employees", "Sourcing plan ready: 14 priority sources"],
+  2: ["Tavily returned 38 hits", "Saudi RSS returned 12 articles", "Google News returned 7"],
+  3: ["GLEIF resolved 12 LEIs", "OpenCorporates resolved 18 CR numbers", "Wikidata enriched 9 entries"],
+  4: ["Scout signals: 14 hiring · 3 contracts · 0 sanctions"],
+  5: ["MX OK 41/50 · domain live 47/50 · 3 dups dropped"],
+  6: ["Scored 47 prospects · 12 Tier A · 18 Tier B · 9 Tier C"],
+  7: ["Bridged 47 into companies pool · 41 new leads"],
+};
+function renderAgents(state) {
+  const html = AGENTS.map(a => {
+    const isDone = state.done.includes(a.n);
+    const isRunning = state.current === a.n;
+    const cls = isRunning ? "running" : isDone ? "done" : "";
+    const icon = isDone ? "✓" : isRunning ? '<span class="spin">⟳</span>' : a.n;
+    const log = (isRunning || isDone) && LIVE_LOGS[a.n] ? LIVE_LOGS[a.n][LIVE_LOGS[a.n].length-1] : a.subtitle;
+    const progress = isRunning && state.progress ? `⚡ ${state.progress}/${state.total||'…'}` : (isDone ? "✓ done" : "");
+    return `<div class="agent ${cls}">
+      <span class="n">${icon}</span>
+      <div><div class="t">${a.title}</div><div class="log">${log}</div></div>
+      <div class="st">${progress}</div>
+    </div>`;
+  }).join("");
+  document.getElementById('agentList').innerHTML = html;
+}
+function setStatus(s) {
+  const el = document.getElementById('statusPill');
+  el.className = `status-pill ${s}`;
+  el.textContent = s === "running" ? "⚡ running" : s === "done" ? "✓ complete" : "✗ failed";
+}
+// Initial state: no run started
+let state = { current: null, done: [], progress: 0, total: 0 };
+renderAgents(state);
+setStatus("done");
+document.getElementById('statusPill').className = "status-pill"; // hide until run starts
+document.getElementById('statusPill').textContent = "preview";
+document.getElementById('statusPill').style.background = "hsla(285 14% 91%)";
+document.getElementById('statusPill').style.color = "var(--text-muted)";
+
+// Animated run when user taps "Run"
+document.getElementById('runBtn').addEventListener('click', () => {
+  state = { current: 1, done: [], progress: 0, total: 50 };
+  document.getElementById('jobLabel').textContent = "lf-" + (Math.floor(Math.random()*900)+100);
+  document.getElementById('statusPill').removeAttribute('style');
+  setStatus("running");
+  renderAgents(state);
+  let progress = 0;
+  const tick = setInterval(() => {
+    if (!state.current) { clearInterval(tick); return; }
+    progress += Math.floor(Math.random()*8)+3;
+    if (progress >= 50) {
+      state.done = [...state.done, state.current];
+      if (state.current >= 7) {
+        state.current = null;
+        setStatus("done");
+        clearInterval(tick);
+      } else {
+        state.current += 1;
+        progress = 0;
+      }
+    }
+    state.progress = progress;
+    renderAgents(state);
+  }, 350);
+});
+</script>
+</body>
+</html>
