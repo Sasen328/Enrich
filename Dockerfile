@@ -101,12 +101,12 @@ COPY scripts/package.json ./scripts/
 RUN pnpm install --frozen-lockfile
 
 # ── Install Playwright Chromium (shared — used by Node + Python Playwright + Puppeteer) ──
-# Use `pnpm exec` instead of `npx`: this image enables corepack/pnpm as the
-# workspace package manager, and on some Node base images `npx` isn't reliably
-# on PATH afterwards (exit 127). pnpm exec finds playwright in the workspace
-# node_modules without any PATH magic.
-RUN pnpm exec playwright install chromium --with-deps 2>/dev/null \
- || pnpm exec playwright install chromium
+# Playwright is declared in artifacts/api-server/package.json, not at the
+# workspace root, so we must scope the exec to that package — otherwise
+# `pnpm exec playwright` from /app fails with exit 254 (binary not found
+# in the root .bin). pnpm itself is on PATH thanks to corepack/PNPM_HOME.
+RUN pnpm --filter @workspace/api-server exec playwright install chromium --with-deps 2>/dev/null \
+ || pnpm --filter @workspace/api-server exec playwright install chromium
 
 # ── Copy full source ──────────────────────────────────────────────────────────
 COPY . .
