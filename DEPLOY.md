@@ -163,9 +163,11 @@ Caddy auto-issues Let's Encrypt certs. Or use the standard nginx + certbot recip
 
 **Cost:** $5/month after a $5 free trial. No SSH, no firewall rules, no manual installs. If Oracle Cloud felt heavy, this is the antidote.
 
+The repo ships a `railway.toml` so Railway auto-detects the Dockerfile, the `/api/healthz` healthcheck, and the restart policy — you don't configure any of it in the UI.
+
 1. Sign up at https://railway.com using your GitHub account.
-2. Click **New Project → Deploy from GitHub repo → ProspectSA_Full**. Railway detects the `Dockerfile` automatically.
-3. In the project view, click **+ New → Database → Postgres**. Railway provisions a free Postgres and exposes `DATABASE_URL` to your app automatically.
+2. Click **New Project → Deploy from GitHub repo → ProspectSA_Full**. Railway reads `railway.toml` and picks up the Dockerfile.
+3. In the project view, click **+ New → Database → Postgres**. Railway provisions Postgres and exposes `DATABASE_URL` to your app automatically.
 4. Open the **app** service → **Variables** tab. Paste each value from your local `.env`:
    ```
    OPENROUTER_API_KEY=...
@@ -186,15 +188,14 @@ For a custom domain: **Networking → Custom Domain →** add `app.yourdomain.co
 
 **Cost:** $0 — but the web service sleeps after 15 min idle and takes ~30 s to wake on the next request. Database is free 90 days, then $7/month, or use a Neon/Supabase free Postgres instead.
 
-1. Sign up at https://render.com using GitHub.
-2. **New + → Web Service → connect your `ProspectSA_Full` repo**. Render auto-detects the Dockerfile.
-3. Pick **Free** instance type. Click **Create Web Service**.
-4. **New + → PostgreSQL** (free tier). After provision, copy the **Internal Database URL**.
-5. Go back to your Web Service → **Environment** tab → add the same variables from Section 1 step 1.3, but set `DATABASE_URL` to the Internal Database URL Render gave you in step 4.
-6. **Manual Deploy → Deploy latest commit**. Render builds and starts.
-7. URL appears at the top of the service page.
+The repo ships a `render.yaml` Blueprint that creates the web service + Postgres + `DATABASE_URL` wiring in a single click.
 
-If you'd rather not pay the $7/month after Render's 90-day Postgres free trial: provision a free Postgres at **Neon** (https://neon.tech) or **Supabase** (https://supabase.com) and paste its connection string as `DATABASE_URL` in step 5. Both have permanent free tiers.
+1. Sign up at https://render.com using GitHub.
+2. **New + → Blueprint → connect your `ProspectSA_Full` repo**. Render reads `render.yaml` and shows the planned services.
+3. Click **Apply**. Render generates a random `API_TOKEN` and prompts you to paste the keys marked `sync: false` (at minimum `OPENROUTER_API_KEY` + `TAVILY_API_KEY`, or one of the paid LLM keys).
+4. First build takes 8–12 minutes. URL appears at the top of the service page.
+
+If you'd rather not pay the $7/month after Render's 90-day Postgres free trial: provision a free Postgres at **Neon** (https://neon.tech) or **Supabase** (https://supabase.com), delete the `databases:` block from `render.yaml`, and paste the external connection string as `DATABASE_URL` in step 3.
 
 ### Option C · Oracle Cloud Always-Free (most powerful, most setup)
 
