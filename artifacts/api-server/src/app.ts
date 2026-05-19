@@ -28,9 +28,24 @@ const FRONTEND_DIST = path.resolve(
 const app: Express = express();
 
 // ── CORS ────────────────────────────────────────────────────────────────────
+// Always allow the standard local-dev origins + any GitHub Codespaces URL.
+// Anything else has to be explicitly listed in FRONTEND_ORIGIN.
 const allowedOrigins = env.FRONTEND_ORIGIN
   ? env.FRONTEND_ORIGIN.split(",").map((o) => o.trim()).filter(Boolean)
   : null;
+
+const DEV_ORIGINS = new Set([
+  "http://localhost:3000",
+  "https://localhost:3000",
+  "http://localhost:5173",
+  "https://localhost:5173",
+  "http://127.0.0.1:3000",
+  "https://127.0.0.1:3000",
+]);
+// GitHub Codespaces forwarded-port URLs look like
+//   https://<codespace-name>-3000.app.github.dev
+//   https://<codespace-name>-3000.<region>.github.dev
+const CODESPACES_RE = /^https:\/\/[a-z0-9-]+-\d+\.(app\.)?(.*\.)?github\.dev$/i;
 
 if (!allowedOrigins) {
   console.warn(
@@ -46,6 +61,8 @@ app.use(
           origin: (origin, cb) => {
             if (!origin) return cb(null, true);
             if (allowedOrigins.includes(origin)) return cb(null, true);
+            if (DEV_ORIGINS.has(origin)) return cb(null, true);
+            if (CODESPACES_RE.test(origin)) return cb(null, true);
             cb(new Error(`Origin ${origin} not allowed`));
           },
           credentials: true,
