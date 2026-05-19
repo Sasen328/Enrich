@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Radar, Database, Landmark, ChevronDown,
   Settings, Building2, UserCircle, TrendingUp, Users, Zap,
   Network, Globe, User, Search, TableProperties, BarChart3,
-  Target, BrainCircuit, Layers, Activity, GitFork,
+  Target, BrainCircuit, Layers, Activity, GitFork, Sparkles,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent,
@@ -16,7 +16,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 const coreNav = [
-  { title: "Dashboard",    url: "/",             icon: LayoutDashboard },
+  { title: "Dashboard",        url: "/",                      icon: LayoutDashboard },
+  { title: "AI Chat",          url: "/ai-chat",               icon: Sparkles },
   { title: "Leads",            url: "/leads",                 icon: Target },
   { title: "Lead Factory",     url: "/lead-factory/person",   icon: Zap },
   { title: "  ↳ Company Hunt", url: "/lead-factory/company",  icon: Zap },

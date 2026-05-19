@@ -19,6 +19,8 @@ import { freeWebSearch, type FreeSearchHit } from "../free-search.js";
 import { googleNewsForCompany, type NewsHit } from "../google-news-scraper.js";
 import { fetchSaudiNewsForCompany, type SaudiNewsHit } from "../saudi-news-rss.js";
 import { screenSanctions } from "../sanctions-screen.js";
+import { lookupGleif, lookupOpenCorporates, lookupWikidata } from "../free-sources.js";
+import { scoutSiteIntel, scoutOsintHarvest, isScoutAlive } from "../scout-client.js";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -41,13 +43,20 @@ export interface HarvestQuery {
   include?: HarvesterId[];
   /** Specific harvesters to skip. */
   exclude?: HarvesterId[];
+  /** Optional anchored entity fields used by Scout / GLEIF / OpenCorporates. */
+  entity?: HarvestQueryEntity;
 }
 
 export type HarvesterId =
   | "free_search"
   | "google_news"
   | "saudi_news"
-  | "sanctions";
+  | "sanctions"
+  | "gleif"
+  | "opencorporates"
+  | "wikidata"
+  | "scout_site_intel"
+  | "scout_osint";
 
 export interface HarvestedRow {
   /** Stable id within a single run; not persisted. */
@@ -96,11 +105,24 @@ function dedupKey(row: HarvestedRow): string {
 // ── Internal: priority + enable check ────────────────────────────────────────
 
 const PRIORITY: Record<HarvesterId, number> = {
+  // Lower number = runs first. Registry / authoritative sources before
+  // search / news so we anchor entity identity before we collect signals.
+  gleif: 5,
+  opencorporates: 6,
+  wikidata: 7,
   free_search: 10,
+  scout_site_intel: 15,
+  scout_osint: 16,
   saudi_news: 20,
   google_news: 30,
   sanctions: 40,
 };
+
+/** Optional input fields for the entity-anchoring harvesters. */
+export interface HarvestQueryEntity {
+  /** Optional website domain — anchors Scout / Clearbit / Wappalyzer paths. */
+  domain?: string;
+}
 
 function isEnabled(id: HarvesterId, q: HarvestQuery): boolean {
   if (q.exclude?.includes(id)) return false;
@@ -201,6 +223,116 @@ export async function* harvest(
           if (seen.has(key)) continue;
           seen.add(key);
           yield row;
+        }
+        break;
+      }
+
+      case "gleif": {
+        if (!q.companyName) break;
+        const r = await safeRun(id, () => lookupGleif(q.companyName!));
+        if (r) {
+          const row: HarvestedRow = {
+            id: newId(),
+            source: id,
+            sourceLabel: "GLEIF",
+            title: r.legalName,
+            snippet: `LEI ${r.lei} · ${r.country}${r.legalForm ? " · " + r.legalForm : ""}`,
+            url: `https://search.gleif.org/#/record/${r.lei}`,
+            category: "lead",
+            entity: { name: r.legalName },
+            raw: r,
+          };
+          const key = dedupKey(row);
+          if (!seen.has(key)) { seen.add(key); yield row; }
+        }
+        break;
+      }
+
+      case "opencorporates": {
+        if (!q.companyName) break;
+        const r = await safeRun(id, () => lookupOpenCorporates(q.companyName!));
+        if (r) {
+          const row: HarvestedRow = {
+            id: newId(),
+            source: id,
+            sourceLabel: "OpenCorporates",
+            title: r.name ?? q.companyName!,
+            snippet: `CR ${r.crNumber ?? "—"} · ${r.jurisdiction ?? ""} · founded ${r.foundingYear ?? "?"}`,
+            url: r.sourceUrl ?? "https://opencorporates.com",
+            category: "lead",
+            entity: { name: r.name, crNumber: r.crNumber },
+            raw: r,
+          };
+          const key = dedupKey(row);
+          if (!seen.has(key)) { seen.add(key); yield row; }
+        }
+        break;
+      }
+
+      case "wikidata": {
+        if (!q.companyName) break;
+        const r = await safeRun(id, () => lookupWikidata(q.companyName!));
+        if (r) {
+          const row: HarvestedRow = {
+            id: newId(),
+            source: id,
+            sourceLabel: "Wikidata",
+            title: q.companyName!,
+            snippet: JSON.stringify(r).slice(0, 280),
+            url: "https://www.wikidata.org",
+            category: "lead",
+            entity: { name: q.companyName },
+            raw: r,
+          };
+          const key = dedupKey(row);
+          if (!seen.has(key)) { seen.add(key); yield row; }
+        }
+        break;
+      }
+
+      case "scout_site_intel": {
+        if (!q.entity?.domain) break;
+        // Skip if the Scout sidecar is unreachable to avoid a slow timeout
+        const alive = await safeRun(id, () => isScoutAlive());
+        if (!alive) break;
+        const r = await safeRun(id, () => scoutSiteIntel(q.entity!.domain!));
+        if (r) {
+          const row: HarvestedRow = {
+            id: newId(),
+            source: id,
+            sourceLabel: "Scout · site-intel",
+            title: q.entity!.domain!,
+            snippet: JSON.stringify(r).slice(0, 280),
+            url: `https://${q.entity!.domain}`,
+            category: "lead",
+            entity: { domain: q.entity!.domain! },
+            raw: r,
+          };
+          const key = dedupKey(row);
+          if (!seen.has(key)) { seen.add(key); yield row; }
+        }
+        break;
+      }
+
+      case "scout_osint": {
+        if (!q.entity?.domain && !q.companyName) break;
+        const alive = await safeRun(id, () => isScoutAlive());
+        if (!alive) break;
+        const r = await safeRun(id, () => scoutOsintHarvest(q.entity?.domain ?? q.companyName!));
+        if (r) {
+          const row: HarvestedRow = {
+            id: newId(),
+            source: id,
+            sourceLabel: "Scout · OSINT",
+            title: q.companyName ?? q.entity?.domain ?? "OSINT result",
+            snippet: JSON.stringify(r).slice(0, 280),
+            url: q.entity?.domain ? `https://${q.entity.domain}` : "",
+            category: "lead",
+            entity: { domain: q.entity?.domain, name: q.companyName },
+            raw: r,
+          };
+          const key = dedupKey(row);
+          if (!seen.has(key)) { seen.add(key); yield row; }
         }
         break;
       }
