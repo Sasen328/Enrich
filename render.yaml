@@ -1,0 +1,77 @@
+# Render Blueprint — https://render.com/docs/blueprint-spec
+#
+# What this creates with one click:
+#   • A Postgres database (free tier).
+#   • A web service that builds from the Dockerfile.
+#   • DATABASE_URL auto-wired from the database to the web service.
+#
+# Operator flow:
+#   1. https://dashboard.render.com → New + → Blueprint
+#   2. Connect the ProspectSA_Full repo. Render reads this file.
+#   3. Click Apply. Paste API keys when prompted (sync: false vars below).
+#   4. Wait for first build (8–12 min). Open the public URL.
+
+databases:
+  - name: prospectsa-db
+    plan: free
+    databaseName: prospectsa
+    user: prospectsa
+
+services:
+  - type: web
+    name: prospectsa
+    plan: free
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    autoDeploy: true
+    healthCheckPath: /api/healthz
+    envVars:
+      # Auto-wired from the Postgres service above.
+      - key: DATABASE_URL
+        fromDatabase:
+          name: prospectsa-db
+          property: connectionString
+
+      # Runtime
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+
+      # Security — Render generates a random API_TOKEN on first deploy.
+      - key: API_TOKEN
+        generateValue: true
+      - key: FRONTEND_ORIGIN
+        sync: false
+
+      # Free-cost LLM path (recommended).
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: NEXUS_PREFER_FREE_MODELS
+        value: "true"
+      - key: TAVILY_API_KEY
+        sync: false
+
+      # Optional paid LLM providers (one of these or OpenRouter is required).
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: PERPLEXITY_API_KEY
+        sync: false
+      - key: HUGGING_FACE_API_KEY
+        sync: false
+
+      # Optional data providers.
+      - key: APOLLO_API_KEY
+        sync: false
+      - key: APOLLO_ACCESS_TOKEN
+        sync: false
+      - key: EXPLORIUM_API_KEY
+        sync: false
+      - key: HUNTER_API_KEY
+        sync: false

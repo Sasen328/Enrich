@@ -1,0 +1,26 @@
+# Railway deployment config
+# https://docs.railway.com/reference/config-as-code
+#
+# Behaviour when this file is present:
+#   • Railway uses our Dockerfile (no Nixpacks override).
+#   • Healthcheck targets /api/healthz before marking the service ready.
+#   • The service restarts on failure with a backoff.
+#
+# Operator flow:
+#   1. New Project → Deploy from GitHub repo → ProspectSA_Full
+#   2. + New → Database → PostgreSQL  (Railway exposes DATABASE_URL)
+#   3. app service → Variables → paste OPENROUTER_API_KEY, TAVILY_API_KEY,
+#      ANTHROPIC_API_KEY (or any LLM key), API_TOKEN, FRONTEND_ORIGIN.
+#   4. Networking → Generate Domain.
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+# The container's CMD ["/app/start.sh"] is the entrypoint;
+# leaving startCommand unset lets Docker handle it.
+healthcheckPath = "/api/healthz"
+healthcheckTimeout = 120
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
