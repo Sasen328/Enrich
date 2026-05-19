@@ -148,8 +148,10 @@ export function AppSidebar() {
               <NavGroup label="Masaar" icon={Landmark} items={masaarTools} activeCheck={isMasaarActive} />
               <NavItem item={{ title: "OrcEngine", url: "/orcengine", icon: Network }} />
               <NavItem item={{ title: "AI Database Builder", url: "/database-builder", icon: Database }} />
-              <NavItem item={{ title: "Signal Intelligence", url: "/signal-intelligence", icon: Activity }} />
-              <NavItem item={{ title: "Relationship Intel", url: "/relationship-intel", icon: GitFork }} />
+              {/* Signal Intel + Relationship Intel are now Lead Factory tools.
+                  Kept at top-level paths as redirects in App.tsx so old bookmarks
+                  still work, but removed from the sidebar to consolidate the
+                  workflow inside Lead Factory. */}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

@@ -93,19 +93,28 @@ function Router() {
         <Route path="/meshbase" component={MeshBase} />
         <Route path="/orcengine" component={OrcEnginePage} />
         <Route path="/masaar/database" component={MasaarDatabasePage} />
+        {/* ── Lead Factory + its sub-tools ────────────────────────────────
+            Signal Intel and Relationship Intel are now Lead Factory tools.
+            They live under /lead-factory/* paths. The old top-level URLs
+            still work as redirects to keep bookmarks alive. */}
         <Route path="/lead-factory/results" component={LeadFactoryResultsPage} />
         <Route path="/lead-factory/person" component={LeadFactoryPersonPage} />
         <Route path="/lead-factory/company" component={LeadFactoryCompanyPage} />
+        <Route path="/lead-factory/signals/tree" component={SignalsTreePage} />
+        <Route path="/lead-factory/signals" component={SignalIntelligencePage} />
+        <Route path="/lead-factory/relationship/tree" component={RelationshipIntelTreePage} />
+        <Route path="/lead-factory/relationship" component={RelationshipIntelPage} />
         <Route path="/lead-factory/legacy" component={LeadFactoryPage} />
-        {/* Default /lead-factory → Person hunt. Person mode is the primary
-            workflow (lead = person; company is harvested as a byproduct).
-            The old hub is still reachable at /lead-factory/legacy. */}
         <Route path="/lead-factory">{() => <Redirect to="/lead-factory/person" />}</Route>
+
+        {/* Old paths redirect into the Lead Factory namespace */}
+        <Route path="/signal-intelligence/tree">{() => <Redirect to="/lead-factory/signals/tree" />}</Route>
+        <Route path="/signal-intelligence">{() => <Redirect to="/lead-factory/signals" />}</Route>
+        <Route path="/relationship-intel/tree">{() => <Redirect to="/lead-factory/relationship/tree" />}</Route>
+        <Route path="/relationship-intel">{() => <Redirect to="/lead-factory/relationship" />}</Route>
         <Route path="/masaar" component={MasaarPage} />
-        <Route path="/signal-intelligence/tree" component={SignalsTreePage} />
-        <Route path="/signal-intelligence" component={SignalIntelligencePage} />
-        <Route path="/relationship-intel/tree" component={RelationshipIntelTreePage} />
-        <Route path="/relationship-intel" component={RelationshipIntelPage} />
+        {/* Signal Intel + Relationship Intel moved under /lead-factory/*
+            — top-level redirects above keep old URLs working. */}
         <Route path="/sa-market/shareholders" component={() => <SAMarketLayout tab="shareholders"><SAMarketShareholdersPage /></SAMarketLayout>} />
         <Route path="/sa-market/executives"   component={() => <SAMarketLayout tab="executives"><SAMarketExecutivesPage /></SAMarketLayout>} />
         <Route path="/sa-market" component={() => <SAMarketLayout tab="shareholders"><SAMarketShareholdersPage /></SAMarketLayout>} />
