@@ -45,6 +45,30 @@ else
     warn "Drizzle push had warnings (may be first boot) — continuing"
 fi
 
+# ── 2b. Load seed_data.sql on first boot (when companies table is empty) ─────
+# Idempotent: runs only when SELECT count(*) FROM companies = 0. Loads ~2k
+# companies + ~7k executives + supporting rows so the app has real data on
+# first open instead of empty tables. Subsequent boots skip it.
+SEED_FILE="$SCRIPT_DIR/seed_data.sql"
+if [ -f "$SEED_FILE" ] && command -v psql >/dev/null 2>&1; then
+    info "Checking whether to load seed_data.sql..."
+    EXISTING=$(psql "$DATABASE_URL" -tAc "SELECT COUNT(*) FROM companies" 2>/dev/null | tr -d ' ' || echo "0")
+    if [ "${EXISTING:-0}" -eq 0 ]; then
+        info "Companies table empty — loading seed_data.sql ($(du -h "$SEED_FILE" | cut -f1))..."
+        if psql "$DATABASE_URL" -v ON_ERROR_STOP=0 -q -f "$SEED_FILE" >/tmp/seed.log 2>&1; then
+            COUNT=$(psql "$DATABASE_URL" -tAc "SELECT COUNT(*) FROM companies" 2>/dev/null | tr -d ' ' || echo "?")
+            ok "Seed loaded — companies: ${COUNT}"
+        else
+            warn "Seed load reported errors — see /tmp/seed.log inside the container; continuing"
+        fi
+    else
+        ok "Companies table already has ${EXISTING} rows — skipping seed"
+    fi
+else
+    [ -f "$SEED_FILE" ] || warn "seed_data.sql not present in image — skipping"
+    command -v psql >/dev/null 2>&1 || warn "psql not installed — skipping seed"
+fi
+
 # ── 3. Start Python Scout microservice (background) ──────────────────────────
 SCOUT_VENV="/opt/scout-venv"
 SCOUT_DIR="$SCRIPT_DIR/artifacts/python-scout"

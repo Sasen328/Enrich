@@ -6,7 +6,7 @@ There are four sections:
 
 - **Section 1 — Quick start on your laptop** (≈ 30 min, zero coding skills required)
 - **Section 2 — Share a public URL** (free, temporary or permanent)
-- **Section 3 — Always-on free server** (Oracle Cloud free tier, ~1 hour first time)
+- **Section 3 — Always-on hosting** — 3 options: Railway (1-click, $5/mo) · Render (free with sleep) · Oracle Cloud (free, more setup)
 - **Section 4 — Technical reference** (env vars, smoke tests, ops, troubleshooting, pre-deploy checklist)
 
 ---
@@ -155,11 +155,52 @@ Caddy auto-issues Let's Encrypt certs. Or use the standard nginx + certbot recip
 
 ---
 
-## Section 3 · Always-on free server (Oracle Cloud free tier)
+## Section 3 · Always-on hosting
+
+**Three options, easiest first.** Pick whichever matches your comfort level. All three run the same `docker compose` stack you tested locally in Section 1.
+
+### Option A · Railway (truly one-click — recommended)
+
+**Cost:** $5/month after a $5 free trial. No SSH, no firewall rules, no manual installs. If Oracle Cloud felt heavy, this is the antidote.
+
+1. Sign up at https://railway.com using your GitHub account.
+2. Click **New Project → Deploy from GitHub repo → ProspectSA_Full**. Railway detects the `Dockerfile` automatically.
+3. In the project view, click **+ New → Database → Postgres**. Railway provisions a free Postgres and exposes `DATABASE_URL` to your app automatically.
+4. Open the **app** service → **Variables** tab. Paste each value from your local `.env`:
+   ```
+   OPENROUTER_API_KEY=...
+   NEXUS_PREFER_FREE_MODELS=true
+   TAVILY_API_KEY=...
+   ANTHROPIC_API_KEY=...        (optional)
+   API_TOKEN=<openssl rand -hex 32>
+   FRONTEND_ORIGIN=https://<your-railway-domain>
+   PORT=3000
+   ```
+   Don't paste `DATABASE_URL` — Railway sets it from the Postgres service.
+5. **Networking → Generate Domain.** Railway gives you `https://prospectsa-<hash>.up.railway.app`.
+6. Done. Push to `main` and Railway redeploys automatically.
+
+For a custom domain: **Networking → Custom Domain →** add `app.yourdomain.com` and copy the CNAME they show to your DNS provider.
+
+### Option B · Render (free tier with sleep)
+
+**Cost:** $0 — but the web service sleeps after 15 min idle and takes ~30 s to wake on the next request. Database is free 90 days, then $7/month, or use a Neon/Supabase free Postgres instead.
+
+1. Sign up at https://render.com using GitHub.
+2. **New + → Web Service → connect your `ProspectSA_Full` repo**. Render auto-detects the Dockerfile.
+3. Pick **Free** instance type. Click **Create Web Service**.
+4. **New + → PostgreSQL** (free tier). After provision, copy the **Internal Database URL**.
+5. Go back to your Web Service → **Environment** tab → add the same variables from Section 1 step 1.3, but set `DATABASE_URL` to the Internal Database URL Render gave you in step 4.
+6. **Manual Deploy → Deploy latest commit**. Render builds and starts.
+7. URL appears at the top of the service page.
+
+If you'd rather not pay the $7/month after Render's 90-day Postgres free trial: provision a free Postgres at **Neon** (https://neon.tech) or **Supabase** (https://supabase.com) and paste its connection string as `DATABASE_URL` in step 5. Both have permanent free tiers.
+
+### Option C · Oracle Cloud Always-Free (most powerful, most setup)
 
 Puts ProspectSA on a server that runs 24/7 even when your laptop is off. **Permanently free** with Oracle Cloud's "Always Free" Ampere A1 tier (4 ARM cores + 24 GB RAM — plenty for ProspectSA). The Dockerfile is multi-arch so it runs on ARM.
 
-### 3.1 · Create the VM
+#### Step 1 · Create the VM
 
 1. Sign up at https://www.oracle.com/cloud/free/. Credit card needed for ID verification only; they don't charge it.
 
@@ -171,7 +212,7 @@ Puts ProspectSA on a server that runs 24/7 even when your laptop is off. **Perma
 
 3. Click **Create**. Wait ~2 min until status = "Running". Copy the **Public IP Address** (e.g. `129.213.45.67`).
 
-### 3.2 · Connect to the server
+#### Step 2 · Connect to the server
 
 Mac/Linux:
 
@@ -182,7 +223,7 @@ ssh -i ~/Downloads/ssh-key-<date>.key ubuntu@<your-server-ip>
 
 Windows: use PuTTY — load the `.ppk` key file. See https://docs.oracle.com/en-us/iaas/Content/Compute/Tasks/accessinginstance.htm
 
-### 3.3 · Install Docker + Git on the server
+#### Step 3 · Install Docker + Git
 
 Paste these one by one:
 
@@ -195,7 +236,7 @@ exit
 
 Log out, log back in (same SSH command) so the docker group permission applies.
 
-### 3.4 · Open the firewall
+#### Step 4 · Open the firewall
 
 ```bash
 sudo ufw allow 3000/tcp
@@ -205,7 +246,7 @@ sudo ufw --force enable
 
 Also in the Oracle web console: **VCN → Security Lists → Default Security List → Add Ingress Rule**: source `0.0.0.0/0`, destination port `3000`, TCP. Save.
 
-### 3.5 · Deploy
+#### Step 5 · Deploy
 
 ```bash
 git clone https://github.com/Sasen328/ProspectSA_Full.git
@@ -222,11 +263,11 @@ docker compose up -d --build
 
 First build on the free ARM tier: 10–15 min. The `-d` runs it in the background so you can close SSH.
 
-### 3.6 · Open it
+#### Step 6 · Open it
 
 Visit `http://<your-server-ip>:3000` from any browser. Done — ProspectSA is online 24/7.
 
-### 3.7 · (Optional) Permanent custom domain via Cloudflare Tunnel as a service
+#### Step 7 · (Optional) Permanent custom domain
 
 ```bash
 sudo curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-arm64 -o /usr/local/bin/cloudflared
