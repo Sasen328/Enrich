@@ -112,7 +112,7 @@ function Router() {
 
 function App() {
   return (
-    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} storageKey="prospectsa-theme">
+    <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} storageKey="prospectsa-theme">
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
