@@ -138,4 +138,8 @@ EXPOSE 3000 8099
 COPY start.sh /app/start.sh
 RUN chmod +x /app/start.sh
 
-CMD ["/app/start.sh"]
+# Invoke bash explicitly so the entrypoint works even when start.sh is
+# mounted from the host as a volume (volume mounts override the chmod above
+# and inherit the host file's permissions, which may not include +x — e.g.
+# files committed to git without the executable bit).
+CMD ["bash", "/app/start.sh"]
