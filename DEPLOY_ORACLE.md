@@ -5,14 +5,14 @@
 
 ## Architecture
 
-```
 ┌──────────────────────────┐    ┌────────────────────────────┐    ┌──────────────────┐
 │ Cloudflare Pages         │───▶│ Oracle Cloud VM (Free)     │───▶│ Supabase         │
 │ React frontend           │    │ Docker: api + scout        │    │ Postgres + Auth  │
-│ <your>.pages.dev         │    │ api.<your-domain>          │    │ (managed, free)  │
+│ `&lt;your&gt;.pages.dev`         │    │ `api.&lt;your-domain&gt;`          │    │ (managed, free)  │
 └──────────────────────────┘    └────────────────────────────┘    └──────────────────┘
        FRONTEND                        API + SCRAPERS                    DATABASE
-```
+
+```text
 
 | Service              | Tier         | Limit                                        |
 |----------------------|--------------|----------------------------------------------|
@@ -79,6 +79,7 @@ ssh -i ssh-key-*.key ubuntu@<PUBLIC_IP>
 ```
 
 ### 1.4 Install Docker + tools (on the VM)
+
 ```bash
 # As ubuntu user on the VM:
 sudo apt-get update && sudo apt-get install -y ca-certificates curl gnupg git
@@ -92,6 +93,7 @@ exit
 ```
 
 ### 1.5 Open OS firewall ports
+
 ```bash
 # back on the VM after re-ssh
 sudo iptables -I INPUT -p tcp --dport 80 -j ACCEPT
@@ -104,16 +106,19 @@ sudo netfilter-persistent save  # or: sudo iptables-save | sudo tee /etc/iptable
 ## PHASE 2 — Set up Supabase as the database
 
 ### 2.1 Get the connection string
+
 1. Supabase dashboard → your project → **Settings → Database**
 2. Scroll to **Connection string** → select **URI** format → **Transaction** mode (port 6543)
 3. Copy. It looks like:
-   ```
+
    postgresql://postgres.xxxxxxxxxxxx:[YOUR-PASSWORD]@aws-0-us-east-1.pooler.supabase.com:6543/postgres
-   ```
+
 4. Replace `[YOUR-PASSWORD]` with the password you set during project creation.
 
 ### 2.2 Apply our schema to Supabase
+
 On the VM (after cloning the repo, see Phase 3.1):
+
 ```bash
 # Install psql client
 sudo apt-get install -y postgresql-client
@@ -131,6 +136,7 @@ psql "$DATABASE_URL" -f seed_data.sql
 ```
 
 ### 2.3 Disable Supabase RLS for now
+
 - Supabase enables Row-Level Security by default. We don't use it yet.
 - Dashboard → **Authentication → Policies** → for each table click "Disable RLS" (or just for `companies`, `executives`, `leads`, `lead_factory_jobs`, `lead_lists`).
 
@@ -139,6 +145,7 @@ psql "$DATABASE_URL" -f seed_data.sql
 ## PHASE 3 — Deploy the API + Scout to Oracle
 
 ### 3.1 Clone the repo on the VM
+
 ```bash
 # As ubuntu on the VM
 git clone https://github.com/Sasen328/ProspectSA_Full.git
@@ -147,6 +154,7 @@ git checkout main  # or whichever branch is your production line
 ```
 
 ### 3.2 Create production .env
+
 ```bash
 nano .env
 ```
@@ -184,7 +192,9 @@ SUPABASE_SERVICE_ROLE_KEY=  # from Settings → API
 Save: `Ctrl+O`, `Enter`, `Ctrl+X`.
 
 ### 3.3 Drop Postgres service from compose (using Supabase now)
+
 On the VM:
+
 ```bash
 # Make a production override that skips the local postgres service
 cat > docker-compose.prod.yml <<'EOF'
@@ -201,6 +211,7 @@ EOF
 ```
 
 ### 3.4 Build + start
+
 ```bash
 docker compose -f docker-compose.yml -f docker-compose.prod.yml build app
 docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d app
@@ -210,11 +221,13 @@ docker compose logs -f app
 Wait for "Server listening on :3000". `Ctrl+C` to stop tailing.
 
 Verify:
+
 ```bash
 curl http://127.0.0.1:3000/api/health
 ```
 
 ### 3.5 Add Caddy for HTTPS + reverse proxy
+
 ```bash
 # Install Caddy
 sudo apt-get install -y debian-keyring debian-archive-keyring apt-transport-https
@@ -227,7 +240,8 @@ sudo nano /etc/caddy/Caddyfile
 ```
 
 Paste (replace `api.your-domain.com`):
-```
+
+```caddy
 api.your-domain.com {
     reverse_proxy 127.0.0.1:3000 {
         flush_interval -1   # don't buffer SSE
@@ -244,25 +258,31 @@ sudo systemctl reload caddy
 ## PHASE 4 — Deploy the frontend to Cloudflare Pages
 
 ### 4.1 Connect repo
+
 1. Cloudflare dashboard → **Workers & Pages → Create application → Pages → Connect to Git**
 2. Authorize GitHub → pick `Sasen328/ProspectSA_Full`
 3. Project name: `prospectsa`
 4. Production branch: `main`
 
 ### 4.2 Build settings
+
 - **Framework preset:** None
 - **Build command:**
-  ```
+
+  ```bash
   corepack enable && pnpm install --frozen-lockfile && pnpm --filter @workspace/prospect-sa build
   ```
+
 - **Build output directory:** `artifacts/prospect-sa/dist`
 - **Root directory:** leave blank (repo root)
 
 ### 4.3 Environment variables (Cloudflare Pages → Settings → Environment variables)
+
 - `VITE_API_BASE` = `https://api.your-domain.com`
 - `NODE_VERSION` = `20`
 
 ### 4.4 Deploy
+
 Click **Save and Deploy**. Wait ~3-5 min for first build.
 
 You'll get a URL like `https://prospectsa.pages.dev`. Test it.
@@ -272,15 +292,18 @@ You'll get a URL like `https://prospectsa.pages.dev`. Test it.
 ## PHASE 5 — DNS + domain wiring (only if you bought a domain)
 
 ### 5.1 Point domain at Cloudflare nameservers
+
 - If you bought via Cloudflare Registrar: already done.
 - If elsewhere: change nameservers to the two Cloudflare gives you.
 
 ### 5.2 DNS records
+
 - Cloudflare → DNS → Records → Add record:
   - **A record:** `api` → `<Oracle VM public IP>` → **Proxy: OFF** (orange cloud GRAY — Caddy handles TLS directly)
 - For the frontend custom domain: Pages → Custom domains → add `app.your-domain.com` (Cloudflare auto-configures).
 
 ### 5.3 Update CORS + frontend
+
 - On the VM, edit `.env` → set `FRONTEND_ORIGIN=https://app.your-domain.com`
 - `docker compose restart app`
 - On Cloudflare Pages → env vars → update `VITE_API_BASE=https://api.your-domain.com` → redeploy.
