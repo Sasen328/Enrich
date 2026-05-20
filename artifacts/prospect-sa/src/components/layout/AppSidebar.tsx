@@ -41,9 +41,9 @@ const orcbaseItems = [
   { title: "Executives", url: "/meshbase/executives", icon: UserCircle },
 ];
 
-const saMarketItems = [
-  { title: "Shareholders", url: "/sa-market/shareholders", icon: TrendingUp },
-  { title: "Executives",   url: "/sa-market/executives",   icon: Users },
+const saMarketItems: { title: string; url: string; icon: React.ComponentType<{ className?: string }> }[] = [
+  // Tadawul shareholders + executives temporarily removed pending fresh data sheet.
+  // Re-enable once the operator pushes the updated dataset.
 ];
 
 function NavGroup({ label, icon: Icon, items, activeCheck }: {
@@ -162,7 +162,11 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu className="gap-0.5">
               <NavGroup label="OrcBase / MeshBase" icon={BarChart3} items={orcbaseItems} activeCheck={isOrcActive} />
-              <NavGroup label="SA Market" icon={TrendingUp} items={saMarketItems} activeCheck={isSAActive} />
+              {/* SA Market (Tadawul shareholders + executives) temporarily hidden
+                  pending fresh dataset from operator. Re-enable when ready. */}
+              {saMarketItems.length > 0 && (
+                <NavGroup label="SA Market" icon={TrendingUp} items={saMarketItems} activeCheck={isSAActive} />
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

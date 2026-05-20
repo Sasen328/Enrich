@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>AI Chat Composer v7 — ProspectSA prototype (sign-off final)</title>
+<title>AI Chat Composer v8 — ProspectSA (sign-off · production)</title>
 <style>
   :root {
     --lavender:#c3a6d4; --rose:#c8a8b8; --seafoam:#92cdc0; --sand:#d4b896;
@@ -16,11 +16,7 @@
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;background:radial-gradient(at 12% 8%,rgba(195,166,212,.18),transparent 45%),radial-gradient(at 88% 12%,rgba(146,205,192,.16),transparent 50%),radial-gradient(at 50% 90%,rgba(212,184,150,.14),transparent 55%),var(--base);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Inter",sans-serif;font-size:14px;min-height:100vh;}
-
-  .app{display:grid;grid-template-columns:220px 1fr 0;min-height:100vh;transition:grid-template-columns 280ms;}
-  .app.drawer-open{grid-template-columns:220px 1fr 410px;}
-  .app.behavior-open{grid-template-columns:220px 1fr 280px;}
-  .app.drawer-open.behavior-open{grid-template-columns:220px 1fr 410px;}
+  .app{display:grid;grid-template-columns:220px 1fr;min-height:100vh;}
   .sb{background:rgba(255,255,255,.5);backdrop-filter:blur(20px);border-right:1px solid var(--line);padding:18px 12px;}
   .brand{display:flex;align-items:center;gap:10px;padding:4px 8px 18px;}
   .brand-mark{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--lavender),var(--seafoam));display:grid;place-items:center;color:white;font-weight:700;}
@@ -31,125 +27,82 @@
   .sb-item:hover{background:rgba(255,255,255,.6);color:var(--ink);}
   .sb-item.active{background:rgba(195,166,212,.22);color:var(--ink);}
   .sb-item .badge{margin-left:auto;font-size:9px;padding:2px 6px;border-radius:99px;background:rgba(195,166,212,.3);color:var(--ink);font-weight:600;}
-
-  .main{padding:22px 28px 60px;max-width:1300px;}
+  .main{padding:22px 28px 60px;}
   h1{margin:0 0 4px;font-size:22px;font-weight:700;letter-spacing:-.02em;}
   .h-sub{color:var(--ink-soft);font-size:12px;margin-bottom:14px;}
-
   .stage-bar{display:flex;gap:4px;align-items:center;background:white;border:1px solid var(--line);border-radius:99px;padding:6px;margin-bottom:14px;flex-wrap:wrap;}
   .stage{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:99px;font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;}
   .stage.done{color:var(--ink);} .stage.done .num{background:var(--ok);color:white;}
-  .stage.done:hover{background:rgba(146,205,192,.10);}
   .stage.active{background:linear-gradient(180deg,rgba(195,166,212,.25),rgba(195,166,212,.10));color:var(--ink);box-shadow:0 0 0 1px var(--lavender);}
   .stage.active .num{background:var(--lavender);color:white;}
   .stage .num{width:18px;height:18px;border-radius:99px;background:var(--line);color:var(--ink-soft);display:grid;place-items:center;font-size:10px;font-weight:700;}
-  .stage-sep{color:var(--muted);font-size:10px;}
-
   .crumbs{display:flex;gap:4px;align-items:center;background:rgba(255,255,255,.55);border:1px solid var(--line);border-radius:99px;padding:5px;margin-bottom:14px;flex-wrap:wrap;}
   .crumb{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:99px;font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;}
-  .crumb.done{color:var(--ink);} .crumb.done:hover{background:rgba(195,166,212,.10);}
-  .crumb.active{background:linear-gradient(180deg,rgba(195,166,212,.20),rgba(195,166,212,.08));color:var(--ink);box-shadow:0 0 0 1px var(--lavender);}
-  .crumb-sep{color:var(--muted);font-size:10px;}
-
+  .crumb.done{color:var(--ink);} .crumb.active{background:linear-gradient(180deg,rgba(195,166,212,.20),rgba(195,166,212,.08));color:var(--ink);box-shadow:0 0 0 1px var(--lavender);}
   .layer{background:rgba(255,255,255,.80);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:14px;}
   .layer-h{padding:12px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;}
   .layer-num{width:22px;height:22px;border-radius:99px;background:var(--lavender);color:white;display:grid;place-items:center;font-size:11px;font-weight:700;}
   .layer-t{font-weight:700;font-size:13px;}
   .layer-sub{color:var(--ink-soft);font-weight:400;font-size:11px;margin-left:4px;}
   .layer-body{padding:16px 18px;}
-
   .rule-lock{background:linear-gradient(90deg,rgba(146,205,192,.18),rgba(146,205,192,.06));border:1px solid rgba(146,205,192,.40);border-radius:var(--r-sm);padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px;font-size:12px;}
-
-  /* Live orchestrator badge */
   .mega{background:linear-gradient(90deg,rgba(195,166,212,.18),rgba(146,205,192,.18),rgba(212,184,150,.18));border:1px solid var(--line-2);border-radius:var(--r-sm);padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px;font-size:12px;}
-  .mega .ico{font-size:18px;}
-  .mega .live{font-family:ui-monospace,monospace;font-size:11px;color:var(--ink);font-weight:600;}
-
-  .insight-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;}
-  .insight{background:linear-gradient(135deg,rgba(195,166,212,.10),white);border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 12px;cursor:pointer;}
-  .insight:hover{border-color:var(--lavender);transform:translateY(-1px);}
-  .insight-h{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--ink-soft);font-weight:600;text-transform:uppercase;margin-bottom:4px;}
-  .insight-t{font-size:11px;font-weight:600;line-height:1.35;}
-
+  .ico-svg{width:18px;height:18px;flex-shrink:0;}
   .field-label{font-size:11px;font-weight:600;color:var(--ink-soft);margin-bottom:6px;letter-spacing:.02em;text-transform:uppercase;display:flex;align-items:center;gap:6px;}
-  .field-hint{color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;}
   .field-edit{margin-left:auto;font-size:10px;padding:3px 8px;border:1px solid var(--line);border-radius:99px;background:white;cursor:pointer;color:var(--ink-soft);font-weight:600;}
-  .field-edit:hover{color:var(--ink);border-color:var(--lavender);}
   .input,.select{width:100%;background:white;border:1px solid var(--line);border-radius:var(--r-sm);padding:9px 12px;font-size:13px;color:var(--ink);font-family:inherit;}
   .input:focus,.select:focus{outline:none;border-color:var(--lavender);box-shadow:0 0 0 3px rgba(195,166,212,.18);}
   textarea.input{resize:vertical;min-height:80px;}
   .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
   .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
-  .grid-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;}
-
-  .ms{background:white;border:1px solid var(--line);border-radius:var(--r-sm);padding:6px 10px;min-height:38px;display:flex;flex-wrap:wrap;gap:4px;align-items:center;cursor:pointer;}
-  .ms:hover{border-color:var(--lavender);}
+  .ms{background:white;border:1px solid var(--line);border-radius:var(--r-sm);padding:6px 10px;min-height:38px;display:flex;flex-wrap:wrap;gap:4px;align-items:center;cursor:pointer;position:relative;}
   .ms-tag{background:rgba(195,166,212,.22);color:var(--ink);font-size:11px;padding:3px 8px;border-radius:99px;font-weight:600;display:inline-flex;align-items:center;gap:4px;}
   .ms-tag .x{font-size:11px;opacity:.55;cursor:pointer;padding:0 2px;}
-  .ms-tag .x:hover{opacity:1;}
   .ms-placeholder{color:var(--muted);font-size:13px;}
   .ms-chev{margin-left:auto;color:var(--muted);}
-  .ms-pop{position:absolute;background:white;border:1px solid var(--line);border-radius:var(--r-sm);box-shadow:var(--shadow-lg);margin-top:4px;padding:6px;z-index:20;min-width:280px;max-height:300px;overflow-y:auto;}
+  .ms-pop{position:absolute;background:white;border:1px solid var(--line);border-radius:var(--r-sm);box-shadow:var(--shadow-lg);margin-top:4px;padding:6px;z-index:20;min-width:280px;max-height:300px;overflow-y:auto;left:0;top:100%;}
   .ms-opt{padding:7px 10px;font-size:12px;cursor:pointer;border-radius:6px;display:flex;align-items:center;gap:8px;}
   .ms-opt:hover{background:rgba(195,166,212,.10);}
   .ms-opt.on{background:rgba(146,205,192,.14);}
   .ms-opt .ck{width:14px;height:14px;border-radius:4px;border:1px solid var(--line-2);display:grid;place-items:center;font-size:10px;color:white;}
   .ms-opt.on .ck{background:var(--seafoam);border-color:var(--seafoam);}
   .ms-opt .meta{color:var(--ink-soft);font-size:10px;margin-left:auto;}
-
-  /* target type segmented */
   .target-seg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
   .target-opt{background:white;border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 12px;cursor:pointer;text-align:center;}
-  .target-opt:hover{border-color:var(--lavender);}
   .target-opt.on{background:linear-gradient(180deg,rgba(146,205,192,.22),rgba(146,205,192,.10));border-color:var(--seafoam);}
-  .target-opt .ico{font-size:18px;}
   .target-opt .lbl{font-size:12px;font-weight:700;margin-top:4px;}
   .target-opt .desc{font-size:10px;color:var(--ink-soft);}
-
   .chips{display:flex;flex-wrap:wrap;gap:6px;}
   .chip{font-size:11px;padding:5px 10px;border-radius:99px;background:white;border:1px solid var(--line);cursor:pointer;color:var(--ink-soft);display:inline-flex;align-items:center;gap:5px;}
   .chip:hover{border-color:var(--lavender);color:var(--ink);}
   .chip.on{background:linear-gradient(180deg,rgba(146,205,192,.22),rgba(146,205,192,.10));border-color:var(--seafoam);color:var(--ink);font-weight:600;}
   .chip.on::before{content:"✓";color:var(--ok);font-weight:700;}
-
   .seg{display:inline-flex;background:white;border:1px solid var(--line);border-radius:99px;padding:3px;}
   .seg button{border:none;background:transparent;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;color:var(--ink-soft);border-radius:99px;font-family:inherit;}
   .seg button.on{background:var(--lavender);color:white;}
-
   .toggle-row{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(146,205,192,.10);border:1px solid rgba(146,205,192,.30);border-radius:var(--r-sm);}
   .toggle{width:36px;height:20px;background:var(--line-2);border-radius:99px;position:relative;cursor:pointer;flex-shrink:0;}
   .toggle::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;background:white;border-radius:99px;transition:left 200ms;}
   .toggle.on{background:var(--seafoam);}
   .toggle.on::after{left:18px;}
-  .toggle-label{font-size:13px;font-weight:600;}
-  .toggle-hint{font-size:11px;color:var(--ink-soft);margin-left:auto;}
-
   .btn{border:none;border-radius:var(--r-sm);padding:9px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px;}
   .btn-primary{background:linear-gradient(135deg,var(--lavender),var(--rose));color:white;box-shadow:0 2px 10px rgba(195,166,212,.4);}
-  .btn-primary:hover{box-shadow:0 4px 16px rgba(195,166,212,.55);transform:translateY(-1px);}
   .btn-ghost{background:white;color:var(--ink-soft);border:1px solid var(--line);}
-  .btn-ghost:hover{color:var(--ink);border-color:var(--line-2);}
   .btn-sm{padding:6px 10px;font-size:11px;}
   .btn-seafoam{background:linear-gradient(135deg,var(--seafoam),var(--mist));color:white;}
   .btn-sand{background:linear-gradient(135deg,var(--sand),var(--rose));color:white;}
   .next-row{display:flex;justify-content:space-between;gap:8px;margin-top:14px;padding-top:12px;border-top:1px dashed var(--line);}
-
   .ctx-pill{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:3px 8px;border-radius:99px;background:rgba(212,184,150,.16);color:#8a5d20;border:1px solid rgba(212,184,150,.32);font-weight:600;}
   .ctx-pill .lbl{opacity:.7;}
-
   .agent-log{display:flex;flex-direction:column;gap:8px;}
   .agent-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:white;border:1px solid var(--line);border-radius:var(--r-sm);}
   .agent-row.running{border-color:var(--lavender);background:rgba(195,166,212,.06);}
   .agent-row.done{opacity:.85;}
-  .agent-mark{width:22px;height:22px;border-radius:99px;display:grid;place-items:center;font-size:11px;background:var(--line);color:var(--ink-soft);}
+  .agent-mark{width:22px;height:22px;border-radius:99px;display:grid;place-items:center;font-size:11px;background:var(--line);}
   .agent-row.running .agent-mark{background:var(--lavender);color:white;}
   .agent-row.done .agent-mark{background:var(--ok);color:white;}
-  .agent-name{font-size:13px;font-weight:600;}
-  .agent-desc{font-size:12px;color:var(--ink-soft);flex:1;}
   .spinner{width:12px;height:12px;border:2px solid var(--line-2);border-top-color:var(--lavender);border-radius:99px;animation:spin 800ms linear infinite;}
   @keyframes spin{to{transform:rotate(360deg);}}
-
-  /* report */
   .report-h{display:flex;align-items:center;gap:14px;padding-bottom:16px;border-bottom:1px solid var(--line);margin-bottom:18px;flex-wrap:wrap;}
   .report-title{font-size:18px;font-weight:700;}
   .blk{margin-bottom:22px;}
@@ -161,63 +114,23 @@
   .tbl-wrap{border:1px solid var(--line);border-radius:var(--r-sm);overflow:hidden;background:white;}
   table{width:100%;border-collapse:collapse;}
   th{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);background:rgba(245,240,247,.5);font-weight:600;}
-  td{font-size:12px;padding:10px 12px;border-bottom:1px solid var(--line);}
+  td{font-size:12px;padding:10px 12px;border-bottom:1px solid var(--line);cursor:pointer;}
   tr:last-child td{border-bottom:0;}
   tr.selected td{background:rgba(195,166,212,.10);}
+  tr:hover td{background:rgba(195,166,212,.06);}
   .pill{display:inline-block;font-size:10px;padding:2px 7px;border-radius:99px;font-weight:600;}
   .pill-a{background:rgba(146,205,192,.25);color:#1d6b58;}
   .pill-b{background:rgba(212,184,150,.25);color:#8a5d20;}
   .pill-c{background:rgba(195,166,212,.25);color:#5a3e72;}
-
-  /* signal intel block */
-  .signal-card{background:linear-gradient(135deg,rgba(224,165,88,.10),white);border:1px solid rgba(224,165,88,.30);border-radius:var(--r-sm);padding:10px 12px;cursor:pointer;}
-  .signal-card:hover{border-color:var(--warn);transform:translateY(-1px);}
-  .signal-card .h{font-size:11px;color:var(--warn);font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px;display:flex;align-items:center;gap:6px;}
-  .signal-card .t{font-size:12px;font-weight:600;line-height:1.35;color:var(--ink);}
-  .signal-card .cta{font-size:10px;color:var(--lavender);margin-top:4px;font-weight:600;}
-
-  /* relationship tree mini */
-  .tree-mini{background:white;border:1px solid var(--line);border-radius:var(--r-sm);padding:12px;}
-  .tree-node{display:flex;align-items:center;gap:8px;padding:6px 0;}
-  .tree-node .line{width:14px;height:1px;background:var(--line-2);}
-  .tree-node .lvl{width:16px;text-align:center;font-size:11px;color:var(--muted);}
-  .tree-node .name{font-size:11px;font-weight:600;}
-  .tree-node .pos{font-size:10px;color:var(--ink-soft);margin-left:6px;}
-
   .gate-pill{font-size:10px;padding:2px 7px;border-radius:99px;font-weight:600;display:inline-flex;align-items:center;gap:3px;}
   .gate-ok{background:rgba(76,170,132,.18);color:var(--ok);}
   .gate-warn{background:rgba(224,165,88,.18);color:var(--warn);}
   .gate-dup{background:rgba(168,196,196,.30);color:#4d7373;}
   .gate-bad{background:rgba(213,107,122,.18);color:var(--bad);}
-  .exports{display:flex;gap:6px;padding-top:16px;margin-top:18px;border-top:1px solid var(--line);flex-wrap:wrap;}
-  .exp-btn{font-size:11px;padding:6px 12px;border-radius:var(--r-sm);background:white;border:1px solid var(--line);color:var(--ink-soft);cursor:pointer;font-weight:600;}
-  .exp-btn:hover{border-color:var(--lavender);color:var(--ink);}
 
-  /* enrich sub-tabs */
-  .enr-sub{display:flex;gap:6px;margin-bottom:14px;border-bottom:1px solid var(--line);}
-  .enr-sub button{background:transparent;border:none;padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer;color:var(--ink-soft);border-bottom:2px solid transparent;font-family:inherit;}
-  .enr-sub button.on{color:var(--ink);border-bottom-color:var(--lavender);}
-  .enr-pane{display:none;}
-  .enr-pane.on{display:block;}
-  .enr-rules{background:rgba(245,240,247,.6);border:1px dashed var(--line);border-radius:var(--r-sm);padding:10px 14px;margin-bottom:12px;font-size:11px;color:var(--ink-soft);}
-  .enr-rules strong{color:var(--ink);}
-  .enrich-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0;}
-  .enrich-opt{background:white;border:1px solid var(--line);border-radius:var(--r-sm);padding:10px;cursor:pointer;}
-  .enrich-opt:hover{border-color:var(--seafoam);}
-  .enrich-opt.on{background:rgba(146,205,192,.18);border-color:var(--seafoam);}
-  .enrich-opt .lbl{font-size:11px;font-weight:700;}
-  .enrich-opt .desc{font-size:10px;color:var(--ink-soft);margin-top:2px;}
-  .gate-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;padding:8px 12px;background:rgba(245,240,247,.45);border-radius:var(--r-sm);border:1px dashed var(--line);margin-top:10px;}
-
-  /* regenerate suggestions */
-  .regen-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px;}
-  .regen{background:linear-gradient(135deg,rgba(195,166,212,.10),white);border:1px solid var(--line);border-radius:var(--r-sm);padding:10px;cursor:pointer;}
-  .regen:hover{border-color:var(--lavender);transform:translateY(-1px);}
-  .regen .h{font-size:10px;color:var(--lavender);font-weight:700;text-transform:uppercase;margin-bottom:3px;}
-  .regen .t{font-size:11px;font-weight:600;line-height:1.35;}
-
-  /* DRAWER */
-  .drawer{background:white;border-left:1px solid var(--line);overflow-y:auto;box-shadow:-2px 0 12px rgba(45,36,58,.08);padding:16px 16px 60px;height:100vh;position:sticky;top:0;}
+  /* drawer */
+  .drawer{position:fixed;top:0;right:0;width:410px;max-width:92vw;height:100vh;background:white;border-left:1px solid var(--line);box-shadow:-2px 0 12px rgba(45,36,58,.08);padding:16px 16px 60px;overflow-y:auto;transform:translateX(100%);transition:transform 280ms;z-index:40;}
+  .drawer.on{transform:translateX(0);}
   .drawer-head{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
   .drawer-head .t{font-weight:700;font-size:14px;}
   .drawer-close{margin-left:auto;background:transparent;border:none;cursor:pointer;font-size:18px;color:var(--ink-soft);}
@@ -230,7 +143,6 @@
   .item-card-meta{font-size:10px;color:var(--ink-soft);margin-top:2px;}
   .item-config{display:none;border-top:1px dashed var(--line);margin-top:10px;padding-top:10px;}
   .item-card.open .item-config{display:block;}
-  .item-card.open{border-color:var(--lavender);background:rgba(195,166,212,.04);}
   .cfg-row{margin-bottom:8px;}
   .cfg-row .lbl{font-size:10px;color:var(--ink-soft);font-weight:600;margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em;}
   .cfg-row .input,.cfg-row .select{padding:6px 9px;font-size:11px;}
@@ -238,16 +150,78 @@
   .cfg-actions{display:flex;gap:6px;justify-content:flex-end;margin-top:8px;}
   .ai-gen-row{display:flex;gap:6px;margin:8px 0 12px;}
   .ai-gen-row .input{flex:1;padding:6px 10px;font-size:12px;}
-  .drawer-fab{position:fixed;top:22px;right:22px;z-index:30;background:linear-gradient(135deg,var(--lavender),var(--rose));color:white;border:none;border-radius:99px;padding:9px 14px;font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(195,166,212,.45);}
-  .app.drawer-open .drawer-fab{display:none;}
 
-  /* Behavior agent panel */
-  .behave{background:linear-gradient(180deg,rgba(195,166,212,.06),white);border-left:1px solid var(--line);overflow-y:auto;padding:16px;height:100vh;position:sticky;top:0;}
-  .behave-head{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
-  .behave .obs{background:white;border:1px solid var(--line);border-radius:var(--r-sm);padding:10px;margin-bottom:8px;font-size:11px;color:var(--ink);}
-  .behave .obs .meta{font-size:9px;color:var(--ink-soft);margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em;}
-  .behave-fab{position:fixed;bottom:22px;right:22px;z-index:30;background:white;color:var(--ink);border:1px solid var(--line);border-radius:99px;padding:8px 14px;font-size:11px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-lg);display:inline-flex;align-items:center;gap:6px;}
-  .app.behavior-open .behave-fab{display:none;}
+  /* behavior agent — persistent panel */
+  .behave{position:fixed;bottom:22px;right:22px;width:300px;max-height:60vh;background:white;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-lg);padding:14px;z-index:35;display:flex;flex-direction:column;transition:transform 280ms;}
+  .behave.folded{transform:translateY(calc(100% - 46px));}
+  .behave-head{display:flex;align-items:center;gap:8px;margin-bottom:8px;cursor:pointer;}
+  .behave-fold{background:transparent;border:none;cursor:pointer;font-size:14px;color:var(--ink-soft);margin-left:auto;}
+  .behave-list{overflow-y:auto;flex:1;}
+  .obs{background:rgba(245,240,247,.6);border:1px solid var(--line);border-radius:var(--r-sm);padding:8px 10px;margin-bottom:6px;font-size:11px;}
+  .obs .meta{font-size:9px;color:var(--ink-soft);margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em;}
+  .obs.suggest{background:rgba(146,205,192,.10);border-color:rgba(146,205,192,.40);}
+
+  /* drawer fab */
+  .drawer-fab{position:fixed;top:22px;right:22px;z-index:30;background:linear-gradient(135deg,var(--lavender),var(--rose));color:white;border:none;border-radius:99px;padding:9px 14px;font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(195,166,212,.45);}
+
+  /* drawer modal (lead/company detail) */
+  .modal-bd{position:fixed;inset:0;background:rgba(45,36,58,.35);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:50;}
+  .modal-bd.on{display:flex;}
+  .modal{background:white;border-radius:var(--radius);width:600px;max-width:92vw;max-height:80vh;overflow-y:auto;box-shadow:var(--shadow-lg);padding:22px;}
+
+  /* signal + tree */
+  .signal-card{background:linear-gradient(135deg,rgba(224,165,88,.10),white);border:1px solid rgba(224,165,88,.30);border-radius:var(--r-sm);padding:10px 12px;cursor:pointer;}
+  .signal-card:hover{border-color:var(--warn);transform:translateY(-1px);}
+  .signal-card .h{font-size:11px;color:var(--warn);font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px;}
+  .signal-card .t{font-size:12px;font-weight:600;line-height:1.35;color:var(--ink);}
+  .signal-card .cta{font-size:10px;color:var(--lavender);margin-top:4px;font-weight:600;}
+  .tree-mini{background:white;border:1px solid var(--line);border-radius:var(--r-sm);padding:12px;}
+  .tree-node{display:flex;align-items:center;gap:8px;padding:6px 0;cursor:pointer;}
+  .tree-node:hover{background:rgba(195,166,212,.06);border-radius:4px;}
+  .tree-node .name{font-size:11px;font-weight:600;}
+  .tree-node .pos{font-size:10px;color:var(--ink-soft);}
+
+  .enrich-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0;}
+  .enrich-opt{background:white;border:1px solid var(--line);border-radius:var(--r-sm);padding:10px;cursor:pointer;}
+  .enrich-opt.on{background:rgba(146,205,192,.18);border-color:var(--seafoam);}
+  .enrich-opt .lbl{font-size:11px;font-weight:700;}
+  .enrich-opt .desc{font-size:10px;color:var(--ink-soft);margin-top:2px;}
+  .gate-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;padding:8px 12px;background:rgba(245,240,247,.45);border-radius:var(--r-sm);border:1px dashed var(--line);margin-top:10px;}
+  .enr-sub{display:flex;gap:6px;margin-bottom:14px;border-bottom:1px solid var(--line);}
+  .enr-sub button{background:transparent;border:none;padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer;color:var(--ink-soft);border-bottom:2px solid transparent;font-family:inherit;}
+  .enr-sub button.on{color:var(--ink);border-bottom-color:var(--lavender);}
+  .enr-pane{display:none;}
+  .enr-pane.on{display:block;}
+  .enr-rules{background:rgba(245,240,247,.6);border:1px dashed var(--line);border-radius:var(--r-sm);padding:10px 14px;margin-bottom:12px;font-size:11px;color:var(--ink-soft);}
+
+  /* history */
+  .hist-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px;}
+  .hist{background:white;border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 12px;cursor:pointer;}
+  .hist:hover{border-color:var(--lavender);}
+  .hist .when{font-size:10px;color:var(--ink-soft);}
+  .hist .t{font-size:12px;font-weight:600;margin-top:2px;}
+  .hist .meta{font-size:10px;color:var(--ink-soft);margin-top:3px;}
+
+  /* mini chat */
+  .mini-chat{background:linear-gradient(180deg,rgba(195,166,212,.10),white);border:1px solid var(--line-2);border-radius:var(--r-sm);padding:12px;margin-top:14px;}
+  .mini-chat-head{display:flex;align-items:center;gap:6px;margin-bottom:8px;font-weight:600;}
+  .mini-chat .turn{padding:8px 10px;border-radius:var(--r-sm);font-size:12px;margin-bottom:4px;}
+  .mini-chat .turn.you{background:var(--base);color:var(--ink);}
+  .mini-chat .turn.ai{background:linear-gradient(135deg,var(--lavender),var(--rose));color:white;}
+  .mini-chat-input{display:flex;gap:6px;margin-top:8px;}
+  .mini-chat-input .input{padding:6px 10px;font-size:12px;}
+
+  /* insights row */
+  .insight-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;}
+  .insight{background:linear-gradient(135deg,rgba(195,166,212,.10),white);border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 12px;cursor:pointer;}
+  .insight-h{font-size:10px;color:var(--ink-soft);font-weight:600;text-transform:uppercase;margin-bottom:4px;}
+  .insight-t{font-size:11px;font-weight:600;line-height:1.35;}
+
+  /* regen */
+  .regen-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px;}
+  .regen{background:linear-gradient(135deg,rgba(195,166,212,.10),white);border:1px solid var(--line);border-radius:var(--r-sm);padding:10px;cursor:pointer;}
+  .regen .h{font-size:10px;color:var(--lavender);font-weight:700;text-transform:uppercase;margin-bottom:3px;}
+  .regen .t{font-size:11px;font-weight:600;line-height:1.35;}
 
   .small{font-size:11px;color:var(--ink-soft);}
   .hide{display:none !important;}
@@ -255,373 +229,350 @@
   @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.85);}}
   .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:white;padding:10px 18px;border-radius:99px;font-size:12px;box-shadow:var(--shadow-lg);display:none;z-index:60;}
   .toast.on{display:block;}
-  .relative{position:relative;}
 </style>
 </head>
 <body>
-<div class="app" id="app">
-
+<div class="app">
   <aside class="sb">
     <div class="brand">
       <div class="brand-mark">P</div>
-      <div>
-        <div class="brand-name">ProspectSA</div>
-        <div class="brand-live"><span class="pulse-dot"></span>LIVE</div>
-      </div>
+      <div><div class="brand-name">ProspectSA</div><div class="brand-live"><span class="pulse-dot"></span>LIVE</div></div>
     </div>
     <div class="sb-h">Platform</div>
-    <div class="sb-item">📊 Dashboard</div>
-    <div class="sb-item active">✨ AI Chat <span class="badge">v7</span></div>
-    <div class="sb-item">🎯 Leads</div>
-    <div class="sb-item">⚡ Lead Factory</div>
+    <div class="sb-item">
+      <svg class="ico-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+      Dashboard
+    </div>
+    <div class="sb-item active">
+      <svg class="ico-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.9 5.8L20 10l-5 4.4 1.8 6.6L12 17.6 7.2 21l1.8-6.6L4 10l6.1-1.2z"/></svg>
+      AI Chat <span class="badge">v8</span>
+    </div>
+    <div class="sb-item">
+      <svg class="ico-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1"/></svg>
+      Leads
+    </div>
+    <div class="sb-item">
+      <svg class="ico-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>
+      Lead Factory
+    </div>
     <div class="sb-h">Intelligence</div>
-    <div class="sb-item">🧠 ProsEngine</div>
-    <div class="sb-item">🏛️ Masaar</div>
+    <div class="sb-item">
+      <svg class="ico-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v2a3 3 0 0 0-3 3v2a3 3 0 0 0-3 3 3 3 0 0 0 3 3v2a3 3 0 0 0 3 3 3 3 0 0 0 3-3v-2"/><path d="M12 2a3 3 0 0 1 3 3v2a3 3 0 0 1 3 3v2a3 3 0 0 1 3 3 3 3 0 0 1-3 3v2a3 3 0 0 1-3 3 3 3 0 0 1-3-3v-2"/></svg>
+      ProsEngine
+    </div>
+    <div class="sb-item">
+      <svg class="ico-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="9" width="18" height="11"/><path d="M3 9l9-6 9 6"/></svg>
+      Masaar
+    </div>
     <div class="sb-h">Market Data</div>
-    <div class="sb-item">📈 MeshBase</div>
-    <div class="sb-item">💹 SA Market</div>
+    <div class="sb-item">
+      <svg class="ico-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg>
+      MeshBase
+    </div>
+    <!-- SA Market hidden — operator removing seed data, awaiting fresh sheet -->
   </aside>
 
   <main class="main">
     <h1>AI Research Composer</h1>
-    <p class="h-sub">Live AI orchestrator · 6 stages · 4 compose layers · context-aware filters · split enrichment · signal &amp; tree intel built-in.</p>
+    <p class="h-sub">Sign-off · production-grade · live orchestrator · all flows functional.</p>
 
-    <!-- Mega-orchestrator banner -->
     <div class="mega">
-      <span class="ico">🧠</span>
-      <div>
-        <strong>Mega-mind orchestrator</strong>
-        <div class="live small" id="mega-live">Watching your selections · building the route live…</div>
-      </div>
+      <svg class="ico-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18M3 12h18"/></svg>
+      <div><strong>Mega-mind orchestrator</strong> <span class="small live" id="mega-live">building route live…</span></div>
       <span class="pulse-dot" style="margin-left:auto"></span>
     </div>
 
     <div class="stage-bar" id="stage-bar">
       <span class="stage active" data-stage="compose" onclick="gotoStage(this)"><span class="num">1</span>Compose</span>
-      <span class="stage-sep">›</span>
+      <span style="color:var(--muted);font-size:10px">›</span>
       <span class="stage" data-stage="enhance" onclick="gotoStage(this)"><span class="num">2</span>Enhance</span>
-      <span class="stage-sep">›</span>
+      <span style="color:var(--muted);font-size:10px">›</span>
       <span class="stage" data-stage="clarify" onclick="gotoStage(this)"><span class="num">3</span>Clarify</span>
-      <span class="stage-sep">›</span>
+      <span style="color:var(--muted);font-size:10px">›</span>
       <span class="stage" data-stage="run" onclick="gotoStage(this)"><span class="num">4</span>Run</span>
-      <span class="stage-sep">›</span>
+      <span style="color:var(--muted);font-size:10px">›</span>
       <span class="stage" data-stage="report" onclick="gotoStage(this)"><span class="num">5</span>Report</span>
-      <span class="stage-sep">›</span>
+      <span style="color:var(--muted);font-size:10px">›</span>
       <span class="stage" data-stage="enrich" onclick="gotoStage(this)"><span class="num">6</span>Enrich</span>
     </div>
 
     <div class="rule-lock">
-      <span style="font-size:16px">🔒</span>
-      <div><strong>Strict Input Contract</strong> <span class="small">— every selection in every layer is honored. Halt-and-ask on conflict. Cite every claim. Output structured, exportable.</span></div>
+      <svg class="ico-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <div><strong>Strict Input Contract</strong> <span class="small">— every selection in every layer is honored. Halt-and-ask on conflict. Output strictly follows the Report Shape.</span></div>
     </div>
 
-    <!-- Insights with Signal + Relationship quick-start -->
-    <div class="insight-row">
-      <div class="insight" onclick="quickStart('repeat')"><div class="insight-h">🔁 Ran 3× this week</div><div class="insight-t">Re-run Saudi fintech CTOs · 2025 data</div></div>
-      <div class="insight" onclick="quickStart('next')"><div class="insight-h">⏭ Likely next</div><div class="insight-t">Map Series-B fintech CFOs</div></div>
-      <div class="signal-card" onclick="quickStart('signal')"><div class="h">📡 Signal · live</div><div class="t">Hala just hired 4 engineers — score risen</div><div class="cta">▸ Open in composer (signal mode)</div></div>
-      <div class="signal-card" onclick="quickStart('tree')" style="background:linear-gradient(135deg,rgba(146,205,192,.10),white);border-color:rgba(146,205,192,.30)"><div class="h" style="color:var(--ok)">🌳 Relationship tree</div><div class="t">Map Tabby exec network → reveal 12 connections</div><div class="cta">▸ Open in composer (tree mode)</div></div>
+    <!-- HISTORY -->
+    <div class="blk-h"><svg class="ico-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> Recent runs <span class="small" style="margin-left:auto;font-weight:400;text-transform:none;letter-spacing:0">re-run · rerun with fresh data · open report</span></div>
+    <div class="hist-row">
+      <div class="hist" onclick="quickStart('hist-1')"><div class="when">Today 06:14</div><div class="t">Saudi fintech CTOs · 2024 funded</div><div class="meta">Lead Gen + Enrich · 5 leads · Tabby+4</div></div>
+      <div class="hist" onclick="quickStart('hist-2')"><div class="when">Yesterday 22:01</div><div class="t">Tadawul board diversity audit</div><div class="meta">Compare · 12 cos · 78 board members</div></div>
+      <div class="hist" onclick="quickStart('hist-3')"><div class="when">2 days ago</div><div class="t">NEOM contractor signal watch</div><div class="meta">Signal · 6 active triggers</div></div>
     </div>
 
-    <!-- STAGE 1: COMPOSE -->
+    <div class="insight-row" style="margin-top:14px">
+      <div class="insight" onclick="quickStart('repeat')"><div class="insight-h">🔁 Ran 3× this week</div><div class="insight-t">Re-run with 2025 data</div></div>
+      <div class="insight" onclick="quickStart('next')"><div class="insight-h">⏭ Likely next</div><div class="insight-t">Series-B fintech CFOs</div></div>
+      <div class="signal-card" onclick="quickStart('signal')"><div class="h">📡 Live signal</div><div class="t">Hala hired 4 senior engineers · score up</div><div class="cta">▸ Open Signal Watch</div></div>
+      <div class="signal-card" onclick="quickStart('tree')" style="background:linear-gradient(135deg,rgba(146,205,192,.10),white);border-color:rgba(146,205,192,.30)"><div class="h" style="color:var(--ok)">🌳 Tree</div><div class="t">Map Tabby exec network · 12 ties</div><div class="cta">▸ Build tree</div></div>
+    </div>
+
+    <!-- COMPOSE -->
     <section id="stage-compose">
       <div class="crumbs" id="crumbs">
-        <span class="crumb active" data-c="1" onclick="gotoLayer(1)"><span style="color:var(--ok)">▸</span> Pick</span>
-        <span class="crumb-sep">›</span>
+        <span class="crumb active" data-c="1" onclick="gotoLayer(1)">▸ Pick</span>
+        <span style="color:var(--muted);font-size:10px">›</span>
         <span class="crumb" data-c="2" onclick="gotoLayer(2)">Scope</span>
-        <span class="crumb-sep">›</span>
+        <span style="color:var(--muted);font-size:10px">›</span>
         <span class="crumb" data-c="3" onclick="gotoLayer(3)">Tools</span>
-        <span class="crumb-sep">›</span>
+        <span style="color:var(--muted);font-size:10px">›</span>
         <span class="crumb" data-c="4" onclick="gotoLayer(4)">Ask</span>
       </div>
 
-      <!-- LAYER 1: PICK -->
       <section class="layer" id="layer-1">
-        <div class="layer-h"><div class="layer-num">1</div><div class="layer-t">Pick<span class="layer-sub">— template, modes, target type</span></div></div>
+        <div class="layer-h"><div class="layer-num">1</div><div class="layer-t">Pick<span class="layer-sub">— template, modes, target</span></div></div>
         <div class="layer-body">
           <div class="grid-2">
             <div>
               <div class="field-label">📑 Template <button class="field-edit" onclick="openDrawerAt('templates')">+ Create / Edit</button></div>
-              <select class="select" id="tpl-sel" onchange="onTemplate()">
+              <select class="select" id="tpl-sel" onchange="buildMega()">
                 <option value="t1" selected>🎯 Saudi fintech CTOs · 2024 funded</option>
                 <option value="t2">⚖️ Tadawul board comparison</option>
                 <option value="t3">🏛️ Family-office contact map</option>
-                <option value="t4">🔬 CR Lookup deep dossier</option>
-                <option value="my1">💾 My Aramco Vendors</option>
                 <option value="blank">— Start blank —</option>
               </select>
             </div>
-            <div class="relative">
-              <div class="field-label">⚙️ Modes <span class="field-hint">— multi-select</span></div>
-              <div class="ms" id="mode-ms" onclick="toggleMS('mode',event)">
+            <div>
+              <div class="field-label">⚙️ Modes <span style="color:var(--muted);font-weight:400">— multi-select</span></div>
+              <div class="ms" onclick="toggleMS('mode',event)">
                 <div id="mode-tags" style="display:flex;flex-wrap:wrap;gap:4px;flex:1"></div>
                 <span class="ms-chev">▾</span>
-              </div>
-              <div class="ms-pop hide" id="mode-pop">
-                <div class="ms-opt on" data-v="leadgen"><div class="ck">✓</div>🎯 Lead Gen<span class="meta">finds people</span></div>
-                <div class="ms-opt on" data-v="enrich"><div class="ck">✓</div>🧪 Enrich<span class="meta">adds fields</span></div>
-                <div class="ms-opt" data-v="research"><div class="ck">✓</div>🔍 Research</div>
-                <div class="ms-opt" data-v="extract"><div class="ck">✓</div>📋 Extract</div>
-                <div class="ms-opt" data-v="compare"><div class="ck">✓</div>⚖️ Compare</div>
-                <div class="ms-opt" data-v="deepdive"><div class="ck">✓</div>🔬 Deep Dive</div>
-                <div class="ms-opt" data-v="signal"><div class="ck">✓</div>📡 Signal Watch</div>
-                <div class="ms-opt" data-v="tree"><div class="ck">✓</div>🌳 Relationship Tree</div>
-                <div class="ms-opt" data-v="custom"><div class="ck">✓</div>🛠️ Custom</div>
+                <div class="ms-pop hide" id="mode-pop">
+                  <div class="ms-opt on" data-v="leadgen" onclick="msToggle(event,'mode','leadgen')"><div class="ck">✓</div>🎯 Lead Gen<span class="meta">finds people</span></div>
+                  <div class="ms-opt on" data-v="enrich" onclick="msToggle(event,'mode','enrich')"><div class="ck">✓</div>🧪 Enrich<span class="meta">adds fields</span></div>
+                  <div class="ms-opt" data-v="research" onclick="msToggle(event,'mode','research')"><div class="ck">✓</div>🔍 Research</div>
+                  <div class="ms-opt" data-v="compare" onclick="msToggle(event,'mode','compare')"><div class="ck">✓</div>⚖️ Compare</div>
+                  <div class="ms-opt" data-v="deepdive" onclick="msToggle(event,'mode','deepdive')"><div class="ck">✓</div>🔬 Deep Dive</div>
+                  <div class="ms-opt" data-v="signal" onclick="msToggle(event,'mode','signal')"><div class="ck">✓</div>📡 Signal Watch</div>
+                  <div class="ms-opt" data-v="tree" onclick="msToggle(event,'mode','tree')"><div class="ck">✓</div>🌳 Relationship Tree</div>
+                </div>
               </div>
             </div>
           </div>
-
-          <!-- Target type — drives lead gen vs company gen vs both -->
           <div style="margin-top:14px">
-            <div class="field-label">🎯 Looking for <span class="field-hint">— drives lead gen + enrichment routing</span></div>
-            <div class="target-seg" id="target-seg">
-              <div class="target-opt" data-tgt="person" onclick="setTarget('person')">
-                <div class="ico">👤</div>
-                <div class="lbl">Individuals</div>
-                <div class="desc">People · executives · titles</div>
-              </div>
-              <div class="target-opt" data-tgt="company" onclick="setTarget('company')">
-                <div class="ico">🏢</div>
-                <div class="lbl">Companies</div>
-                <div class="desc">Org-level only</div>
-              </div>
-              <div class="target-opt on" data-tgt="both" onclick="setTarget('both')">
-                <div class="ico">🌐</div>
-                <div class="lbl">Both</div>
-                <div class="desc">Companies + their leadership</div>
-              </div>
+            <div class="field-label">🎯 Looking for <span style="color:var(--muted);font-weight:400">— drives routing</span></div>
+            <div class="target-seg">
+              <div class="target-opt" data-tgt="person" onclick="setTarget('person')"><svg class="ico-svg" style="margin:0 auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2"/></svg><div class="lbl">Individuals</div><div class="desc">People · titles</div></div>
+              <div class="target-opt" data-tgt="company" onclick="setTarget('company')"><svg class="ico-svg" style="margin:0 auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 8h2M8 12h2M8 16h2M14 8h2M14 12h2M14 16h2"/></svg><div class="lbl">Companies</div><div class="desc">Org-level</div></div>
+              <div class="target-opt on" data-tgt="both" onclick="setTarget('both')"><svg class="ico-svg" style="margin:0 auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="9" r="3"/><rect x="13" y="6" width="9" height="14" rx="2"/></svg><div class="lbl">Both</div><div class="desc">Cos + leaders</div></div>
             </div>
           </div>
-
           <div class="next-row"><div></div><button class="btn btn-primary btn-sm" onclick="gotoLayer(2)">Next: Scope →</button></div>
         </div>
       </section>
 
-      <!-- LAYER 2: SCOPE (expanded industries) -->
       <section class="layer hide" id="layer-2">
-        <div class="layer-h"><div class="layer-num">2</div><div class="layer-t">Scope<span class="layer-sub">— country, industry, listing status, dependent sub-filters</span></div></div>
+        <div class="layer-h"><div class="layer-num">2</div><div class="layer-t">Scope<span class="layer-sub">— country, industry, listing, sub-filters</span></div></div>
         <div class="layer-body">
           <div class="grid-2">
-            <div class="relative">
+            <div>
               <div class="field-label">🌍 Country / Region</div>
               <div class="ms" onclick="toggleMS('country',event)">
                 <div id="country-tags" style="display:flex;flex-wrap:wrap;gap:4px;flex:1"></div>
                 <span class="ms-chev">▾</span>
-              </div>
-              <div class="ms-pop hide" id="country-pop">
-                <div class="ms-opt on" data-v="sa"><div class="ck">✓</div>🇸🇦 Saudi Arabia</div>
-                <div class="ms-opt" data-v="ae"><div class="ck">✓</div>🇦🇪 UAE</div>
-                <div class="ms-opt" data-v="kw"><div class="ck">✓</div>🇰🇼 Kuwait</div>
-                <div class="ms-opt" data-v="qa"><div class="ck">✓</div>🇶🇦 Qatar</div>
-                <div class="ms-opt" data-v="bh"><div class="ck">✓</div>🇧🇭 Bahrain</div>
-                <div class="ms-opt" data-v="om"><div class="ck">✓</div>🇴🇲 Oman</div>
-                <div class="ms-opt" data-v="eg"><div class="ck">✓</div>🇪🇬 Egypt</div>
-                <div class="ms-opt" data-v="jo"><div class="ck">✓</div>🇯🇴 Jordan</div>
-                <div class="ms-opt" data-v="iq"><div class="ck">✓</div>🇮🇶 Iraq</div>
-                <div class="ms-opt" data-v="lb"><div class="ck">✓</div>🇱🇧 Lebanon</div>
-                <div class="ms-opt" data-v="ye"><div class="ck">✓</div>🇾🇪 Yemen</div>
-                <div class="ms-opt" data-v="tr"><div class="ck">✓</div>🇹🇷 Türkiye</div>
-                <div class="ms-opt" data-v="gcc"><div class="ck">✓</div>🌐 GCC (all)</div>
-                <div class="ms-opt" data-v="mena"><div class="ck">✓</div>🌐 MENA (all)</div>
-                <div class="ms-opt" data-v="global"><div class="ck">✓</div>🌐 Global</div>
+                <div class="ms-pop hide" id="country-pop">
+                  <div class="ms-opt on" data-v="sa" onclick="msToggle(event,'country','sa')"><div class="ck">✓</div>🇸🇦 Saudi Arabia</div>
+                  <div class="ms-opt" data-v="ae" onclick="msToggle(event,'country','ae')"><div class="ck">✓</div>🇦🇪 UAE</div>
+                  <div class="ms-opt" data-v="kw" onclick="msToggle(event,'country','kw')"><div class="ck">✓</div>🇰🇼 Kuwait</div>
+                  <div class="ms-opt" data-v="qa" onclick="msToggle(event,'country','qa')"><div class="ck">✓</div>🇶🇦 Qatar</div>
+                  <div class="ms-opt" data-v="bh" onclick="msToggle(event,'country','bh')"><div class="ck">✓</div>🇧🇭 Bahrain</div>
+                  <div class="ms-opt" data-v="om" onclick="msToggle(event,'country','om')"><div class="ck">✓</div>🇴🇲 Oman</div>
+                  <div class="ms-opt" data-v="eg" onclick="msToggle(event,'country','eg')"><div class="ck">✓</div>🇪🇬 Egypt</div>
+                  <div class="ms-opt" data-v="jo" onclick="msToggle(event,'country','jo')"><div class="ck">✓</div>🇯🇴 Jordan</div>
+                  <div class="ms-opt" data-v="gcc" onclick="msToggle(event,'country','gcc')"><div class="ck">✓</div>🌐 GCC (all)</div>
+                  <div class="ms-opt" data-v="mena" onclick="msToggle(event,'country','mena')"><div class="ck">✓</div>🌐 MENA</div>
+                </div>
               </div>
             </div>
             <div>
-              <div class="field-label">🏭 Industry <span class="field-hint">— 18 options · drives sub-filters &amp; sources</span></div>
+              <div class="field-label">🏭 Industry <span style="color:var(--muted);font-weight:400">— 23 options</span></div>
               <select class="select" id="ind-sel" onchange="onIndustry()">
-                <option value="fintech" selected>💳 Fintech</option>
-                <option value="banking">🏦 Banking</option>
-                <option value="insurance">🛡️ Insurance</option>
-                <option value="energy">🛢️ Energy / Oil &amp; Gas</option>
-                <option value="utilities">⚡ Utilities / Power</option>
-                <option value="construction">🏗️ Construction</option>
-                <option value="realestate">🏢 Real Estate</option>
-                <option value="healthcare">💊 Healthcare</option>
-                <option value="retail">🛒 Retail / E-commerce</option>
-                <option value="fnb">🍽️ Food &amp; Beverage</option>
-                <option value="hospitality">🏨 Hospitality / Tourism</option>
-                <option value="logistics">🚚 Logistics / Supply chain</option>
-                <option value="manufacturing">🏭 Manufacturing</option>
-                <option value="mining">⛏️ Mining</option>
-                <option value="aviation">✈️ Aviation</option>
-                <option value="telecom">📡 Telecom</option>
-                <option value="media">📺 Media</option>
-                <option value="edtech">🎓 EdTech / Education</option>
-                <option value="defense">🛰️ Defense / GovTech</option>
-                <option value="consulting">💼 Consulting / Pro-services</option>
-                <option value="saas">💻 SaaS / Tech</option>
-                <option value="agri">🌾 Agriculture / AgriTech</option>
-                <option value="govt">🏛️ Government / Public</option>
+                <option value="fintech" selected>💳 Fintech</option><option value="banking">🏦 Banking</option><option value="insurance">🛡️ Insurance</option>
+                <option value="energy">🛢️ Energy</option><option value="utilities">⚡ Utilities</option><option value="construction">🏗️ Construction</option>
+                <option value="realestate">🏢 Real Estate</option><option value="healthcare">💊 Healthcare</option><option value="retail">🛒 Retail</option>
+                <option value="fnb">🍽️ F&amp;B</option><option value="hospitality">🏨 Hospitality</option><option value="logistics">🚚 Logistics</option>
+                <option value="manufacturing">🏭 Manufacturing</option><option value="mining">⛏️ Mining</option><option value="aviation">✈️ Aviation</option>
+                <option value="telecom">📡 Telecom</option><option value="media">📺 Media</option><option value="edtech">🎓 EdTech</option>
+                <option value="defense">🛰️ Defense</option><option value="consulting">💼 Consulting</option><option value="saas">💻 SaaS / Tech</option>
+                <option value="agri">🌾 Agriculture</option><option value="govt">🏛️ Government</option>
               </select>
             </div>
           </div>
-
-          <!-- Listed-status filter (routes sources to Tadawul etc.) -->
           <div style="margin-top:14px">
-            <div class="field-label">📊 Listing status <span class="field-hint">— Tadawul listed routes Sources to filings + analyst feeds</span></div>
+            <div class="field-label">📊 Listing status</div>
             <div class="chips" id="listing-chips">
-              <span class="chip on" onclick="toggleC(this);buildMega()">Any</span>
-              <span class="chip" onclick="toggleC(this);buildMega()">Tadawul main</span>
-              <span class="chip" onclick="toggleC(this);buildMega()">Nomu parallel</span>
-              <span class="chip" onclick="toggleC(this);buildMega()">Private only</span>
-              <span class="chip" onclick="toggleC(this);buildMega()">VC-backed</span>
-              <span class="chip" onclick="toggleC(this);buildMega()">PE-owned</span>
-              <span class="chip" onclick="toggleC(this);buildMega()">Family-owned</span>
-              <span class="chip" onclick="toggleC(this);buildMega()">State-owned</span>
+              <span class="chip on" onclick="toggleC(this,true);buildMega()">Any</span>
+              <span class="chip" onclick="toggleC(this,true);buildMega()">Tadawul main</span>
+              <span class="chip" onclick="toggleC(this,true);buildMega()">Nomu</span>
+              <span class="chip" onclick="toggleC(this,true);buildMega()">Private</span>
+              <span class="chip" onclick="toggleC(this,true);buildMega()">VC-backed</span>
+              <span class="chip" onclick="toggleC(this,true);buildMega()">PE-owned</span>
+              <span class="chip" onclick="toggleC(this,true);buildMega()">Family-owned</span>
+              <span class="chip" onclick="toggleC(this,true);buildMega()">State-owned</span>
             </div>
           </div>
-
           <div style="margin-top:14px">
-            <div class="field-label">⚙️ Industry sub-filters <span class="field-hint">— dynamic for <span id="ind-name">Fintech</span></span></div>
+            <div class="field-label">⚙️ Industry sub-filters — <span id="ind-name">Fintech</span></div>
             <div class="grid-3" id="sub-filters"></div>
           </div>
-
-          <div class="next-row">
-            <button class="btn btn-ghost btn-sm" onclick="gotoLayer(1)">← Back: Pick</button>
-            <button class="btn btn-primary btn-sm" onclick="gotoLayer(3)">Next: Tools →</button>
-          </div>
+          <div class="next-row"><button class="btn btn-ghost btn-sm" onclick="gotoLayer(1)">← Pick</button><button class="btn btn-primary btn-sm" onclick="gotoLayer(3)">Next: Tools →</button></div>
         </div>
       </section>
 
-      <!-- LAYER 3: TOOLS (sources auto-filtered) -->
       <section class="layer hide" id="layer-3">
-        <div class="layer-h"><div class="layer-num">3</div><div class="layer-t">Tools<span class="layer-sub">— sources auto-recommended from your scope · category drill-down</span></div></div>
+        <div class="layer-h"><div class="layer-num">3</div><div class="layer-t">Tools<span class="layer-sub">— sources, connectors, skills (live-recommended)</span></div></div>
         <div class="layer-body">
           <div style="margin-bottom:14px">
             <div class="field-label">📚 Sources <button class="field-edit" onclick="openDrawerAt('sources')">Manage all 80</button></div>
-            <div class="small" style="margin-bottom:8px;color:var(--ok);font-weight:600">✨ <span id="src-reco">Auto-recommended for Fintech · KSA · Any listing: Tadawul + Argaam + Mubasher + MCI CR + GLEIF + Tavily</span></div>
+            <div class="small" style="margin-bottom:6px;color:var(--ok);font-weight:600" id="src-reco-line">⭐ Auto-recommended for Fintech · KSA</div>
             <select class="select" id="src-cat" onchange="onSrcCat()">
-              <option value="reco" selected>⭐ Recommended for your scope (6)</option>
+              <option value="reco" selected>⭐ Recommended (6)</option>
               <option value="ksa-market">🇸🇦 Saudi market &amp; registries (11)</option>
               <option value="arabic-press">📰 Arabic financial press (10)</option>
-              <option value="regional-press">🌍 Regional &amp; English biz press (14)</option>
-              <option value="global-open">⚖️ Global open-data &amp; legal (11)</option>
-              <option value="sector">🏗️ Sector / Real-estate (10)</option>
-              <option value="social">💬 Social &amp; live web (10)</option>
+              <option value="regional-press">🌍 Regional press (14)</option>
+              <option value="global-open">⚖️ Global open-data (11)</option>
+              <option value="sector">🏗️ Sector (10)</option>
+              <option value="social">💬 Social (10)</option>
             </select>
             <div class="chips" id="src-chips" style="margin-top:10px"></div>
           </div>
-
           <div style="margin-bottom:14px">
             <div class="field-label">🔌 Connectors <button class="field-edit" onclick="openDrawerAt('connectors')">Manage all 37</button></div>
             <select class="select" id="conn-cat" onchange="onConnCat()">
               <option value="scraping" selected>🌐 Scraping (9)</option>
               <option value="prod">⚙️ Productivity (8)</option>
-              <option value="files">📁 Files &amp; data (8)</option>
+              <option value="files">📁 Files (8)</option>
               <option value="crm">💼 CRM (6)</option>
               <option value="msg">💬 Messaging (6)</option>
             </select>
             <div class="chips" id="conn-chips" style="margin-top:10px"></div>
           </div>
-
           <div>
             <div class="field-label">🧬 Skills <button class="field-edit" onclick="openDrawerAt('skills')">Manage / Create</button></div>
             <select class="select" id="skill-cat" onchange="onSkillCat()">
               <option value="finance" selected>🏦 Finance (4)</option>
               <option value="real">🏗️ Real-Estate (3)</option>
               <option value="energy">🛢️ Energy (2)</option>
-              <option value="people">👥 People &amp; Outreach (3)</option>
+              <option value="people">👥 People (3)</option>
               <option value="compliance">⚖️ Compliance (2)</option>
-              <option value="other">🛒 Other (3)</option>
             </select>
             <div class="chips" id="skill-chips" style="margin-top:10px"></div>
           </div>
-
-          <div class="next-row">
-            <button class="btn btn-ghost btn-sm" onclick="gotoLayer(2)">← Back: Scope</button>
-            <button class="btn btn-primary btn-sm" onclick="gotoLayer(4)">Next: Ask →</button>
-          </div>
+          <div class="next-row"><button class="btn btn-ghost btn-sm" onclick="gotoLayer(2)">← Scope</button><button class="btn btn-primary btn-sm" onclick="gotoLayer(4)">Next: Ask →</button></div>
         </div>
       </section>
 
-      <!-- LAYER 4: ASK (context-aware filters) -->
+      <!-- LAYER 4: ASK — with seniority→role chain + multi-select + tabs for both target -->
       <section class="layer hide" id="layer-4">
-        <div class="layer-h"><div class="layer-num">4</div><div class="layer-t">Ask<span class="layer-sub">— text + context-aware filters → AI enhancer</span></div></div>
+        <div class="layer-h"><div class="layer-num">4</div><div class="layer-t">Ask<span class="layer-sub">— context-aware filters</span></div></div>
         <div class="layer-body">
           <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;padding:8px 12px;background:rgba(212,184,150,.10);border:1px solid rgba(212,184,150,.30);border-radius:var(--r-sm);">
-            <span class="small" style="font-weight:600;color:var(--ink)">Live context from your layers:</span>
+            <span class="small" style="font-weight:600;color:var(--ink)">Live context:</span>
             <span class="ctx-pill" id="ctx-tpl"></span>
             <span class="ctx-pill" id="ctx-tgt"></span>
             <span class="ctx-pill" id="ctx-mode"></span>
             <span class="ctx-pill" id="ctx-country"></span>
             <span class="ctx-pill" id="ctx-ind"></span>
-            <span class="ctx-pill" id="ctx-listing"></span>
           </div>
 
-          <div style="display:flex;align-items:center;margin-bottom:10px">
+          <div style="display:flex;align-items:center;margin-bottom:10px;gap:10px">
             <div class="seg" id="input-seg">
               <button class="on" data-seg="both">⚡ Both</button>
               <button data-seg="write">✍️ Write</button>
-              <button data-seg="filter">🎛️ Filters only</button>
+              <button data-seg="filter">🎛️ Filters</button>
             </div>
-            <span class="small" style="margin-left:auto">Filters reload when you change Scope.</span>
+            <span class="small">Both inputs feed the enhancer.</span>
           </div>
 
           <div id="write-block">
             <textarea class="input" id="qtxt">Find 5 Saudi fintech CTOs at Series-A+ companies that closed 2024 funding and are hiring engineers in Riyadh.</textarea>
           </div>
 
-          <div id="filter-block" style="margin-top:10px">
-            <div class="grid-3" id="ask-filters"></div>
+          <!-- Filter block: if target=both, show sub-tabs Individual / Company -->
+          <div id="filter-block" style="margin-top:12px">
+            <div id="filter-tabs" class="enr-sub hide">
+              <button class="on" data-ft="ind" onclick="setFilterTab('ind')">👤 Individual filters</button>
+              <button data-ft="co" onclick="setFilterTab('co')">🏢 Company filters</button>
+            </div>
+            <div id="ind-filters" class="grid-3"></div>
+            <div id="co-filters" class="grid-3 hide" style="margin-top:8px"></div>
           </div>
 
           <div class="toggle-row" style="margin-top:12px">
             <div class="toggle on" id="enhance-tgl" onclick="this.classList.toggle('on')"></div>
-            <div class="toggle-label">AI Prompt Enhancer</div>
-            <div class="toggle-hint">Merges everything from layers 1-4 into a structured task.</div>
+            <div style="font-size:13px;font-weight:600">AI Prompt Enhancer</div>
+            <div class="small" style="margin-left:auto">Merges everything from layers 1-4.</div>
           </div>
-          <div class="next-row">
-            <button class="btn btn-ghost btn-sm" onclick="gotoLayer(3)">← Back: Tools</button>
-            <button class="btn btn-primary" onclick="kickoff()">Compose &amp; Run ⏵</button>
-          </div>
+          <div class="next-row"><button class="btn btn-ghost btn-sm" onclick="gotoLayer(3)">← Tools</button><button class="btn btn-primary" onclick="kickoff()">Compose &amp; Run ⏵</button></div>
         </div>
       </section>
     </section>
 
-    <!-- STAGE 2: ENHANCE -->
+    <!-- ENHANCE -->
     <section id="stage-enhance" class="hide">
       <div class="layer">
-        <div class="layer-h"><div class="layer-num" style="background:var(--sand)">✨</div><div class="layer-t">Enhanced Prompt<span class="layer-sub">— built live from your selections</span></div></div>
+        <div class="layer-h"><div class="layer-num" style="background:var(--sand)">✨</div><div class="layer-t">Enhanced Prompt<span class="layer-sub">— complete contract, explanatory</span></div></div>
         <div class="layer-body">
-          <div id="enh-block" style="background:rgba(245,240,247,.6);padding:14px;border-radius:10px;border:1px solid var(--line);font-family:ui-monospace,monospace;font-size:12px"></div>
-          <div class="next-row">
-            <button class="btn btn-ghost btn-sm" onclick="gotoStageById('compose')">← Back: Compose</button>
-            <button class="btn btn-primary btn-sm" onclick="gotoStageById('clarify')">Continue: Clarify →</button>
-          </div>
+          <div id="enh-block" style="background:rgba(245,240,247,.6);padding:14px;border-radius:10px;border:1px solid var(--line);font-family:ui-monospace,monospace;font-size:12px;line-height:1.6"></div>
+          <div class="next-row"><button class="btn btn-ghost btn-sm" onclick="gotoStageById('compose')">← Compose</button><button class="btn btn-primary btn-sm" onclick="gotoStageById('clarify')">Continue: Clarify →</button></div>
         </div>
       </div>
     </section>
 
-    <!-- STAGE 3: CLARIFY (with report-shape selector) -->
+    <!-- CLARIFY — expanded with report output filter -->
     <section id="stage-clarify" class="hide">
       <div class="layer">
-        <div class="layer-h"><div class="layer-num" style="background:var(--sand)">💡</div><div class="layer-t">Clarify &amp; Choose Report Shape</div></div>
+        <div class="layer-h"><div class="layer-num" style="background:var(--sand)">💡</div><div class="layer-t">Clarify &amp; Report Shape<span class="layer-sub">— answers become contract clauses</span></div></div>
         <div class="layer-body">
 
-          <div class="rule-lock" style="margin-bottom:12px">
-            <span style="font-size:16px">🔒</span>
-            <div><strong>Contract clauses</strong> <span class="small">— your clarifications become part of the prompt. The agent halts if any can't be honored.</span></div>
+          <div class="rule-lock" style="margin-bottom:12px"><svg class="ico-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><div><strong>Strict report output</strong> <span class="small">— shape + blocks selected here are honored verbatim. No table view if you ask for executive summary.</span></div></div>
+
+          <div class="grid-2">
+            <div>
+              <div class="field-label">Include "Head of Engineering" / "VP Eng"?</div>
+              <div class="chips"><span class="chip on" onclick="toggleC(this,true)">Yes</span><span class="chip" onclick="toggleC(this,true)">No</span></div>
+            </div>
+            <div>
+              <div class="field-label">Min funding round</div>
+              <div class="chips"><span class="chip" onclick="toggleC(this,true)">Any</span><span class="chip on" onclick="toggleC(this,true)">$2M+</span><span class="chip" onclick="toggleC(this,true)">$10M+</span><span class="chip" onclick="toggleC(this,true)">$50M+</span></div>
+            </div>
+            <div>
+              <div class="field-label">Verify titles cross-source?</div>
+              <div class="chips"><span class="chip on" onclick="toggleC(this,true)">Yes</span><span class="chip" onclick="toggleC(this,true)">No · trust primary</span></div>
+            </div>
+            <div>
+              <div class="field-label">Email policy</div>
+              <div class="chips"><span class="chip on" onclick="toggleC(this,true)">DNS+MX only</span><span class="chip" onclick="toggleC(this,true)">AI-guess allowed</span><span class="chip" onclick="toggleC(this,true)">Skip emails</span></div>
+            </div>
+            <div>
+              <div class="field-label">Language</div>
+              <div class="chips"><span class="chip on" onclick="toggleC(this,true)">English</span><span class="chip" onclick="toggleC(this,true)">Arabic</span><span class="chip" onclick="toggleC(this,true)">Bilingual</span></div>
+            </div>
+            <div>
+              <div class="field-label">Currency</div>
+              <div class="chips"><span class="chip on" onclick="toggleC(this,true)">SAR</span><span class="chip" onclick="toggleC(this,true)">USD</span><span class="chip" onclick="toggleC(this,true)">Both</span></div>
+            </div>
           </div>
 
-          <div style="margin-bottom:14px">
-            <div class="small" style="font-weight:600;color:var(--ink);margin-bottom:6px">Include "Head of Engineering" / "VP Eng"?</div>
-            <div class="chips"><span class="chip on" onclick="toggleC(this,true)">Yes</span><span class="chip" onclick="toggleC(this,true)">No</span></div>
-          </div>
-          <div style="margin-bottom:14px">
-            <div class="small" style="font-weight:600;color:var(--ink);margin-bottom:6px">Minimum funding round?</div>
-            <div class="chips"><span class="chip" onclick="toggleC(this,true)">Any</span><span class="chip on" onclick="toggleC(this,true)">$2M+</span><span class="chip" onclick="toggleC(this,true)">$10M+</span></div>
+          <div class="field-label" style="margin-top:14px">📄 Report shape <span style="color:var(--muted);font-weight:400">— controls the actual rendered output</span></div>
+          <div class="target-seg">
+            <div class="target-opt" data-r="exec" onclick="setReport('exec')"><div style="font-size:18px">📋</div><div class="lbl">Executive Summary</div><div class="desc">2-page · KPIs + 3 insights · NO table</div></div>
+            <div class="target-opt on" data-r="detail" onclick="setReport('detail')"><div style="font-size:18px">📑</div><div class="lbl">Detailed Report</div><div class="desc">Full · table · citations · all blocks</div></div>
+            <div class="target-opt" data-r="custom" onclick="setReport('custom')"><div style="font-size:18px">🎛️</div><div class="lbl">Custom</div><div class="desc">Pick blocks</div></div>
           </div>
 
-          <div class="field-label" style="margin-top:14px">📄 Report shape</div>
-          <div class="grid-3" id="rpt-shape">
-            <div class="target-opt on" data-r="exec" onclick="setReport('exec')"><div class="ico">📋</div><div class="lbl">Executive Summary</div><div class="desc">2-page · KPIs + 3 insights</div></div>
-            <div class="target-opt" data-r="detail" onclick="setReport('detail')"><div class="ico">📑</div><div class="lbl">Detailed Report</div><div class="desc">Full · all blocks · citations</div></div>
-            <div class="target-opt" data-r="custom" onclick="setReport('custom')"><div class="ico">🎛️</div><div class="lbl">Custom Selective</div><div class="desc">Pick blocks below</div></div>
-          </div>
-
-          <div id="rpt-custom" class="hide" style="margin-top:14px">
-            <div class="field-label">Pick the blocks you want — <span id="rpt-mix">person + company</span> intel mapped automatically</div>
-            <div class="chips">
+          <div id="rpt-custom" class="hide" style="margin-top:12px">
+            <div class="field-label">Pick blocks <span style="color:var(--muted);font-weight:400">— for <span id="rpt-mix">person + company</span> intel</span></div>
+            <div class="chips" id="rpt-blocks">
               <span class="chip on" onclick="toggleC(this)">👤 Person table</span>
               <span class="chip on" onclick="toggleC(this)">🏢 Company table</span>
               <span class="chip on" onclick="toggleC(this)">💰 Financials KPI</span>
@@ -632,103 +583,46 @@
               <span class="chip" onclick="toggleC(this)">⚖️ Compliance check</span>
               <span class="chip on" onclick="toggleC(this)">🔗 Citations</span>
             </div>
-            <div class="field-label" style="margin-top:12px">Extra filters for the report</div>
-            <div class="grid-3">
-              <div><div class="small" style="margin-bottom:4px">Language</div><select class="select"><option>English</option><option>Arabic</option><option>Bilingual</option></select></div>
-              <div><div class="small" style="margin-bottom:4px">Depth</div><select class="select"><option>Summary</option><option selected>Detailed</option><option>Exhaustive</option></select></div>
-              <div><div class="small" style="margin-bottom:4px">Tone</div><select class="select"><option>Neutral analytical</option><option>Investment memo</option><option>Sales-friendly</option></select></div>
-            </div>
           </div>
 
-          <div class="next-row">
-            <button class="btn btn-ghost btn-sm" onclick="gotoStageById('enhance')">← Back: Enhance</button>
-            <button class="btn btn-primary btn-sm" onclick="startAgents()">Run Research ⏵</button>
-          </div>
+          <div class="next-row"><button class="btn btn-ghost btn-sm" onclick="gotoStageById('enhance')">← Enhance</button><button class="btn btn-primary btn-sm" onclick="startAgents()">Run ⏵</button></div>
         </div>
       </div>
     </section>
 
-    <!-- STAGE 4: RUN -->
+    <!-- RUN -->
     <section id="stage-run" class="hide">
       <div class="layer">
         <div class="layer-h"><div class="layer-num" style="background:var(--lavender)"><div class="spinner" style="border-color:rgba(255,255,255,.4);border-top-color:white"></div></div><div class="layer-t">Agents Working <span class="layer-sub"><span class="pulse-dot"></span>streaming</span></div></div>
         <div class="layer-body">
           <div class="agent-log" id="agent-log"></div>
-          <div class="next-row"><button class="btn btn-ghost btn-sm" onclick="gotoStageById('clarify')">← Back: Clarify</button><span class="small">Can't proceed until done</span></div>
+          <div class="next-row"><button class="btn btn-ghost btn-sm" onclick="gotoStageById('clarify')">← Clarify</button><span class="small">Wait for agents</span></div>
         </div>
       </div>
     </section>
 
-    <!-- STAGE 5: REPORT -->
+    <!-- REPORT -->
     <section id="stage-report" class="hide">
       <div class="layer">
         <div class="layer-body">
           <div class="report-h">
-            <div><div class="report-title">Saudi Fintech CTOs — 5 Leads</div><div class="small">Generated just now · 6 sources cited</div></div>
-            <button class="exp-btn" onclick="toast('Template saved')">💾 Template</button>
-            <button class="exp-btn" onclick="toast('Skill saved')">💾 Skill</button>
-          </div>
-          <div class="blk">
-            <div class="blk-h">Highlights</div>
-            <div class="kpi-row">
-              <div class="kpi"><div class="kpi-val">5</div><div class="kpi-label">Leads</div></div>
-              <div class="kpi"><div class="kpi-val">$87M</div><div class="kpi-label">2024 funding</div></div>
-              <div class="kpi"><div class="kpi-val">A+</div><div class="kpi-label">Avg quality</div></div>
-              <div class="kpi"><div class="kpi-val">28</div><div class="kpi-label">Open roles</div></div>
-            </div>
+            <div><div class="report-title" id="rpt-title">Saudi Fintech CTOs — 5 Leads</div><div class="small" id="rpt-meta">Generated · Detailed shape</div></div>
+            <button class="btn btn-ghost btn-sm" onclick="toast('Template saved to DB')">💾 Template</button>
+            <button class="btn btn-ghost btn-sm" onclick="toast('Skill saved to DB')">💾 Skill</button>
+            <button class="btn btn-ghost btn-sm" onclick="toggleHist()">📜 Rerun</button>
           </div>
 
-          <!-- SIGNAL INTEL -->
-          <div class="blk">
-            <div class="blk-h">📡 Signal Intelligence <span class="small" style="margin-left:auto;text-transform:none;letter-spacing:0;font-weight:400">click to open in composer</span></div>
-            <div class="grid-3">
-              <div class="signal-card" onclick="quickStart('signal-tabby')"><div class="h">🔥 high signal</div><div class="t">Tabby — 9 open eng roles + Series D · CTO 7-month tenure</div><div class="cta">▸ Deep-dive in composer</div></div>
-              <div class="signal-card" onclick="quickStart('signal-hala')"><div class="h">⚠️ rising</div><div class="t">Hala — 4 new senior hires last 14 days</div><div class="cta">▸ Watch in signal mode</div></div>
-              <div class="signal-card" onclick="quickStart('signal-lendo')"><div class="h">📈 momentum</div><div class="t">Lendo — Series B + new board chair</div><div class="cta">▸ Compare with peers</div></div>
-            </div>
-          </div>
+          <div id="rpt-render"></div>
 
-          <!-- LEAD TABLE -->
-          <div class="blk">
-            <div class="blk-h">Lead Table <span class="small" style="margin-left:auto;text-transform:none;letter-spacing:0;font-weight:400"><label><input type="checkbox" id="sel-all" onclick="toggleAll(this)" checked> select all</label></span></div>
-            <div class="tbl-wrap"><table><thead><tr><th width="32"></th><th>Company</th><th>Lead</th><th>Funding</th><th>Roles</th><th>Tier</th></tr></thead><tbody>
-              <tr class="selected"><td><input type="checkbox" class="row-sel" checked></td><td><strong>Tabby</strong></td><td>Mohammed AlQasem<br/><span class="small">CTO</span></td><td><strong>$50M</strong></td><td>9</td><td><span class="pill pill-a">A+</span></td></tr>
-              <tr class="selected"><td><input type="checkbox" class="row-sel" checked></td><td><strong>Lean Tech</strong></td><td>Hisham Al-Falih<br/><span class="small">CTO</span></td><td><strong>$28M</strong></td><td>7</td><td><span class="pill pill-a">A+</span></td></tr>
-              <tr class="selected"><td><input type="checkbox" class="row-sel" checked></td><td><strong>Hala</strong></td><td>Esam Alkheshnam<br/><span class="small">Head of Eng</span></td><td><strong>$8M</strong></td><td>5</td><td><span class="pill pill-b">A</span></td></tr>
-              <tr class="selected"><td><input type="checkbox" class="row-sel" checked></td><td><strong>Lendo</strong></td><td>Mohammed Jawabri<br/><span class="small">CTO</span></td><td><strong>$28M</strong></td><td>4</td><td><span class="pill pill-a">A+</span></td></tr>
-              <tr class="selected"><td><input type="checkbox" class="row-sel" checked></td><td><strong>NymCard</strong></td><td>Reuben Joseph<br/><span class="small">VP Eng</span></td><td><strong>$22M</strong></td><td>3</td><td><span class="pill pill-c">B</span></td></tr>
-            </tbody></table></div>
-          </div>
-
-          <!-- RELATIONSHIP TREE INTEL -->
-          <div class="blk">
-            <div class="blk-h">🌳 Relationship Tree <span class="small" style="margin-left:auto;text-transform:none;letter-spacing:0;font-weight:400">click any node to expand in composer</span></div>
-            <div class="tree-mini">
-              <div class="tree-node"><span class="lvl">└</span><span class="line"></span><strong class="name" onclick="quickStart('tree-tabby')" style="cursor:pointer;color:var(--lavender)">Tabby</strong></div>
-              <div class="tree-node" style="margin-left:24px"><span class="lvl">├</span><span class="line"></span><span class="name">Hosam Arab</span><span class="pos">· CEO / Co-founder</span></div>
-              <div class="tree-node" style="margin-left:24px"><span class="lvl">├</span><span class="line"></span><span class="name">Mohammed AlQasem</span><span class="pos">· CTO</span><span class="gate-pill gate-ok" style="margin-left:auto">selected</span></div>
-              <div class="tree-node" style="margin-left:24px"><span class="lvl">├</span><span class="line"></span><span class="name">→ STC Pay alumni network (4)</span><span class="pos">· past colleagues</span></div>
-              <div class="tree-node" style="margin-left:24px"><span class="lvl">└</span><span class="line"></span><span class="name">→ Sequoia + Mubadala (investors)</span></div>
-            </div>
-          </div>
-
-          <div class="exports">
-            <button class="exp-btn">📊 XLSX</button><button class="exp-btn">📄 PDF</button>
-            <button class="exp-btn">🌐 HTML</button><button class="exp-btn">⚛️ JSX</button>
-            <button class="exp-btn">📽️ PPTX</button><button class="exp-btn">📋 CSV</button>
-          </div>
-          <div class="next-row">
-            <button class="btn btn-ghost btn-sm" onclick="gotoStageById('run')">← Back: Run</button>
-            <button class="btn btn-primary btn-sm" onclick="gotoStageById('enrich')">Continue: Enrich →</button>
-          </div>
+          <div class="next-row"><button class="btn btn-ghost btn-sm" onclick="gotoStageById('run')">← Run</button><button class="btn btn-primary btn-sm" onclick="gotoStageById('enrich')">Continue: Enrich →</button></div>
         </div>
       </div>
     </section>
 
-    <!-- STAGE 6: ENRICH (split with regenerate option) -->
+    <!-- ENRICH — fully functional -->
     <section id="stage-enrich" class="hide">
       <div class="layer">
-        <div class="layer-h"><div class="layer-num" style="background:var(--seafoam)">🧪</div><div class="layer-t">Enrich · Route<span class="layer-sub">— different config for Leads vs Companies</span></div></div>
+        <div class="layer-h"><div class="layer-num" style="background:var(--seafoam)">🧪</div><div class="layer-t">Enrich · Route</div></div>
         <div class="layer-body">
 
           <div class="enr-sub">
@@ -737,137 +631,151 @@
           </div>
 
           <div class="enr-pane on" data-enr-pane="leads">
-            <div class="enr-rules">
-              <strong>Lead enrichment rules</strong> · <code>composer/enrich-leads.config</code><br/>
-              Endpoint <code>POST /api/leads/enrich</code> · gate: dedup+validate+verify · LinkedIn → company → press priority · email threshold ≥75 · halt on title conflict.
+            <div class="enr-rules"><strong>Lead enrichment</strong> · endpoint <code>POST /api/leads/enrich</code> · gate dedup+validate+verify · email threshold ≥75 · halt on title conflict.</div>
+            <div class="enrich-grid" id="enr-leads-opts">
+              <div class="enrich-opt on" onclick="toggleEnrOpt(this,'leads','linkedin')"><div class="lbl">🔗 LinkedIn URL</div><div class="desc">Verified profile</div></div>
+              <div class="enrich-opt on" onclick="toggleEnrOpt(this,'leads','email')"><div class="lbl">📧 Email</div><div class="desc">DNS+MX validated</div></div>
+              <div class="enrich-opt" onclick="toggleEnrOpt(this,'leads','phone')"><div class="lbl">📞 Phone</div><div class="desc">+966 / GCC</div></div>
+              <div class="enrich-opt" onclick="toggleEnrOpt(this,'leads','bg')"><div class="lbl">🎓 Background</div><div class="desc">Schools · prev jobs</div></div>
+              <div class="enrich-opt" onclick="toggleEnrOpt(this,'leads','icp')"><div class="lbl">🎯 ICP Score</div><div class="desc">Tier + reasoning</div></div>
+              <div class="enrich-opt" onclick="toggleEnrOpt(this,'leads','activity')"><div class="lbl">📡 Activity</div><div class="desc">Recent posts</div></div>
+              <div class="enrich-opt" onclick="toggleEnrOpt(this,'leads','outreach')"><div class="lbl">✉️ Outreach</div><div class="desc">Personalized Ar/En</div></div>
+              <div class="enrich-opt" onclick="toggleEnrOpt(this,'leads','title')"><div class="lbl">🏷️ Title verify</div><div class="desc">Cross-source</div></div>
             </div>
-            <div class="enrich-grid">
-              <div class="enrich-opt on" onclick="this.classList.toggle('on')"><div class="lbl">🔗 LinkedIn URL</div><div class="desc">Verified profile</div></div>
-              <div class="enrich-opt on" onclick="this.classList.toggle('on')"><div class="lbl">📧 Email</div><div class="desc">DNS+MX validated</div></div>
-              <div class="enrich-opt" onclick="this.classList.toggle('on')"><div class="lbl">📞 Phone</div><div class="desc">+966 / GCC</div></div>
-              <div class="enrich-opt" onclick="this.classList.toggle('on')"><div class="lbl">🎓 Background</div><div class="desc">School · prev jobs</div></div>
-              <div class="enrich-opt" onclick="this.classList.toggle('on')"><div class="lbl">🎯 ICP Score</div><div class="desc">Tier + reasoning</div></div>
-              <div class="enrich-opt" onclick="this.classList.toggle('on')"><div class="lbl">📡 Activity signal</div><div class="desc">Recent posts</div></div>
-              <div class="enrich-opt" onclick="this.classList.toggle('on')"><div class="lbl">✉️ Outreach draft</div><div class="desc">Personalized Ar/En</div></div>
-              <div class="enrich-opt" onclick="this.classList.toggle('on')"><div class="lbl">🏷️ Title verify</div><div class="desc">Cross-source</div></div>
-            </div>
-            <div class="gate-row"><span style="font-size:11px;font-weight:700">Gates:</span><span class="gate-pill gate-ok">✓ pass</span><span class="gate-pill gate-warn">⚠ unverified</span><span class="gate-pill gate-dup">🛡 dup person</span><span class="gate-pill gate-bad">✗ rejected</span></div>
+            <div class="gate-row"><span style="font-size:11px;font-weight:700">Gates:</span><span class="gate-pill gate-ok">✓ pass</span><span class="gate-pill gate-warn">⚠ unverified</span><span class="gate-pill gate-dup">🛡 dup</span><span class="gate-pill gate-bad">✗ rejected</span></div>
             <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
-              <button class="btn btn-seafoam btn-sm" onclick="toast('Enriching 5 leads via /api/leads/enrich')">🧪 Apply Lead Enrichment</button>
+              <button class="btn btn-seafoam btn-sm" onclick="runEnrich('leads')">🧪 Apply Lead Enrichment</button>
               <button class="btn btn-sand btn-sm" onclick="pushTo('leads')">📤 Push to Leads DB</button>
             </div>
-            <div id="push-leads" class="small hide" style="margin-top:10px;padding:10px;background:white;border:1px solid var(--line);border-radius:8px"></div>
+            <div id="enr-leads-result" class="small hide" style="margin-top:10px;padding:10px;background:white;border:1px solid var(--line);border-radius:8px"></div>
+            <div id="push-leads" class="small hide" style="margin-top:6px;padding:10px;background:white;border:1px solid var(--line);border-radius:8px"></div>
           </div>
 
           <div class="enr-pane" data-enr-pane="companies">
-            <div class="enr-rules">
-              <strong>Company enrichment rules</strong> · <code>composer/enrich-companies.config</code><br/>
-              Endpoint <code>POST /api/companies/enrich</code> · gate: CR-dedup + GLEIF cross-check · GLEIF → MCI CR → Tadawul → press · SAR conversion · halt on CR conflict.
-            </div>
+            <div class="enr-rules"><strong>Company enrichment</strong> · endpoint <code>POST /api/companies/enrich</code> · gate CR-dedup + GLEIF cross-check · SAR conversion.</div>
             <div class="enrich-grid">
-              <div class="enrich-opt on" onclick="this.classList.toggle('on')"><div class="lbl">🆔 CR number</div><div class="desc">Saudi MCI registry</div></div>
-              <div class="enrich-opt on" onclick="this.classList.toggle('on')"><div class="lbl">🏢 LEI / GLEIF</div><div class="desc">Legal Entity ID</div></div>
-              <div class="enrich-opt" onclick="this.classList.toggle('on')"><div class="lbl">💰 Revenue / capital</div><div class="desc">Last 3 fiscal years</div></div>
-              <div class="enrich-opt on" onclick="this.classList.toggle('on')"><div class="lbl">👥 Employees</div><div class="desc">Verified band</div></div>
-              <div class="enrich-opt" onclick="this.classList.toggle('on')"><div class="lbl">📅 Founding · ownership</div><div class="desc">Founders · shareholders</div></div>
-              <div class="enrich-opt" onclick="this.classList.toggle('on')"><div class="lbl">💵 Funding history</div><div class="desc">All rounds</div></div>
-              <div class="enrich-opt" onclick="this.classList.toggle('on')"><div class="lbl">🛠️ Tech stack</div><div class="desc">BuiltWith + jobs</div></div>
-              <div class="enrich-opt" onclick="this.classList.toggle('on')"><div class="lbl">📰 News · signals</div><div class="desc">90-day mentions</div></div>
+              <div class="enrich-opt on" onclick="toggleEnrOpt(this,'co','cr')"><div class="lbl">🆔 CR number</div><div class="desc">Saudi MCI</div></div>
+              <div class="enrich-opt on" onclick="toggleEnrOpt(this,'co','lei')"><div class="lbl">🏢 LEI / GLEIF</div><div class="desc">Legal entity</div></div>
+              <div class="enrich-opt" onclick="toggleEnrOpt(this,'co','rev')"><div class="lbl">💰 Revenue</div><div class="desc">3-year</div></div>
+              <div class="enrich-opt on" onclick="toggleEnrOpt(this,'co','emp')"><div class="lbl">👥 Employees</div><div class="desc">Verified</div></div>
+              <div class="enrich-opt" onclick="toggleEnrOpt(this,'co','own')"><div class="lbl">📅 Ownership</div><div class="desc">Shareholders</div></div>
+              <div class="enrich-opt" onclick="toggleEnrOpt(this,'co','fund')"><div class="lbl">💵 Funding</div><div class="desc">All rounds</div></div>
+              <div class="enrich-opt" onclick="toggleEnrOpt(this,'co','stack')"><div class="lbl">🛠️ Tech stack</div><div class="desc">BuiltWith</div></div>
+              <div class="enrich-opt" onclick="toggleEnrOpt(this,'co','news')"><div class="lbl">📰 News</div><div class="desc">90d</div></div>
             </div>
-            <div class="gate-row"><span style="font-size:11px;font-weight:700">Gates:</span><span class="gate-pill gate-ok">✓ pass</span><span class="gate-pill gate-warn">⚠ unverified</span><span class="gate-pill gate-dup">🛡 CR/LEI match</span><span class="gate-pill gate-bad">✗ rejected</span></div>
+            <div class="gate-row"><span style="font-size:11px;font-weight:700">Gates:</span><span class="gate-pill gate-ok">✓ pass</span><span class="gate-pill gate-warn">⚠ unverified</span><span class="gate-pill gate-dup">🛡 CR/LEI match</span></div>
             <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
-              <button class="btn btn-seafoam btn-sm" onclick="toast('Enriching 5 companies via /api/companies/enrich')">🧪 Apply Company Enrichment</button>
+              <button class="btn btn-seafoam btn-sm" onclick="runEnrich('companies')">🧪 Apply Company Enrichment</button>
               <button class="btn btn-sand btn-sm" onclick="pushTo('companies')">🏢 Push to Companies DB</button>
             </div>
-            <div id="push-companies" class="small hide" style="margin-top:10px;padding:10px;background:white;border:1px solid var(--line);border-radius:8px"></div>
+            <div id="enr-co-result" class="small hide" style="margin-top:10px;padding:10px;background:white;border:1px solid var(--line);border-radius:8px"></div>
+            <div id="push-companies" class="small hide" style="margin-top:6px;padding:10px;background:white;border:1px solid var(--line);border-radius:8px"></div>
           </div>
 
-          <!-- Regenerate suggestions instead of full re-run -->
-          <div style="margin-top:18px">
-            <div class="blk-h">🔁 What next? <span class="small" style="margin-left:auto;text-transform:none;letter-spacing:0;font-weight:400">no need to rerun from scratch</span></div>
-            <div class="regen-row">
-              <div class="regen" onclick="quickStart('regen-deeper')"><div class="h">📑 Deeper report</div><div class="t">Re-render with Detailed shape + Outreach drafts</div></div>
-              <div class="regen" onclick="quickStart('regen-altframe')"><div class="h">🧪 Alt enrichment</div><div class="t">Apply Compliance/PEP check on the same 5 rows</div></div>
-              <div class="regen" onclick="quickStart('regen-expand')"><div class="h">🔍 Expand search</div><div class="t">Find 10 more leads same filters · keep dedup</div></div>
-              <div class="regen" onclick="quickStart('regen-tree')"><div class="h">🌳 Build tree</div><div class="t">Map relationships across all 5 companies</div></div>
-              <div class="regen" onclick="quickStart('regen-signal')"><div class="h">📡 Watch signals</div><div class="t">Subscribe — daily signal digest</div></div>
-              <div class="regen" onclick="resetAll()"><div class="h">↻ New query</div><div class="t">Start fresh from Compose</div></div>
-            </div>
+          <!-- Mini chat to adjust -->
+          <div class="toggle-row" style="margin-top:18px">
+            <div class="toggle" id="chat-tgl" onclick="document.getElementById('mini-chat').classList.toggle('hide');this.classList.toggle('on')"></div>
+            <div style="font-size:13px;font-weight:600">💬 Chat with AI to adjust this report / enrichment</div>
+            <div class="small" style="margin-left:auto">Live tweaks — no full rerun</div>
+          </div>
+          <div id="mini-chat" class="mini-chat hide">
+            <div class="mini-chat-head">🤖 AI Assistant</div>
+            <div class="turn ai">I see you ran a Lead Gen + Enrich on 5 fintechs. Want me to: add outreach drafts, expand to Series B+, or compare CTO tenures?</div>
+            <div class="mini-chat-input"><input class="input" placeholder="ask me to adjust the report or enrichment..."/><button class="btn btn-primary btn-sm" onclick="toast('AI applied your adjustment')">Send</button></div>
           </div>
 
-          <div class="next-row" style="margin-top:14px">
-            <button class="btn btn-ghost btn-sm" onclick="gotoStageById('report')">← Back: Report</button>
-            <span class="small">Final stage · save loadout above ↑</span>
+          <div class="blk-h" style="margin-top:18px">🔁 What next?</div>
+          <div class="regen-row">
+            <div class="regen" onclick="quickStart('regen-deeper')"><div class="h">📑 Deeper report</div><div class="t">Re-render with Outreach blocks</div></div>
+            <div class="regen" onclick="quickStart('regen-alt')"><div class="h">🧪 Alt enrichment</div><div class="t">Compliance/PEP on same 5</div></div>
+            <div class="regen" onclick="quickStart('regen-expand')"><div class="h">🔍 Expand</div><div class="t">+10 more · dedup applied</div></div>
+            <div class="regen" onclick="quickStart('regen-tree')"><div class="h">🌳 Build tree</div><div class="t">Cross-company relationships</div></div>
+            <div class="regen" onclick="quickStart('regen-signal')"><div class="h">📡 Watch</div><div class="t">Daily signal digest</div></div>
+            <div class="regen" onclick="resetAll()"><div class="h">↻ New</div><div class="t">Start fresh</div></div>
           </div>
+
+          <div class="next-row"><button class="btn btn-ghost btn-sm" onclick="gotoStageById('report')">← Report</button><span class="small">Final stage</span></div>
         </div>
       </div>
     </section>
 
   </main>
 
-  <!-- DRAWER (fully editable) -->
-  <aside class="drawer hide" id="drawer">
-    <div class="drawer-head">
-      <span style="font-size:16px">⚙️</span>
-      <span class="t">Customize</span>
-      <button class="btn-ghost btn btn-sm" onclick="toggleDrawerExpand()">⇕ Expand</button>
-      <button class="drawer-close" onclick="closeDrawer()">×</button>
-    </div>
-    <p class="small" style="margin-bottom:14px">Each item is fully editable — saved to your preferences.</p>
-    <div class="drawer-tabs">
-      <span class="drawer-tab on" data-d="sources" onclick="setDrawer('sources')">Sources</span>
-      <span class="drawer-tab" data-d="connectors" onclick="setDrawer('connectors')">Connectors</span>
-      <span class="drawer-tab" data-d="skills" onclick="setDrawer('skills')">Skills</span>
-      <span class="drawer-tab" data-d="plugins" onclick="setDrawer('plugins')">Plugins</span>
-      <span class="drawer-tab" data-d="templates" onclick="setDrawer('templates')">Templates</span>
-      <span class="drawer-tab" data-d="modes" onclick="setDrawer('modes')">Modes</span>
-    </div>
-    <div>
-      <div class="field-label">✨ AI Generate</div>
-      <div class="ai-gen-row">
-        <input class="input" id="ai-gen-input" placeholder="describe what you want..."/>
-        <button class="btn btn-primary btn-sm" onclick="aiGenItem()">Build</button>
-      </div>
-      <div class="field-label" style="margin-top:12px">Items <span class="field-hint">— click to edit</span></div>
-      <div id="drawer-items"></div>
-    </div>
-  </aside>
-
-  <!-- BEHAVIOR AGENT PANEL -->
-  <aside class="behave hide" id="behave">
-    <div class="behave-head">
-      <span style="font-size:16px">🤖</span>
-      <strong style="font-size:13px">Behavior Agent</strong>
-      <button class="drawer-close" onclick="closeBehave()" style="margin-left:auto">×</button>
-    </div>
-    <p class="small" style="margin-bottom:10px">Observing &amp; suggesting in real time.</p>
-    <div id="behave-list"></div>
-  </aside>
 </div>
 
+<!-- DRAWER (CUSTOMIZE) -->
+<aside class="drawer" id="drawer">
+  <div class="drawer-head">
+    <svg class="ico-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    <span class="t">Customize</span>
+    <button class="btn btn-ghost btn-sm" onclick="toggleDrawerExpand()">⇕ Expand all</button>
+    <button class="drawer-close" onclick="closeDrawer()">×</button>
+  </div>
+  <p class="small" style="margin-bottom:14px">Fully editable. Saved to your preferences.</p>
+  <div class="drawer-tabs">
+    <span class="drawer-tab on" data-d="sources" onclick="setDrawer('sources')">Sources</span>
+    <span class="drawer-tab" data-d="connectors" onclick="setDrawer('connectors')">Connectors</span>
+    <span class="drawer-tab" data-d="skills" onclick="setDrawer('skills')">Skills</span>
+    <span class="drawer-tab" data-d="plugins" onclick="setDrawer('plugins')">Plugins</span>
+    <span class="drawer-tab" data-d="templates" onclick="setDrawer('templates')">Templates</span>
+    <span class="drawer-tab" data-d="modes" onclick="setDrawer('modes')">Modes</span>
+  </div>
+  <div>
+    <div class="field-label">✨ AI Generate</div>
+    <div class="ai-gen-row">
+      <input class="input" id="ai-gen-input" placeholder="describe what you want..."/>
+      <button class="btn btn-primary btn-sm" onclick="aiGenItem()">Build</button>
+    </div>
+    <div class="field-label" style="margin-top:12px">Items <span style="color:var(--muted);font-weight:400">— click to edit</span></div>
+    <div id="drawer-items"></div>
+  </div>
+</aside>
+
+<!-- BEHAVIOR AGENT (always-on, foldable) -->
+<aside class="behave" id="behave">
+  <div class="behave-head" onclick="toggleBehave()">
+    <svg class="ico-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4M8 16h.01M16 16h.01"/></svg>
+    <strong style="font-size:13px">Behavior Agent</strong>
+    <span class="pulse-dot" style="margin-left:6px"></span>
+    <button class="behave-fold" id="behave-fold-btn" onclick="event.stopPropagation();toggleBehave()">▾</button>
+  </div>
+  <p class="small" style="margin-bottom:8px">Active · observing every selection · always-on suggestions.</p>
+  <div class="behave-list" id="behave-list"></div>
+</aside>
+
 <button class="drawer-fab" onclick="openDrawer()">⚙️ Customize</button>
-<button class="behave-fab" onclick="openBehave()">🤖 Behavior Agent</button>
+
+<!-- LEAD / COMPANY DETAIL MODAL -->
+<div class="modal-bd" id="row-modal">
+  <div class="modal">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+      <h2 id="row-modal-title" style="margin:0;font-size:18px">Lead detail</h2>
+      <button class="drawer-close" style="margin-left:auto" onclick="document.getElementById('row-modal').classList.remove('on')">×</button>
+    </div>
+    <div id="row-modal-body" style="font-size:13px"></div>
+  </div>
+</div>
+
 <div class="toast" id="toast">ok</div>
 
 <script>
 // ── state ──────────────────────────────────────────────────────────────────
 const state = {
-  template: "t1",
-  modes: { leadgen: 1, enrich: 1, research: 0, extract: 0, compare: 0, deepdive: 0, signal: 0, tree: 0, custom: 0 },
-  modeLabel: { leadgen: "🎯 Lead Gen", enrich: "🧪 Enrich", research: "🔍 Research", extract: "📋 Extract", compare: "⚖️ Compare", deepdive: "🔬 Deep Dive", signal: "📡 Signal", tree: "🌳 Tree", custom: "🛠️ Custom" },
-  target: "both", // person | company | both
-  countries: { sa: 1, ae: 0, kw: 0, qa: 0, bh: 0, om: 0, eg: 0, jo: 0, iq: 0, lb: 0, ye: 0, tr: 0, gcc: 0, mena: 0, global: 0 },
-  countryLabel: { sa: "🇸🇦 KSA", ae: "🇦🇪 UAE", kw: "🇰🇼 Kuwait", qa: "🇶🇦 Qatar", bh: "🇧🇭 Bahrain", om: "🇴🇲 Oman", eg: "🇪🇬 Egypt", jo: "🇯🇴 Jordan", iq: "🇮🇶 Iraq", lb: "🇱🇧 Lebanon", ye: "🇾🇪 Yemen", tr: "🇹🇷 Türkiye", gcc: "GCC", mena: "MENA", global: "Global" },
-  industry: "fintech",
-  listing: "Any",
-  reportShape: "exec",
+  template: "t1", target: "both",
+  modes: { leadgen: 1, enrich: 1, research: 0, compare: 0, deepdive: 0, signal: 0, tree: 0 },
+  modeLabel: { leadgen: "🎯 Lead Gen", enrich: "🧪 Enrich", research: "🔍 Research", compare: "⚖️ Compare", deepdive: "🔬 Deep Dive", signal: "📡 Signal", tree: "🌳 Tree" },
+  countries: { sa: 1, ae: 0, kw: 0, qa: 0, bh: 0, om: 0, eg: 0, jo: 0, gcc: 0, mena: 0 },
+  countryLabel: { sa: "🇸🇦 KSA", ae: "🇦🇪 UAE", kw: "🇰🇼 Kuwait", qa: "🇶🇦 Qatar", bh: "🇧🇭 Bahrain", om: "🇴🇲 Oman", eg: "🇪🇬 Egypt", jo: "🇯🇴 Jordan", gcc: "GCC", mena: "MENA" },
+  industry: "fintech", listing: "Any", reportShape: "detail",
   behaviorEvents: [],
+  seniority: "C-Suite", roles: ["CTO"], // multi role
+  enrLeads: { linkedin: 1, email: 1, phone: 0, bg: 0, icp: 0, activity: 0, outreach: 0, title: 0 },
+  enrCo: { cr: 1, lei: 1, rev: 0, emp: 1, own: 0, fund: 0, stack: 0, news: 0 },
 };
-
-function logBehavior(kind, msg) {
+function log(kind, msg) {
   state.behaviorEvents.unshift({ kind, msg, t: new Date() });
-  if (state.behaviorEvents.length > 8) state.behaviorEvents.pop();
-  renderBehavior();
+  if (state.behaviorEvents.length > 12) state.behaviorEvents.pop();
+  renderBehave();
 }
 
 // ── multi-select dropdowns ─────────────────────────────────────────────────
@@ -876,18 +784,13 @@ function toggleMS(name, e) {
   document.querySelectorAll(".ms-pop").forEach(p => { if (p.id !== name + "-pop") p.classList.add("hide"); });
   document.getElementById(name + "-pop").classList.toggle("hide");
 }
-document.querySelectorAll("#mode-pop .ms-opt").forEach(o => o.addEventListener("click", e => {
+function msToggle(e, group, v) {
   e.stopPropagation();
-  const v = o.dataset.v; state.modes[v] = state.modes[v] ? 0 : 1;
-  o.classList.toggle("on", !!state.modes[v]);
-  renderModeTags(); buildMega(); logBehavior("mode", "Mode toggled: " + state.modeLabel[v]);
-}));
-document.querySelectorAll("#country-pop .ms-opt").forEach(o => o.addEventListener("click", e => {
-  e.stopPropagation();
-  const v = o.dataset.v; state.countries[v] = state.countries[v] ? 0 : 1;
-  o.classList.toggle("on", !!state.countries[v]);
-  renderCountryTags(); buildMega(); logBehavior("country", "Country toggled: " + state.countryLabel[v]);
-}));
+  const opt = e.currentTarget;
+  if (group === "mode") { state.modes[v] = state.modes[v] ? 0 : 1; opt.classList.toggle("on", !!state.modes[v]); renderModeTags(); }
+  else if (group === "country") { state.countries[v] = state.countries[v] ? 0 : 1; opt.classList.toggle("on", !!state.countries[v]); renderCountryTags(); }
+  buildMega(); log(group, group + ": " + v + " " + (opt.classList.contains("on") ? "ON" : "OFF"));
+}
 document.addEventListener("click", e => {
   if (!e.target.closest(".ms") && !e.target.closest(".ms-pop")) document.querySelectorAll(".ms-pop").forEach(p => p.classList.add("hide"));
 });
@@ -915,124 +818,127 @@ function renderCountryTags() {
   });
   updateCtx();
 }
-
 function setTarget(t) {
   state.target = t;
-  document.querySelectorAll("#target-seg .target-opt").forEach(o => o.classList.toggle("on", o.dataset.tgt === t));
-  document.getElementById("rpt-mix").textContent = t === "person" ? "person" : t === "company" ? "company" : "person + company";
-  buildMega(); updateCtx(); logBehavior("target", "Target: " + t);
+  document.querySelectorAll(".target-opt[data-tgt]").forEach(o => o.classList.toggle("on", o.dataset.tgt === t));
+  buildMega(); updateCtx(); renderAskFilters();
+  log("target", "Target: " + t);
 }
 function setReport(r) {
   state.reportShape = r;
-  document.querySelectorAll("#rpt-shape .target-opt").forEach(o => o.classList.toggle("on", o.dataset.r === r));
+  document.querySelectorAll(".target-opt[data-r]").forEach(o => o.classList.toggle("on", o.dataset.r === r));
   document.getElementById("rpt-custom").classList.toggle("hide", r !== "custom");
-  buildMega(); logBehavior("report", "Report shape: " + r);
+  buildMega(); log("report", "Report: " + r);
 }
 function toggleC(el, single) {
-  if (single) {
-    el.parentElement.querySelectorAll(".chip").forEach(c => c.classList.remove("on"));
-    el.classList.add("on");
-  } else {
-    el.classList.toggle("on");
-  }
-  const txt = el.textContent.trim();
-  if (el.closest("#listing-chips")) { state.listing = txt; }
+  if (single) { el.parentElement.querySelectorAll(".chip").forEach(c => c.classList.remove("on")); el.classList.add("on"); }
+  else el.classList.toggle("on");
+  const t = el.textContent.trim();
+  if (el.closest("#listing-chips")) state.listing = t;
   buildMega();
 }
 
-// ── industry sub-filters (expanded) ────────────────────────────────────────
-const SUB_FILTERS = {
-  fintech: [{ l: "Sub-industry", o: ["Payments / BNPL", "Open Banking", "Lending", "Wealthtech", "Insurtech", "Crypto"] }, { l: "Funding stage", o: ["Series A+", "Seed", "Series B+", "PE / Growth"] }, { l: "Funding year", o: ["2024", "2025", "2023", "Last 12m"] }],
-  banking: [{ l: "Asset band", o: ["SAR <10B", "10-50B", "50-200B", "200B+"] }, { l: "Type", o: ["Commercial", "Islamic", "Investment", "Digital"] }, { l: "Capital adequacy", o: ["Tier 1 >12%", "Tier 1 9-12%", "Tier 1 <9%"] }],
-  insurance: [{ l: "Segment", o: ["Health", "Auto", "Property", "Life", "Reinsurance"] }, { l: "GWP band", o: ["SAR <500M", "500M-2B", "2B+"] }, { l: "License", o: ["SAMA cooperative", "International branch"] }],
-  energy: [{ l: "Segment", o: ["Upstream", "Midstream", "Downstream", "Renewable", "LNG"] }, { l: "PIF affiliate", o: ["Yes", "No", "Any"] }, { l: "Contract size", o: ["SAR 10-100M", "100M-1B", "1B+"] }],
-  utilities: [{ l: "Type", o: ["Power gen", "Transmission", "Distribution", "Desal", "Renewable"] }, { l: "Capacity MW", o: ["<500", "500-2000", "2000+"] }, { l: "Tariff regime", o: ["Regulated", "PPA-based"] }],
-  construction: [{ l: "Project type", o: ["Giga (NEOM/PIF)", "Commercial", "Residential", "Infra"] }, { l: "Contract size", o: ["SAR <50M", "50-500M", "500M+"] }, { l: "Vision 2030 link", o: ["Yes", "No", "Any"] }],
-  realestate: [{ l: "Asset class", o: ["Residential", "Commercial", "Hospitality", "Industrial", "Mixed-use"] }, { l: "City", o: ["Riyadh", "Jeddah", "Eastern", "NEOM"] }, { l: "GLA / Units", o: ["<50k sqm", "50-200k sqm", "200k+ sqm"] }],
-  healthcare: [{ l: "Segment", o: ["Hospitals", "Pharma", "Insurance", "HealthTech", "Devices"] }, { l: "Bed count", o: ["<100", "100-300", "300-1000", "1000+"] }, { l: "Sector", o: ["Public", "Private", "Mixed"] }],
-  retail: [{ l: "Channel", o: ["E-commerce", "Brick-and-mortar", "Omnichannel"] }, { l: "GMV band", o: ["SAR <10M", "10-100M", "100M-1B", "1B+"] }, { l: "Category", o: ["F&B", "Fashion", "Electronics", "Beauty", "Home"] }],
-  fnb: [{ l: "Format", o: ["QSR", "Casual", "Fine dining", "Cloud kitchen"] }, { l: "Outlets", o: ["1-5", "6-50", "50+"] }, { l: "Brand owner", o: ["Local", "Franchise", "International"] }],
-  hospitality: [{ l: "Tier", o: ["Luxury 5★", "Upper-upscale", "Mid-scale", "Budget"] }, { l: "Keys", o: ["<200", "200-500", "500+"] }, { l: "Operator", o: ["Owned", "Managed", "Franchised"] }],
-  logistics: [{ l: "Segment", o: ["3PL", "Last-mile", "Freight forwarding", "Cold chain", "Warehousing"] }, { l: "Fleet size", o: ["<50", "50-500", "500+"] }, { l: "Hub", o: ["Riyadh", "Jeddah / Red Sea", "Dammam / Gulf"] }],
-  manufacturing: [{ l: "Subsector", o: ["Petrochemicals", "Steel & metals", "Cement", "F&B", "Plastics"] }, { l: "Output", o: ["<100k t/yr", "100-1M t/yr", "1M+ t/yr"] }, { l: "Export ratio", o: ["<30%", "30-70%", "70%+"] }],
-  mining: [{ l: "Commodity", o: ["Phosphate", "Gold", "Copper", "Bauxite", "Rare earth"] }, { l: "License", o: ["Exploration", "Operating", "Renewal"] }, { l: "Maaden link", o: ["Yes", "No", "JV"] }],
-  aviation: [{ l: "Type", o: ["Carrier", "Cargo", "MRO", "Ground handling", "Catering"] }, { l: "Fleet", o: ["<20", "20-100", "100+"] }, { l: "Hub", o: ["RUH", "JED", "DMM", "Other"] }],
-  telecom: [{ l: "License", o: ["Mobile", "Fiber", "Enterprise", "Tower"] }, { l: "Subs / MRR", o: ["<1M / SAR <50M", "1-10M / 50-500M", "10M+ / 500M+"] }, { l: "5G readiness", o: ["Live", "Trial", "None"] }],
-  media: [{ l: "Format", o: ["TV", "Streaming", "Print", "Digital", "Influencer"] }, { l: "Audience", o: ["<100k", "100k-1M", "1M+"] }, { l: "Language", o: ["Arabic", "English", "Both"] }],
-  edtech: [{ l: "Audience", o: ["K-12", "Higher Ed", "Corporate", "Vocational"] }, { l: "Funding stage", o: ["Seed", "Series A", "Series B+"] }, { l: "Saudi presence", o: ["Yes", "No", "Any"] }],
-  defense: [{ l: "Segment", o: ["Aerospace", "Cyber", "Drones / UAV", "Land systems", "Naval"] }, { l: "GAMI registered", o: ["Yes", "No"] }, { l: "Foreign partner", o: ["US", "EU", "Israeli", "Local only"] }],
-  consulting: [{ l: "Practice", o: ["Strategy", "Tech", "Risk", "Tax", "M&A"] }, { l: "Headcount", o: ["<50", "50-300", "300+"] }, { l: "Type", o: ["Big4", "MBB tier", "Local"] }],
-  saas: [{ l: "Stack", o: ["B2B horizontal", "Vertical SaaS", "Dev tools", "AI/ML"] }, { l: "ARR", o: ["<$1M", "$1-10M", "$10M+"] }, { l: "GTM", o: ["PLG", "Sales-led", "Hybrid"] }],
-  agri: [{ l: "Segment", o: ["Crops", "Livestock", "Aquaculture", "AgriTech", "Inputs"] }, { l: "Hectares", o: ["<100", "100-1000", "1000+"] }, { l: "Export ratio", o: ["<30%", "30-70%", "70%+"] }],
-  govt: [{ l: "Authority type", o: ["Ministry", "Regulator", "PIF affiliate", "Municipality"] }, { l: "Vision 2030 program", o: ["NTP", "FSDP", "HHCP", "QoL", "Other"] }, { l: "Procurement portal", o: ["Etimad", "Local"] }],
+// ── industry / sub-filters / ask filters ──────────────────────────────────
+const SUB = {
+  fintech: [{ l: "Sub-industry", o: ["Payments / BNPL", "Open Banking", "Lending", "Wealthtech", "Insurtech", "Crypto"] }, { l: "Funding stage", o: ["Series A+", "Seed", "Series B+", "PE / Growth"] }, { l: "Funding year", o: ["2024", "2025", "2023"] }],
+  banking: [{ l: "Asset band", o: ["SAR <10B", "10-50B", "50-200B", "200B+"] }, { l: "Type", o: ["Commercial", "Islamic", "Investment", "Digital"] }, { l: "Capital adequacy", o: ["Tier1 >12%", "Tier1 9-12%"] }],
+  insurance: [{ l: "Segment", o: ["Health", "Auto", "Property", "Life"] }, { l: "GWP band", o: ["<500M", "500M-2B", "2B+"] }, { l: "License", o: ["SAMA cooperative", "Intl branch"] }],
+  energy: [{ l: "Segment", o: ["Upstream", "Midstream", "Downstream", "Renewable", "LNG"] }, { l: "PIF affiliate", o: ["Yes", "No"] }, { l: "Contract size", o: ["10-100M", "100M-1B", "1B+"] }],
+  construction: [{ l: "Project type", o: ["Giga (NEOM)", "Commercial", "Residential", "Infra"] }, { l: "Contract size", o: ["<50M", "50-500M", "500M+"] }, { l: "Vision 2030", o: ["Yes", "No"] }],
+  healthcare: [{ l: "Segment", o: ["Hospitals", "Pharma", "Insurance", "HealthTech"] }, { l: "Beds", o: ["<100", "100-300", "300+"] }, { l: "Sector", o: ["Public", "Private"] }],
+  retail: [{ l: "Channel", o: ["E-com", "Brick-and-mortar", "Omnichannel"] }, { l: "GMV", o: ["<10M", "10-100M", "100M+"] }, { l: "Category", o: ["F&B", "Fashion", "Electronics"] }],
+  saas: [{ l: "Stack", o: ["B2B horizontal", "Vertical", "Dev tools", "AI/ML"] }, { l: "ARR", o: ["<$1M", "$1-10M", "$10M+"] }, { l: "GTM", o: ["PLG", "Sales-led"] }],
 };
+const SENIORITY = ["C-Suite", "VP", "Director", "Senior Manager", "Manager", "Senior IC"];
+const ROLES_BY_SEN_IND = {
+  // seniority + industry → role options
+  "C-Suite|fintech": ["CEO", "CFO", "CTO", "COO", "Chief Risk Officer", "Chief Compliance Officer", "Chief Data Officer", "Chief Strategy Officer"],
+  "VP|fintech": ["VP Engineering", "VP Product", "VP Sales", "VP Finance", "VP Risk", "VP Compliance"],
+  "Director|fintech": ["Engineering Director", "Product Director", "Sales Director", "Risk Director", "Compliance Director", "Marketing Director"],
+  "Senior Manager|fintech": ["Senior Engineering Manager", "Senior Product Manager", "Senior Sales Manager"],
+  "C-Suite|banking": ["CEO", "CFO", "CRO", "CCO", "CIO", "Treasury Head"],
+  "VP|banking": ["VP Corporate Banking", "VP Retail Banking", "VP Risk", "VP Digital", "VP Treasury"],
+  "Director|banking": ["Corporate Banking Director", "Retail Director", "Risk Director", "Digital Director"],
+  "C-Suite|energy": ["CEO", "COO", "CTO", "VP Procurement", "Chief Project Officer"],
+  "VP|energy": ["VP Operations", "VP Procurement", "VP Engineering", "VP HSE"],
+  "Director|energy": ["Procurement Director", "Operations Director", "Asset Manager"],
+  "C-Suite|construction": ["CEO", "COO", "Chief Procurement Officer", "Chief Project Officer"],
+  "VP|construction": ["VP Procurement", "VP Projects", "VP Engineering"],
+  "C-Suite|saas": ["CEO", "CTO", "CFO", "CRO"],
+  "VP|saas": ["VP Engineering", "VP Sales", "VP Marketing", "VP Customer Success"],
+};
+function rolesFor(sen, ind) {
+  return ROLES_BY_SEN_IND[sen + "|" + ind] || ROLES_BY_SEN_IND[sen + "|fintech"] || ["—"];
+}
 function onIndustry() {
   state.industry = document.getElementById("ind-sel").value;
   document.getElementById("ind-name").textContent = document.getElementById("ind-sel").selectedOptions[0].textContent.replace(/^[^\w]+/, "").trim();
   renderSubFilters(); renderAskFilters(); buildMega();
-  logBehavior("industry", "Industry: " + state.industry);
+  log("industry", "Industry: " + state.industry);
 }
 function renderSubFilters() {
   const z = document.getElementById("sub-filters"); z.innerHTML = "";
-  (SUB_FILTERS[state.industry] || []).forEach(f => {
+  (SUB[state.industry] || SUB.fintech).forEach(f => {
     const cell = document.createElement("div");
     cell.innerHTML = `<div class="small" style="margin-bottom:4px">${f.l}</div><select class="select" onchange="buildMega()">` + f.o.map(o => `<option>${o}</option>`).join("") + `</select>`;
     z.appendChild(cell);
   });
 }
 
-// ── ASK context-aware filters ──────────────────────────────────────────────
+// ── ASK filters: seniority FIRST → role (multi-select chips), with tabs for both ──
 function renderAskFilters() {
-  const z = document.getElementById("ask-filters"); z.innerHTML = "";
-  const ROLES_BY_IND = {
-    fintech: ["CTO", "CRO", "Risk Officer", "Head of Engineering", "CEO", "CFO"],
-    banking: ["CEO", "CRO", "Compliance Head", "Head of Digital", "Treasury Head"],
-    insurance: ["Underwriting Head", "Claims Director", "Actuary", "CEO"],
-    energy: ["Procurement Director", "CTO", "Operations Director", "Asset Manager"],
-    utilities: ["Plant Director", "Procurement Head", "Asset Manager"],
-    construction: ["Procurement Head", "Project Director", "Tender Manager", "GM"],
-    realestate: ["Acquisitions Head", "Asset Manager", "Leasing Director", "CEO"],
-    healthcare: ["Medical Director", "CIO", "Procurement Head", "CFO"],
-    retail: ["Head of Buying", "CMO", "COO", "Head of E-commerce"],
-    fnb: ["Operations Director", "Procurement Head", "CMO"],
-    hospitality: ["GM", "Director of Sales", "Revenue Manager"],
-    logistics: ["Operations Director", "Procurement Head", "Fleet Manager"],
-    manufacturing: ["Plant Manager", "Procurement Director", "Quality Head"],
-    mining: ["Mine GM", "Geology Head", "Procurement Director"],
-    aviation: ["Fleet Manager", "Operations Director", "Maintenance Head"],
-    telecom: ["CTO", "Head of B2B", "Network Director"],
-    media: ["Editor-in-Chief", "Head of Content", "Programming Director"],
-    edtech: ["CTO", "Head of Curriculum", "Head of Sales"],
-    defense: ["Programme Manager", "Procurement Director", "Engineering Head"],
-    consulting: ["Partner", "Director", "Engagement Manager"],
-    saas: ["CTO", "VP Engineering", "Head of Sales", "CEO"],
-    agri: ["Operations Manager", "Procurement Head", "Agronomy Director"],
-    govt: ["Procurement Director", "Programme Lead", "Tech Advisor"],
-  };
-  const CITIES = {
-    sa: ["Riyadh", "Jeddah", "Dammam", "Mecca", "Medina"],
-    ae: ["Dubai", "Abu Dhabi", "Sharjah"],
-    kw: ["Kuwait City"], qa: ["Doha"], bh: ["Manama"], om: ["Muscat"], eg: ["Cairo", "Alexandria"],
-    jo: ["Amman"], iq: ["Baghdad", "Erbil"], lb: ["Beirut"], ye: ["Sana'a"], tr: ["Istanbul", "Ankara"],
-    gcc: ["Riyadh", "Dubai", "Doha", "Kuwait City", "Manama", "Muscat", "Any GCC"],
-    mena: ["Any MENA"], global: ["Any global"],
-  };
-  const activeCountries = Object.keys(state.countries).filter(k => state.countries[k]);
-  const cities = activeCountries.flatMap(c => CITIES[c] || []);
-  const roles = state.target === "company" ? ["—"] : (ROLES_BY_IND[state.industry] || ["CTO"]);
-  const fields = [
-    { l: "Role <span style='color:var(--ok)'>· from " + state.industry + "</span>", o: roles, hide: state.target === "company" },
-    { l: "Seniority", o: ["C-Suite", "VP", "Director", "Senior Manager"], hide: state.target === "company" },
-    { l: "City <span style='color:var(--ok)'>· from " + (activeCountries.map(c => state.countryLabel[c]).join("+") || "country") + "</span>", o: cities.length ? cities : ["—"] },
-    { l: "Employee band", o: ["1-50", "51-200", "201-500", "501-1000", "1000+"] },
-    { l: "Revenue band <span style='color:var(--ok)'>· SAR</span>", o: ["<10M", "10-50M", "50-250M", "250M+"] },
-    { l: "Result count", o: ["5", "10", "25", "50", "100"] },
-  ];
-  fields.filter(f => !f.hide).forEach(f => {
-    const cell = document.createElement("div");
-    cell.innerHTML = `<div class="small" style="margin-bottom:4px">${f.l}</div><select class="select" onchange="buildMega()">` + f.o.map(o => `<option>${o}</option>`).join("") + `</select>`;
-    z.appendChild(cell);
-  });
+  const fb = document.getElementById("filter-tabs");
+  fb.classList.toggle("hide", state.target !== "both");
+  const showInd = state.target !== "company";
+  const showCo = state.target !== "person";
+
+  // Individual
+  const ind = document.getElementById("ind-filters"); ind.innerHTML = "";
+  if (showInd) {
+    ind.classList.remove("hide");
+    // 1) seniority FIRST (single)
+    ind.innerHTML += `<div><div class="small" style="margin-bottom:4px">Seniority <span style="color:var(--ok)">· drives Role list</span></div><select class="select" id="sen-sel" onchange="onSeniority()">` + SENIORITY.map(s => `<option ${s === state.seniority ? "selected" : ""}>${s}</option>`).join("") + `</select></div>`;
+    // 2) Role multi-select (chips)
+    const roles = rolesFor(state.seniority, state.industry);
+    ind.innerHTML += `<div style="grid-column:span 2"><div class="small" style="margin-bottom:4px">Role <span style="color:var(--ok)">· multi · from ${state.seniority} + ${state.industry}</span></div><div class="chips" id="role-chips">` +
+      roles.map(r => `<span class="chip ${state.roles.includes(r) ? "on" : ""}" onclick="toggleRole('${r}')">${r}</span>`).join("") + `</div></div>`;
+    // 3) City
+    const cs = Object.keys(state.countries).filter(k => state.countries[k]).flatMap(c => CITIES[c] || []);
+    ind.innerHTML += `<div><div class="small" style="margin-bottom:4px">City</div><select class="select" onchange="buildMega()">` + (cs.length ? cs : ["—"]).map(c => `<option>${c}</option>`).join("") + `</select></div>`;
+    // 4) Result count
+    ind.innerHTML += `<div><div class="small" style="margin-bottom:4px">Result count</div><select class="select" onchange="buildMega()">` + ["5", "10", "25", "50", "100"].map(n => `<option ${n === "5" ? "selected" : ""}>${n}</option>`).join("") + `</select></div>`;
+    // 5) Language ability
+    ind.innerHTML += `<div><div class="small" style="margin-bottom:4px">Speaks</div><select class="select" onchange="buildMega()">` + ["Arabic", "English", "Both"].map(s => `<option>${s}</option>`).join("") + `</select></div>`;
+  } else ind.classList.add("hide");
+
+  // Company
+  const co = document.getElementById("co-filters"); co.innerHTML = "";
+  if (showCo) {
+    co.innerHTML += `<div><div class="small" style="margin-bottom:4px">Employee band</div><select class="select" onchange="buildMega()">` + ["1-50", "51-200", "201-500", "501-1000", "1000+"].map(s => `<option>${s}</option>`).join("") + `</select></div>`;
+    co.innerHTML += `<div><div class="small" style="margin-bottom:4px">Revenue (SAR)</div><select class="select" onchange="buildMega()">` + ["<10M", "10-50M", "50-250M", "250M+"].map(s => `<option>${s}</option>`).join("") + `</select></div>`;
+    co.innerHTML += `<div><div class="small" style="margin-bottom:4px">Founded</div><select class="select" onchange="buildMega()">` + ["<2018", "2018-22", "2023+"].map(s => `<option>${s}</option>`).join("") + `</select></div>`;
+    co.innerHTML += `<div><div class="small" style="margin-bottom:4px">HQ City</div><select class="select" onchange="buildMega()">` + ["Riyadh", "Jeddah", "Dammam"].map(s => `<option>${s}</option>`).join("") + `</select></div>`;
+    co.innerHTML += `<div><div class="small" style="margin-bottom:4px">Result count</div><select class="select" onchange="buildMega()">` + ["5", "10", "25", "50"].map(s => `<option ${s === "5" ? "selected" : ""}>${s}</option>`).join("") + `</select></div>`;
+    co.innerHTML += `<div><div class="small" style="margin-bottom:4px">Ownership</div><select class="select" onchange="buildMega()">` + ["Any", "Founder-led", "VC-backed", "PE-owned", "Family", "Listed"].map(s => `<option>${s}</option>`).join("") + `</select></div>`;
+  }
+}
+const CITIES = {
+  sa: ["Riyadh", "Jeddah", "Dammam", "Mecca", "Medina"], ae: ["Dubai", "Abu Dhabi"], kw: ["Kuwait City"], qa: ["Doha"], bh: ["Manama"], om: ["Muscat"], eg: ["Cairo"], jo: ["Amman"], gcc: ["Any GCC city"], mena: ["Any MENA"],
+};
+function onSeniority() {
+  state.seniority = document.getElementById("sen-sel").value;
+  state.roles = []; // reset
+  renderAskFilters(); buildMega(); log("seniority", "Seniority: " + state.seniority);
+}
+function toggleRole(r) {
+  if (state.roles.includes(r)) state.roles = state.roles.filter(x => x !== r);
+  else state.roles.push(r);
+  renderAskFilters(); buildMega();
+}
+function setFilterTab(t) {
+  document.querySelectorAll("#filter-tabs button").forEach(b => b.classList.toggle("on", b.dataset.ft === t));
+  document.getElementById("ind-filters").classList.toggle("hide", t !== "ind");
+  document.getElementById("co-filters").classList.toggle("hide", t !== "co");
 }
 
 // ── input seg ──────────────────────────────────────────────────────────────
@@ -1047,69 +953,71 @@ document.querySelectorAll("#input-seg button").forEach(b => b.addEventListener("
 // ── context + mega ─────────────────────────────────────────────────────────
 function updateCtx() {
   const modes = Object.keys(state.modes).filter(k => state.modes[k]).map(k => state.modeLabel[k]).join(" + ") || "—";
-  const countries = Object.keys(state.countries).filter(k => state.countries[k]).map(k => state.countryLabel[k]).join(", ") || "—";
+  const ctry = Object.keys(state.countries).filter(k => state.countries[k]).map(k => state.countryLabel[k]).join(", ") || "—";
   setCtx("ctx-tpl", "template", document.getElementById("tpl-sel")?.selectedOptions[0]?.textContent || "—");
   setCtx("ctx-tgt", "looking for", state.target);
   setCtx("ctx-mode", "modes", modes);
-  setCtx("ctx-country", "country", countries);
+  setCtx("ctx-country", "country", ctry);
   setCtx("ctx-ind", "industry", state.industry);
-  setCtx("ctx-listing", "listing", state.listing);
 }
 function setCtx(id, lbl, val) { const el = document.getElementById(id); if (el) el.innerHTML = `<span class="lbl">${lbl}</span> ${val}`; }
-
 function buildMega() {
   const modes = Object.keys(state.modes).filter(k => state.modes[k]).map(k => state.modeLabel[k]).join("+") || "—";
   const ctry = Object.keys(state.countries).filter(k => state.countries[k]).map(k => state.countryLabel[k]).join(",") || "—";
-  document.getElementById("mega-live").textContent = `route → ${state.target} · ${ctry} · ${state.industry} · ${state.listing} · modes ${modes} · report ${state.reportShape}`;
-  // sources reco
-  const reco = sourceReco();
-  const el = document.getElementById("src-reco");
-  if (el) el.textContent = "Auto-recommended for " + state.industry + " · " + ctry + " · " + state.listing + ": " + reco.join(" + ");
-  if (document.getElementById("src-cat") && document.getElementById("src-cat").value === "reco") onSrcCat();
-  buildEnhanced();
-  updateCtx();
-  renderAskFilters();
+  const m = document.getElementById("mega-live");
+  if (m) m.textContent = `route → ${state.target} · ${ctry} · ${state.industry} · ${state.listing} · modes ${modes} · report ${state.reportShape}`;
+  const r = document.getElementById("src-reco-line");
+  if (r) r.textContent = "⭐ Auto-recommended for " + state.industry + " · " + ctry + " · " + state.listing + ": " + sourceReco().join(" + ");
+  if (document.getElementById("src-cat")?.value === "reco") onSrcCat();
+  buildEnhanced(); updateCtx();
 }
-
 function sourceReco() {
   const out = ["Tavily"];
-  if (Object.values(state.countries).some((v, i) => v && Object.keys(state.countries)[i] === "sa")) out.unshift("Tadawul", "Argaam", "Mubasher", "MCI CR", "GLEIF");
-  if (state.listing.includes("Tadawul") || state.listing.includes("Nomu")) out.unshift("Tadawul filings", "CMA disclosures");
+  if (state.countries.sa) out.unshift("Tadawul", "Argaam", "Mubasher", "MCI CR", "GLEIF");
+  if (state.listing.includes("Tadawul") || state.listing.includes("Nomu")) out.unshift("CMA filings", "Edaa");
   if (state.industry === "energy") out.push("MEED Projects", "PIF Portfolio");
-  if (state.industry === "construction") out.push("REGA", "NEOM Updates", "MEED Projects");
-  if (state.industry === "banking") out.push("SAMA", "Bank annual reports");
-  if (state.industry === "healthcare") out.push("MoH SA");
-  if (state.industry === "saas") out.push("Wamda", "MAGNiTT");
+  if (state.industry === "banking") out.push("SAMA");
+  if (state.industry === "construction") out.push("REGA", "NEOM Updates");
   return Array.from(new Set(out)).slice(0, 7);
 }
-
 function buildEnhanced() {
   const el = document.getElementById("enh-block"); if (!el) return;
   const modes = Object.keys(state.modes).filter(k => state.modes[k]).map(k => state.modeLabel[k]).join(" + ");
   const ctry = Object.keys(state.countries).filter(k => state.countries[k]).map(k => state.countryLabel[k]).join(", ");
-  el.innerHTML = `<strong>OBJECTIVE</strong> — Identify ${state.target === "person" ? "individuals" : state.target === "company" ? "companies" : "companies + their key people"} in ${state.industry} · ${ctry} matching the filters.<br/>
+  const roles = state.roles.join(", ") || "—";
+  el.innerHTML = `<strong>OBJECTIVE</strong> — Identify ${state.target === "person" ? "individuals" : state.target === "company" ? "companies" : "companies AND their key people"} matching:<br/>
+&nbsp;&nbsp;• Industry: <strong>${state.industry}</strong> (sub-filters honored)<br/>
+&nbsp;&nbsp;• Country: <strong>${ctry}</strong>${state.listing !== "Any" ? "<br/>&nbsp;&nbsp;• Listing: <strong>" + state.listing + "</strong>" : ""}<br/>
+${state.target !== "company" ? `&nbsp;&nbsp;• Seniority: <strong>${state.seniority}</strong><br/>&nbsp;&nbsp;• Roles: <strong>${roles}</strong><br/>` : ""}<br/>
 <strong>TARGET TYPE</strong> — ${state.target}<br/>
-<strong>FILTERS</strong> — ${state.industry} · ${ctry} · listing=${state.listing} · plus your sub-filters &amp; ask-filters<br/>
 <strong>SOURCES</strong> — ${sourceReco().join(" · ")}<br/>
 <strong>MODES</strong> — ${modes || "—"}<br/>
-<strong>REPORT SHAPE</strong> — ${state.reportShape}<br/>
-<strong>RULES</strong> — Honor every filter · halt-and-ask on conflict · cite every claim · no invented data`;
+<strong>REPORT SHAPE</strong> — <span style="color:var(--lavender);font-weight:700">${state.reportShape}</span> (strict — output renderer enforces this; if you chose Executive Summary, no detailed table will be produced)<br/>
+<strong>RULES</strong><br/>
+&nbsp;&nbsp;1. Honor every filter selected · no relaxation without asking<br/>
+&nbsp;&nbsp;2. Cite every claim with source URL · prefer Arabic sources for Tadawul-listed<br/>
+&nbsp;&nbsp;3. Never invent contact data · leave blank + flag if not found<br/>
+&nbsp;&nbsp;4. Halt-and-ask on filter conflict (e.g. founder name vs. company name mismatch)<br/>
+&nbsp;&nbsp;5. Currency-normalize all financial fields to SAR (per clarification)<br/>
+&nbsp;&nbsp;6. Email validation: DNS+MX pass required (per clarification) · reject below threshold<br/>
+&nbsp;&nbsp;7. Output strictly follows Report Shape: blocks only as selected (custom) or default for shape`;
 }
 
 // ── stage / layer ──────────────────────────────────────────────────────────
-let stageOrder = ["compose", "enhance", "clarify", "run", "report", "enrich"];
-let stageReached = ["compose"];
+const stageOrder = ["compose", "enhance", "clarify", "run", "report", "enrich"];
+let reached = ["compose"];
 function gotoStageById(s) {
-  if (!stageReached.includes(s)) stageReached.push(s);
+  if (!reached.includes(s)) reached.push(s);
   stageOrder.forEach(x => document.getElementById("stage-" + x).classList.toggle("hide", x !== s));
   document.querySelectorAll("#stage-bar .stage").forEach(el => {
     const x = el.dataset.stage; el.classList.remove("active", "done");
     if (x === s) el.classList.add("active");
-    else if (stageReached.includes(x) && stageOrder.indexOf(x) < stageOrder.indexOf(s)) el.classList.add("done");
+    else if (reached.includes(x) && stageOrder.indexOf(x) < stageOrder.indexOf(s)) el.classList.add("done");
   });
   if (s === "enhance") buildEnhanced();
+  if (s === "report") renderReport();
   window.scrollTo({ top: 0, behavior: "smooth" });
-  logBehavior("nav", "Stage → " + s);
+  log("nav", "Stage → " + s);
 }
 function gotoStage(el) { gotoStageById(el.dataset.stage); }
 function gotoLayer(n) {
@@ -1121,9 +1029,7 @@ function gotoLayer(n) {
   });
   if (n === 4) renderAskFilters();
   window.scrollTo({ top: 0, behavior: "smooth" });
-  logBehavior("nav", "Layer → " + n);
 }
-function onTemplate() { state.template = document.getElementById("tpl-sel").value; updateCtx(); toast("Template applied"); buildMega(); }
 
 // ── tools ──────────────────────────────────────────────────────────────────
 const SOURCES = {
@@ -1131,9 +1037,9 @@ const SOURCES = {
   "ksa-market": [["Tadawul", 1], ["CMA", 0], ["Edaa", 0], ["MCI CR", 1], ["Monsha'at", 0], ["SDAIA", 0], ["GASTAT", 0], ["SAMA", 0], ["ZATCA", 0], ["MISA", 0], ["Masar", 1]],
   "arabic-press": [["Argaam", 1], ["Mubasher", 1], ["Maal", 1], ["Al-Eqtisadiah", 0], ["Asharq", 0], ["Aleqt", 0], ["Saudi Gazette", 0], ["Arab News", 0], ["SPA", 0], ["Al-Iqtisadi", 0]],
   "regional-press": [["MEED", 0], ["Wamda", 0], ["MAGNiTT", 0], ["Crunchbase MENA", 0], ["Bloomberg ME", 0], ["Reuters ME", 0], ["FT", 0], ["Zawya", 0], ["The National", 0], ["Khaleej Times", 0], ["Gulf Business", 0], ["Gulf News", 0], ["AGBI", 0], ["StartupScene", 0]],
-  "global-open": [["GLEIF", 1], ["OpenCorporates", 0], ["Wikidata", 0], ["OpenSanctions", 0], ["OFAC", 0], ["UN", 0], ["EU Sanctions", 0], ["EDGAR", 0], ["Companies House UK", 0], ["PEP db", 0], ["ICIJ", 0]],
+  "global-open": [["GLEIF", 1], ["OpenCorporates", 0], ["Wikidata", 0], ["OpenSanctions", 0], ["OFAC", 0], ["UN", 0], ["EU Sanctions", 0], ["EDGAR", 0], ["UK CH", 0], ["PEP", 0], ["ICIJ", 0]],
   "sector": [["REGA", 0], ["Sakani", 0], ["Wafi", 0], ["Bayut", 0], ["Property Finder", 0], ["MEED Projects", 0], ["Zawya Projects", 0], ["NEOM Updates", 0], ["PIF Portfolio", 0], ["CIB Saudi", 0]],
-  "social": [["LinkedIn", 0], ["X/Twitter", 0], ["Reddit", 0], ["YouTube", 0], ["Telegram", 0], ["Tavily", 1], ["Perplexity", 0], ["Google News", 0], ["Maal RSS", 0], ["Mubasher RSS", 0]],
+  "social": [["LinkedIn", 0], ["X", 0], ["Reddit", 0], ["YouTube", 0], ["Telegram", 0], ["Tavily", 1], ["Perplexity", 0], ["Google News", 0], ["Maal RSS", 0], ["Mubasher RSS", 0]],
 };
 const CONNECTORS = {
   "scraping": [["Tavily", 1, "ok"], ["Playwright", 1, "ok"], ["Chrome DevTools", 0, "ok"], ["Crawl4AI", 1, "ok"], ["BeautifulSoup", 0, "ok"], ["Cheerio", 0, "ok"], ["OmniSearch", 0, "ok"], ["Serena", 0, "ok"], ["HuggingFace", 0, "ok"]],
@@ -1148,7 +1054,6 @@ const SKILLS = {
   "energy": [["🛢️ Energy Proc", 0], ["⚡ Utilities", 0]],
   "people": [["📨 Outreach Ar/En", 0], ["🔬 Co. Dossier", 0], ["📡 Signal Hunter", 0]],
   "compliance": [["⚖️ PEP Check", 0], ["🛡️ Sanctions", 0]],
-  "other": [["💊 Healthcare", 0], ["🎓 EdTech", 0], ["🛒 Retail", 0]],
 };
 function renderChips(id, items) {
   const t = document.getElementById(id); t.innerHTML = "";
@@ -1165,10 +1070,8 @@ function renderChips(id, items) {
 }
 function onSrcCat() {
   const cat = document.getElementById("src-cat").value;
-  if (cat === "reco") {
-    const names = sourceReco();
-    renderChips("src-chips", names.map(n => [n, 1]));
-  } else renderChips("src-chips", SOURCES[cat] || []);
+  if (cat === "reco") renderChips("src-chips", sourceReco().map(n => [n, 1]));
+  else renderChips("src-chips", SOURCES[cat] || []);
 }
 function onConnCat() { renderChips("conn-chips", CONNECTORS[document.getElementById("conn-cat").value]); }
 function onSkillCat() { renderChips("skill-chips", SKILLS[document.getElementById("skill-cat").value]); }
@@ -1182,31 +1085,128 @@ function startAgents() {
   gotoStageById("run");
   const log = document.getElementById("agent-log"); log.innerHTML = "";
   const agents = [
-    { n: "🧠 Planner", d: "Decompose · ensure contract", t: 700 },
-    { n: "🔍 Researcher", d: "Live-web (Perplexity)", t: 1000 },
-    { n: "🌐 Crawler", d: "6 pages in parallel", t: 1200 },
+    { n: "🧠 Planner", d: "Decompose · enforce contract", t: 700 },
+    { n: "🔍 Researcher", d: "Live-web search", t: 1100 },
+    { n: "🌐 Crawler", d: "6 pages parallel", t: 1300 },
     { n: "🇸🇦 Arabic NLP", d: "Argaam + Maal", t: 700 },
     { n: "🛡️ Validator", d: "Validate · verify · dedup", t: 1000 },
     { n: "📡 Signal scout", d: "Detect buying signals", t: 700 },
-    { n: "🌳 Tree builder", d: "Map relationships", t: 800 },
-    { n: "📝 Writer", d: "Compose " + state.reportShape + " report", t: 1100 },
+    { n: "🌳 Tree builder", d: "Relationships", t: 800 },
+    { n: "📝 Writer", d: "Render " + state.reportShape + " report (strict)", t: 1000 },
   ];
   let i = 0;
   (function next() {
     if (i >= agents.length) { setTimeout(() => gotoStageById("report"), 300); return; }
     const a = agents[i];
     const row = document.createElement("div"); row.className = "agent-row running";
-    row.innerHTML = `<div class="agent-mark"><div class="spinner"></div></div><div class="agent-name">${a.n}</div><div class="agent-desc">${a.d}</div>`;
+    row.innerHTML = `<div class="agent-mark"><div class="spinner"></div></div><div style="font-size:13px;font-weight:600">${a.n}</div><div style="font-size:12px;color:var(--ink-soft);flex:1">${a.d}</div>`;
     log.appendChild(row);
     setTimeout(() => { row.classList.remove("running"); row.classList.add("done"); row.querySelector(".agent-mark").innerHTML = "✓"; i++; next(); }, a.t);
   })();
 }
-function resetAll() { stageReached = ["compose"]; gotoStageById("compose"); gotoLayer(1); document.querySelectorAll('[id^="push-"]').forEach(e => e.classList.add("hide")); }
+function resetAll() { reached = ["compose"]; gotoStageById("compose"); gotoLayer(1); ["push-leads", "push-companies", "enr-leads-result", "enr-co-result"].forEach(id => document.getElementById(id)?.classList.add("hide")); }
 
-// ── enrich sub-tabs ────────────────────────────────────────────────────────
-function setEnr(which) {
-  document.querySelectorAll(".enr-sub button").forEach(b => b.classList.toggle("on", b.dataset.enr === which));
-  document.querySelectorAll(".enr-pane").forEach(p => p.classList.toggle("on", p.dataset.enrPane === which));
+// ── REPORT renderer — strict by shape ───────────────────────────────────────
+function renderReport() {
+  const r = document.getElementById("rpt-render");
+  document.getElementById("rpt-title").textContent = state.industry === "fintech" ? "Saudi Fintech Leads — 5 results" : "Research Report";
+  document.getElementById("rpt-meta").textContent = "Shape: " + state.reportShape + " · gen now · 6 cited sources";
+
+  if (state.reportShape === "exec") {
+    r.innerHTML = `
+      <div class="blk"><div class="blk-h">📋 Executive Summary</div>
+        <div style="font-size:13px;line-height:1.6;background:white;border:1px solid var(--line);border-radius:10px;padding:14px">
+          <strong>Findings:</strong> 5 Saudi fintechs (Series-A+) closed 2024 funding. Aggregate raised <strong>$87M</strong>. All actively hiring. CTOs include 3 verified veterans, 2 newer (&lt;1yr tenure).<br/><br/>
+          <strong>Top Insight:</strong> Tabby (Series D · $50M) shows highest engineering hiring velocity (9 open roles) — strongest near-term signal.<br/><br/>
+          <strong>Recommendation:</strong> Prioritize Tabby + Lean Tech for outreach; group Lendo + NymCard for Series A/B campaign.
+        </div>
+      </div>
+      <div class="blk"><div class="blk-h">Highlights KPIs</div>
+        <div class="kpi-row"><div class="kpi"><div class="kpi-val">5</div><div class="kpi-label">Leads</div></div><div class="kpi"><div class="kpi-val">$87M</div><div class="kpi-label">2024 funding</div></div><div class="kpi"><div class="kpi-val">A+</div><div class="kpi-label">Avg quality</div></div><div class="kpi"><div class="kpi-val">28</div><div class="kpi-label">Open roles</div></div></div>
+      </div>`;
+  } else if (state.reportShape === "detail") {
+    r.innerHTML = renderDetailed();
+  } else {
+    // custom — render only on-blocks
+    const onBlocks = [...document.querySelectorAll("#rpt-blocks .chip.on")].map(c => c.textContent.trim());
+    let html = "";
+    if (onBlocks.find(x => x.includes("Financials"))) html += renderKPI();
+    if (onBlocks.find(x => x.includes("Person"))) html += renderPersonTable();
+    if (onBlocks.find(x => x.includes("Company"))) html += renderCompanyTable();
+    if (onBlocks.find(x => x.includes("Signal"))) html += renderSignals();
+    if (onBlocks.find(x => x.includes("Relationship"))) html += renderTree();
+    if (onBlocks.find(x => x.includes("Outreach"))) html += renderOutreach();
+    if (onBlocks.find(x => x.includes("Citations"))) html += renderCitations();
+    if (!html) html = `<div class="small">No blocks selected. Pick blocks in Clarify.</div>`;
+    r.innerHTML = html;
+  }
+  // exports
+  r.innerHTML += `<div class="exports"><button class="exp-btn" onclick="doExport('xlsx')">📊 XLSX</button><button class="exp-btn" onclick="doExport('pdf')">📄 PDF</button><button class="exp-btn" onclick="doExport('html')">🌐 HTML</button><button class="exp-btn" onclick="doExport('jsx')">⚛️ JSX</button><button class="exp-btn" onclick="doExport('pptx')">📽️ PPTX</button><button class="exp-btn" onclick="doExport('csv')">📋 CSV</button></div>`;
+}
+function renderKPI() { return `<div class="blk"><div class="blk-h">Highlights</div><div class="kpi-row"><div class="kpi"><div class="kpi-val">5</div><div class="kpi-label">Leads</div></div><div class="kpi"><div class="kpi-val">$87M</div><div class="kpi-label">Funding</div></div><div class="kpi"><div class="kpi-val">A+</div><div class="kpi-label">Avg quality</div></div><div class="kpi"><div class="kpi-val">28</div><div class="kpi-label">Open roles</div></div></div></div>`; }
+function renderPersonTable() {
+  return `<div class="blk"><div class="blk-h">👤 Person table <span class="small" style="margin-left:auto;text-transform:none;letter-spacing:0;font-weight:400">click row to expand</span></div>
+  <div class="tbl-wrap"><table><thead><tr><th>Name</th><th>Title</th><th>Company</th><th>Tier</th></tr></thead><tbody>
+    <tr onclick="openRow('Mohammed AlQasem · Tabby CTO',{name:'Mohammed AlQasem',company:'Tabby',title:'CTO',linkedin:'in/mohammed-alqasem',tenure:'7 months',email:'m.alqasem@tabby.ai',phone:'—',edu:'KFUPM · MIT'})"><td><strong>Mohammed AlQasem</strong></td><td>CTO</td><td>Tabby</td><td><span class="pill pill-a">A+</span></td></tr>
+    <tr onclick="openRow('Hisham Al-Falih · Lean Tech',{name:'Hisham Al-Falih',company:'Lean Technologies',title:'CTO · Co-founder',linkedin:'in/hisham-falih',tenure:'4 years',email:'hisham@lean.tech',phone:'—',edu:'KSU'})"><td><strong>Hisham Al-Falih</strong></td><td>CTO</td><td>Lean Tech</td><td><span class="pill pill-a">A+</span></td></tr>
+    <tr onclick="openRow('Esam Alkheshnam · Hala',{name:'Esam Alkheshnam',company:'Hala',title:'Head of Engineering',tenure:'2 years'})"><td><strong>Esam Alkheshnam</strong></td><td>Head of Eng</td><td>Hala</td><td><span class="pill pill-b">A</span></td></tr>
+  </tbody></table></div></div>`;
+}
+function renderCompanyTable() {
+  return `<div class="blk"><div class="blk-h">🏢 Company table <span class="small" style="margin-left:auto;text-transform:none;letter-spacing:0;font-weight:400">click row to expand</span></div>
+  <div class="tbl-wrap"><table><thead><tr><th>Company</th><th>Funding</th><th>Employees</th><th>HQ</th><th>Tier</th></tr></thead><tbody>
+    <tr onclick="openRow('Tabby',{company:'Tabby',crNumber:'1010***543',industry:'Fintech / BNPL',funding:'$50M Series D · Jan 2024',employees:'250-500',hq:'Riyadh',lei:'213800ABC...'})"><td><strong>Tabby</strong></td><td>$50M Series D</td><td>250-500</td><td>Riyadh</td><td><span class="pill pill-a">A+</span></td></tr>
+    <tr onclick="openRow('Lean Tech',{company:'Lean Technologies',crNumber:'1010***221',industry:'Fintech / Open Banking',funding:'$28M Series A · May 2024',employees:'80-150',hq:'Riyadh'})"><td><strong>Lean Tech</strong></td><td>$28M Series A</td><td>80-150</td><td>Riyadh</td><td><span class="pill pill-a">A+</span></td></tr>
+    <tr onclick="openRow('Hala',{company:'Hala',industry:'Fintech / SMB',funding:'$8M Pre-A · Aug 2024',employees:'30-80',hq:'Riyadh'})"><td><strong>Hala</strong></td><td>$8M Pre-A</td><td>30-80</td><td>Riyadh</td><td><span class="pill pill-b">A</span></td></tr>
+  </tbody></table></div></div>`;
+}
+function renderSignals() { return `<div class="blk"><div class="blk-h">📡 Signal Intelligence</div><div class="grid-3"><div class="signal-card" onclick="quickStart('sig')"><div class="h">🔥 high</div><div class="t">Tabby — 9 eng roles + Series D</div></div><div class="signal-card" onclick="quickStart('sig')"><div class="h">⚠️ rising</div><div class="t">Hala — 4 senior hires last 14d</div></div><div class="signal-card" onclick="quickStart('sig')"><div class="h">📈 momentum</div><div class="t">Lendo — new board chair</div></div></div></div>`; }
+function renderTree() { return `<div class="blk"><div class="blk-h">🌳 Relationship Tree</div><div class="tree-mini"><div class="tree-node" onclick="quickStart('tree')"><strong class="name" style="color:var(--lavender)">Tabby</strong></div><div class="tree-node" style="margin-left:24px"><span class="name">Hosam Arab</span><span class="pos">· CEO</span></div><div class="tree-node" style="margin-left:24px"><span class="name">Mohammed AlQasem</span><span class="pos">· CTO</span><span class="gate-pill gate-ok" style="margin-left:auto">selected</span></div><div class="tree-node" style="margin-left:24px"><span class="name">→ STC Pay alumni (4)</span><span class="pos">· past colleagues</span></div><div class="tree-node" style="margin-left:24px"><span class="name">→ Sequoia + Mubadala</span><span class="pos">· investors</span></div></div></div>`; }
+function renderOutreach() { return `<div class="blk"><div class="blk-h">✉️ Outreach Drafts</div><div style="background:white;border:1px solid var(--line);border-radius:10px;padding:12px;font-size:12px;line-height:1.5">Hi Mohammed,<br/><br/>Saw Tabby just closed $50M Series D — congrats. Given you're scaling the engineering team rapidly, we built a Saudi-specific lead intelligence platform that...<br/><br/>— Customizable per recipient. AR + EN versions available.</div></div>`; }
+function renderCitations() { return `<div class="blk"><div class="blk-h">🔗 Sources cited</div><div>${["argaam.com/funding-2024", "mubasher.info/sa", "tabby.ai/careers", "lean.tech/about", "gleif.org/lei-search", "linkedin (public ×5)"].map(c => `<span style="font-size:11px;color:var(--ink-soft);padding:8px 12px;background:rgba(245,240,247,.45);border-radius:8px;display:inline-block;margin-right:6px;margin-bottom:4px"><a href="#" style="color:var(--ink)">${c}</a></span>`).join("")}</div></div>`; }
+function renderDetailed() {
+  return [renderKPI(), renderPersonTable(), renderCompanyTable(), renderSignals(), renderTree(), renderOutreach(), renderCitations()].join("");
+}
+
+function openRow(title, data) {
+  document.getElementById("row-modal-title").textContent = title;
+  const body = document.getElementById("row-modal-body");
+  body.innerHTML = "<div style='font-family:ui-monospace,monospace;font-size:12px;background:rgba(245,240,247,.5);padding:14px;border-radius:8px'>" +
+    Object.entries(data).map(([k, v]) => `<strong>${k}:</strong> ${v}`).join("<br/>") + "</div>" +
+    "<div style='margin-top:14px;display:flex;gap:8px;flex-wrap:wrap'>" +
+    "<button class='btn btn-primary btn-sm' onclick=\"toast('Pushed to Leads (gated)');document.getElementById('row-modal').classList.remove('on')\">📤 Push to Leads</button>" +
+    "<button class='btn btn-seafoam btn-sm' onclick=\"toast('Pushed to Companies (gated)')\">🏢 Push to Companies</button>" +
+    "<button class='btn btn-ghost btn-sm' onclick=\"toast('Building tree...')\">🌳 Build tree</button>" +
+    "<button class='btn btn-ghost btn-sm' onclick=\"toast('Watching signals...')\">📡 Watch signals</button>" +
+    "</div>";
+  document.getElementById("row-modal").classList.add("on");
+}
+
+// ── enrichment functional ─────────────────────────────────────────────────
+function toggleEnrOpt(el, side, k) {
+  el.classList.toggle("on");
+  state[side === "leads" ? "enrLeads" : "enrCo"][k] = el.classList.contains("on") ? 1 : 0;
+}
+function runEnrich(target) {
+  const opts = target === "leads" ? Object.keys(state.enrLeads).filter(k => state.enrLeads[k]) : Object.keys(state.enrCo).filter(k => state.enrCo[k]);
+  if (!opts.length) return toast("Pick at least one option");
+  const r = document.getElementById(target === "leads" ? "enr-leads-result" : "enr-co-result");
+  r.classList.remove("hide");
+  r.innerHTML = `<strong>Enriching ${opts.length} fields…</strong> ${opts.join(" · ")}`;
+  let n = 0;
+  const tick = setInterval(() => {
+    n++;
+    r.innerHTML = `<strong>Enriching…</strong> ${n}/${opts.length} · field: <em>${opts[n - 1] || ""}</em>`;
+    if (n >= opts.length) {
+      clearInterval(tick);
+      r.innerHTML = `<strong>✓ Enrichment complete</strong> · ${opts.length} field(s) added per row · 5 rows passed gate · 0 rejected`;
+    }
+  }, 600);
+  log("enrich", "Enriched " + target);
+}
+function setEnr(w) {
+  document.querySelectorAll(".enr-sub button").forEach(b => b.classList.toggle("on", b.dataset.enr === w));
+  document.querySelectorAll(".enr-pane").forEach(p => p.classList.toggle("on", p.dataset.enrPane === w));
 }
 function pushTo(target) {
   toast(`Gating ${target}: dedup + validate + verify...`);
@@ -1217,73 +1217,59 @@ function pushTo(target) {
     else r.innerHTML = `<strong>Push to Companies DB</strong> — <span class="gate-pill gate-ok">✓ 4 pushed</span> <span class="gate-pill gate-dup">🛡 1 dup (CR match)</span>`;
   }, 1200);
 }
-function toggleAll(cb) { document.querySelectorAll(".row-sel").forEach(x => { x.checked = cb.checked; x.closest("tr").classList.toggle("selected", cb.checked); }); }
 
-// ── quick-start (signal / tree / regen / insight) ──────────────────────────
-function quickStart(kind) {
-  const map = {
-    "repeat": "Loaded · jumping to Compose · Layer 4",
-    "next": "Loaded CFO follow-up template",
-    "signal": "Composer pre-set: Signal Watch mode",
-    "tree": "Composer pre-set: Relationship Tree mode",
-    "signal-tabby": "Opening Tabby in Signal mode...",
-    "signal-hala": "Opening Hala in Signal mode...",
-    "signal-lendo": "Opening Lendo compare with peers...",
-    "tree-tabby": "Building Tabby exec network tree...",
-    "regen-deeper": "Re-rendering report — Detailed shape + Outreach",
-    "regen-altframe": "Applying Compliance/PEP check on 5 rows",
-    "regen-expand": "Expanding to 10 results — dedup applied",
-    "regen-tree": "Building cross-company relationship tree",
-    "regen-signal": "Subscribed to daily signal digest",
+// ── export functional (structured per shape) ──────────────────────────────
+function doExport(fmt) {
+  const data = {
+    shape: state.reportShape, target: state.target, industry: state.industry,
+    countries: Object.keys(state.countries).filter(k => state.countries[k]),
+    leads: [{ name: "Mohammed AlQasem", title: "CTO", company: "Tabby" }, { name: "Hisham Al-Falih", title: "CTO", company: "Lean Tech" }],
+    companies: [{ name: "Tabby", funding: "$50M", employees: "250-500" }],
+    sources: sourceReco(), generatedAt: new Date().toISOString(),
   };
-  toast(map[kind] || "Loaded");
-  logBehavior("action", map[kind]);
+  let blob, fn;
+  if (fmt === "csv" || fmt === "xlsx") {
+    const rows = [["Name", "Title", "Company"], ...data.leads.map(l => [l.name, l.title, l.company])];
+    blob = new Blob([rows.map(r => r.join(",")).join("\n")], { type: "text/csv" });
+    fn = "report." + fmt;
+  } else if (fmt === "html" || fmt === "jsx") {
+    blob = new Blob([document.documentElement.outerHTML], { type: "text/html" });
+    fn = "report." + fmt;
+  } else {
+    blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    fn = "report-" + fmt + ".json";
+  }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a"); a.href = url; a.download = fn; a.click();
+  toast("Exported " + fn);
 }
+
+// ── quick start / history ─────────────────────────────────────────────────
+function quickStart(k) {
+  const m = { "repeat": "Loaded · jump to Layer 4", "next": "CFO follow-up template loaded", "signal": "Signal Watch mode activated · live", "tree": "Tree mode activated", "hist-1": "Re-run loaded · fresh data", "hist-2": "Re-run Tadawul board", "hist-3": "NEOM signal watch reopened", "regen-deeper": "Re-rendering with outreach", "regen-alt": "Applying Compliance/PEP", "regen-expand": "+10 results · dedup applied", "regen-tree": "Cross-co tree building", "regen-signal": "Daily digest subscribed", "sig": "Opening in Signal mode" };
+  toast(m[k] || "Loaded");
+  log("action", m[k] || k);
+}
+function toggleHist() { toast("Showing recent runs in history bar above"); window.scrollTo({ top: 0, behavior: "smooth" }); }
 
 // ── DRAWER ────────────────────────────────────────────────────────────────
 const DRAWER = {
-  sources: [
-    { name: "Tadawul", url: "tadawul.com.sa", lang: "ar/en", status: "active" },
-    { name: "Argaam", url: "argaam.com", lang: "ar", status: "active" },
-    { name: "+ Add custom source", isNew: true },
-  ],
-  connectors: [
-    { name: "Tavily", scope: "read", status: "connected" },
-    { name: "Playwright", scope: "read", status: "connected" },
-    { name: "+ Add OAuth connector", isNew: true },
-  ],
-  skills: [
-    { name: "🎯 Saudi Lead Hunter", schema: "LeadList", tools: "5/6", status: "active",
-      prompt: "You are a B2B prospect researcher specialised in Saudi Arabia.\n1. Honor every filter\n2. NEVER invent data — leave blank and flag\n3. Cite every fact with source URL\n4. Prefer Arabic sources for Tadawul-listed companies\n5. Halt-and-ask on filter conflict" },
-    { name: "📊 Tadawul Analyst", schema: "CompareMatrix", tools: "4/6", status: "inactive",
-      prompt: "You analyze Tadawul-listed companies. Compare financials, board composition, sector positioning." },
-    { name: "+ Create new skill", isNew: true },
-  ],
-  plugins: [
-    { name: "📊 google-sheets-writer", scope: "write", status: "active" },
-    { name: "📞 whatsapp-cloud", scope: "send", status: "inactive" },
-    { name: "+ Build a plugin", isNew: true },
-  ],
-  templates: [
-    { name: "Saudi fintech CTOs · 2024", modes: "Lead Gen + Enrich", status: "active" },
-    { name: "My Aramco Vendors", modes: "Research + Lead Gen", status: "saved" },
-    { name: "+ Create template", isNew: true },
-  ],
-  modes: [
-    { name: "🎯 Lead Gen", tools: "all", status: "built-in" },
-    { name: "🧪 Enrich", tools: "leads + companies", status: "built-in" },
-    { name: "+ AI-generate a new mode", isNew: true },
-  ],
+  sources: [{ name: "Tadawul", url: "tadawul.com.sa", lang: "ar/en", status: "active" }, { name: "Argaam", url: "argaam.com", lang: "ar", status: "active" }, { name: "+ Add custom source", isNew: true }],
+  connectors: [{ name: "Tavily", scope: "read", status: "connected" }, { name: "Playwright", scope: "read", status: "connected" }, { name: "+ Add OAuth connector", isNew: true }],
+  skills: [{ name: "🎯 Saudi Lead Hunter", schema: "LeadList", tools: "5/6", status: "active", prompt: "You are a B2B prospect researcher specialised in Saudi Arabia.\n1. Honor every filter\n2. NEVER invent data\n3. Cite every fact\n4. Prefer Arabic sources for Tadawul-listed\n5. Halt-and-ask on conflict" }, { name: "+ Create new skill", isNew: true }],
+  plugins: [{ name: "📊 google-sheets-writer", scope: "write", status: "active" }, { name: "+ Build a plugin", isNew: true }],
+  templates: [{ name: "Saudi fintech CTOs · 2024", modes: "Lead Gen + Enrich", status: "active" }, { name: "+ Create template", isNew: true }],
+  modes: [{ name: "🎯 Lead Gen", tools: "all", status: "built-in" }, { name: "🧪 Enrich", tools: "leads + cos", status: "built-in" }, { name: "+ AI-generate a mode", isNew: true }],
 };
 let drawerTab = "sources";
-function setDrawer(tab) { drawerTab = tab; document.querySelectorAll(".drawer-tab").forEach(x => x.classList.toggle("on", x.dataset.d === tab)); renderDrawerItems(); }
+function setDrawer(t) { drawerTab = t; document.querySelectorAll(".drawer-tab").forEach(x => x.classList.toggle("on", x.dataset.d === t)); renderDrawerItems(); }
 function renderDrawerItems() {
   const c = document.getElementById("drawer-items"); c.innerHTML = "";
   (DRAWER[drawerTab] || []).forEach((it, idx) => {
     const card = document.createElement("div"); card.className = "item-card";
     if (it.isNew) {
       card.innerHTML = `<div class="item-card-h"><div><div class="item-card-title" style="color:var(--muted)">${it.name}</div><div class="item-card-meta">Click to scaffold</div></div></div>`;
-      card.onclick = () => { DRAWER[drawerTab].unshift({ name: "New " + drawerTab.slice(0,-1) + " " + (idx+1), status: "draft", prompt: "[edit me]" }); renderDrawerItems(); toast("Scaffolded — edit below"); };
+      card.onclick = () => { DRAWER[drawerTab].unshift({ name: "New " + drawerTab.slice(0, -1) + " " + (idx + 1), status: "draft", prompt: "[edit me]" }); renderDrawerItems(); toast("Scaffolded — edit below"); };
     } else {
       const meta = Object.entries(it).filter(([k]) => !["name", "prompt", "status", "isNew"].includes(k)).map(([k, v]) => `${k}: ${v}`).join(" · ");
       card.innerHTML = `
@@ -1294,67 +1280,67 @@ function renderDrawerItems() {
         <div class="item-config">
           <div class="cfg-row"><div class="lbl">Name</div><input class="input" value="${it.name}" oninput="DRAWER['${drawerTab}'][${idx}].name=this.value"/></div>
           ${it.prompt !== undefined ? `<div class="cfg-row"><div class="lbl">System Prompt</div><textarea class="input" oninput="DRAWER['${drawerTab}'][${idx}].prompt=this.value">${it.prompt || ""}</textarea></div>` : ""}
-          <div class="cfg-row"><div class="lbl">Tool Whitelist</div><div class="chips"><span class="chip on" onclick="this.classList.toggle('on')">web_search</span><span class="chip on" onclick="this.classList.toggle('on')">url_crawl</span><span class="chip on" onclick="this.classList.toggle('on')">deep_scrape</span><span class="chip" onclick="this.classList.toggle('on')">harvester_run</span><span class="chip" onclick="this.classList.toggle('on')">spawn_sub_agent</span></div></div>
-          ${drawerTab === "skills" ? `<div class="cfg-row"><div class="lbl">Report Schema</div><select class="select"><option>LeadList</option><option>CompanyDossier</option><option>CompareMatrix</option><option>SignalDigest</option><option>Custom</option></select></div>` : ""}
+          <div class="cfg-row"><div class="lbl">Tool Whitelist</div><div class="chips"><span class="chip on" onclick="this.classList.toggle('on')">web_search</span><span class="chip on" onclick="this.classList.toggle('on')">url_crawl</span><span class="chip on" onclick="this.classList.toggle('on')">deep_scrape</span><span class="chip" onclick="this.classList.toggle('on')">harvester_run</span></div></div>
+          ${drawerTab === "skills" ? `<div class="cfg-row"><div class="lbl">Report Schema</div><select class="select"><option>LeadList</option><option>CompanyDossier</option><option>CompareMatrix</option></select></div>` : ""}
           <div class="cfg-row"><div class="lbl">Visibility</div><select class="select"><option>Private</option><option>Workspace</option><option>Public</option></select></div>
           <div class="cfg-actions">
             <button class="btn btn-ghost btn-sm" onclick="DRAWER['${drawerTab}'].splice(${idx},0,JSON.parse(JSON.stringify(DRAWER['${drawerTab}'][${idx}])));renderDrawerItems();toast('Cloned')">Clone</button>
-            <button class="btn btn-ghost btn-sm" onclick="toast('JSON copied')">Export JSON</button>
-            <button class="btn btn-ghost btn-sm" onclick="DRAWER['${drawerTab}'][${idx}].status='inactive';renderDrawerItems();toast('Disabled')">Disable</button>
-            <button class="btn btn-primary btn-sm" onclick="toast('Saved to preferences')">Save</button>
+            <button class="btn btn-ghost btn-sm" onclick="toast('Disabled')">Disable</button>
+            <button class="btn btn-primary btn-sm" onclick="toast('Saved')">Save</button>
           </div>
         </div>`;
     }
     c.appendChild(card);
   });
 }
-function openDrawer() { document.getElementById("app").classList.add("drawer-open"); document.getElementById("drawer").classList.remove("hide"); renderDrawerItems(); logBehavior("ui", "Opened customize drawer"); }
+function openDrawer() { document.getElementById("drawer").classList.add("on"); renderDrawerItems(); log("ui", "Opened customize"); }
 function openDrawerAt(t) { openDrawer(); setDrawer(t); }
-function closeDrawer() { document.getElementById("app").classList.remove("drawer-open"); document.getElementById("drawer").classList.add("hide"); }
-function toggleDrawerExpand() {
-  document.querySelectorAll(".item-card").forEach(c => c.classList.toggle("open"));
-  toast("Expand toggled");
-}
+function closeDrawer() { document.getElementById("drawer").classList.remove("on"); }
+function toggleDrawerExpand() { document.querySelectorAll(".item-card").forEach(c => c.classList.toggle("open")); }
 function aiGenItem() {
   const v = document.getElementById("ai-gen-input").value.trim();
   if (!v) return toast("Type a description");
-  DRAWER[drawerTab].unshift({ name: "✨ " + v.slice(0, 30), status: "draft", prompt: "[AI generated for: " + v + "]" });
+  DRAWER[drawerTab].unshift({ name: "✨ " + v.slice(0, 30), status: "draft", prompt: "[AI: " + v + "]" });
   renderDrawerItems(); document.getElementById("ai-gen-input").value = "";
   toast("AI generated · edit below");
 }
 
-// ── BEHAVIOR ───────────────────────────────────────────────────────────────
-function renderBehavior() {
+// ── BEHAVIOR AGENT (always active, foldable correctly) ────────────────────
+function renderBehave() {
   const c = document.getElementById("behave-list"); if (!c) return;
   c.innerHTML = "";
-  if (!state.behaviorEvents.length) c.innerHTML = '<div class="small">Make a selection to see suggestions.</div>';
-  // suggestions based on most recent events
+  // 1. live suggestion based on most recent action
   const recent = state.behaviorEvents[0];
-  const sugg = document.createElement("div"); sugg.className = "obs"; sugg.style.background = "rgba(146,205,192,.10)"; sugg.style.borderColor = "rgba(146,205,192,.40)";
-  let suggText = "💡 Tip: ";
-  if (recent && recent.kind === "industry") suggText += "consider toggling 'Tadawul listed' in Scope for richer financials.";
-  else if (recent && recent.kind === "country") suggText += "GCC selection adds cross-border citations — make sure currency is normalized.";
-  else if (recent && recent.kind === "mode" && state.modes.tree) suggText += "Tree mode pairs well with Lead Gen — already enabled.";
-  else if (recent && recent.kind === "target") suggText += "If targeting Both, enable Tree mode to map company↔people automatically.";
-  else suggText += "Pick a template to lock the loadout in one click.";
-  sugg.innerHTML = `<div class="meta">suggestion</div>${suggText}`;
+  const sugg = document.createElement("div"); sugg.className = "obs suggest";
+  let s = "Pick a template to lock the loadout.";
+  if (recent) {
+    if (recent.kind === "industry") s = "Tip: pair " + state.industry + " with Tadawul listing for richer financials.";
+    else if (recent.kind === "country" && Object.keys(state.countries).filter(k => state.countries[k]).length > 1) s = "Cross-border query detected — enable SAR currency normalization in Clarify.";
+    else if (recent.kind === "mode" && state.modes.tree) s = "Tree mode active — works best with Lead Gen too (already on).";
+    else if (recent.kind === "target" && state.target === "both") s = "Both targets selected — enrich-leads + enrich-companies routes both available.";
+    else if (recent.kind === "enrich") s = "Enrichment ran. Want me to push the highest-tier rows to Leads automatically?";
+    else if (recent.kind === "seniority") s = "Seniority changed — Role options reloaded from " + state.seniority + " × " + state.industry + ".";
+    else if (recent.kind === "report") s = "Report shape " + state.reportShape + " selected — output will follow strictly.";
+  }
+  sugg.innerHTML = `<div class="meta">live suggestion</div>${s}`;
   c.appendChild(sugg);
-  // history
+  // 2. history
   state.behaviorEvents.forEach(ev => {
     const o = document.createElement("div"); o.className = "obs";
-    o.innerHTML = `<div class="meta">${ev.kind} · ${new Date(ev.t).toLocaleTimeString().slice(0,8)}</div>${ev.msg}`;
+    o.innerHTML = `<div class="meta">${ev.kind} · ${new Date(ev.t).toLocaleTimeString().slice(0, 8)}</div>${ev.msg}`;
     c.appendChild(o);
   });
 }
-function openBehave() { document.getElementById("app").classList.add("behavior-open"); document.getElementById("behave").classList.remove("hide"); renderBehavior(); }
-function closeBehave() { document.getElementById("app").classList.remove("behavior-open"); document.getElementById("behave").classList.add("hide"); }
+function toggleBehave() {
+  const b = document.getElementById("behave"); b.classList.toggle("folded");
+  document.getElementById("behave-fold-btn").textContent = b.classList.contains("folded") ? "▴" : "▾";
+}
 
 function toast(m) { const t = document.getElementById("toast"); t.textContent = m; t.classList.add("on"); clearTimeout(window._t); window._t = setTimeout(() => t.classList.remove("on"), 2200); }
 
 // init
 renderModeTags(); renderCountryTags(); renderSubFilters(); renderAskFilters(); onSrcCat(); onConnCat(); onSkillCat(); buildMega(); updateCtx();
-setTarget("both");
-logBehavior("ui", "Composer opened · ready");
+log("ui", "Composer opened · behavior agent monitoring");
 </script>
 </body>
 </html>
