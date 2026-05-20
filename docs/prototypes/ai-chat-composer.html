@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>AI Chat Composer — ProspectSA prototype</title>
+<title>AI Chat Composer v2 — ProspectSA prototype</title>
 <style>
   :root {
     --lavender: #c3a6d4;
@@ -23,7 +23,7 @@
     --warn:     #e0a558;
     --bad:      #d56b7a;
     --shadow:   0 2px 12px rgba(45, 36, 58, .06);
-    --shadow-lg:0 8px 30px rgba(45, 36, 58, .10);
+    --shadow-lg:0 8px 30px rgba(45, 36, 58, .14);
     --radius:   14px;
     --r-sm:     10px;
   }
@@ -40,233 +40,138 @@
     font-size: 14px;
     min-height: 100vh;
   }
-  .app {
-    display: grid;
-    grid-template-columns: 240px 1fr;
-    min-height: 100vh;
-  }
+  .app { display: grid; grid-template-columns: 230px 1fr; min-height: 100vh; }
 
   /* sidebar */
-  .sb {
-    background: rgba(255,255,255,.45);
-    backdrop-filter: blur(20px);
-    border-right: 1px solid var(--line);
-    padding: 18px 12px;
-  }
+  .sb { background: rgba(255,255,255,.5); backdrop-filter: blur(20px); border-right: 1px solid var(--line); padding: 18px 12px; }
   .brand { display: flex; align-items: center; gap: 10px; padding: 4px 8px 18px; }
-  .brand-mark {
-    width: 30px; height: 30px; border-radius: 9px;
-    background: linear-gradient(135deg, var(--lavender), var(--seafoam));
-    display: grid; place-items: center; color: white; font-weight: 700; font-size: 13px;
-  }
+  .brand-mark { width: 30px; height: 30px; border-radius: 9px; background: linear-gradient(135deg, var(--lavender), var(--seafoam)); display: grid; place-items: center; color: white; font-weight: 700; font-size: 13px; }
   .brand-name { font-weight: 700; letter-spacing: -.01em; font-size: 15px; }
   .brand-live { font-size: 10px; color: var(--ok); letter-spacing: .1em; }
   .sb-h { font-size: 10px; letter-spacing: .15em; color: var(--muted); padding: 14px 8px 6px; text-transform: uppercase; }
-  .sb-item {
-    display: flex; align-items: center; gap: 10px; padding: 8px 10px;
-    border-radius: var(--r-sm); cursor: pointer; color: var(--ink-soft); font-size: 13px; font-weight: 500;
-    transition: background 180ms;
-  }
+  .sb-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: var(--r-sm); cursor: pointer; color: var(--ink-soft); font-size: 13px; font-weight: 500; }
   .sb-item:hover { background: rgba(255,255,255,.6); color: var(--ink); }
   .sb-item.active { background: rgba(195,166,212,.22); color: var(--ink); }
-  .sb-item .ico { width: 16px; height: 16px; opacity: .7; }
-  .sb-item .badge {
-    margin-left: auto; font-size: 9px; padding: 2px 6px; border-radius: 99px;
-    background: rgba(195,166,212,.3); color: var(--ink); font-weight: 600;
-  }
+  .sb-item .badge { margin-left: auto; font-size: 9px; padding: 2px 6px; border-radius: 99px; background: rgba(195,166,212,.3); color: var(--ink); font-weight: 600; }
 
   /* main */
-  .main { padding: 24px 32px 60px; max-width: 1400px; }
-  h1 { margin: 0 0 4px; font-size: 24px; font-weight: 700; letter-spacing: -.02em; }
-  .h-sub { color: var(--ink-soft); font-size: 13px; margin-bottom: 24px; }
+  .main { padding: 22px 28px 60px; max-width: 1500px; }
+  h1 { margin: 0 0 4px; font-size: 22px; font-weight: 700; letter-spacing: -.02em; }
+  .h-sub { color: var(--ink-soft); font-size: 13px; margin-bottom: 18px; }
 
-  /* card */
-  .card {
-    background: rgba(255,255,255,.70);
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    backdrop-filter: blur(20px);
-  }
-  .card-h { padding: 14px 18px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 10px; }
-  .card-title { font-weight: 600; font-size: 13px; letter-spacing: -.005em; }
+  .card { background: rgba(255,255,255,.75); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); backdrop-filter: blur(20px); }
+  .card-h { padding: 12px 18px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 10px; }
+  .card-title { font-weight: 600; font-size: 13px; }
   .card-body { padding: 16px 18px; }
 
-  /* composer */
-  .composer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  .field-label { font-size: 11px; font-weight: 600; color: var(--ink-soft); margin-bottom: 6px; letter-spacing: .02em; text-transform: uppercase; }
-  .select, .input {
-    width: 100%;
-    background: white;
-    border: 1px solid var(--line);
-    border-radius: var(--r-sm);
-    padding: 9px 12px;
-    font-size: 13px; color: var(--ink);
-    font-family: inherit;
-    transition: border-color 180ms;
-  }
-  .select:focus, .input:focus { outline: none; border-color: var(--lavender); box-shadow: 0 0 0 3px rgba(195,166,212,.18); }
+  .field-label { font-size: 11px; font-weight: 600; color: var(--ink-soft); margin-bottom: 8px; letter-spacing: .03em; text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
+  .field-hint { color: var(--muted); font-weight: 400; text-transform: none; letter-spacing: 0; }
+  .field-edit { margin-left: auto; font-size: 10px; padding: 3px 8px; border: 1px solid var(--line); border-radius: 99px; background: white; cursor: pointer; color: var(--ink-soft); font-weight: 600; }
+  .field-edit:hover { color: var(--ink); border-color: var(--lavender); }
+
+  .input, .select { width: 100%; background: white; border: 1px solid var(--line); border-radius: var(--r-sm); padding: 9px 12px; font-size: 13px; color: var(--ink); font-family: inherit; }
+  .input:focus, .select:focus { outline: none; border-color: var(--lavender); box-shadow: 0 0 0 3px rgba(195,166,212,.18); }
   textarea.input { resize: vertical; min-height: 90px; }
 
-  /* chip groups */
   .chips { display: flex; flex-wrap: wrap; gap: 6px; }
-  .chip {
-    font-size: 11px;
-    padding: 5px 10px;
-    border-radius: 99px;
-    background: white;
-    border: 1px solid var(--line);
-    cursor: pointer;
-    color: var(--ink-soft);
-    transition: all 160ms;
-    display: inline-flex; align-items: center; gap: 5px;
-    user-select: none;
-  }
+  .chip { font-size: 11px; padding: 5px 10px; border-radius: 99px; background: white; border: 1px solid var(--line); cursor: pointer; color: var(--ink-soft); transition: all 160ms; display: inline-flex; align-items: center; gap: 5px; user-select: none; }
   .chip:hover { border-color: var(--lavender); color: var(--ink); }
-  .chip.on {
-    background: linear-gradient(180deg, rgba(195,166,212,.25), rgba(195,166,212,.12));
-    border-color: var(--lavender);
-    color: var(--ink); font-weight: 600;
-  }
+  .chip.on { background: linear-gradient(180deg, rgba(195,166,212,.25), rgba(195,166,212,.12)); border-color: var(--lavender); color: var(--ink); font-weight: 600; }
   .chip.on::before { content: "✓"; color: var(--ok); font-weight: 700; }
-  .chip-add {
-    background: transparent; border: 1px dashed var(--line-2);
-    color: var(--muted);
-  }
+  .chip-add { background: transparent; border: 1px dashed var(--line-2); color: var(--muted); }
+
+  /* mode chips — bigger */
+  .mode-chips .chip { font-size: 12px; padding: 7px 12px; }
+  .mode-chips .chip.on { background: linear-gradient(180deg, rgba(146,205,192,.25), rgba(146,205,192,.12)); border-color: var(--seafoam); }
+
+  /* template cards */
+  .tpl-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 4px; }
+  .tpl { background: white; border: 1px solid var(--line); border-radius: var(--r-sm); padding: 10px 12px; min-width: 200px; cursor: pointer; transition: all 180ms; }
+  .tpl:hover { border-color: var(--lavender); transform: translateY(-1px); }
+  .tpl.on { border-color: var(--lavender); background: linear-gradient(180deg, rgba(195,166,212,.12), white); box-shadow: 0 2px 10px rgba(195,166,212,.2); }
+  .tpl-title { font-size: 12px; font-weight: 700; color: var(--ink); margin-bottom: 2px; }
+  .tpl-meta { font-size: 10px; color: var(--ink-soft); }
+  .tpl-add { background: transparent; border: 1px dashed var(--line-2); display: grid; place-items: center; color: var(--muted); min-width: 90px; }
+
+  /* multi-column section grid */
+  .sec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 18px; }
+
+  /* filters drawer */
+  .filter-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px 14px; padding: 12px; background: rgba(245,240,247,.45); border: 1px solid var(--line); border-radius: var(--r-sm); margin-top: 6px; }
+  .filter-cell .field-label { font-size: 10px; margin-bottom: 4px; text-transform: none; letter-spacing: 0; color: var(--ink-soft); }
+  .filter-cell .select, .filter-cell .input { padding: 7px 10px; font-size: 12px; }
+
+  /* writer/filter toggle */
+  .seg { display: inline-flex; background: white; border: 1px solid var(--line); border-radius: 99px; padding: 3px; }
+  .seg button { border: none; background: transparent; padding: 6px 14px; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--ink-soft); border-radius: 99px; font-family: inherit; }
+  .seg button.on { background: var(--lavender); color: white; }
 
   /* toggle */
-  .toggle-row {
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 14px;
-    background: rgba(146,205,192,.10);
-    border: 1px solid rgba(146,205,192,.30);
-    border-radius: var(--r-sm);
-    margin-top: 12px;
-  }
-  .toggle {
-    width: 36px; height: 20px; background: var(--line-2); border-radius: 99px;
-    position: relative; cursor: pointer; transition: background 200ms;
-    flex-shrink: 0;
-  }
-  .toggle::after {
-    content: ""; position: absolute; top: 2px; left: 2px;
-    width: 16px; height: 16px; background: white; border-radius: 99px;
-    transition: left 200ms;
-    box-shadow: 0 1px 3px rgba(0,0,0,.15);
-  }
+  .toggle-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(146,205,192,.10); border: 1px solid rgba(146,205,192,.30); border-radius: var(--r-sm); margin-top: 12px; }
+  .toggle { width: 36px; height: 20px; background: var(--line-2); border-radius: 99px; position: relative; cursor: pointer; transition: background 200ms; flex-shrink: 0; }
+  .toggle::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; background: white; border-radius: 99px; transition: left 200ms; box-shadow: 0 1px 3px rgba(0,0,0,.15); }
   .toggle.on { background: var(--seafoam); }
   .toggle.on::after { left: 18px; }
   .toggle-label { font-size: 13px; font-weight: 600; color: var(--ink); }
   .toggle-hint { font-size: 11px; color: var(--ink-soft); margin-left: auto; }
 
   /* button */
-  .btn {
-    border: none; border-radius: var(--r-sm); padding: 10px 16px;
-    font-size: 13px; font-weight: 600; cursor: pointer;
-    font-family: inherit;
-    display: inline-flex; align-items: center; gap: 7px;
-    transition: all 200ms;
-  }
-  .btn-primary {
-    background: linear-gradient(135deg, var(--lavender), var(--rose));
-    color: white;
-    box-shadow: 0 2px 10px rgba(195,166,212,.4);
-  }
+  .btn { border: none; border-radius: var(--r-sm); padding: 10px 16px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 7px; transition: all 200ms; }
+  .btn-primary { background: linear-gradient(135deg, var(--lavender), var(--rose)); color: white; box-shadow: 0 2px 10px rgba(195,166,212,.4); }
   .btn-primary:hover { box-shadow: 0 4px 16px rgba(195,166,212,.55); transform: translateY(-1px); }
-  .btn-primary:disabled { opacity: .55; cursor: not-allowed; transform: none; }
-  .btn-ghost {
-    background: white; color: var(--ink-soft); border: 1px solid var(--line);
-  }
+  .btn-ghost { background: white; color: var(--ink-soft); border: 1px solid var(--line); }
   .btn-ghost:hover { color: var(--ink); border-color: var(--line-2); }
 
-  /* run banner */
-  .run-row { margin-top: 16px; display: flex; align-items: center; gap: 10px; }
-  .run-summary { font-size: 11px; color: var(--ink-soft); margin-right: auto; }
+  .run-row { margin-top: 14px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .run-summary { font-size: 11px; color: var(--ink-soft); margin-right: auto; max-width: 60%; }
 
   /* steps */
-  .steps { display: flex; gap: 8px; align-items: center; margin: 28px 0 14px; }
-  .step {
-    display: flex; align-items: center; gap: 8px;
-    font-size: 12px; color: var(--muted); font-weight: 600;
-  }
-  .step .dot {
-    width: 22px; height: 22px; border-radius: 99px; background: var(--line);
-    display: grid; place-items: center; color: var(--ink-soft); font-size: 11px;
-  }
+  .steps { display: flex; gap: 6px; align-items: center; margin: 0 0 14px; }
+  .step { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); font-weight: 600; }
+  .step .dot { width: 20px; height: 20px; border-radius: 99px; background: var(--line); display: grid; place-items: center; color: var(--ink-soft); font-size: 10px; }
   .step.active .dot { background: var(--lavender); color: white; box-shadow: 0 0 0 3px rgba(195,166,212,.25); }
   .step.done .dot { background: var(--ok); color: white; }
-  .step.done { color: var(--ink); }
-  .step.active { color: var(--ink); }
+  .step.done, .step.active { color: var(--ink); }
   .step-line { flex: 1; height: 1px; background: var(--line); }
 
-  /* clarification panel */
+  /* clarification */
   .clarify { background: rgba(212,184,150,.10); border: 1px solid rgba(212,184,150,.30); border-radius: var(--radius); padding: 18px; margin-bottom: 16px; }
   .clarify-h { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
   .clarify-icon { font-size: 18px; }
   .clarify-title { font-weight: 600; }
   .clarify-q { margin-bottom: 16px; }
   .clarify-q-label { font-size: 13px; color: var(--ink); margin-bottom: 8px; font-weight: 500; }
-  .clarify-options { display: flex; flex-wrap: wrap; gap: 6px; }
-  .clarify-opt {
-    border: 1px solid var(--line); background: white;
-    padding: 6px 12px; border-radius: 99px; cursor: pointer;
-    font-size: 12px; color: var(--ink-soft);
-    transition: all 160ms;
-  }
+  .clarify-opt { border: 1px solid var(--line); background: white; padding: 6px 12px; border-radius: 99px; cursor: pointer; font-size: 12px; color: var(--ink-soft); }
   .clarify-opt:hover { border-color: var(--sand); color: var(--ink); }
   .clarify-opt.on { background: rgba(212,184,150,.25); border-color: var(--sand); color: var(--ink); font-weight: 600; }
 
   /* agent log */
   .agent-log { display: flex; flex-direction: column; gap: 8px; }
-  .agent-row {
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 12px;
-    background: white; border: 1px solid var(--line); border-radius: var(--r-sm);
-  }
+  .agent-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: white; border: 1px solid var(--line); border-radius: var(--r-sm); }
   .agent-row.running { border-color: var(--lavender); background: rgba(195,166,212,.06); }
   .agent-row.done { opacity: .85; }
-  .agent-mark {
-    width: 22px; height: 22px; border-radius: 99px;
-    display: grid; place-items: center; font-size: 11px;
-    background: var(--line); color: var(--ink-soft);
-    flex-shrink: 0;
-  }
+  .agent-mark { width: 22px; height: 22px; border-radius: 99px; display: grid; place-items: center; font-size: 11px; background: var(--line); color: var(--ink-soft); flex-shrink: 0; }
   .agent-row.running .agent-mark { background: var(--lavender); color: white; }
   .agent-row.done .agent-mark { background: var(--ok); color: white; }
   .agent-name { font-size: 13px; font-weight: 600; color: var(--ink); flex-shrink: 0; }
   .agent-desc { font-size: 12px; color: var(--ink-soft); flex: 1; }
   .agent-row.running .agent-desc { color: var(--ink); }
   .agent-prog { font-size: 10px; font-family: ui-monospace, "SF Mono", monospace; color: var(--ink-soft); }
-  .spinner {
-    width: 12px; height: 12px; border: 2px solid var(--line-2);
-    border-top-color: var(--lavender); border-radius: 99px;
-    animation: spin 800ms linear infinite;
-  }
+  .spinner { width: 12px; height: 12px; border: 2px solid var(--line-2); border-top-color: var(--lavender); border-radius: 99px; animation: spin 800ms linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* report */
+  /* report blocks */
   .report-h { display: flex; align-items: center; gap: 14px; padding-bottom: 16px; border-bottom: 1px solid var(--line); margin-bottom: 18px; }
   .report-title { font-size: 18px; font-weight: 700; letter-spacing: -.01em; }
   .report-meta { font-size: 11px; color: var(--ink-soft); margin-left: auto; display: flex; gap: 6px; }
   .meta-chip { background: white; border: 1px solid var(--line); padding: 3px 8px; border-radius: 99px; }
-
-  /* report blocks */
   .blk { margin-bottom: 22px; }
   .blk-h { font-size: 12px; font-weight: 700; color: var(--ink); letter-spacing: .04em; text-transform: uppercase; margin-bottom: 10px; }
-
-  /* kpi row */
   .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-  .kpi {
-    background: white;
-    border: 1px solid var(--line);
-    border-radius: var(--r-sm);
-    padding: 14px;
-  }
+  .kpi { background: white; border: 1px solid var(--line); border-radius: var(--r-sm); padding: 14px; }
   .kpi-val { font-size: 20px; font-weight: 700; letter-spacing: -.01em; color: var(--ink); }
   .kpi-label { font-size: 11px; color: var(--ink-soft); margin-top: 2px; }
   .kpi-delta { font-size: 10px; color: var(--ok); margin-top: 4px; }
-
-  /* table */
   .tbl-wrap { border: 1px solid var(--line); border-radius: var(--r-sm); overflow: hidden; background: white; }
   table { width: 100%; border-collapse: collapse; }
   th { font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-soft); padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--line); background: rgba(245,240,247,.5); font-weight: 600; }
@@ -277,119 +182,86 @@
   .pill-a { background: rgba(146,205,192,.25); color: #1d6b58; }
   .pill-b { background: rgba(212,184,150,.25); color: #8a5d20; }
   .pill-c { background: rgba(195,166,212,.25); color: #5a3e72; }
-
-  /* list block */
   .list { display: flex; flex-direction: column; gap: 8px; }
-  .list-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 14px;
-    background: white;
-    border: 1px solid var(--line);
-    border-radius: var(--r-sm);
-  }
-  .list-item .ico-circle {
-    width: 28px; height: 28px; border-radius: 99px;
-    background: rgba(195,166,212,.18); color: var(--ink);
-    display: grid; place-items: center; font-size: 12px; font-weight: 700;
-    flex-shrink: 0;
-  }
-
-  /* citations */
+  .list-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: white; border: 1px solid var(--line); border-radius: var(--r-sm); }
+  .list-item .ico-circle { width: 28px; height: 28px; border-radius: 99px; background: rgba(195,166,212,.18); color: var(--ink); display: grid; place-items: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
   .cite { font-size: 11px; color: var(--ink-soft); padding: 8px 12px; background: rgba(245,240,247,.45); border-radius: var(--r-sm); display: inline-block; margin-right: 6px; margin-bottom: 4px; }
   .cite a { color: var(--ink); text-decoration: none; border-bottom: 1px dotted var(--muted); }
-
-  /* exports */
-  .exports {
-    display: flex; gap: 6px; padding-top: 16px; margin-top: 18px;
-    border-top: 1px solid var(--line); flex-wrap: wrap;
-  }
-  .exp-btn {
-    font-size: 11px; padding: 6px 12px; border-radius: var(--r-sm);
-    background: white; border: 1px solid var(--line);
-    color: var(--ink-soft); cursor: pointer;
-    display: inline-flex; align-items: center; gap: 5px; font-weight: 600;
-  }
+  .exports { display: flex; gap: 6px; padding-top: 16px; margin-top: 18px; border-top: 1px solid var(--line); flex-wrap: wrap; }
+  .exp-btn { font-size: 11px; padding: 6px 12px; border-radius: var(--r-sm); background: white; border: 1px solid var(--line); color: var(--ink-soft); cursor: pointer; display: inline-flex; align-items: center; gap: 5px; font-weight: 600; }
   .exp-btn:hover { border-color: var(--lavender); color: var(--ink); }
-  .exp-btn .file-ico {
-    width: 14px; height: 14px; background: var(--lavender); border-radius: 3px;
-    display: grid; place-items: center; color: white; font-size: 8px; font-weight: 700;
-  }
+  .exp-btn .file-ico { width: 14px; height: 14px; background: var(--lavender); border-radius: 3px; display: grid; place-items: center; color: white; font-size: 8px; font-weight: 700; }
 
-  /* skill builder modal */
-  .modal-backdrop {
-    position: fixed; inset: 0; background: rgba(45,36,58,.35); backdrop-filter: blur(4px);
-    display: none; align-items: center; justify-content: center; z-index: 50;
-  }
+  /* modal */
+  .modal-backdrop { position: fixed; inset: 0; background: rgba(45,36,58,.35); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 50; }
   .modal-backdrop.on { display: flex; }
-  .modal {
-    background: white; border-radius: var(--radius); width: 520px; max-width: 92vw;
-    box-shadow: var(--shadow-lg);
-    padding: 22px;
-  }
+  .modal { background: white; border-radius: var(--radius); width: 560px; max-width: 92vw; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg); padding: 22px; }
   .modal h2 { margin: 0 0 6px; font-size: 16px; }
   .modal p { margin: 0 0 14px; color: var(--ink-soft); font-size: 12px; }
-  .modal .field-label { margin-top: 12px; }
   .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
 
-  /* tiny helper */
-  .row { display: flex; align-items: center; gap: 8px; }
-  .row-2 { display: flex; align-items: center; gap: 12px; }
-  .grow { flex: 1; }
-  .small { font-size: 11px; color: var(--ink-soft); }
-  .pulse-dot { width: 6px; height: 6px; border-radius: 99px; background: var(--ok); animation: pulse 1.6s ease-in-out infinite; }
+  .pulse-dot { width: 6px; height: 6px; border-radius: 99px; background: var(--ok); animation: pulse 1.6s ease-in-out infinite; display: inline-block; vertical-align: middle; margin-right: 4px; }
   @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .4; transform: scale(.85); } }
+  .small { font-size: 11px; color: var(--ink-soft); }
   .hide { display: none !important; }
+
+  /* country flag tile */
+  .country-flag { display: inline-block; width: 14px; text-align: center; }
+
+  /* link button mini */
+  .link-mini { background: transparent; border: none; color: var(--lavender); font-size: 11px; cursor: pointer; padding: 0; font-family: inherit; font-weight: 600; }
+  .link-mini:hover { color: var(--ink); text-decoration: underline; }
+
+  /* connection status dot */
+  .dot-st { width: 6px; height: 6px; border-radius: 99px; display: inline-block; }
+  .dot-st.ok { background: var(--ok); }
+  .dot-st.off { background: var(--muted); }
+  .dot-st.req { background: var(--warn); }
 </style>
 </head>
 <body>
 <div class="app">
 
-  <!-- sidebar -->
   <aside class="sb">
     <div class="brand">
       <div class="brand-mark">P</div>
       <div>
         <div class="brand-name">ProspectSA</div>
-        <div class="brand-live"><span class="pulse-dot" style="display:inline-block;vertical-align:middle;margin-right:4px"></span>LIVE</div>
+        <div class="brand-live"><span class="pulse-dot"></span>LIVE</div>
       </div>
     </div>
-
     <div class="sb-h">Platform</div>
     <div class="sb-item">📊 Dashboard</div>
-    <div class="sb-item active">✨ AI Chat <span class="badge">NEW</span></div>
+    <div class="sb-item active">✨ AI Chat <span class="badge">v2</span></div>
     <div class="sb-item">🎯 Leads</div>
-    <div class="sb-item">⚡ Lead Factory <span class="badge">7-Agent</span></div>
-
+    <div class="sb-item">⚡ Lead Factory</div>
     <div class="sb-h">Intelligence</div>
     <div class="sb-item">🧠 ProsEngine</div>
     <div class="sb-item">🏛️ Masaar</div>
     <div class="sb-item">🌐 OrcEngine</div>
     <div class="sb-item">📚 Data Seeder</div>
-
     <div class="sb-h">Market Data</div>
     <div class="sb-item">📈 MeshBase</div>
     <div class="sb-item">💹 SA Market</div>
   </aside>
 
-  <!-- main -->
   <main class="main">
     <h1>AI Research Composer</h1>
-    <p class="h-sub">Pick a template, choose sources, toggle the AI enhancer — get a structured research report you can export anywhere.</p>
+    <p class="h-sub">Pick or build a template · choose multiple modes · select sources, country, connectors, skills · type freely OR use filters · get a structured exportable report.</p>
 
-    <!-- progress steps -->
     <div class="steps" id="steps">
-      <div class="step active" data-step="1"><div class="dot">1</div>Compose</div>
+      <div class="step active"><div class="dot">1</div>Compose</div>
       <div class="step-line"></div>
-      <div class="step" data-step="2"><div class="dot">2</div>Enhance</div>
+      <div class="step"><div class="dot">2</div>Enhance</div>
       <div class="step-line"></div>
-      <div class="step" data-step="3"><div class="dot">3</div>Clarify</div>
+      <div class="step"><div class="dot">3</div>Clarify</div>
       <div class="step-line"></div>
-      <div class="step" data-step="4"><div class="dot">4</div>Run</div>
+      <div class="step"><div class="dot">4</div>Run</div>
       <div class="step-line"></div>
-      <div class="step" data-step="5"><div class="dot">5</div>Report</div>
+      <div class="step"><div class="dot">5</div>Report</div>
     </div>
 
-    <!-- STEP 1: COMPOSER -->
+    <!-- ─────── STEP 1 ─────── -->
     <section id="view-compose">
       <div class="card">
         <div class="card-h">
@@ -398,124 +270,386 @@
         </div>
         <div class="card-body">
 
-          <div class="composer-grid">
-            <!-- Template -->
-            <div>
-              <div class="field-label">📑 Template</div>
-              <select class="select" id="sel-template">
-                <option value="">— Start blank —</option>
-                <option value="t1" selected>Saudi fintech founders raised in 2024</option>
-                <option value="t2">Tadawul board comparison</option>
-                <option value="t3">Family-office contact map</option>
-                <option value="t4">Sector-trend digest</option>
-                <option value="t5">CR Lookup deep dossier</option>
-              </select>
+          <!-- 1. TEMPLATES (customizable cards) -->
+          <div class="field-label">
+            📑 Templates <span class="field-hint">— click to apply · auto-fills mode + sources + filters</span>
+            <button class="field-edit" onclick="openModal('tpl')">+ Create / Edit Template</button>
+          </div>
+          <div class="tpl-row" id="tpl-row">
+            <div class="tpl on" data-tpl="t1">
+              <div class="tpl-title">Saudi fintech CTOs · 2024 funded</div>
+              <div class="tpl-meta">Lead Gen · KSA · Fintech · 2024</div>
             </div>
+            <div class="tpl" data-tpl="t2">
+              <div class="tpl-title">Tadawul board comparison</div>
+              <div class="tpl-meta">Compare · KSA · Listed cos</div>
+            </div>
+            <div class="tpl" data-tpl="t3">
+              <div class="tpl-title">Family-office contact map</div>
+              <div class="tpl-meta">Research + Lead Gen · GCC</div>
+            </div>
+            <div class="tpl" data-tpl="t4">
+              <div class="tpl-title">Sector-trend digest</div>
+              <div class="tpl-meta">Research · monthly · all sectors</div>
+            </div>
+            <div class="tpl" data-tpl="t5">
+              <div class="tpl-title">CR Lookup deep dossier</div>
+              <div class="tpl-meta">Deep Dive · KSA · single co</div>
+            </div>
+            <div class="tpl" data-tpl="t6">
+              <div class="tpl-title">M&amp;A candidates screen</div>
+              <div class="tpl-meta">Extract + Compare · GCC</div>
+            </div>
+            <div class="tpl" data-tpl="t7">
+              <div class="tpl-title">VC-backed founders map</div>
+              <div class="tpl-meta">Lead Gen · MENA · 2023-25</div>
+            </div>
+            <div class="tpl tpl-add" onclick="openModal('tpl')">+ New</div>
+          </div>
 
-            <!-- Mode -->
-            <div>
-              <div class="field-label">⚙️ Mode</div>
-              <select class="select" id="sel-mode">
-                <option value="research">🔍 Research — open-ended exploration</option>
-                <option value="extract">📋 Extract — structured table only</option>
-                <option value="compare">⚖️ Compare — matrix output</option>
-                <option value="leadgen" selected>🎯 Lead Gen — find people + companies</option>
-                <option value="deepdive">🔬 Deep Dive — exhaustive multi-source</option>
-                <option value="custom">🛠️ Custom — bring your own schema</option>
-              </select>
+          <!-- 2. MODES (multi-select) -->
+          <div style="margin-top:18px">
+            <div class="field-label">
+              ⚙️ Modes <span class="field-hint">— pick one or many · changes which filters &amp; tools appear</span>
+            </div>
+            <div class="chips mode-chips" id="mode-chips">
+              <span class="chip" data-mode="research">🔍 Research</span>
+              <span class="chip" data-mode="extract">📋 Extract</span>
+              <span class="chip" data-mode="compare">⚖️ Compare</span>
+              <span class="chip on" data-mode="leadgen">🎯 Lead Gen</span>
+              <span class="chip" data-mode="deepdive">🔬 Deep Dive</span>
+              <span class="chip" data-mode="signal">📡 Signal Watch</span>
+              <span class="chip" data-mode="enrich">🧪 Enrich</span>
+              <span class="chip" data-mode="custom">🛠️ Custom</span>
             </div>
           </div>
 
-          <!-- Sources -->
-          <div style="margin-top:14px">
-            <div class="field-label">🌍 Sources <span style="color:var(--muted);font-weight:400">— pick from 80 built-in or add your own</span></div>
-            <div class="chips" id="src-chips">
-              <span class="chip on" data-src="tadawul">Tadawul</span>
-              <span class="chip on" data-src="argaam">Argaam</span>
-              <span class="chip" data-src="maal">Maal</span>
-              <span class="chip on" data-src="mubasher">Mubasher</span>
-              <span class="chip" data-src="meed">MEED</span>
-              <span class="chip" data-src="aleqt">Al-Eqtisadiah</span>
-              <span class="chip" data-src="arabnews">Arab News</span>
-              <span class="chip on" data-src="gleif">GLEIF</span>
-              <span class="chip" data-src="opencorp">OpenCorporates</span>
-              <span class="chip" data-src="wikidata">Wikidata</span>
-              <span class="chip" data-src="linkedin">LinkedIn (public)</span>
-              <span class="chip" data-src="cr">Saudi CR registry</span>
-              <span class="chip chip-add" id="src-add">+ Add custom URL</span>
+          <!-- 3. COUNTRY (multi-select) -->
+          <div style="margin-top:18px">
+            <div class="field-label">
+              🌍 Country / Region <span class="field-hint">— scope of search</span>
+            </div>
+            <div class="chips" id="country-chips">
+              <span class="chip on" data-c="sa">🇸🇦 Saudi Arabia</span>
+              <span class="chip" data-c="ae">🇦🇪 UAE</span>
+              <span class="chip" data-c="kw">🇰🇼 Kuwait</span>
+              <span class="chip" data-c="qa">🇶🇦 Qatar</span>
+              <span class="chip" data-c="bh">🇧🇭 Bahrain</span>
+              <span class="chip" data-c="om">🇴🇲 Oman</span>
+              <span class="chip" data-c="eg">🇪🇬 Egypt</span>
+              <span class="chip" data-c="jo">🇯🇴 Jordan</span>
+              <span class="chip" data-c="iq">🇮🇶 Iraq</span>
+              <span class="chip" data-c="ye">🇾🇪 Yemen</span>
+              <span class="chip" data-c="lb">🇱🇧 Lebanon</span>
+              <span class="chip" data-c="tr">🇹🇷 Türkiye</span>
+              <span class="chip" data-c="gcc">🌐 GCC (all)</span>
+              <span class="chip" data-c="mena">🌐 MENA (all)</span>
+              <span class="chip" data-c="global">🌐 Global</span>
             </div>
           </div>
 
-          <!-- Connectors -->
-          <div style="margin-top:14px">
-            <div class="field-label">🔌 Connectors <span style="color:var(--muted);font-weight:400">— MCP servers + Claude connectors</span></div>
-            <div class="chips" id="conn-chips">
-              <span class="chip on" data-conn="tavily">🟢 Tavily <span style="color:var(--ok);font-size:9px;margin-left:3px">connected</span></span>
-              <span class="chip on" data-conn="playwright">🟢 Playwright <span style="color:var(--ok);font-size:9px;margin-left:3px">connected</span></span>
-              <span class="chip" data-conn="omnisearch">🟢 OmniSearch</span>
-              <span class="chip" data-conn="serena">🟢 Serena</span>
-              <span class="chip" data-conn="chromedt">🟢 Chrome DevTools</span>
-              <span class="chip" data-conn="hf">🟢 HuggingFace</span>
-              <span class="chip" data-conn="github" style="opacity:.6">⚪ GitHub <span style="font-size:9px;margin-left:3px;color:var(--muted)">requires auth</span></span>
-              <span class="chip" data-conn="slack" style="opacity:.6">⚪ Slack</span>
-              <span class="chip" data-conn="drive" style="opacity:.6">⚪ Drive</span>
+          <!-- 4. SOURCES (full 80-source registry) -->
+          <div style="margin-top:18px">
+            <div class="field-label">
+              📚 Sources <span class="field-hint">— 80+ built-in, grouped · plus your own URLs</span>
+              <button class="field-edit" onclick="openModal('src')">+ Add custom</button>
+            </div>
+
+            <div class="small" style="margin-top:2px;margin-bottom:6px">Saudi market &amp; registries</div>
+            <div class="chips">
+              <span class="chip on">Tadawul</span>
+              <span class="chip on">CMA</span>
+              <span class="chip">Edaa (depositary)</span>
+              <span class="chip on">MCI / CR Registry</span>
+              <span class="chip">Monsha'at</span>
+              <span class="chip">SDAIA Open Data</span>
+              <span class="chip">GASTAT</span>
+              <span class="chip">SAMA</span>
+              <span class="chip">ZATCA</span>
+              <span class="chip">MISA</span>
+              <span class="chip on">Masar (CR)</span>
+            </div>
+
+            <div class="small" style="margin-top:10px;margin-bottom:6px">Arabic financial press</div>
+            <div class="chips">
+              <span class="chip on">Argaam</span>
+              <span class="chip on">Mubasher</span>
+              <span class="chip on">Maal</span>
+              <span class="chip">Al-Eqtisadiah</span>
+              <span class="chip">Asharq Business</span>
+              <span class="chip">Al-Iqtisadi</span>
+              <span class="chip">Aleqt.com</span>
+              <span class="chip">Saudi Gazette</span>
+              <span class="chip">Arab News</span>
+              <span class="chip">SPA (Saudi Press)</span>
+            </div>
+
+            <div class="small" style="margin-top:10px;margin-bottom:6px">Regional &amp; English biz press</div>
+            <div class="chips">
+              <span class="chip">MEED</span>
+              <span class="chip">Wamda</span>
+              <span class="chip">MAGNiTT</span>
+              <span class="chip">Crunchbase MENA</span>
+              <span class="chip">Bloomberg ME</span>
+              <span class="chip">Reuters ME</span>
+              <span class="chip">FT MidEast</span>
+              <span class="chip">Zawya</span>
+              <span class="chip">The National (UAE)</span>
+              <span class="chip">Khaleej Times</span>
+              <span class="chip">Gulf Business</span>
+              <span class="chip">Gulf News</span>
+              <span class="chip">AGBI</span>
+              <span class="chip">StartupScene ME</span>
+            </div>
+
+            <div class="small" style="margin-top:10px;margin-bottom:6px">Global open-data &amp; legal</div>
+            <div class="chips">
+              <span class="chip on">GLEIF</span>
+              <span class="chip">OpenCorporates</span>
+              <span class="chip">Wikidata</span>
+              <span class="chip">OpenSanctions</span>
+              <span class="chip">OFAC SDN</span>
+              <span class="chip">UN Consolidated</span>
+              <span class="chip">EU Sanctions</span>
+              <span class="chip">EDGAR (SEC)</span>
+              <span class="chip">UK Companies House</span>
+              <span class="chip">PEP database</span>
+              <span class="chip">ICIJ Offshore Leaks</span>
+            </div>
+
+            <div class="small" style="margin-top:10px;margin-bottom:6px">Sector / Real-estate / Construction</div>
+            <div class="chips">
+              <span class="chip">REGA</span>
+              <span class="chip">Sakani</span>
+              <span class="chip">Wafi Realty</span>
+              <span class="chip">CIB Saudi</span>
+              <span class="chip">Bayut</span>
+              <span class="chip">Property Finder</span>
+              <span class="chip">MEED Projects</span>
+              <span class="chip">ZAWYA Projects</span>
+              <span class="chip">NEOM Updates</span>
+              <span class="chip">PIF Portfolio</span>
+            </div>
+
+            <div class="small" style="margin-top:10px;margin-bottom:6px">Social &amp; live web</div>
+            <div class="chips">
+              <span class="chip">LinkedIn public</span>
+              <span class="chip">X / Twitter</span>
+              <span class="chip">Reddit r/saudiarabia</span>
+              <span class="chip">YouTube (transcripts)</span>
+              <span class="chip">Telegram channels</span>
+              <span class="chip">Web (Tavily)</span>
+              <span class="chip">Web (Perplexity)</span>
+              <span class="chip">Google News RSS</span>
+              <span class="chip">Maal RSS</span>
+              <span class="chip">Mubasher RSS</span>
             </div>
           </div>
 
-          <!-- Skills -->
-          <div style="margin-top:14px">
-            <div class="field-label">🧬 Skills <span style="color:var(--muted);font-weight:400">— bundled prompt + tools + report schema</span></div>
-            <div class="chips" id="skill-chips">
-              <span class="chip on" data-skill="lead-hunter">🎯 Saudi Lead Hunter</span>
-              <span class="chip" data-skill="tadawul">📊 Tadawul Analyst</span>
-              <span class="chip" data-skill="realestate">🏢 GCC Real-Estate</span>
-              <span class="chip" data-skill="bank">🏦 Bank Sector Compare</span>
-              <span class="chip" data-skill="signal">📡 Signal Hunter</span>
-              <span class="chip chip-add" id="skill-add">+ Create / Edit Skill</span>
+          <!-- 5. CONNECTORS expanded -->
+          <div style="margin-top:18px">
+            <div class="field-label">
+              🔌 Connectors <span class="field-hint">— MCP servers, Claude connectors, business apps</span>
+              <button class="field-edit" onclick="openModal('conn')">+ Add Connector</button>
+            </div>
+
+            <div class="small" style="margin-top:2px;margin-bottom:6px">Scraping / Browsing</div>
+            <div class="chips">
+              <span class="chip on"><span class="dot-st ok"></span>Tavily</span>
+              <span class="chip on"><span class="dot-st ok"></span>Playwright</span>
+              <span class="chip"><span class="dot-st ok"></span>Chrome DevTools</span>
+              <span class="chip"><span class="dot-st ok"></span>Crawl4AI</span>
+              <span class="chip"><span class="dot-st ok"></span>BeautifulSoup</span>
+              <span class="chip"><span class="dot-st ok"></span>Cheerio</span>
+              <span class="chip"><span class="dot-st ok"></span>OmniSearch</span>
+              <span class="chip"><span class="dot-st ok"></span>Serena</span>
+              <span class="chip"><span class="dot-st ok"></span>HuggingFace</span>
+            </div>
+
+            <div class="small" style="margin-top:10px;margin-bottom:6px">Productivity &amp; collab</div>
+            <div class="chips">
+              <span class="chip"><span class="dot-st req"></span>GitHub <span class="small">(auth)</span></span>
+              <span class="chip"><span class="dot-st req"></span>Slack</span>
+              <span class="chip"><span class="dot-st req"></span>Notion</span>
+              <span class="chip"><span class="dot-st req"></span>Linear</span>
+              <span class="chip"><span class="dot-st req"></span>Jira</span>
+              <span class="chip"><span class="dot-st req"></span>Asana</span>
+              <span class="chip"><span class="dot-st req"></span>Trello</span>
+              <span class="chip"><span class="dot-st req"></span>ClickUp</span>
+            </div>
+
+            <div class="small" style="margin-top:10px;margin-bottom:6px">Files &amp; data stores</div>
+            <div class="chips">
+              <span class="chip"><span class="dot-st req"></span>Google Drive</span>
+              <span class="chip"><span class="dot-st req"></span>Google Sheets</span>
+              <span class="chip"><span class="dot-st req"></span>OneDrive</span>
+              <span class="chip"><span class="dot-st req"></span>Office365</span>
+              <span class="chip"><span class="dot-st req"></span>Dropbox</span>
+              <span class="chip"><span class="dot-st req"></span>S3 / R2</span>
+              <span class="chip"><span class="dot-st req"></span>Airtable</span>
+              <span class="chip"><span class="dot-st req"></span>Supabase</span>
+            </div>
+
+            <div class="small" style="margin-top:10px;margin-bottom:6px">CRM &amp; sales</div>
+            <div class="chips">
+              <span class="chip"><span class="dot-st req"></span>HubSpot</span>
+              <span class="chip"><span class="dot-st req"></span>Salesforce</span>
+              <span class="chip"><span class="dot-st req"></span>Pipedrive</span>
+              <span class="chip"><span class="dot-st req"></span>Zoho CRM</span>
+              <span class="chip"><span class="dot-st req"></span>Apollo.io</span>
+              <span class="chip"><span class="dot-st req"></span>Explorium</span>
+            </div>
+
+            <div class="small" style="margin-top:10px;margin-bottom:6px">Messaging</div>
+            <div class="chips">
+              <span class="chip"><span class="dot-st req"></span>WhatsApp Cloud</span>
+              <span class="chip"><span class="dot-st req"></span>Telegram</span>
+              <span class="chip"><span class="dot-st req"></span>Discord</span>
+              <span class="chip"><span class="dot-st req"></span>Email (SMTP)</span>
+              <span class="chip"><span class="dot-st req"></span>SendGrid</span>
+              <span class="chip"><span class="dot-st req"></span>Resend</span>
             </div>
           </div>
 
-          <!-- Free text -->
-          <div style="margin-top:14px">
-            <div class="field-label">💬 Your Question</div>
-            <textarea class="input" id="free-text" placeholder="Describe what you want...">Find me 5 Saudi fintech CTOs whose company raised funding in 2024 and is hiring engineers in Riyadh.</textarea>
+          <!-- 6. SKILLS expanded -->
+          <div style="margin-top:18px">
+            <div class="field-label">
+              🧬 Skills <span class="field-hint">— bundled prompt + tools + report schema · build your own</span>
+              <button class="field-edit" onclick="openModal('skill')">+ Create / Edit Skill</button>
+            </div>
+            <div class="chips">
+              <span class="chip on">🎯 Saudi Lead Hunter</span>
+              <span class="chip">📊 Tadawul Analyst</span>
+              <span class="chip">🏢 GCC Real-Estate</span>
+              <span class="chip">🏦 Bank Sector Compare</span>
+              <span class="chip">📡 Signal Hunter</span>
+              <span class="chip">🛢️ Energy Procurement</span>
+              <span class="chip">🏗️ Construction Tender Scout</span>
+              <span class="chip">💊 Healthcare Vendor Map</span>
+              <span class="chip">🎓 EdTech Prospects</span>
+              <span class="chip">🛒 Retail Buyer Finder</span>
+              <span class="chip">🤝 M&amp;A Target Screener</span>
+              <span class="chip">⚖️ Compliance / PEP Check</span>
+              <span class="chip">📨 Outreach Writer (Ar/En)</span>
+              <span class="chip">🔬 Company Dossier</span>
+              <span class="chip">💰 Funding Round Watch</span>
+              <span class="chip">🏛️ Government Vendor</span>
+            </div>
+          </div>
+
+          <!-- 7. QUESTION: write OR filter dropdowns -->
+          <div style="margin-top:18px">
+            <div class="field-label">
+              💬 Your Question
+              <span class="field-hint">— choose mode of input</span>
+              <div class="seg" style="margin-left:auto" id="input-seg">
+                <button class="on" data-seg="write">✍️ Write freely</button>
+                <button data-seg="filter">🎛️ Use filters</button>
+                <button data-seg="both">⚡ Both</button>
+              </div>
+            </div>
+
+            <!-- Free-text input -->
+            <div id="write-block">
+              <textarea class="input" id="free-text" placeholder="Describe what you want — natural language. The AI will combine this with the filters above to produce a structured prompt.">Find me Saudi fintech CTOs whose company raised funding in 2024 and is hiring engineers in Riyadh.</textarea>
+            </div>
+
+            <!-- Filter dropdowns -->
+            <div id="filter-block" class="filter-grid hide">
+              <div class="filter-cell">
+                <div class="field-label">Industry</div>
+                <select class="select"><option>Fintech</option><option>Banking</option><option>Construction</option><option>Energy</option><option>Healthcare</option><option>Retail / E-commerce</option><option>Real Estate</option><option>EdTech</option><option>Logistics</option><option>Manufacturing</option><option>Hospitality</option><option>Government</option></select>
+              </div>
+              <div class="filter-cell">
+                <div class="field-label">Sub-Industry</div>
+                <select class="select"><option>Any</option><option>Payments / BNPL</option><option>Open Banking</option><option>Lending</option><option>Wealthtech</option><option>Insurtech</option><option>Crypto / Digital Assets</option></select>
+              </div>
+              <div class="filter-cell">
+                <div class="field-label">Role / Title</div>
+                <select class="select"><option>CTO</option><option>CEO / Founder</option><option>CFO</option><option>COO</option><option>VP Engineering</option><option>Head of Sales</option><option>Head of Marketing</option><option>Procurement Director</option><option>Board Member</option><option>Owner</option></select>
+              </div>
+              <div class="filter-cell">
+                <div class="field-label">Seniority</div>
+                <select class="select"><option>C-Suite</option><option>VP</option><option>Director</option><option>Manager</option><option>Senior IC</option></select>
+              </div>
+              <div class="filter-cell">
+                <div class="field-label">Department</div>
+                <select class="select"><option>Engineering / Product</option><option>Sales / BD</option><option>Marketing</option><option>Finance</option><option>Operations</option><option>HR</option><option>Legal / Compliance</option></select>
+              </div>
+              <div class="filter-cell">
+                <div class="field-label">Employee Band</div>
+                <select class="select"><option>1-10</option><option>11-50</option><option>51-200</option><option selected>201-500</option><option>501-1000</option><option>1001-5000</option><option>5001+</option></select>
+              </div>
+              <div class="filter-cell">
+                <div class="field-label">Revenue Band</div>
+                <select class="select"><option>&lt; SAR 1M</option><option>SAR 1-10M</option><option>SAR 10-50M</option><option>SAR 50-250M</option><option>SAR 250M-1B</option><option>SAR 1B+</option></select>
+              </div>
+              <div class="filter-cell">
+                <div class="field-label">Funding Stage</div>
+                <select class="select"><option>Pre-seed / Seed</option><option selected>Series A</option><option>Series B</option><option>Series C+</option><option>PE / Growth</option><option>Bootstrapped</option><option>Listed</option></select>
+              </div>
+              <div class="filter-cell">
+                <div class="field-label">Funding Year</div>
+                <select class="select"><option>2025</option><option selected>2024</option><option>2023</option><option>2022</option><option>Last 12 months</option><option>Last 24 months</option></select>
+              </div>
+              <div class="filter-cell">
+                <div class="field-label">Tadawul Listed</div>
+                <select class="select"><option>Any</option><option>Yes — main market</option><option>Yes — Nomu</option><option>Private only</option></select>
+              </div>
+              <div class="filter-cell">
+                <div class="field-label">City</div>
+                <select class="select"><option selected>Riyadh</option><option>Jeddah</option><option>Dammam / Eastern</option><option>Mecca / Medina</option><option>Any KSA</option><option>Dubai</option><option>Abu Dhabi</option><option>Doha</option></select>
+              </div>
+              <div class="filter-cell">
+                <div class="field-label">Result count</div>
+                <select class="select"><option>3</option><option selected>5</option><option>10</option><option>25</option><option>50</option><option>100</option></select>
+              </div>
+            </div>
           </div>
 
           <!-- Enhance toggle -->
           <div class="toggle-row">
             <div class="toggle on" id="enhance-tgl"></div>
             <div class="toggle-label">AI Generative Prompt Enhancer</div>
-            <div class="toggle-hint">When ON, AI rewrites your query into a structured task — and asks clarifying questions if needed.</div>
+            <div class="toggle-hint">Combines your text + filters + sources + modes into one structured task — and asks clarifying questions if anything's missing.</div>
           </div>
 
-          <!-- Run -->
+          <!-- Linkage warning panel -->
+          <div class="toggle-row" style="background:rgba(195,166,212,.10); border-color: rgba(195,166,212,.30); margin-top:8px">
+            <span style="font-size:16px">🔗</span>
+            <div>
+              <div class="toggle-label">Template ↔ Mode ↔ Question are linked</div>
+              <div class="toggle-hint" style="margin-left:0; margin-top:2px">Picking a template auto-fills mode + filters. Mode controls which filters show. AI Enhancer verifies coherence and asks you if anything contradicts.</div>
+            </div>
+          </div>
+
           <div class="run-row">
             <div class="run-summary">
               <strong style="color:var(--ink)">Loadout:</strong>
-              <span id="summary-text">Lead Gen mode · 4 sources · 2 connectors · Saudi Lead Hunter skill · Enhance ON</span>
+              <span id="summary-text">Lead Gen mode · 🇸🇦 KSA · 7 sources · 2 connectors · Saudi Lead Hunter · Write mode · Enhance ON</span>
             </div>
             <button class="btn btn-ghost" onclick="resetAll()">Reset</button>
-            <button class="btn btn-primary" id="run-btn" onclick="kickoff()">Compose &amp; Run ⏵</button>
+            <button class="btn btn-primary" onclick="kickoff()">Compose &amp; Run ⏵</button>
           </div>
 
         </div>
       </div>
     </section>
 
-    <!-- STEP 2 + 3: ENHANCE + CLARIFY -->
-    <section id="view-clarify" class="hide" style="margin-top:18px">
+    <!-- ─────── STEPS 2+3 ─────── -->
+    <section id="view-clarify" class="hide" style="margin-top:14px">
       <div class="card">
         <div class="card-h">
-          <span class="card-title">Enhanced Prompt</span>
-          <span class="small" style="margin-left:auto">Step 2 of 5</span>
+          <span class="card-title">🤖 Enhanced Prompt</span>
+          <span class="small" style="margin-left:auto">Step 2 of 5 — AI combined your text + filters + sources + modes</span>
         </div>
         <div class="card-body" style="font-size:13px; line-height:1.6">
-          <div class="small" style="margin-bottom:6px">🤖 Enhancer rewrote your query for the agent:</div>
-          <div style="background:rgba(245,240,247,.6); padding:14px; border-radius:10px; border:1px solid var(--line); font-family:ui-monospace, monospace; font-size:12px; color:var(--ink);">
-            <strong>TASK:</strong> Identify Saudi-Arabia-based fintech companies that closed a funding round between 2024-01-01 and 2024-12-31, AND are currently hiring software engineering roles in Riyadh. For each company, locate the active CTO (or equivalent technical leader). Output: 5 leads, ranked by funding-round size descending.<br/><br/>
-            <strong>REQUIRED FIELDS:</strong> companyName, ctoName, ctoTitle, ctoLinkedin, fundingRoundUSD, fundingDate, openTechRoleCount, signal_strength<br/><br/>
-            <strong>SOURCES:</strong> Tadawul, Argaam, Mubasher, GLEIF + live web (Perplexity)<br/><br/>
-            <strong>SCHEMA:</strong> LeadList (5 rows)
+          <div style="background:rgba(245,240,247,.6); padding:14px; border-radius:10px; border:1px solid var(--line); font-family:ui-monospace, monospace; font-size:12px;">
+            <strong>OBJECTIVE</strong> — Identify 5 Saudi-Arabia-based fintech companies that closed Series A or later in 2024, AND are hiring software engineers in Riyadh today. For each, locate the active CTO or senior tech lead.<br/><br/>
+            <strong>FILTERS APPLIED</strong> — industry=Fintech · country=KSA · funding_stage=Series A+ · funding_year=2024 · role=CTO · city=Riyadh · result_count=5<br/><br/>
+            <strong>SOURCES</strong> — Tadawul · Argaam · Mubasher · Maal · GLEIF · Masar CR · Web (Tavily)<br/><br/>
+            <strong>MODES ACTIVE</strong> — Lead Gen (primary) + light Enrich pass<br/><br/>
+            <strong>SCHEMA</strong> — LeadList (table) + Outreach Suggestions (list) + Citations
           </div>
         </div>
       </div>
@@ -523,24 +657,34 @@
       <div class="clarify" style="margin-top:14px">
         <div class="clarify-h">
           <span class="clarify-icon">💡</span>
-          <span class="clarify-title">2 quick clarifications</span>
-          <span class="small" style="margin-left:auto">Step 3 of 5 — your answers refine the enhanced prompt</span>
+          <span class="clarify-title">3 quick clarifications</span>
+          <span class="small" style="margin-left:auto">Step 3 of 5</span>
         </div>
 
         <div class="clarify-q">
-          <div class="clarify-q-label">What size of funding round counts? <span class="small">(narrows results)</span></div>
-          <div class="clarify-options" data-clarify="q1">
-            <div class="clarify-opt">Pre-seed / Seed</div>
-            <div class="clarify-opt on">Series A or later ($2M+)</div>
-            <div class="clarify-opt">Any size</div>
+          <div class="clarify-q-label">Should we include "Head of Engineering" / "VP Eng" as CTO equivalents?</div>
+          <div class="chips" data-clarify="q1">
+            <span class="clarify-opt on">Yes — any senior tech leader</span>
+            <span class="clarify-opt">No — only formal CTO title</span>
           </div>
         </div>
 
         <div class="clarify-q">
-          <div class="clarify-q-label">Should we include "Head of Engineering" or "VP Eng" as CTO equivalents?</div>
-          <div class="clarify-options" data-clarify="q2">
-            <div class="clarify-opt on">Yes — any senior tech leader</div>
-            <div class="clarify-opt">No — only formal CTO title</div>
+          <div class="clarify-q-label">Funding round size — minimum?</div>
+          <div class="chips" data-clarify="q2">
+            <span class="clarify-opt">Any</span>
+            <span class="clarify-opt on">$2M+</span>
+            <span class="clarify-opt">$10M+</span>
+            <span class="clarify-opt">$50M+</span>
+          </div>
+        </div>
+
+        <div class="clarify-q">
+          <div class="clarify-q-label">Output language for the report?</div>
+          <div class="chips" data-clarify="q3">
+            <span class="clarify-opt on">English</span>
+            <span class="clarify-opt">Arabic</span>
+            <span class="clarify-opt">Bilingual side-by-side</span>
           </div>
         </div>
 
@@ -551,145 +695,71 @@
       </div>
     </section>
 
-    <!-- STEP 4: AGENT EXECUTION -->
-    <section id="view-run" class="hide" style="margin-top:18px">
+    <!-- ─────── STEP 4 ─────── -->
+    <section id="view-run" class="hide" style="margin-top:14px">
       <div class="card">
         <div class="card-h">
           <span class="card-title">Agents Working</span>
-          <span class="small" style="margin-left:auto"><span class="pulse-dot" style="display:inline-block;vertical-align:middle;margin-right:4px"></span>Step 4 of 5 · streaming</span>
+          <span class="small" style="margin-left:auto"><span class="pulse-dot"></span>Step 4 of 5</span>
         </div>
         <div class="card-body">
           <div class="agent-log" id="agent-log"></div>
-          <div class="small" style="margin-top:14px; text-align:center; color:var(--muted)">⏱ Estimated 30-60 seconds. Don't worry — works in the background even if you switch tabs.</div>
+          <div class="small" style="margin-top:14px; text-align:center; color:var(--muted)">⏱ ~30-60s. Runs in background — you can switch tabs.</div>
         </div>
       </div>
     </section>
 
-    <!-- STEP 5: REPORT -->
-    <section id="view-report" class="hide" style="margin-top:18px">
+    <!-- ─────── STEP 5 ─────── -->
+    <section id="view-report" class="hide" style="margin-top:14px">
       <div class="card">
         <div class="card-body">
           <div class="report-h">
             <div>
-              <div class="report-title">Saudi Fintech CTOs — 5 Leads Found</div>
-              <div class="small">Generated · just now · 6 sources cited · structured report</div>
+              <div class="report-title">Saudi Fintech CTOs — 5 Leads</div>
+              <div class="small">Generated just now · 6 sources · structured report</div>
             </div>
             <div class="report-meta">
-              <span class="meta-chip">Lead Gen mode</span>
+              <span class="meta-chip">Lead Gen + Enrich</span>
+              <span class="meta-chip">🇸🇦 KSA</span>
               <span class="meta-chip">Saudi Lead Hunter skill</span>
             </div>
           </div>
 
-          <!-- KPI -->
           <div class="blk">
             <div class="blk-h">Highlights</div>
             <div class="kpi-row">
-              <div class="kpi">
-                <div class="kpi-val">5</div>
-                <div class="kpi-label">Leads found</div>
-                <div class="kpi-delta">↑ all passed validation</div>
-              </div>
-              <div class="kpi">
-                <div class="kpi-val">$87M</div>
-                <div class="kpi-label">Total funding</div>
-                <div class="kpi-delta">2024 rounds</div>
-              </div>
-              <div class="kpi">
-                <div class="kpi-val">A+</div>
-                <div class="kpi-label">Avg quality tier</div>
-                <div class="kpi-delta">3 verified · 2 unverified</div>
-              </div>
-              <div class="kpi">
-                <div class="kpi-val">28</div>
-                <div class="kpi-label">Open tech roles</div>
-                <div class="kpi-delta">across all 5</div>
-              </div>
+              <div class="kpi"><div class="kpi-val">5</div><div class="kpi-label">Leads</div><div class="kpi-delta">all passed validation</div></div>
+              <div class="kpi"><div class="kpi-val">$87M</div><div class="kpi-label">Total 2024 funding</div><div class="kpi-delta">↑ vs 2023</div></div>
+              <div class="kpi"><div class="kpi-val">A+</div><div class="kpi-label">Avg quality</div><div class="kpi-delta">3 verified · 2 unverified</div></div>
+              <div class="kpi"><div class="kpi-val">28</div><div class="kpi-label">Open tech roles</div><div class="kpi-delta">across all 5</div></div>
             </div>
           </div>
 
-          <!-- table -->
           <div class="blk">
             <div class="blk-h">Lead Table</div>
             <div class="tbl-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Company</th>
-                    <th>CTO / Tech Lead</th>
-                    <th>Funding</th>
-                    <th>Open Roles</th>
-                    <th>Tier</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td><strong>Tabby</strong><br/><span class="small">Riyadh · BNPL</span></td>
-                    <td>Mohammed AlQasem<br/><span class="small">CTO · in/mohammed-alqasem</span></td>
-                    <td><strong>$50M</strong><br/><span class="small">Series D · Jan 2024</span></td>
-                    <td>9 roles</td>
-                    <td><span class="pill pill-a">A+</span></td>
-                  </tr>
-                  <tr>
-                    <td><strong>Lean Technologies</strong><br/><span class="small">Riyadh · Open Finance</span></td>
-                    <td>Hisham Al-Falih<br/><span class="small">Co-founder · CTO</span></td>
-                    <td><strong>$28M</strong><br/><span class="small">Series A · May 2024</span></td>
-                    <td>7 roles</td>
-                    <td><span class="pill pill-a">A+</span></td>
-                  </tr>
-                  <tr>
-                    <td><strong>Hala</strong><br/><span class="small">Riyadh · SMB payments</span></td>
-                    <td>Esam Alkheshnam<br/><span class="small">Head of Engineering</span></td>
-                    <td><strong>$8M</strong><br/><span class="small">Pre-Series A · Aug 2024</span></td>
-                    <td>5 roles</td>
-                    <td><span class="pill pill-b">A</span></td>
-                  </tr>
-                  <tr>
-                    <td><strong>Lendo</strong><br/><span class="small">Riyadh · SME lending</span></td>
-                    <td>Mohammed Jawabri<br/><span class="small">CTO</span></td>
-                    <td><strong>$28M</strong><br/><span class="small">Series B · Mar 2024</span></td>
-                    <td>4 roles</td>
-                    <td><span class="pill pill-a">A+</span></td>
-                  </tr>
-                  <tr>
-                    <td><strong>NymCard (partial)</strong><br/><span class="small">Riyadh+Dubai</span></td>
-                    <td>Reuben Joseph<br/><span class="small">VP Eng (CTO eq.)</span></td>
-                    <td><strong>$22M</strong><br/><span class="small">Series A ext · Sep 2024</span></td>
-                    <td>3 roles</td>
-                    <td><span class="pill pill-c">B</span></td>
-                  </tr>
-                </tbody>
-              </table>
+              <table><thead><tr><th>Company</th><th>CTO / Tech Lead</th><th>Funding</th><th>Open Roles</th><th>Tier</th></tr></thead>
+              <tbody>
+                <tr><td><strong>Tabby</strong><br/><span class="small">Riyadh · BNPL</span></td><td>Mohammed AlQasem<br/><span class="small">CTO</span></td><td><strong>$50M</strong><br/><span class="small">Series D · Jan 2024</span></td><td>9</td><td><span class="pill pill-a">A+</span></td></tr>
+                <tr><td><strong>Lean Technologies</strong><br/><span class="small">Riyadh · Open Finance</span></td><td>Hisham Al-Falih<br/><span class="small">Co-founder · CTO</span></td><td><strong>$28M</strong><br/><span class="small">Series A · May 2024</span></td><td>7</td><td><span class="pill pill-a">A+</span></td></tr>
+                <tr><td><strong>Hala</strong><br/><span class="small">Riyadh · SMB payments</span></td><td>Esam Alkheshnam<br/><span class="small">Head of Engineering</span></td><td><strong>$8M</strong><br/><span class="small">Pre-A · Aug 2024</span></td><td>5</td><td><span class="pill pill-b">A</span></td></tr>
+                <tr><td><strong>Lendo</strong><br/><span class="small">Riyadh · SME lending</span></td><td>Mohammed Jawabri<br/><span class="small">CTO</span></td><td><strong>$28M</strong><br/><span class="small">Series B · Mar 2024</span></td><td>4</td><td><span class="pill pill-a">A+</span></td></tr>
+                <tr><td><strong>NymCard</strong><br/><span class="small">Riyadh+Dubai</span></td><td>Reuben Joseph<br/><span class="small">VP Eng (CTO eq.)</span></td><td><strong>$22M</strong><br/><span class="small">Series A ext · Sep 2024</span></td><td>3</td><td><span class="pill pill-c">B</span></td></tr>
+              </tbody></table>
             </div>
           </div>
 
-          <!-- list -->
           <div class="blk">
             <div class="blk-h">Outreach Suggestions</div>
             <div class="list">
-              <div class="list-item">
-                <div class="ico-circle">1</div>
-                <div>
-                  <strong>Lead with Tabby</strong> — fresh Series D + biggest engineering team. Highest signal.
-                </div>
-              </div>
-              <div class="list-item">
-                <div class="ico-circle">2</div>
-                <div>
-                  <strong>Group Lean + Lendo into one campaign</strong> — both Series A/B, similar stack, similar buyer profile.
-                </div>
-              </div>
-              <div class="list-item">
-                <div class="ico-circle">3</div>
-                <div>
-                  <strong>Skip NymCard for now</strong> — split HQ across Dubai weakens Riyadh-specific outreach.
-                </div>
-              </div>
+              <div class="list-item"><div class="ico-circle">1</div><div><strong>Lead with Tabby</strong> — fresh Series D, biggest team, highest signal.</div></div>
+              <div class="list-item"><div class="ico-circle">2</div><div><strong>Group Lean + Lendo</strong> — same Series A/B band, similar stack.</div></div>
+              <div class="list-item"><div class="ico-circle">3</div><div><strong>Skip NymCard for now</strong> — split HQ weakens KSA-specific outreach.</div></div>
             </div>
           </div>
 
-          <!-- citations -->
           <div class="blk">
-            <div class="blk-h">Sources Used</div>
+            <div class="blk-h">Sources Cited</div>
             <div>
               <span class="cite"><a href="#">argaam.com/funding-2024</a></span>
               <span class="cite"><a href="#">mubasher.info/markets/sa</a></span>
@@ -700,117 +770,129 @@
             </div>
           </div>
 
-          <!-- exports -->
           <div class="exports">
-            <button class="exp-btn"><span class="file-ico">X</span> Export XLSX</button>
-            <button class="exp-btn"><span class="file-ico" style="background:#d56b7a">P</span> Export PDF</button>
-            <button class="exp-btn"><span class="file-ico" style="background:#e0a558">H</span> Export HTML</button>
-            <button class="exp-btn"><span class="file-ico" style="background:#92cdc0">J</span> Export JSX</button>
-            <button class="exp-btn"><span class="file-ico" style="background:#b8b888">P</span> Export PPTX</button>
+            <button class="exp-btn"><span class="file-ico">X</span> XLSX</button>
+            <button class="exp-btn"><span class="file-ico" style="background:#d56b7a">P</span> PDF</button>
+            <button class="exp-btn"><span class="file-ico" style="background:#e0a558">H</span> HTML</button>
+            <button class="exp-btn"><span class="file-ico" style="background:#92cdc0">J</span> JSX</button>
+            <button class="exp-btn"><span class="file-ico" style="background:#b8b888">P</span> PPTX</button>
+            <button class="exp-btn"><span class="file-ico" style="background:var(--mist)">C</span> CSV</button>
             <button class="exp-btn" style="margin-left:auto" onclick="resetAll()">↻ New Query</button>
-            <button class="exp-btn">📤 Push to Leads (24)</button>
+            <button class="exp-btn">📤 Push to Leads (5)</button>
           </div>
-
         </div>
       </div>
     </section>
-
   </main>
 </div>
 
-<!-- Skill builder modal -->
-<div class="modal-backdrop" id="modal">
-  <div class="modal">
-    <h2>Create a Skill</h2>
-    <p>Skills bundle a system prompt + tool whitelist + report schema. You can clone any built-in skill to start.</p>
+<!-- modals -->
+<div class="modal-backdrop" id="modal-backdrop">
 
+  <div class="modal" id="modal-tpl">
+    <h2>Create / Edit Template</h2>
+    <p>Templates are reusable starting points. Save the combination of mode + sources + skills + filters + question as a one-click loadout.</p>
+    <div class="field-label">Template name</div>
+    <input class="input" placeholder="e.g. Aramco Vendor Hunter" />
+    <div class="field-label">Question (default text)</div>
+    <textarea class="input" placeholder="Default natural-language question this template starts with."></textarea>
+    <div class="field-label">Locked modes</div>
+    <div class="chips"><span class="chip on">Lead Gen</span><span class="chip on">Enrich</span><span class="chip">Compare</span></div>
+    <div class="field-label">Locked sources</div>
+    <div class="chips"><span class="chip on">Argaam</span><span class="chip on">Tadawul</span><span class="chip on">Maal</span></div>
+    <div class="field-label">Locked filters</div>
+    <div class="small" style="margin-bottom:8px">Industry, City, Role, Funding Stage — these will auto-fill when the template is picked.</div>
+    <div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="closeModal()">Save Template</button></div>
+  </div>
+
+  <div class="modal hide" id="modal-skill">
+    <h2>Create / Edit Skill</h2>
+    <p>Skills bundle a system prompt + tool whitelist + report schema. Clone any built-in or start blank.</p>
     <div class="field-label">Skill name</div>
-    <input class="input" placeholder="e.g. Aramco Vendor Hunter" value="" />
-
+    <input class="input" placeholder="e.g. Aramco Vendor Hunter" />
     <div class="field-label">Clone from</div>
-    <select class="select">
-      <option>Start blank</option>
-      <option>Saudi Lead Hunter</option>
-      <option>Tadawul Analyst</option>
-    </select>
-
+    <select class="select"><option>Start blank</option><option>Saudi Lead Hunter</option><option>Tadawul Analyst</option><option>Bank Sector Compare</option></select>
     <div class="field-label">System prompt</div>
-    <textarea class="input" style="min-height:100px" placeholder="You are a researcher specialised in...">You are a researcher specialised in identifying B2B prospects in Saudi-listed companies. Always cite sources. Prefer Arabic-language sources when company is Tadawul-listed.</textarea>
-
+    <textarea class="input" style="min-height:90px">You are a researcher specialised in identifying B2B prospects in Saudi-listed companies. Always cite sources. Prefer Arabic-language sources when company is Tadawul-listed.</textarea>
     <div class="field-label">Allowed tools</div>
-    <div class="chips">
-      <span class="chip on">web_search</span>
-      <span class="chip on">url_crawl</span>
-      <span class="chip on">deep_scrape</span>
-      <span class="chip on">harvester_run</span>
-      <span class="chip">nexus_run</span>
-      <span class="chip">spawn_sub_agent</span>
-    </div>
+    <div class="chips"><span class="chip on">web_search</span><span class="chip on">url_crawl</span><span class="chip on">deep_scrape</span><span class="chip on">harvester_run</span><span class="chip">nexus_run</span><span class="chip">spawn_sub_agent</span></div>
+    <div class="field-label">Report schema</div>
+    <select class="select"><option>LeadList</option><option>CompanyDossier</option><option>CompareMatrix</option><option>SignalDigest</option><option>Custom</option></select>
+    <div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="closeModal()">Save Skill</button></div>
+  </div>
 
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="document.getElementById('modal').classList.remove('on')">Cancel</button>
-      <button class="btn btn-primary" onclick="document.getElementById('modal').classList.remove('on')">Save Skill</button>
-    </div>
+  <div class="modal hide" id="modal-src">
+    <h2>Add Custom Source</h2>
+    <p>Add any URL, RSS feed, or domain. The agent will include it in the search pool.</p>
+    <div class="field-label">Source label</div>
+    <input class="input" placeholder="e.g. Saudi Gazette Business" />
+    <div class="field-label">URL / Feed</div>
+    <input class="input" placeholder="https://example.com/feed.rss" />
+    <div class="field-label">Type</div>
+    <select class="select"><option>Web page (auto-crawl)</option><option>RSS / Atom feed</option><option>Sitemap</option><option>API endpoint</option></select>
+    <div class="field-label">Primary language</div>
+    <select class="select"><option>English</option><option>Arabic</option><option>Both</option></select>
+    <div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="closeModal()">Add Source</button></div>
+  </div>
+
+  <div class="modal hide" id="modal-conn">
+    <h2>Add Connector</h2>
+    <p>Connect to an external service. Most need OAuth — we'll redirect you, then return here.</p>
+    <div class="field-label">Service</div>
+    <select class="select"><option>HubSpot</option><option>Salesforce</option><option>Notion</option><option>Slack</option><option>Google Drive</option><option>Office365</option><option>Apollo.io</option><option>Custom MCP server URL</option></select>
+    <div class="field-label">Scope</div>
+    <div class="chips"><span class="chip on">read</span><span class="chip">write</span><span class="chip">admin</span></div>
+    <div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="closeModal()">Connect</button></div>
   </div>
 </div>
 
 <script>
-// ── interactions ────────────────────────────────────────────────────────────
-
-function bindChips(containerId) {
-  document.querySelectorAll(`#${containerId} .chip:not(.chip-add)`).forEach(c => {
-    c.addEventListener("click", () => {
-      c.classList.toggle("on");
-      updateSummary();
-    });
-  });
-}
-bindChips("src-chips");
-bindChips("conn-chips");
-bindChips("skill-chips");
-
-document.getElementById("skill-add").addEventListener("click", () => {
-  document.getElementById("modal").classList.add("on");
+// ── chips multi-toggle ─────────────────────────────────────────────────────
+document.querySelectorAll(".chip:not(.chip-add)").forEach(c => {
+  c.addEventListener("click", () => { c.classList.toggle("on"); updateSummary(); });
 });
-document.getElementById("src-add").addEventListener("click", () => {
-  const url = prompt("Enter URL or domain:");
-  if (url) {
-    const chip = document.createElement("span");
-    chip.className = "chip on";
-    chip.textContent = url;
-    chip.addEventListener("click", () => { chip.classList.toggle("on"); updateSummary(); });
-    document.getElementById("src-chips").insertBefore(chip, document.getElementById("src-add"));
+document.querySelectorAll(".tpl:not(.tpl-add)").forEach(t => {
+  t.addEventListener("click", () => {
+    document.querySelectorAll(".tpl").forEach(o => o.classList.remove("on"));
+    t.classList.add("on");
     updateSummary();
-  }
+  });
 });
-document.getElementById("enhance-tgl").addEventListener("click", () => {
-  document.getElementById("enhance-tgl").classList.toggle("on");
-});
-
-document.querySelectorAll("[data-clarify]").forEach(group => {
-  group.querySelectorAll(".clarify-opt").forEach(opt => {
-    opt.addEventListener("click", () => {
-      group.querySelectorAll(".clarify-opt").forEach(o => o.classList.remove("on"));
-      opt.classList.add("on");
+document.querySelectorAll("[data-clarify]").forEach(g => {
+  g.querySelectorAll(".clarify-opt").forEach(o => {
+    o.addEventListener("click", () => {
+      g.querySelectorAll(".clarify-opt").forEach(x => x.classList.remove("on"));
+      o.classList.add("on");
     });
   });
 });
 
-["sel-template","sel-mode"].forEach(id => document.getElementById(id).addEventListener("change", updateSummary));
+document.getElementById("enhance-tgl").addEventListener("click", e => {
+  e.currentTarget.classList.toggle("on"); updateSummary();
+});
+
+// ── input segment (Write / Filter / Both) ──────────────────────────────────
+document.querySelectorAll("#input-seg button").forEach(b => {
+  b.addEventListener("click", () => {
+    document.querySelectorAll("#input-seg button").forEach(x => x.classList.remove("on"));
+    b.classList.add("on");
+    const mode = b.dataset.seg;
+    document.getElementById("write-block").classList.toggle("hide", mode === "filter");
+    document.getElementById("filter-block").classList.toggle("hide", mode === "write");
+    updateSummary();
+  });
+});
 
 function updateSummary() {
-  const mode = document.querySelector("#sel-mode option:checked").textContent.replace(/[^\w\s]/g, "").trim().split(" ").slice(0, 2).join(" ");
-  const srcs = document.querySelectorAll("#src-chips .chip.on").length;
-  const conns = document.querySelectorAll("#conn-chips .chip.on").length;
-  const skill = document.querySelector("#skill-chips .chip.on");
-  const skillName = skill ? skill.textContent.replace(/[✓🎯📊🏢🏦📡]/g, "").trim() : "(no skill)";
-  const enhance = document.getElementById("enhance-tgl").classList.contains("on") ? "Enhance ON" : "Enhance OFF";
-  document.getElementById("summary-text").textContent =
-    `${mode} mode · ${srcs} sources · ${conns} connectors · ${skillName} · ${enhance}`;
+  const modes = [...document.querySelectorAll("#mode-chips .chip.on")].map(c => c.textContent.trim().replace(/^\W+/,"").trim()).join(" + ");
+  const country = [...document.querySelectorAll("#country-chips .chip.on")].map(c => c.textContent.trim()).slice(0,2).join(", ");
+  const srcCount = document.querySelectorAll(".chips .chip.on").length;
+  const seg = document.querySelector("#input-seg button.on")?.dataset.seg || "write";
+  const enh = document.getElementById("enhance-tgl").classList.contains("on") ? "Enhance ON" : "Enhance OFF";
+  document.getElementById("summary-text").textContent = `${modes || "no mode"} · ${country || "no country"} · ${seg} input · ${enh}`;
 }
 
-// ── step flow ───────────────────────────────────────────────────────────────
-
+// ── steps flow ─────────────────────────────────────────────────────────────
 function setStep(n) {
   document.querySelectorAll("#steps .step").forEach((el, i) => {
     el.classList.remove("active", "done");
@@ -818,79 +900,52 @@ function setStep(n) {
     if (i + 1 === n) el.classList.add("active");
   });
 }
-
-function showOnly(viewId) {
-  ["view-compose", "view-clarify", "view-run", "view-report"].forEach(id => {
-    document.getElementById(id).classList.toggle("hide", id !== viewId);
-  });
+function showOnly(id) {
+  ["view-compose","view-clarify","view-run","view-report"].forEach(v => document.getElementById(v).classList.toggle("hide", v !== id));
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
-
 function kickoff() {
-  const enhanceOn = document.getElementById("enhance-tgl").classList.contains("on");
-  if (enhanceOn) {
-    setStep(2);
-    setTimeout(() => { setStep(3); showOnly("view-clarify"); }, 700);
-  } else {
-    startAgents();
-  }
+  const enh = document.getElementById("enhance-tgl").classList.contains("on");
+  if (enh) { setStep(2); setTimeout(() => { setStep(3); showOnly("view-clarify"); }, 600); }
+  else startAgents();
 }
-
-function backToCompose() {
-  setStep(1);
-  showOnly("view-compose");
-}
-
+function backToCompose() { setStep(1); showOnly("view-compose"); }
 function startAgents() {
-  setStep(4);
-  showOnly("view-run");
-
-  const log = document.getElementById("agent-log");
-  log.innerHTML = "";
-
+  setStep(4); showOnly("view-run");
+  const log = document.getElementById("agent-log"); log.innerHTML = "";
   const agents = [
-    { name: "🧠 Planner",   desc: "Decomposing query into sub-tasks",          time: 1100 },
-    { name: "🔍 Researcher", desc: "Searching live web via Perplexity",         time: 1400, progress: "12 results" },
-    { name: "🌐 Crawler",    desc: "Crawling 6 company pages (parallel)",       time: 1600, progress: "6/6" },
-    { name: "🇸🇦 Arabic NLP", desc: "Reading Argaam + Maal Arabic content",     time: 900 },
-    { name: "🛡️ Validator",  desc: "Validate + dedup + verify each lead",        time: 1100, progress: "5 pass · 0 dup" },
-    { name: "📊 Extractor",  desc: "Structuring rows for the report schema",    time: 800 },
-    { name: "📝 Writer",     desc: "Composing structured report blocks",        time: 1400 },
+    { n: "🧠 Planner",    d: "Decomposing query → 5 sub-tasks", t: 900 },
+    { n: "🔍 Researcher", d: "Live-web search via Perplexity",  t: 1300, p: "12 hits" },
+    { n: "🌐 Crawler",    d: "6 company pages in parallel",     t: 1500, p: "6/6" },
+    { n: "🇸🇦 Arabic NLP", d: "Argaam + Maal Arabic content",  t: 900 },
+    { n: "🛡️ Validator",  d: "Validate · verify · dedup",       t: 1100, p: "5 pass" },
+    { n: "📊 Extractor",  d: "Coerce to LeadList schema",       t: 800 },
+    { n: "📝 Writer",     d: "Compose report blocks (English)", t: 1300 },
   ];
-
   let i = 0;
-  function next() {
-    if (i >= agents.length) {
-      setStep(5);
-      setTimeout(() => showOnly("view-report"), 500);
-      return;
-    }
+  (function next() {
+    if (i >= agents.length) { setStep(5); setTimeout(() => showOnly("view-report"), 400); return; }
     const a = agents[i];
     const row = document.createElement("div");
     row.className = "agent-row running";
-    row.innerHTML = `
-      <div class="agent-mark"><div class="spinner"></div></div>
-      <div class="agent-name">${a.name}</div>
-      <div class="agent-desc">${a.desc}</div>
-      <div class="agent-prog">${a.progress || ""}</div>
-    `;
+    row.innerHTML = `<div class="agent-mark"><div class="spinner"></div></div><div class="agent-name">${a.n}</div><div class="agent-desc">${a.d}</div><div class="agent-prog">${a.p||""}</div>`;
     log.appendChild(row);
     setTimeout(() => {
-      row.classList.remove("running");
-      row.classList.add("done");
+      row.classList.remove("running"); row.classList.add("done");
       row.querySelector(".agent-mark").innerHTML = "✓";
-      i++;
-      next();
-    }, a.time);
-  }
-  next();
+      i++; next();
+    }, a.t);
+  })();
 }
+function resetAll() { setStep(1); showOnly("view-compose"); document.getElementById("agent-log").innerHTML = ""; }
 
-function resetAll() {
-  setStep(1);
-  showOnly("view-compose");
-  document.getElementById("agent-log").innerHTML = "";
+// ── modals ─────────────────────────────────────────────────────────────────
+function openModal(which) {
+  document.getElementById("modal-backdrop").classList.add("on");
+  ["tpl","skill","src","conn"].forEach(m => document.getElementById("modal-" + m).classList.toggle("hide", m !== which));
 }
+function closeModal() { document.getElementById("modal-backdrop").classList.remove("on"); }
+document.getElementById("modal-backdrop").addEventListener("click", e => { if (e.target.id === "modal-backdrop") closeModal(); });
 
 updateSummary();
 </script>
