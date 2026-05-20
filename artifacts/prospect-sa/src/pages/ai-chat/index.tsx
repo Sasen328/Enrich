@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Composer } from "@/components/composer/Composer";
+import { CustomizeDrawer } from "@/components/composer/CustomizeDrawer";
+import { ReportView } from "@/components/composer/ReportView";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -13,6 +15,7 @@ interface Message {
   content: string;
   /** Tool-use breadcrumbs surfaced by the SSE stream (e.g. "🔍 Perplexity search"). */
   steps?: Array<{ agent: string; description?: string; found?: boolean }>;
+  blocks?: Array<Record<string, unknown>>;
 }
 
 const SUGGESTIONS = [
@@ -27,6 +30,7 @@ export default function AIChatPage() {
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
   const [showComposer, setShowComposer] = useState(true);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -125,6 +129,16 @@ export default function AIChatPage() {
             <Settings2 className="w-3.5 h-3.5" />
             {showComposer ? "Plain chat" : "Composer"}
           </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="gap-1.5"
+            onClick={() => setDrawerOpen(true)}
+            title="Customize skills / templates / sources"
+          >
+            <Settings2 className="w-3.5 h-3.5" />
+            Customize
+          </Button>
         </h1>
       </div>
 
@@ -187,7 +201,33 @@ export default function AIChatPage() {
                     ))}
                   </div>
                 )}
-                {m.content || (m.role === "assistant" && streaming && <Loader2 className="w-3 h-3 animate-spin inline" />)}
+                {m.blocks ? (
+                  <ReportView
+                    blocks={m.blocks as Parameters<typeof ReportView>[0]["blocks"]}
+                    rawText={m.content}
+                    title="Research Report"
+                  />
+                ) : (
+                  m.content || (m.role === "assistant" && streaming && <Loader2 className="w-3 h-3 animate-spin inline" />)
+                )}
+                {m.role === "assistant" && m.content && !m.blocks && !streaming && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="mt-2 text-[10px] h-6 gap-1"
+                    onClick={async () => {
+                      const r = await fetch(`${BASE}/api/composer/render-blocks`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ rawText: m.content, shape: "detail" }),
+                      });
+                      const data = await r.json();
+                      setMessages((prev) => prev.map((x) => x.id === m.id ? { ...x, blocks: data.blocks } : x));
+                    }}
+                  >
+                    📊 Render structured + export
+                  </Button>
+                )}
               </div>
               {m.role === "user" && (
                 <div className="w-8 h-8 rounded-lg flex-shrink-0 bg-muted flex items-center justify-center">
@@ -220,6 +260,7 @@ export default function AIChatPage() {
           The agent calls Perplexity, Tavily, and deep-research tools as needed. Token cost is on the configured LLM provider.
         </p>
       </div>
+      <CustomizeDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
     </div>
   );
 }
