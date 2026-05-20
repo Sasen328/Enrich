@@ -1,10 +1,11 @@
 import { useParams, useLocation } from "wouter";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useState } from "react";
 import {
   Building2, MapPin, Globe, Phone, Mail, ArrowLeft, Calendar,
   DollarSign, Users, TrendingUp, Briefcase, Linkedin, Twitter,
   User, Award, FileText, BarChart3, AlertCircle, ExternalLink,
-  Tag, Star, Info, Hash,
+  Tag, Star, Info, Hash, Send, Loader2, CheckCircle2, XCircle, ShieldCheck,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -87,6 +88,52 @@ export default function MeshBaseCompanyProfile() {
   });
 
   const executives = execsData?.executives || [];
+
+  type PushResult = { ok: true; totalExecutives: number; pushed: number; rejected: number; duplicate: number; warned: number };
+  const [pushResult, setPushResult] = useState<PushResult | null>(null);
+  const [singlePushStatus, setSinglePushStatus] = useState<Record<number, "loading" | "ok" | "dup" | "rejected" | "warn">>({});
+
+  const pushAll = useMutation<PushResult, Error, void>({
+    mutationFn: async () => {
+      const r = await fetch(`${BASE}/api/leads/push-from-company/${id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await r.json();
+      if (!r.ok || !data?.ok) throw new Error(data?.error || `HTTP ${r.status}`);
+      return data as PushResult;
+    },
+    onSuccess: (data) => setPushResult(data),
+  });
+
+  async function pushOne(exec: { id: number; name?: string; position?: string; email?: string; phone?: string; linkedinUrl?: string; linkedin?: string; department?: string; seniorityLevel?: string }) {
+    setSinglePushStatus(s => ({ ...s, [exec.id]: "loading" }));
+    const parts = (exec.name || "").trim().split(/\s+/);
+    const body = {
+      companyId: Number(id),
+      firstName: parts[0] || undefined,
+      lastName: parts.slice(1).join(" ") || undefined,
+      title: exec.position,
+      email: exec.email,
+      phone: exec.phone,
+      linkedinUrl: exec.linkedinUrl || exec.linkedin,
+      department: exec.department,
+      seniority: exec.seniorityLevel,
+    };
+    const r = await fetch(`${BASE}/api/leads`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    const data = await r.json();
+    if (!r.ok) {
+      setSinglePushStatus(s => ({ ...s, [exec.id]: "rejected" }));
+      return;
+    }
+    if (data?.gate?.isDuplicate) setSinglePushStatus(s => ({ ...s, [exec.id]: "dup" }));
+    else if (data?.gate?.status === "warn") setSinglePushStatus(s => ({ ...s, [exec.id]: "warn" }));
+    else setSinglePushStatus(s => ({ ...s, [exec.id]: "ok" }));
+  }
 
   if (isLoading) {
     return (
@@ -268,36 +315,98 @@ export default function MeshBaseCompanyProfile() {
           {executives.length > 0 && (
             <Card className="border-border/50 bg-card/60">
               <CardHeader className="pb-2 pt-4 px-5">
-                <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                  <Users className="w-4 h-4 text-violet-400" />
-                  Leadership Team · {executives.length}
-                </CardTitle>
+                <div className="flex items-center justify-between gap-3 flex-wrap">
+                  <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                    <Users className="w-4 h-4 text-violet-400" />
+                    Leadership Team · {executives.length}
+                  </CardTitle>
+                  <Button
+                    size="sm"
+                    variant="default"
+                    disabled={pushAll.isPending}
+                    onClick={() => pushAll.mutate()}
+                    className="gap-1.5 h-8"
+                  >
+                    {pushAll.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                    Push All to Leads
+                  </Button>
+                </div>
+                {pushResult && (
+                  <div className="mt-2 flex items-center gap-2 text-xs flex-wrap">
+                    <Badge variant="outline" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/30 gap-1">
+                      <CheckCircle2 className="w-3 h-3" /> {pushResult.pushed} pushed
+                    </Badge>
+                    {pushResult.duplicate > 0 && (
+                      <Badge variant="outline" className="bg-amber-500/10 text-amber-500 border-amber-500/30 gap-1">
+                        <ShieldCheck className="w-3 h-3" /> {pushResult.duplicate} duplicate (skipped)
+                      </Badge>
+                    )}
+                    {pushResult.warned > 0 && (
+                      <Badge variant="outline" className="bg-yellow-500/10 text-yellow-600 border-yellow-500/30">
+                        {pushResult.warned} unverified
+                      </Badge>
+                    )}
+                    {pushResult.rejected > 0 && (
+                      <Badge variant="outline" className="bg-rose-500/10 text-rose-500 border-rose-500/30 gap-1">
+                        <XCircle className="w-3 h-3" /> {pushResult.rejected} rejected
+                      </Badge>
+                    )}
+                    <span className="text-muted-foreground">— gated by validate · verify · dedup</span>
+                  </div>
+                )}
+                {pushAll.isError && (
+                  <div className="mt-2 text-xs text-rose-500 flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3" /> {pushAll.error.message}
+                  </div>
+                )}
               </CardHeader>
               <CardContent className="px-5 pb-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {executives.map((e) => (
-                    <div
-                      key={e.id}
-                      className="flex items-center gap-3 p-3 rounded-xl border border-border/40 bg-background/40 hover:bg-accent/10 transition-colors cursor-pointer"
-                      onClick={() => navigate(`/meshbase/executives/${e.id}`)}
-                    >
-                      {e.photoUrl ? (
-                        <img src={e.photoUrl} alt={e.name} className="w-10 h-10 rounded-full object-cover border border-border/50 shrink-0" onError={ev => { (ev.target as HTMLImageElement).style.display = "none"; }} />
-                      ) : (
-                        <div className="w-10 h-10 rounded-full bg-violet-500/15 border border-violet-500/20 flex items-center justify-center shrink-0">
-                          <span className="text-xs font-bold text-violet-400">{initials(e.name)}</span>
+                  {executives.map((e) => {
+                    const ps = singlePushStatus[e.id];
+                    return (
+                      <div
+                        key={e.id}
+                        className="flex items-center gap-3 p-3 rounded-xl border border-border/40 bg-background/40 hover:bg-accent/10 transition-colors"
+                      >
+                        <div
+                          className="flex items-center gap-3 flex-1 min-w-0 cursor-pointer"
+                          onClick={() => navigate(`/meshbase/executives/${e.id}`)}
+                        >
+                          {e.photoUrl ? (
+                            <img src={e.photoUrl} alt={e.name} className="w-10 h-10 rounded-full object-cover border border-border/50 shrink-0" onError={ev => { (ev.target as HTMLImageElement).style.display = "none"; }} />
+                          ) : (
+                            <div className="w-10 h-10 rounded-full bg-violet-500/15 border border-violet-500/20 flex items-center justify-center shrink-0">
+                              <span className="text-xs font-bold text-violet-400">{initials(e.name)}</span>
+                            </div>
+                          )}
+                          <div className="min-w-0 flex-1">
+                            <div className="text-sm font-semibold text-foreground truncate">{e.name}</div>
+                            <div className="text-xs text-muted-foreground truncate">{e.position}</div>
+                            {e.estimatedSalary && <div className="text-xs text-emerald-400 mt-0.5">{fmtSalary(e.estimatedSalary)} / yr</div>}
+                          </div>
+                          {e.seniorityLevel && (
+                            <Badge variant="outline" className="text-[9px] px-1.5 py-0 shrink-0">{e.seniorityLevel}</Badge>
+                          )}
                         </div>
-                      )}
-                      <div className="min-w-0 flex-1">
-                        <div className="text-sm font-semibold text-foreground truncate">{e.name}</div>
-                        <div className="text-xs text-muted-foreground truncate">{e.position}</div>
-                        {e.estimatedSalary && <div className="text-xs text-emerald-400 mt-0.5">{fmtSalary(e.estimatedSalary)} / yr</div>}
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-8 w-8 shrink-0"
+                          title="Push to Leads (validate · verify · dedup)"
+                          disabled={ps === "loading" || ps === "ok"}
+                          onClick={(ev) => { ev.stopPropagation(); pushOne(e); }}
+                        >
+                          {ps === "loading" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> :
+                           ps === "ok" ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> :
+                           ps === "dup" ? <ShieldCheck className="w-3.5 h-3.5 text-amber-500" /> :
+                           ps === "warn" ? <AlertCircle className="w-3.5 h-3.5 text-yellow-500" /> :
+                           ps === "rejected" ? <XCircle className="w-3.5 h-3.5 text-rose-500" /> :
+                           <Send className="w-3.5 h-3.5" />}
+                        </Button>
                       </div>
-                      {e.seniorityLevel && (
-                        <Badge variant="outline" className="text-[9px] px-1.5 py-0 shrink-0">{e.seniorityLevel}</Badge>
-                      )}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </CardContent>
             </Card>

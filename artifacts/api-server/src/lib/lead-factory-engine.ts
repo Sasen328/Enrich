@@ -149,7 +149,7 @@ export interface PublishedCompany {
   crNumber?: string;
 }
 
-interface RawLead {
+export interface RawLead {
   companyName?: string;
   companyNameAr?: string;
   domain?: string;
@@ -205,11 +205,11 @@ async function httpGet(url: string, timeoutMs = 12000): Promise<{ ok: boolean; d
   } catch { return { ok: false }; }
 }
 
-function normalisePhone(p: string): string {
+export function normalisePhone(p: string): string {
   return p.replace(/[\s\-().+]/g, "");
 }
 
-function normaliseName(n: string): string {
+export function normaliseName(n: string): string {
   return n.toLowerCase().replace(/[^a-z0-9أ-ي\s]/g, "").replace(/\s+/g, " ").trim();
 }
 
@@ -222,7 +222,7 @@ function levenshtein(a: string, b: string): number {
   return dp[m][n];
 }
 
-function nameSimilarity(a: string, b: string): number {
+export function nameSimilarity(a: string, b: string): number {
   const na = normaliseName(a), nb = normaliseName(b);
   if (na === nb) return 1;
   const maxLen = Math.max(na.length, nb.length);
@@ -1325,14 +1325,14 @@ async function agent4_signalIntelligence(
 
 // ─── Agent 5: Validate, Verify & Deduplicate ──────────────────────────────────
 
-interface ValidationResult {
+export interface ValidationResult {
   status: "pass" | "warn" | "reject";
   reasons: string[];
   isDuplicate: boolean;
   duplicateOf?: string;
 }
 
-async function validateLead(lead: RawLead): Promise<ValidationResult> {
+export async function validateLead(lead: RawLead): Promise<ValidationResult> {
   const reasons: string[] = [];
   let status: "pass" | "warn" | "reject" = "pass";
 
