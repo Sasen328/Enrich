@@ -16,7 +16,6 @@ pnpm --filter @workspace/scripts run seed-import   # seed company pool
 ### 1. Unified company pool
 
 | Table | Records | Purpose |
-|---|---|---|
 | `companies` | ~3,744 | The single source of truth for all engines. Holds Saudi companies in any state of enrichment. |
 | `executives` | ~7,591 | Board members, management, C-suite. FK: `companyId → companies.id` |
 | `deleted_companies` | – | Audit trail of removed/merged records (used by deduplicate flows) |
@@ -28,7 +27,6 @@ pnpm --filter @workspace/scripts run seed-import   # seed company pool
 ### 2. Smart Prospecting
 
 | Table | Purpose | FK |
-|---|---|---|
 | `prospecting_sessions` | URL + language + scan summary + filter questions | – |
 | `prospecting_jobs` | Per-scan job state | – |
 | `prospecting_results` | Companies extracted by the scan | `jobId`, `sessionId` |
@@ -37,7 +35,6 @@ pnpm --filter @workspace/scripts run seed-import   # seed company pool
 ### 3. Lead Factory
 
 | Table | Purpose | FK |
-|---|---|---|
 | `lead_factory_jobs` | 4-phase pipeline state (`status, inputMode, brief, targetCount, agentProgress, totals…`) | – |
 | `lead_factory_results` | Enriched prospects (`companyName, domain, phone, email, title, seniority, department, validationScore`) | `jobId → lead_factory_jobs` |
 | `lead_lists` | Hunter-curated lists | – |
@@ -47,7 +44,6 @@ pnpm --filter @workspace/scripts run seed-import   # seed company pool
 ### 4. Database Builder (staging)
 
 | Table | Purpose |
-|---|---|
 | `builder_companies` | Temp staging for harvest → dedup → promote pipeline |
 | `builder_jobs` | Harvest job state |
 | `builder_custom_sources` | User-defined data sources |
@@ -55,7 +51,6 @@ pnpm --filter @workspace/scripts run seed-import   # seed company pool
 ### 5. Masar (Wathq CR registry)
 
 | Table | Purpose |
-|---|---|
 | `masar_companies` | Full CR record: shareholders, management, capital, registration date |
 | `masar_harvest_jobs` | Harvest job tracking |
 | `masar_custom_sources` | User-defined sources |
@@ -63,7 +58,6 @@ pnpm --filter @workspace/scripts run seed-import   # seed company pool
 ### 6. OrcEngine + research
 
 | Table | Purpose |
-|---|---|
 | `scrape_sessions` | URL set + summary + status for OrcEngine scrape jobs |
 | `research_jobs` | OrcEngine research history with full report + sources + findings |
 | `company_intel_research` | Saved Company Intel reports |
@@ -72,20 +66,17 @@ pnpm --filter @workspace/scripts run seed-import   # seed company pool
 ### 7. Signals
 
 | Table | Purpose |
-|---|---|
 | `company_signals` | Time-stamped events scoped by `domain`. Columns: `category (positive/negative/neutral/mixed), title, summary, sourceUrl, confidence, metadata, timestamp` |
 
 ### 8. SA Market (Tadawul + open data)
 
 | Table | Purpose |
-|---|---|
 | `sa_market_shareholders` | Listed-company shareholder rows: `sector, city, companyName, shareholderName, nationalId, ownershipPct, nationality` |
 | `sa_market_executives` | Listed-company board/management: `sector, companyName, name, nameAr, position, nationalId` |
 
 ### 9. Chat & generic infra
 
 | Table | Purpose | FK |
-|---|---|---|
 | `conversations` | ProsEngine chat sessions | – |
 | `messages` | Chat messages | `conversationId → conversations` |
 | `templates` | Email/research templates | – |
@@ -94,7 +85,6 @@ pnpm --filter @workspace/scripts run seed-import   # seed company pool
 
 ## Foreign-key map
 
-```
 companies.id              ◄── executives.companyId
 prospecting_jobs.id       ◄── prospecting_results.jobId
                           ◄── prospecting_exports.jobId
@@ -102,8 +92,6 @@ prospecting_sessions.id   ◄── prospecting_results.sessionId
 lead_factory_jobs.id      ◄── lead_factory_results.jobId
 lead_lists.id             ◄── lead_list_items.listId
 conversations.id          ◄── messages.conversationId
-```
-
 Cross-engine joins by **domain** (e.g. `companies.website` ↔ `company_signals.domain`) rather than FK — keeps engines loosely coupled.
 
 ## Adding a new table

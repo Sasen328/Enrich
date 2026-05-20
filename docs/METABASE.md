@@ -14,7 +14,7 @@ the `metabase` Postgres database that the init script created on first boot).
 
 ## Open it
 
-Visit **http://localhost:3001** in your browser (Codespaces: forward port
+Visit **<http://localhost:3001>** in your browser (Codespaces: forward port
 3001 in the Ports tab and click the globe).
 
 First-time setup:
@@ -25,7 +25,6 @@ First-time setup:
    same Docker network):
 
    | Field | Value |
-   |---|---|
    | **Database type** | PostgreSQL |
    | **Display name** | ProspectSA |
    | **Host** | `db` |
