@@ -16,7 +16,7 @@ interface UserSource { id: number; label: string; url: string; category: string 
 
 interface Props { open: boolean; onClose: () => void }
 
-const TABS = ["skills", "templates", "sources"] as const;
+const TABS = ["skills", "templates", "sources", "connectors", "plugins", "modes"] as const;
 type Tab = typeof TABS[number];
 
 export function CustomizeDrawer({ open, onClose }: Props) {
@@ -40,6 +40,9 @@ export function CustomizeDrawer({ open, onClose }: Props) {
         {tab === "skills" && <SkillsTab />}
         {tab === "templates" && <TemplatesTab />}
         {tab === "sources" && <SourcesTab />}
+        {tab === "connectors" && <ConnectorsTab />}
+        {tab === "plugins" && <PluginsTab />}
+        {tab === "modes" && <ModesTab />}
       </div>
     </div>
   );
@@ -198,6 +201,134 @@ function FormRow({ label, children }: { label: string; children: React.ReactNode
     <div>
       <div className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground mb-1">{label}</div>
       {children}
+    </div>
+  );
+}
+
+// ── CONNECTORS ────────────────────────────────────────────────────────────────
+interface Connector { id: string; label: string; category: string; status: "ok" | "req"; via?: string }
+function ConnectorsTab() {
+  const list = useQuery<{ connectors: Connector[] }>({
+    queryKey: ["/api/composer/connectors"],
+    queryFn: () => fetch(`${BASE}/api/composer/connectors`).then((r) => r.json()),
+  });
+  const [activeConns, setActiveConns] = useState<Set<string>>(new Set());
+  const grouped = (list.data?.connectors || []).reduce<Record<string, Connector[]>>((acc, c) => {
+    (acc[c.category] = acc[c.category] || []).push(c); return acc;
+  }, {});
+  const CAT_LABEL: Record<string, string> = {
+    scraping: "🌐 Scraping & Web (works out of the box)",
+    prod: "⚙️ Productivity (needs OAuth)",
+    files: "📁 Files & Data (needs OAuth)",
+    crm: "💼 CRM & Sales (needs API key)",
+    msg: "💬 Messaging (needs OAuth/key)",
+  };
+  return (
+    <div className="space-y-3">
+      <div className="text-xs text-muted-foreground border border-amber-500/30 bg-amber-500/8 rounded p-2">
+        <strong>How connectors work:</strong> "Ready" connectors fire immediately when the agent picks them as tools (web_search, deep_scrape, harvester_run, etc.). "Needs auth" connectors require you to register an app at the provider, paste the client ID/secret as env vars, and toggle below.
+      </div>
+      {Object.entries(grouped).map(([cat, conns]) => (
+        <div key={cat}>
+          <div className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground mb-1.5">{CAT_LABEL[cat] || cat}</div>
+          <div className="space-y-1.5">
+            {conns.map((c) => {
+              const ready = c.status === "ok";
+              const active = activeConns.has(c.id);
+              return (
+                <div key={c.id} className={`border rounded-lg p-2.5 flex items-center gap-2 ${ready ? "border-emerald-500/30 bg-emerald-500/5" : "border-border bg-card"}`}>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs font-bold">{c.label}</div>
+                    <div className="text-[10px] text-muted-foreground truncate">{c.via || (ready ? "ready · no auth needed" : "needs OAuth or API key")}</div>
+                  </div>
+                  {ready ? (
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 font-semibold">✓ wired</span>
+                  ) : (
+                    <Button size="sm" variant={active ? "outline" : "default"} className="text-[10px] h-6"
+                      onClick={() => {
+                        setActiveConns((s) => { const n = new Set(s); n.has(c.id) ? n.delete(c.id) : n.add(c.id); return n; });
+                        window.open(connectorAuthUrl(c.id), "_blank");
+                      }}>{active ? "Activated" : "Connect"}</Button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+function connectorAuthUrl(id: string): string {
+  const oauthDocs: Record<string, string> = {
+    github: "https://github.com/settings/applications/new",
+    slack: "https://api.slack.com/apps",
+    notion: "https://www.notion.so/my-integrations",
+    hubspot: "https://app.hubspot.com/private-apps",
+    salesforce: "https://login.salesforce.com/services/oauth2/authorize",
+    gdrive: "https://console.cloud.google.com/apis/credentials",
+    gsheets: "https://console.cloud.google.com/apis/credentials",
+  };
+  return oauthDocs[id] || "https://docs.prospectsa/connectors/" + id;
+}
+
+// ── PLUGINS (built-in agent tools the user can toggle per session) ────────────
+const BUILTIN_TOOLS = [
+  { id: "web_search",       lbl: "🔍 Web Search",         desc: "Tavily → SearXNG → Google waterfall", on: true },
+  { id: "url_crawl",        lbl: "🌐 URL Crawl",          desc: "Fast static fetch (Cheerio + axios)", on: true },
+  { id: "deep_scrape",      lbl: "🎭 Deep Scrape",        desc: "Playwright + stealth (JS-heavy)",     on: false },
+  { id: "harvester_run",    lbl: "🛰️ Harvester",          desc: "GLEIF + OpenCorporates + Wikidata + news + Scout", on: true },
+  { id: "sanctions_screen", lbl: "⚖️ Sanctions Screen",   desc: "OFAC + UN + EU + OpenSanctions",      on: false },
+  { id: "scout_osint",      lbl: "🕵️ Scout OSINT",        desc: "Python Scout (Sherlock + Crawl4AI)",   on: false },
+  { id: "lead_factory_run", lbl: "⚡ Lead Factory",        desc: "Full 7-agent pipeline (heavy)",       on: false },
+  { id: "signal_monitor",   lbl: "📡 Signal Monitor",     desc: "Buying signals (90 days)",            on: false },
+  { id: "nexus_run",        lbl: "🧠 Nexus Specialist",   desc: "Delegate to Gemini/Groq/DeepSeek/Kimi/GPT", on: true },
+];
+function PluginsTab() {
+  const [tools, setTools] = useState(BUILTIN_TOOLS);
+  return (
+    <div className="space-y-3">
+      <div className="text-xs text-muted-foreground border border-emerald-500/30 bg-emerald-500/8 rounded p-2">
+        These are the agent's <strong>tools</strong> — what the orchestrator can call during a research run. Toggle any off to disable it for the current chat session.
+      </div>
+      <div className="space-y-1.5">
+        {tools.map((t) => (
+          <div key={t.id} className={`border rounded-lg p-2.5 flex items-center gap-2 ${t.on ? "border-emerald-500/30 bg-emerald-500/5" : "border-border bg-card"}`}>
+            <div className="flex-1 min-w-0">
+              <div className="text-xs font-bold">{t.lbl}</div>
+              <div className="text-[10px] text-muted-foreground">{t.desc}</div>
+            </div>
+            <Button size="sm" variant={t.on ? "default" : "outline"} className="text-[10px] h-6"
+              onClick={() => setTools((s) => s.map((x) => x.id === t.id ? { ...x, on: !x.on } : x))}>
+              {t.on ? "on" : "off"}
+            </Button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── MODES ─────────────────────────────────────────────────────────────────────
+interface ModeRow { id: string; label: string; description: string }
+function ModesTab() {
+  const list = useQuery<{ modes: ModeRow[] }>({
+    queryKey: ["/api/composer/modes"],
+    queryFn: () => fetch(`${BASE}/api/composer/modes`).then((r) => r.json()),
+  });
+  return (
+    <div className="space-y-3">
+      <div className="text-xs text-muted-foreground border border-border rounded p-2">
+        Modes are bundled <strong>prompt suffixes + default tools + report schemas</strong>. Built-in modes are read-only here — to override one, save a custom Skill (Skills tab) with the modified system prompt.
+      </div>
+      <div className="space-y-1.5">
+        {(list.data?.modes || []).map((m) => (
+          <div key={m.id} className="border border-border rounded-lg p-2.5 bg-card">
+            <div className="text-xs font-bold">{m.label}</div>
+            <div className="text-[10px] text-muted-foreground">{m.description}</div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
