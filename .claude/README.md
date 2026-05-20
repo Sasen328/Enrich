@@ -1,4 +1,4 @@
-# Replit Enrich App
+# ProspectSA
 
 A multi-engine Saudi-market B2B intelligence platform. Discovers, enriches, and tracks companies and executives across the Saudi market using a stack of LLM-powered research agents, web scrapers, and external data APIs.
 
@@ -7,7 +7,6 @@ A multi-engine Saudi-market B2B intelligence platform. Discovers, enriches, and 
 A pnpm monorepo combining a TypeScript/Express API server, a React/Vite frontend, and a Python Scout microservice. Twelve domain "engines" share one PostgreSQL pool of ~3,744 companies and ~7,591 executives.
 
 | Engine | What it does |
-|---|---|
 | **Masaar** | Saudi CR-number company lookup (interactive, captcha-aware) |
 | **Masar** | Wathq-style CR registry harvester (shareholders, board, capital) |
 | **ProsEngine** | Conversational prospecting + research export (PPT/PDF) |
@@ -33,7 +32,8 @@ See [docs/SETUP.md](docs/SETUP.md) for the full guide.
 
 ## Documentation
 
-**Start here**
+## Start here
+
 - [SETUP.md](docs/SETUP.md) — install, run, seed
 - [ARCHITECTURE.md](docs/ARCHITECTURE.md) — system overview, monorepo layout
 - [ENV.md](docs/ENV.md) — every environment variable
@@ -41,9 +41,11 @@ See [docs/SETUP.md](docs/SETUP.md) for the full guide.
 - [DATABASE.md](docs/DATABASE.md) — Drizzle schema reference
 
 **Engines** (`docs/engines/`)
+
 - [orcengine.md](docs/engines/orcengine.md), [scout.md](docs/engines/scout.md), [signals.md](docs/engines/signals.md), [lead-factory.md](docs/engines/lead-factory.md), [company-intel.md](docs/engines/company-intel.md), [person-intel.md](docs/engines/person-intel.md), [sa-market.md](docs/engines/sa-market.md)
 
 **Deeper references** (`docs/docs/`)
+
 - Engine-specific: [masaar-engine.md](docs/docs/masaar-engine.md), [masar-database.md](docs/docs/masar-database.md), [pros-engine.md](docs/docs/pros-engine.md), [ai-database-builder.md](docs/docs/ai-database-builder.md)
 - Full replication guides for each engine + frontend
 - [tech-stack-full.md](docs/docs/tech-stack-full.md) — dependency inventory
