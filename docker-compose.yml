@@ -24,6 +24,9 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-prospectsa_secret}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      # Auto-create secondary databases on FIRST boot (when the data volume
+      # is empty). Currently creates `metabase` for the optional BI service.
+      - ./scripts/init-db:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U prospectsa -d prospectsa"]
       interval: 5s
@@ -147,12 +150,49 @@ services:
       - ./lib/db/drizzle:/app/lib/db/drizzle:ro
       - ./seed_data.sql:/app/seed_data.sql:ro
 
+  # ── Metabase (BI / analytics — connects to db) ────────────────────────────
+  # Optional. Start with `docker compose --profile bi up -d metabase`
+  # Visit http://localhost:3001 to set up. First run takes ~60-90s.
+  metabase:
+    image: metabase/metabase:latest
+    container_name: prospectsa_metabase
+    profiles: ["bi"]
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "3001:3000"
+    environment:
+      # Metabase's own internal DB — kept in the same Postgres but a separate
+      # database so it doesn't pollute the app schema. Auto-created on first run.
+      MB_DB_TYPE: postgres
+      MB_DB_HOST: db
+      MB_DB_PORT: 5432
+      MB_DB_DBNAME: metabase
+      MB_DB_USER: prospectsa
+      MB_DB_PASS: ${POSTGRES_PASSWORD:-prospectsa_secret}
+      MB_SITE_NAME: ProspectSA Analytics
+      MB_ADMIN_EMAIL: ${METABASE_ADMIN_EMAIL:-admin@prospectsa.local}
+    volumes:
+      - metabase_data:/metabase-data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 90s
+    networks:
+      - prospectsa_net
+
 volumes:
   postgres_data:
     driver: local
   agent_sessions:
     driver: local
   playwright_cache:
+    driver: local
+  metabase_data:
     driver: local
 
 networks:
