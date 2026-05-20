@@ -56,3 +56,4 @@ modules.yaml
 
 # Environment files with real secrets — keep local only
 .env
+.claude/
