@@ -34,7 +34,12 @@ const FRIENDLY_LABELS: Record<string, string> = {
   nexus_run: "🧠 Specialist",
   web_search: "🔍 Researcher",
   url_crawl: "🌐 Crawler",
+  deep_scrape: "🎭 Playwright",
   harvester_run: "🛰️ Harvester",
+  sanctions_screen: "⚖️ Sanctions",
+  scout_osint: "🕵️ OSINT",
+  lead_factory_run: "⚡ Lead Factory",
+  signal_monitor: "📡 Signal scout",
 };
 
 const DEFAULT_SYSTEM = `You are the ProspectSA research orchestrator. The user is doing structured B2B research on Saudi Arabia / GCC companies and people.
@@ -63,7 +68,9 @@ export async function runAgentChat(
   if (!apiKey) throw new Error("ANTHROPIC_API_KEY not configured");
 
   const client = new Anthropic({ apiKey });
-  const model = opts.model || process.env.AI_CHAT_ORCHESTRATOR_MODEL || "claude-haiku-4-5";
+  // Default to Sonnet 4.6 for orchestration quality. Set
+  // AI_CHAT_ORCHESTRATOR_MODEL=claude-haiku-4-5 to optimise for cost.
+  const model = opts.model || process.env.AI_CHAT_ORCHESTRATOR_MODEL || "claude-sonnet-4-6";
   const maxIter = opts.maxIterations ?? 8;
   const system = opts.systemPrompt || DEFAULT_SYSTEM;
 
