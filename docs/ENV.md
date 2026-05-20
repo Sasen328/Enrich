@@ -5,7 +5,6 @@ All vars are read via `process.env.*` (TypeScript) or `os.environ[*]` (Python Sc
 ## Required
 
 | Var | Purpose |
-|---|---|
 | `DATABASE_URL` | PostgreSQL connection string. Drizzle uses this. |
 | `PORT` | API server port. No default — must be set. |
 
@@ -14,7 +13,6 @@ At least one LLM provider key is also required for most engines to function.
 ## Security & lifecycle
 
 | Var | Default | Purpose |
-|---|---|---|
 | `API_TOKEN` | – | Bearer token required on every `/api/*` call except `/healthz` and `/readyz`. **Unset = no auth** (dev convenience; never deploy unset). Use a long random value, e.g. `openssl rand -hex 32`. |
 | `FRONTEND_ORIGIN` | – | Comma-separated allowed CORS origins. **Unset = "*"** with a startup warning. Set to `https://app.example.com` (or a list) before production. |
 | `SHUTDOWN_GRACE_MS` | `15000` | Milliseconds to wait for in-flight requests to drain on SIGTERM/SIGINT before forcing exit. |
@@ -24,13 +22,11 @@ At least one LLM provider key is also required for most engines to function.
 Set in `artifacts/prospect-sa/.env.local`:
 
 | Var | Purpose |
-|---|---|
 | `VITE_API_TOKEN` | Must match the backend's `API_TOKEN`. Injected into the Authorization header by the generated client at startup. Leave unset if the backend is running without auth. |
 
 ## LLM providers
 
 | Var | Used by |
-|---|---|
 | `OPENAI_API_KEY` | Direct OpenAI (GPT-4o, used heavily by OrcEngine, Builder) |
 | `ANTHROPIC_API_KEY` | Direct Anthropic (Claude Sonnet, Nexus router default) |
 | `AI_INTEGRATIONS_OPENAI_API_KEY` + `AI_INTEGRATIONS_OPENAI_BASE_URL` | Optional OpenAI proxy (e.g. internal gateway) — `lib/config/env.ts` falls back to direct keys if unset |
@@ -47,7 +43,6 @@ Set in `artifacts/prospect-sa/.env.local`:
 ## Contact-data APIs
 
 | Var | Purpose |
-|---|---|
 | `APOLLO_API_KEY`, `APOLLO_CLIENT_SECRET`, `APOLLO_ACCESS_TOKEN` | Apollo.io contact DB — Lead Factory, Person Intel |
 | `HUNTER_API_KEY` | Hunter.io email finder — Lead Factory |
 | `EXPLORIUM_API_KEY` | Explorium firmographics |
@@ -56,7 +51,6 @@ Set in `artifacts/prospect-sa/.env.local`:
 ## Scraping & proxies
 
 | Var | Purpose |
-|---|---|
 | `SCOUT_URL` | Python Scout microservice endpoint (default `http://localhost:8099`) |
 | `TAVILY_API_KEY` | Tavily search API. Free dev tier (1000 queries / month). Preferred backend in `lib/free-search.ts` and used by the `tavily-mcp` server in `.mcp.json`. |
 | `SEARXNG_URL` | Primary SearXNG endpoint (e.g. `https://searx.be`) for free web-search discovery in Lead Factory. |
@@ -75,7 +69,6 @@ Set in `artifacts/prospect-sa/.env.local`:
 Any one of these unblocks the Masaar captcha flow:
 
 | Var |
-|---|
 | `CAPMONSTER_API_KEY` |
 | `AZCAPTCHA_API_KEY` |
 | `DEATHBYCAPTCHA_USER` + `DEATHBYCAPTCHA_PASS` |
@@ -85,7 +78,6 @@ Any one of these unblocks the Masaar captcha flow:
 ## Automation (Activepieces)
 
 | Var |
-|---|
 | `ACTIVEPIECES_URL` |
 | `ACTIVEPIECES_API_KEY` |
 | `ACTIVEPIECES_FLOW_BUILDER` |
@@ -97,6 +89,5 @@ Any one of these unblocks the Masaar captcha flow:
 ## Deployment / runtime
 
 | Var | Purpose |
-|---|---|
 | `NODE_ENV` | `development` / `production` |
 | `BASE_PATH` | URL base path (when the frontend is mounted under a subpath) |
