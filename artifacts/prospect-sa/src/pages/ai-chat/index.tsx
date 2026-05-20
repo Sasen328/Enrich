@@ -43,7 +43,7 @@ export default function AIChatPage() {
 
     try {
       const history = messages.map((m) => ({ role: m.role, content: m.content }));
-      const res = await fetch(`${BASE}/api/prosengine/chat/stream`, {
+      const res = await fetch(`${BASE}/api/ai-chat/stream`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: content, history }),

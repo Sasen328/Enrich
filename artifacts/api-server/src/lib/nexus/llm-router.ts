@@ -42,7 +42,7 @@ import { generateWithGemini } from "../../gemini-search.js";
 // ── Cost tracking (tokens × price per MTok / 1_000_000) ────────────────────────
 export interface UsageRecord {
   model: string;
-  provider: "openrouter" | "gemini" | "anthropic" | "openai" | "ollama" | "groq";
+  provider: NexusProvider | string;
   promptTokens: number;
   completionTokens: number;
   totalTokens: number;
@@ -114,6 +114,26 @@ function getOpenAIClient(): OpenAI | null {
   return new OpenAI({ apiKey: key });
 }
 
+// ── Native adapters (cheaper than OpenRouter when first-party key present) ─────
+
+function getDeepSeekNativeClient(): OpenAI | null {
+  const key = process.env.DEEPSEEK_API_KEY;
+  if (!key) return null;
+  return new OpenAI({ apiKey: key, baseURL: "https://api.deepseek.com/v1" });
+}
+
+function getKimiClient(): OpenAI | null {
+  const key = process.env.MOONSHOT_API_KEY || process.env.KIMI_API_KEY;
+  if (!key) return null;
+  return new OpenAI({ apiKey: key, baseURL: "https://api.moonshot.cn/v1" });
+}
+
+function getPerplexityNativeClient(): OpenAI | null {
+  const key = process.env.PERPLEXITY_API_KEY;
+  if (!key) return null;
+  return new OpenAI({ apiKey: key, baseURL: "https://api.perplexity.ai" });
+}
+
 // ── Task type classification ────────────────────────────────────────────────────
 
 export type TaskTier =
@@ -122,6 +142,10 @@ export type TaskTier =
   | "synthesis"     // write final dossier, complex reasoning
   | "bulk"          // large volume, cost-sensitive, can be slow
   | "realtime";     // speed-critical, must respond in < 2s
+
+export type NexusProvider =
+  | "openrouter" | "groq" | "gemini" | "openai" | "anthropic" | "ollama"
+  | "deepseek" | "kimi" | "perplexity";
 
 export interface NexusGenerateOptions {
   tier?: TaskTier;
@@ -266,7 +290,7 @@ export async function nexusRealtime(
 // ── Provider attempt chain builder ─────────────────────────────────────────────
 
 interface Attempt {
-  provider: "openrouter" | "groq" | "gemini" | "openai" | "anthropic" | "ollama";
+  provider: NexusProvider;
   model: string;
 }
 
@@ -280,6 +304,9 @@ function buildAttemptChain(tier: TaskTier): Attempt[] {
   const hasOpenAI = !!openai;
   const hasGemini = !!process.env.GEMINI_API_KEY;
   const hasAnthropic = !!(process.env.ANTHROPIC_API_KEY);
+  const hasDeepSeek = !!process.env.DEEPSEEK_API_KEY;
+  const hasKimi = !!(process.env.MOONSHOT_API_KEY || process.env.KIMI_API_KEY);
+  const hasPerplexity = !!process.env.PERPLEXITY_API_KEY;
 
   // When NEXUS_PREFER_FREE_MODELS=true, prepend OpenRouter :free variants to
   // every tier. Free endpoints are rate-limited but cost nothing — useful for
@@ -295,6 +322,8 @@ function buildAttemptChain(tier: TaskTier): Attempt[] {
           "deepseek/deepseek-chat-v3-0324:free",
           "meta-llama/llama-3.3-70b-instruct:free",
         ]),
+        // Native first-party adapters are cheaper than OpenRouter proxy
+        ...(hasDeepSeek ? [{ provider: "deepseek" as const, model: "deepseek-chat" }] : []),
         ...(hasOR    ? [{ provider: "openrouter" as const, model: "deepseek/deepseek-chat" }]       : []),
         ...(hasGroq   ? [{ provider: "groq" as const,       model: "llama-3.3-70b-versatile" }]     : []),
         ...(hasOR    ? [{ provider: "openrouter" as const, model: "qwen/qwen-2.5-72b-instruct" }]   : []),
@@ -308,6 +337,8 @@ function buildAttemptChain(tier: TaskTier): Attempt[] {
           "qwen/qwen-2.5-72b-instruct:free",
           "deepseek/deepseek-chat-v3-0324:free",
         ]),
+        // Kimi is strong on Arabic + multilingual
+        ...(hasKimi ? [{ provider: "kimi" as const, model: "kimi-k2-0905-preview" }] : []),
         // orpheus-arabic-saudi: Groq's dedicated Saudi Arabic model
         ...(hasGroq   ? [{ provider: "groq" as const,       model: "canopylabs/orpheus-arabic-saudi" }] : []),
         ...(hasOR    ? [{ provider: "openrouter" as const, model: "qwen/qwen-2.5-72b-instruct" }]   : []),
@@ -319,6 +350,8 @@ function buildAttemptChain(tier: TaskTier): Attempt[] {
     case "realtime":
       return [
         ...freeHead(["meta-llama/llama-3.3-70b-instruct:free"]),
+        // Perplexity for realtime/live-web queries
+        ...(hasPerplexity ? [{ provider: "perplexity" as const, model: "llama-3.1-sonar-large-128k-online" }] : []),
         ...(hasGroq   ? [{ provider: "groq" as const,       model: "llama-3.3-70b-versatile" }]     : []),
         ...(hasOR    ? [{ provider: "openrouter" as const, model: "deepseek/deepseek-chat" }]        : []),
         ...(hasGemini ? [{ provider: "gemini" as const,     model: "gemini-2.5-flash" }]             : []),
@@ -331,6 +364,7 @@ function buildAttemptChain(tier: TaskTier): Attempt[] {
           "meta-llama/llama-3.3-70b-instruct:free",
         ]),
         { provider: "ollama" as const, model: process.env.OLLAMA_MODEL || "llama3.1" },
+        ...(hasDeepSeek ? [{ provider: "deepseek" as const, model: "deepseek-chat" }] : []),
         ...(hasOR    ? [{ provider: "openrouter" as const, model: "deepseek/deepseek-chat-v3-5" }]   : []),
         ...(hasGroq   ? [{ provider: "groq" as const,       model: "llama-3.1-8b-instant" }]         : []),
       ];
@@ -401,7 +435,7 @@ async function runAttempt(
     } catch { return null; }
   }
 
-  // OpenRouter, Groq, OpenAI, Anthropic-via-OpenRouter all use OpenAI SDK format
+  // OpenAI-SDK-compatible providers
   let client: OpenAI | null = null;
   if (attempt.provider === "openrouter" || attempt.provider === "anthropic") {
     client = getOpenRouterClient();
@@ -409,6 +443,12 @@ async function runAttempt(
     client = getGroqClient();
   } else if (attempt.provider === "openai") {
     client = getOpenAIClient();
+  } else if (attempt.provider === "deepseek") {
+    client = getDeepSeekNativeClient();
+  } else if (attempt.provider === "kimi") {
+    client = getKimiClient();
+  } else if (attempt.provider === "perplexity") {
+    client = getPerplexityNativeClient();
   }
 
   if (!client) return null;
@@ -524,4 +564,87 @@ export function getLLMStatus(): NexusLLMStatus {
     ollama: { configured: true, baseUrl: ollamaBase },
     activeProviders: active,
   };
+}
+
+// ── Streaming ─────────────────────────────────────────────────────────────────
+
+export interface NexusStreamOptions extends NexusGenerateOptions {
+  onToken: (chunk: string) => void;
+  onDone?: (final: NexusGenerateResult) => void;
+  onError?: (err: Error) => void;
+}
+
+/**
+ * Streaming variant of nexusGenerate. Calls onToken for each chunk.
+ * Walks the same attempt chain — first provider that opens a stream wins.
+ */
+export async function nexusStream(prompt: string, options: NexusStreamOptions): Promise<NexusGenerateResult> {
+  const {
+    tier = "synthesis", systemPrompt, maxTokens = 2000, temperature = 0.2,
+    onToken, onDone, onError,
+  } = options;
+
+  const start = Date.now();
+  const attempts = buildAttemptChain(tier);
+
+  for (const attempt of attempts) {
+    if (attempt.provider === "gemini" || attempt.provider === "ollama") continue; // skip non-streamable in this path
+    let client: OpenAI | null = null;
+    if (attempt.provider === "openrouter" || attempt.provider === "anthropic") client = getOpenRouterClient();
+    else if (attempt.provider === "groq") client = getGroqClient();
+    else if (attempt.provider === "openai") client = getOpenAIClient();
+    else if (attempt.provider === "deepseek") client = getDeepSeekNativeClient();
+    else if (attempt.provider === "kimi") client = getKimiClient();
+    else if (attempt.provider === "perplexity") client = getPerplexityNativeClient();
+    if (!client) continue;
+
+    try {
+      const stream = await client.chat.completions.create({
+        model: attempt.model,
+        messages: [
+          ...(systemPrompt ? [{ role: "system" as const, content: systemPrompt }] : []),
+          { role: "user" as const, content: prompt },
+        ],
+        max_tokens: maxTokens,
+        temperature,
+        stream: true,
+      });
+      let full = "";
+      for await (const chunk of stream as AsyncIterable<{ choices: Array<{ delta?: { content?: string } }> }>) {
+        const delta = chunk.choices?.[0]?.delta?.content;
+        if (delta) { full += delta; onToken(delta); }
+      }
+      const result: NexusGenerateResult = {
+        text: full, model: attempt.model, provider: attempt.provider,
+        usage: {
+          model: attempt.model, provider: attempt.provider,
+          promptTokens: 0, completionTokens: 0, totalTokens: 0,
+          estimatedCostUSD: 0, latencyMs: Date.now() - start,
+        },
+      };
+      if (onDone) onDone(result);
+      return result;
+    } catch (e) {
+      // try next provider in chain
+      if (onError) onError(e instanceof Error ? e : new Error(String(e)));
+    }
+  }
+  throw new Error(`[NEXUS] streaming failed for tier "${tier}"`);
+}
+
+// ── Role dispatcher (sugar over nexusGenerate with role defaults) ─────────────
+
+import { ROLE_TO_TIER, ROLE_DEFAULTS, type AgentRole } from "./roles.js";
+
+/** Dispatch a role-specific call via NEXUS. Sugar over nexusGenerate. */
+export async function nexusRunRole(role: AgentRole, task: string, opts: Partial<NexusGenerateOptions> = {}): Promise<NexusGenerateResult> {
+  const tier = ROLE_TO_TIER[role];
+  const defaults = ROLE_DEFAULTS[role];
+  return nexusGenerate(task, {
+    tier,
+    systemPrompt: opts.systemPrompt || defaults.systemPrompt,
+    temperature: opts.temperature ?? defaults.temperature,
+    maxTokens: opts.maxTokens ?? defaults.maxTokens,
+    ...opts,
+  });
 }
