@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>AI Chat Composer v4 — ProspectSA prototype</title>
+<title>AI Chat Composer v5 — ProspectSA prototype (final)</title>
 <style>
   :root {
     --lavender: #c3a6d4; --rose: #c8a8b8; --seafoam: #92cdc0; --sand: #d4b896;
@@ -11,25 +11,17 @@
     --ink: #2d243a; --ink-soft: #5a4d6e; --muted: #b5acc4;
     --line: #e8def0; --line-2: #d9c9e6;
     --ok: #4caa84; --warn: #e0a558; --bad: #d56b7a;
-    --shadow: 0 2px 12px rgba(45, 36, 58, .06);
-    --shadow-lg: 0 8px 30px rgba(45, 36, 58, .14);
+    --shadow: 0 2px 12px rgba(45,36,58,.06);
+    --shadow-lg: 0 8px 30px rgba(45,36,58,.14);
     --radius: 14px; --r-sm: 10px;
   }
   * { box-sizing: border-box; }
-  html, body {
-    margin: 0; padding: 0;
-    background:
-      radial-gradient(at 12% 8%, rgba(195,166,212,.18), transparent 45%),
-      radial-gradient(at 88% 12%, rgba(146,205,192,.16), transparent 50%),
-      radial-gradient(at 50% 90%, rgba(212,184,150,.14), transparent 55%),
-      var(--base);
-    color: var(--ink);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", sans-serif;
-    font-size: 14px;
-    min-height: 100vh;
-  }
+  html, body { margin:0; padding:0;
+    background: radial-gradient(at 12% 8%, rgba(195,166,212,.18), transparent 45%), radial-gradient(at 88% 12%, rgba(146,205,192,.16), transparent 50%), radial-gradient(at 50% 90%, rgba(212,184,150,.14), transparent 55%), var(--base);
+    color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", sans-serif; font-size: 14px; min-height: 100vh; }
+
   .app { display: grid; grid-template-columns: 220px 1fr 0; min-height: 100vh; transition: grid-template-columns 280ms; }
-  .app.drawer-open { grid-template-columns: 220px 1fr 360px; }
+  .app.drawer-open { grid-template-columns: 220px 1fr 380px; }
   .sb { background: rgba(255,255,255,.5); backdrop-filter: blur(20px); border-right: 1px solid var(--line); padding: 18px 12px; }
   .brand { display: flex; align-items: center; gap: 10px; padding: 4px 8px 18px; }
   .brand-mark { width: 30px; height: 30px; border-radius: 9px; background: linear-gradient(135deg, var(--lavender), var(--seafoam)); display: grid; place-items: center; color: white; font-weight: 700; font-size: 13px; }
@@ -45,84 +37,87 @@
   h1 { margin: 0 0 4px; font-size: 22px; font-weight: 700; letter-spacing: -.02em; }
   .h-sub { color: var(--ink-soft); font-size: 12px; margin-bottom: 14px; }
 
-  /* ── collapsed crumb strip ───────────────────────────────────────────── */
-  .crumbs { display: flex; gap: 6px; align-items: center; padding: 8px; background: white; border: 1px solid var(--line); border-radius: 99px; margin-bottom: 14px; overflow: hidden; flex-wrap: wrap; }
-  .crumb { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 99px; font-size: 11px; font-weight: 600; color: var(--muted); background: transparent; cursor: pointer; flex-shrink: 0; }
-  .crumb.done { background: linear-gradient(180deg, rgba(146,205,192,.18), rgba(146,205,192,.06)); color: var(--ink); }
-  .crumb.done .check { color: var(--ok); }
-  .crumb.active { background: linear-gradient(180deg, rgba(195,166,212,.25), rgba(195,166,212,.10)); color: var(--ink); box-shadow: 0 0 0 1px var(--lavender); }
-  .crumb-sep { color: var(--muted); }
-  .crumb-val { color: var(--ink-soft); font-weight: 400; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  /* MAIN STAGE STEPS — clickable to navigate back */
+  .stage-bar { display: flex; gap: 4px; align-items: center; background: white; border: 1px solid var(--line); border-radius: 99px; padding: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+  .stage { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 99px; font-size: 11px; font-weight: 600; color: var(--muted); cursor: not-allowed; flex-shrink: 0; }
+  .stage.done { color: var(--ink); cursor: pointer; }
+  .stage.done .num { background: var(--ok); color: white; }
+  .stage.done:hover { background: rgba(146,205,192,.10); }
+  .stage.active { background: linear-gradient(180deg, rgba(195,166,212,.25), rgba(195,166,212,.10)); color: var(--ink); box-shadow: 0 0 0 1px var(--lavender); cursor: default; }
+  .stage.active .num { background: var(--lavender); color: white; }
+  .stage .num { width: 18px; height: 18px; border-radius: 99px; background: var(--line); color: var(--ink-soft); display: grid; place-items: center; font-size: 10px; font-weight: 700; }
+  .stage-sep { color: var(--muted); font-size: 10px; }
 
-  /* ── layer card ──────────────────────────────────────────────────────── */
-  .layer { background: rgba(255,255,255,.80); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 14px; transition: all 280ms; }
-  .layer.collapsed { padding: 0; }
+  /* sub-tab crumbs inside compose */
+  .crumbs { display: flex; gap: 4px; align-items: center; background: rgba(255,255,255,.55); border: 1px solid var(--line); border-radius: 99px; padding: 5px; margin-bottom: 14px; flex-wrap: wrap; }
+  .crumb { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 99px; font-size: 11px; font-weight: 600; color: var(--muted); background: transparent; cursor: not-allowed; }
+  .crumb.done { color: var(--ink); cursor: pointer; }
+  .crumb.done:hover { background: rgba(195,166,212,.10); }
+  .crumb.active { background: linear-gradient(180deg, rgba(195,166,212,.20), rgba(195,166,212,.08)); color: var(--ink); box-shadow: 0 0 0 1px var(--lavender); cursor: default; }
+  .crumb-sep { color: var(--muted); font-size: 10px; }
+
+  .layer { background: rgba(255,255,255,.80); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 14px; }
   .layer-h { padding: 12px 18px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 10px; }
-  .layer-num { width: 22px; height: 22px; border-radius: 99px; background: var(--lavender); color: white; display: grid; place-items: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+  .layer-num { width: 22px; height: 22px; border-radius: 99px; background: var(--lavender); color: white; display: grid; place-items: center; font-size: 11px; font-weight: 700; }
   .layer-t { font-weight: 700; font-size: 13px; }
   .layer-sub { color: var(--ink-soft); font-weight: 400; font-size: 11px; margin-left: 4px; }
   .layer-body { padding: 16px 18px; }
 
-  /* ── insights row ────────────────────────────────────────────────────── */
-  .insight-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
-  .insight { background: linear-gradient(135deg, rgba(195,166,212,.10), white); border: 1px solid var(--line); border-radius: var(--r-sm); padding: 10px 12px; cursor: pointer; transition: all 160ms; }
-  .insight:hover { border-color: var(--lavender); transform: translateY(-1px); box-shadow: 0 2px 8px rgba(195,166,212,.18); }
-  .insight-h { display: flex; align-items: center; gap: 6px; font-size: 10px; color: var(--ink-soft); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 4px; }
-  .insight-t { font-size: 12px; font-weight: 600; color: var(--ink); line-height: 1.35; }
+  /* rule lock banner (production guarantee) */
+  .rule-lock { background: linear-gradient(90deg, rgba(146,205,192,.18), rgba(146,205,192,.06)); border: 1px solid rgba(146,205,192,.40); border-radius: var(--r-sm); padding: 10px 14px; margin-bottom: 14px; display: flex; align-items: center; gap: 10px; font-size: 12px; }
+  .rule-lock .ico { font-size: 16px; }
+  .rule-lock strong { color: var(--ink); }
+  .rule-lock .sm { color: var(--ink-soft); font-size: 11px; }
 
-  /* ── form bits ───────────────────────────────────────────────────────── */
+  .insight-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+  .insight { background: linear-gradient(135deg, rgba(195,166,212,.10), white); border: 1px solid var(--line); border-radius: var(--r-sm); padding: 10px 12px; cursor: pointer; }
+  .insight:hover { border-color: var(--lavender); transform: translateY(-1px); }
+  .insight-h { display: flex; align-items: center; gap: 6px; font-size: 10px; color: var(--ink-soft); font-weight: 600; text-transform: uppercase; margin-bottom: 4px; }
+  .insight-t { font-size: 12px; font-weight: 600; line-height: 1.35; }
+
   .field-label { font-size: 11px; font-weight: 600; color: var(--ink-soft); margin-bottom: 6px; letter-spacing: .02em; text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
   .field-hint { color: var(--muted); font-weight: 400; text-transform: none; letter-spacing: 0; }
   .field-edit { margin-left: auto; font-size: 10px; padding: 3px 8px; border: 1px solid var(--line); border-radius: 99px; background: white; cursor: pointer; color: var(--ink-soft); font-weight: 600; }
   .field-edit:hover { color: var(--ink); border-color: var(--lavender); }
-
   .input, .select { width: 100%; background: white; border: 1px solid var(--line); border-radius: var(--r-sm); padding: 9px 12px; font-size: 13px; color: var(--ink); font-family: inherit; }
   .input:focus, .select:focus { outline: none; border-color: var(--lavender); box-shadow: 0 0 0 3px rgba(195,166,212,.18); }
   textarea.input { resize: vertical; min-height: 80px; }
-
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
 
-  /* multi-select select (looks like single but pretends multi via tags) */
   .ms { background: white; border: 1px solid var(--line); border-radius: var(--r-sm); padding: 6px 10px; min-height: 38px; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; cursor: pointer; }
   .ms:hover { border-color: var(--lavender); }
-  .ms.open { border-color: var(--lavender); box-shadow: 0 0 0 3px rgba(195,166,212,.18); }
-  .ms-tag { background: rgba(195,166,212,.22); color: var(--ink); font-size: 11px; padding: 3px 8px; border-radius: 99px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
-  .ms-tag .x { font-size: 10px; opacity: .6; }
-  .ms-tag .x:hover { opacity: 1; }
-  .ms-placeholder { color: var(--muted); font-size: 13px; }
+  .ms.open { border-color: var(--lavender); }
+  .ms-tag { background: rgba(195,166,212,.22); color: var(--ink); font-size: 11px; padding: 3px 8px; border-radius: 99px; font-weight: 600; display: inline-flex; gap: 4px; }
+  .ms-tag .x { font-size: 10px; opacity: .6; cursor: pointer; }
   .ms-chev { margin-left: auto; color: var(--muted); }
-
   .ms-pop { position: absolute; background: white; border: 1px solid var(--line); border-radius: var(--r-sm); box-shadow: var(--shadow-lg); margin-top: 4px; padding: 6px; z-index: 10; min-width: 260px; max-height: 280px; overflow-y: auto; }
-  .ms-opt { padding: 7px 10px; font-size: 12px; cursor: pointer; border-radius: 6px; color: var(--ink); display: flex; align-items: center; gap: 8px; }
+  .ms-opt { padding: 7px 10px; font-size: 12px; cursor: pointer; border-radius: 6px; display: flex; align-items: center; gap: 8px; }
   .ms-opt:hover { background: rgba(195,166,212,.10); }
   .ms-opt.on { background: rgba(146,205,192,.14); }
-  .ms-opt .ck { width: 14px; height: 14px; border-radius: 4px; border: 1px solid var(--line-2); display: grid; place-items: center; font-size: 10px; color: var(--ok); }
-  .ms-opt.on .ck { background: var(--seafoam); border-color: var(--seafoam); color: white; }
+  .ms-opt .ck { width: 14px; height: 14px; border-radius: 4px; border: 1px solid var(--line-2); display: grid; place-items: center; font-size: 10px; color: white; }
+  .ms-opt.on .ck { background: var(--seafoam); border-color: var(--seafoam); }
   .ms-opt .meta { color: var(--ink-soft); font-size: 10px; margin-left: auto; }
 
-  /* chip lists when subfilter active */
   .chips { display: flex; flex-wrap: wrap; gap: 6px; }
-  .chip { font-size: 11px; padding: 5px 10px; border-radius: 99px; background: white; border: 1px solid var(--line); cursor: pointer; color: var(--ink-soft); transition: all 160ms; display: inline-flex; align-items: center; gap: 5px; user-select: none; }
+  .chip { font-size: 11px; padding: 5px 10px; border-radius: 99px; background: white; border: 1px solid var(--line); cursor: pointer; color: var(--ink-soft); display: inline-flex; align-items: center; gap: 5px; }
   .chip:hover { border-color: var(--lavender); color: var(--ink); }
   .chip.on { background: linear-gradient(180deg, rgba(146,205,192,.22), rgba(146,205,192,.10)); border-color: var(--seafoam); color: var(--ink); font-weight: 600; }
   .chip.on::before { content: "✓"; color: var(--ok); font-weight: 700; }
 
-  /* segmented control */
   .seg { display: inline-flex; background: white; border: 1px solid var(--line); border-radius: 99px; padding: 3px; }
   .seg button { border: none; background: transparent; padding: 6px 12px; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--ink-soft); border-radius: 99px; font-family: inherit; }
   .seg button.on { background: var(--lavender); color: white; }
 
-  /* toggle */
   .toggle-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(146,205,192,.10); border: 1px solid rgba(146,205,192,.30); border-radius: var(--r-sm); }
-  .toggle { width: 36px; height: 20px; background: var(--line-2); border-radius: 99px; position: relative; cursor: pointer; transition: background 200ms; flex-shrink: 0; }
-  .toggle::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; background: white; border-radius: 99px; transition: left 200ms; box-shadow: 0 1px 3px rgba(0,0,0,.15); }
+  .toggle { width: 36px; height: 20px; background: var(--line-2); border-radius: 99px; position: relative; cursor: pointer; flex-shrink: 0; }
+  .toggle::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; background: white; border-radius: 99px; transition: left 200ms; }
   .toggle.on { background: var(--seafoam); }
   .toggle.on::after { left: 18px; }
-  .toggle-label { font-size: 13px; font-weight: 600; color: var(--ink); }
+  .toggle-label { font-size: 13px; font-weight: 600; }
   .toggle-hint { font-size: 11px; color: var(--ink-soft); margin-left: auto; }
 
-  .btn { border: none; border-radius: var(--r-sm); padding: 9px 14px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 6px; transition: all 200ms; }
+  .btn { border: none; border-radius: var(--r-sm); padding: 9px 14px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 6px; }
   .btn-primary { background: linear-gradient(135deg, var(--lavender), var(--rose)); color: white; box-shadow: 0 2px 10px rgba(195,166,212,.4); }
   .btn-primary:hover { box-shadow: 0 4px 16px rgba(195,166,212,.55); transform: translateY(-1px); }
   .btn-ghost { background: white; color: var(--ink-soft); border: 1px solid var(--line); }
@@ -130,36 +125,34 @@
   .btn-sm { padding: 6px 10px; font-size: 11px; }
   .btn-seafoam { background: linear-gradient(135deg, var(--seafoam), var(--mist)); color: white; }
   .btn-sand { background: linear-gradient(135deg, var(--sand), var(--rose)); color: white; }
+  .next-row { display: flex; justify-content: space-between; gap: 8px; margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--line); }
+  .next-row .left, .next-row .right { display: flex; gap: 8px; }
 
-  .next-row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--line); }
-
-  /* steps + run */
   .agent-log { display: flex; flex-direction: column; gap: 8px; }
   .agent-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: white; border: 1px solid var(--line); border-radius: var(--r-sm); }
   .agent-row.running { border-color: var(--lavender); background: rgba(195,166,212,.06); }
   .agent-row.done { opacity: .85; }
-  .agent-mark { width: 22px; height: 22px; border-radius: 99px; display: grid; place-items: center; font-size: 11px; background: var(--line); color: var(--ink-soft); flex-shrink: 0; }
+  .agent-mark { width: 22px; height: 22px; border-radius: 99px; display: grid; place-items: center; font-size: 11px; background: var(--line); color: var(--ink-soft); }
   .agent-row.running .agent-mark { background: var(--lavender); color: white; }
   .agent-row.done .agent-mark { background: var(--ok); color: white; }
-  .agent-name { font-size: 13px; font-weight: 600; flex-shrink: 0; }
+  .agent-name { font-size: 13px; font-weight: 600; }
   .agent-desc { font-size: 12px; color: var(--ink-soft); flex: 1; }
   .agent-prog { font-size: 10px; font-family: ui-monospace, monospace; color: var(--ink-soft); }
   .spinner { width: 12px; height: 12px; border: 2px solid var(--line-2); border-top-color: var(--lavender); border-radius: 99px; animation: spin 800ms linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* report */
   .report-h { display: flex; align-items: center; gap: 14px; padding-bottom: 16px; border-bottom: 1px solid var(--line); margin-bottom: 18px; flex-wrap: wrap; }
   .report-title { font-size: 18px; font-weight: 700; }
   .blk { margin-bottom: 22px; }
-  .blk-h { font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+  .blk-h { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
   .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
   .kpi { background: white; border: 1px solid var(--line); border-radius: var(--r-sm); padding: 14px; }
   .kpi-val { font-size: 20px; font-weight: 700; }
   .kpi-label { font-size: 11px; color: var(--ink-soft); }
   .tbl-wrap { border: 1px solid var(--line); border-radius: var(--r-sm); overflow: hidden; background: white; }
   table { width: 100%; border-collapse: collapse; }
-  th { font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-soft); padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--line); background: rgba(245,240,247,.5); font-weight: 600; }
-  td { font-size: 12px; padding: 10px 12px; border-bottom: 1px solid var(--line); color: var(--ink); }
+  th { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-soft); padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--line); background: rgba(245,240,247,.5); font-weight: 600; }
+  td { font-size: 12px; padding: 10px 12px; border-bottom: 1px solid var(--line); }
   tr:last-child td { border-bottom: 0; }
   tr.selected td { background: rgba(195,166,212,.10); }
   .pill { display: inline-block; font-size: 10px; padding: 2px 7px; border-radius: 99px; font-weight: 600; }
@@ -175,39 +168,50 @@
   .exp-btn { font-size: 11px; padding: 6px 12px; border-radius: var(--r-sm); background: white; border: 1px solid var(--line); color: var(--ink-soft); cursor: pointer; font-weight: 600; }
   .exp-btn:hover { border-color: var(--lavender); color: var(--ink); }
 
-  /* enrichment panel */
   .enrich-pane { background: linear-gradient(180deg, rgba(146,205,192,.10), white); border: 1px solid rgba(146,205,192,.40); border-radius: var(--radius); padding: 16px; margin-top: 18px; }
   .enrich-h { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
   .enrich-h h3 { margin: 0; font-size: 14px; font-weight: 700; }
   .enrich-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 12px 0; }
-  .enrich-opt { background: white; border: 1px solid var(--line); border-radius: var(--r-sm); padding: 10px; cursor: pointer; transition: all 160ms; }
-  .enrich-opt:hover { border-color: var(--seafoam); transform: translateY(-1px); }
+  .enrich-opt { background: white; border: 1px solid var(--line); border-radius: var(--r-sm); padding: 10px; cursor: pointer; }
+  .enrich-opt:hover { border-color: var(--seafoam); }
   .enrich-opt.on { background: rgba(146,205,192,.18); border-color: var(--seafoam); }
-  .enrich-opt .lbl { font-size: 11px; font-weight: 700; color: var(--ink); }
+  .enrich-opt .lbl { font-size: 11px; font-weight: 700; }
   .enrich-opt .desc { font-size: 10px; color: var(--ink-soft); margin-top: 2px; }
   .gate-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; padding: 8px 12px; background: rgba(245,240,247,.45); border-radius: var(--r-sm); border: 1px dashed var(--line); margin-top: 10px; }
 
-  /* drawer */
+  /* DRAWER — Claude-style config */
   .drawer { background: white; border-left: 1px solid var(--line); overflow-y: auto; box-shadow: -2px 0 12px rgba(45,36,58,.08); padding: 16px 16px 60px; height: 100vh; position: sticky; top: 0; }
   .drawer-close { float: right; background: transparent; border: none; cursor: pointer; font-size: 18px; color: var(--ink-soft); }
   .drawer-tabs { display: flex; gap: 3px; flex-wrap: wrap; margin-bottom: 14px; padding: 4px; background: var(--base); border-radius: 99px; }
   .drawer-tab { font-size: 11px; padding: 5px 10px; border-radius: 99px; cursor: pointer; color: var(--ink-soft); }
-  .drawer-tab.on { background: white; color: var(--ink); font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
-  .ai-gen-row { display: flex; gap: 6px; margin: 8px 0 12px; }
-  .ai-gen-row .input { flex: 1; padding: 6px 10px; font-size: 12px; }
+  .drawer-tab.on { background: white; color: var(--ink); font-weight: 600; }
+  .item-card { background: white; border: 1px solid var(--line); border-radius: var(--r-sm); padding: 10px 12px; margin-bottom: 8px; cursor: pointer; }
+  .item-card:hover { border-color: var(--lavender); }
+  .item-card-h { display: flex; align-items: center; gap: 8px; }
+  .item-card-title { font-size: 12px; font-weight: 700; }
+  .item-card-meta { font-size: 10px; color: var(--ink-soft); margin-top: 2px; }
+  .item-card .item-st { margin-left: auto; }
+  .item-config { display: none; border-top: 1px dashed var(--line); margin-top: 10px; padding-top: 10px; }
+  .item-card.open .item-config { display: block; }
+  .item-card.open { border-color: var(--lavender); background: rgba(195,166,212,.04); }
+  .cfg-row { margin-bottom: 8px; }
+  .cfg-row .lbl { font-size: 10px; color: var(--ink-soft); font-weight: 600; margin-bottom: 3px; text-transform: uppercase; letter-spacing: .04em; }
+  .cfg-row .input, .cfg-row .select { padding: 6px 9px; font-size: 11px; }
+  .cfg-row textarea.input { min-height: 60px; font-family: ui-monospace, monospace; }
+  .cfg-actions { display: flex; gap: 6px; justify-content: flex-end; margin-top: 8px; }
+
   .drawer-fab { position: fixed; top: 22px; right: 22px; z-index: 30; background: linear-gradient(135deg, var(--lavender), var(--rose)); color: white; border: none; border-radius: 99px; padding: 9px 14px; font-size: 12px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 16px rgba(195,166,212,.45); }
   .app.drawer-open .drawer-fab { display: none; }
 
-  /* misc */
   .small { font-size: 11px; color: var(--ink-soft); }
   .hide { display: none !important; }
-  .pulse-dot { width: 6px; height: 6px; border-radius: 99px; background: var(--ok); animation: pulse 1.6s ease-in-out infinite; display: inline-block; vertical-align: middle; margin-right: 4px; }
-  @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .4; transform: scale(.85); } }
+  .pulse-dot { width: 6px; height: 6px; border-radius: 99px; background: var(--ok); animation: pulse 1.6s infinite; display: inline-block; margin-right: 4px; }
+  @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: .4; transform: scale(.85); } }
   .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--ink); color: white; padding: 10px 18px; border-radius: 99px; font-size: 12px; box-shadow: var(--shadow-lg); display: none; z-index: 60; }
-  .toast.on { display: block; animation: slidein 220ms ease-out; }
-  @keyframes slidein { from { transform: translate(-50%, 20px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
-
+  .toast.on { display: block; }
   .relative { position: relative; }
+  .ai-gen-row { display: flex; gap: 6px; margin: 8px 0 12px; }
+  .ai-gen-row .input { flex: 1; padding: 6px 10px; font-size: 12px; }
 </style>
 </head>
 <body>
@@ -223,7 +227,7 @@
     </div>
     <div class="sb-h">Platform</div>
     <div class="sb-item">📊 Dashboard</div>
-    <div class="sb-item active">✨ AI Chat <span class="badge">v4</span></div>
+    <div class="sb-item active">✨ AI Chat <span class="badge">v5</span></div>
     <div class="sb-item">🎯 Leads</div>
     <div class="sb-item">⚡ Lead Factory</div>
     <div class="sb-h">Intelligence</div>
@@ -237,324 +241,301 @@
 
   <main class="main">
     <h1>AI Research Composer</h1>
-    <p class="h-sub">Guided 4-step composer · each layer reveals the next · auto-saves your loadout.</p>
+    <p class="h-sub">Wizard layers · strict input contract · clickable navigation across all steps.</p>
 
-    <!-- ── insights ── -->
-    <div class="insight-row" id="insight-row">
-      <div class="insight" onclick="toast('Loaded · skip to step 4')">
+    <!-- MAIN STAGE NAV (clickable back to any done stage) -->
+    <div class="stage-bar" id="stage-bar">
+      <span class="stage active" data-stage="compose" onclick="gotoStage(this)"><span class="num">1</span>Compose</span>
+      <span class="stage-sep">›</span>
+      <span class="stage" data-stage="enhance" onclick="gotoStage(this)"><span class="num">2</span>Enhance</span>
+      <span class="stage-sep">›</span>
+      <span class="stage" data-stage="clarify" onclick="gotoStage(this)"><span class="num">3</span>Clarify</span>
+      <span class="stage-sep">›</span>
+      <span class="stage" data-stage="run" onclick="gotoStage(this)"><span class="num">4</span>Run</span>
+      <span class="stage-sep">›</span>
+      <span class="stage" data-stage="report" onclick="gotoStage(this)"><span class="num">5</span>Report</span>
+      <span class="stage-sep">›</span>
+      <span class="stage" data-stage="enrich" onclick="gotoStage(this)"><span class="num">6</span>Enrich</span>
+    </div>
+
+    <!-- RULE LOCK BANNER — production guarantee -->
+    <div class="rule-lock">
+      <span class="ico">🔒</span>
+      <div>
+        <strong>Strict Input Contract</strong>
+        <span class="sm">— every filter, source, mode &amp; clarification you set is honored verbatim by the agent. If a constraint can't be met, the run halts and asks you instead of inventing data. All outputs cite sources.</span>
+      </div>
+    </div>
+
+    <!-- INSIGHTS -->
+    <div class="insight-row">
+      <div class="insight" onclick="toast('Loaded saved loadout')">
         <div class="insight-h">🔁 You ran this 3× this week</div>
         <div class="insight-t">Re-run "Saudi fintech CTOs" with 2025 data</div>
       </div>
-      <div class="insight" onclick="toast('Loaded CFO follow-up template')">
-        <div class="insight-h">⏭ Likely next step</div>
+      <div class="insight" onclick="toast('CFO follow-up loaded')">
+        <div class="insight-h">⏭ Likely next</div>
         <div class="insight-t">Map Series-B fintech CFOs</div>
       </div>
-      <div class="insight" onclick="toast('Activated NEOM Vendor Hunter')">
-        <div class="insight-h">📈 Trending in tenant</div>
-        <div class="insight-t">NEOM construction tender — try the new skill</div>
+      <div class="insight" onclick="toast('NEOM skill activated')">
+        <div class="insight-h">📈 Tenant trending</div>
+        <div class="insight-t">NEOM construction tender — try the skill</div>
       </div>
     </div>
 
-    <!-- ── crumbs ── -->
-    <div class="crumbs" id="crumbs">
-      <span class="crumb active" data-c="1"><span class="check">▸</span> Pick</span>
-      <span class="crumb-sep">›</span>
-      <span class="crumb" data-c="2">Scope</span>
-      <span class="crumb-sep">›</span>
-      <span class="crumb" data-c="3">Tools</span>
-      <span class="crumb-sep">›</span>
-      <span class="crumb" data-c="4">Ask</span>
-    </div>
-
-    <!-- ───────────────── LAYER 1: PICK ───────────────── -->
-    <section class="layer" id="layer-1">
-      <div class="layer-h">
-        <div class="layer-num">1</div>
-        <div class="layer-t">Pick<span class="layer-sub">— template &amp; modes</span></div>
+    <!-- ─────────────────  STAGE 1: COMPOSE  ───────────────── -->
+    <section id="stage-compose">
+      <!-- sub-tab crumbs (also clickable) -->
+      <div class="crumbs" id="crumbs">
+        <span class="crumb active" data-c="1" onclick="gotoLayer(1)"><span style="color:var(--ok)">▸</span> Pick</span>
+        <span class="crumb-sep">›</span>
+        <span class="crumb" data-c="2" onclick="gotoLayer(2)">Scope</span>
+        <span class="crumb-sep">›</span>
+        <span class="crumb" data-c="3" onclick="gotoLayer(3)">Tools</span>
+        <span class="crumb-sep">›</span>
+        <span class="crumb" data-c="4" onclick="gotoLayer(4)">Ask</span>
       </div>
-      <div class="layer-body">
-        <div class="grid-2">
+
+      <!-- LAYER 1 -->
+      <section class="layer" id="layer-1">
+        <div class="layer-h"><div class="layer-num">1</div><div class="layer-t">Pick<span class="layer-sub">— template &amp; modes</span></div></div>
+        <div class="layer-body">
+          <div class="grid-2">
+            <div>
+              <div class="field-label">📑 Template <button class="field-edit" onclick="openDrawerAt('templates')">+ Create / Edit</button></div>
+              <select class="select" id="tpl-sel" onchange="toast('Template applied · next layers auto-locked')">
+                <option value="t1" selected>🎯 Saudi fintech CTOs · 2024 funded</option>
+                <option value="t2">⚖️ Tadawul board comparison</option>
+                <option value="t3">🏛️ Family-office contact map · GCC</option>
+                <option value="t4">🔬 CR Lookup deep dossier</option>
+                <option value="my1">💾 My Aramco Vendors (saved)</option>
+                <option value="blank">— Start blank —</option>
+              </select>
+            </div>
+            <div class="relative">
+              <div class="field-label">⚙️ Modes <span class="field-hint">— multi-select</span></div>
+              <div class="ms" onclick="toggleMS('mode')">
+                <span class="ms-tag">🎯 Lead Gen <span class="x">×</span></span>
+                <span class="ms-tag">🧪 Enrich <span class="x">×</span></span>
+                <span class="ms-chev">▾</span>
+              </div>
+              <div class="ms-pop hide" id="mode-pop">
+                <div class="ms-opt on"><div class="ck">✓</div>🎯 Lead Gen<span class="meta">finds people</span></div>
+                <div class="ms-opt on"><div class="ck">✓</div>🧪 Enrich<span class="meta">adds fields</span></div>
+                <div class="ms-opt"><div class="ck">✓</div>🔍 Research<span class="meta">open-ended</span></div>
+                <div class="ms-opt"><div class="ck">✓</div>📋 Extract<span class="meta">table only</span></div>
+                <div class="ms-opt"><div class="ck">✓</div>⚖️ Compare<span class="meta">side-by-side</span></div>
+                <div class="ms-opt"><div class="ck">✓</div>🔬 Deep Dive</div>
+                <div class="ms-opt"><div class="ck">✓</div>📡 Signal Watch</div>
+                <div class="ms-opt"><div class="ck">✓</div>🛠️ Custom</div>
+              </div>
+            </div>
+          </div>
+          <div class="next-row">
+            <div class="left"></div>
+            <div class="right"><button class="btn btn-primary btn-sm" onclick="gotoLayer(2)">Next: Scope →</button></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- LAYER 2 -->
+      <section class="layer hide" id="layer-2">
+        <div class="layer-h"><div class="layer-num">2</div><div class="layer-t">Scope<span class="layer-sub">— country &amp; industry → reveals dependent filters</span></div></div>
+        <div class="layer-body">
+          <div class="grid-2">
+            <div class="relative">
+              <div class="field-label">🌍 Country / Region</div>
+              <div class="ms" onclick="toggleMS('country')">
+                <span class="ms-tag">🇸🇦 Saudi Arabia <span class="x">×</span></span>
+                <span class="ms-chev">▾</span>
+              </div>
+              <div class="ms-pop hide" id="country-pop">
+                <div class="ms-opt on"><div class="ck">✓</div>🇸🇦 Saudi Arabia</div>
+                <div class="ms-opt"><div class="ck">✓</div>🇦🇪 UAE</div>
+                <div class="ms-opt"><div class="ck">✓</div>🇰🇼 Kuwait</div>
+                <div class="ms-opt"><div class="ck">✓</div>🇶🇦 Qatar</div>
+                <div class="ms-opt"><div class="ck">✓</div>🇧🇭 Bahrain</div>
+                <div class="ms-opt"><div class="ck">✓</div>🇴🇲 Oman</div>
+                <div class="ms-opt"><div class="ck">✓</div>🇪🇬 Egypt</div>
+                <div class="ms-opt"><div class="ck">✓</div>🌐 GCC (all)</div>
+                <div class="ms-opt"><div class="ck">✓</div>🌐 MENA (all)</div>
+                <div class="ms-opt"><div class="ck">✓</div>🌐 Global</div>
+              </div>
+            </div>
+            <div>
+              <div class="field-label">🏭 Industry</div>
+              <select class="select"><option selected>💳 Fintech</option><option>🏦 Banking</option><option>🛢️ Energy</option><option>🏗️ Construction</option><option>💊 Healthcare</option><option>🛒 Retail</option><option>🎓 EdTech</option></select>
+            </div>
+          </div>
+          <div style="margin-top:14px">
+            <div class="field-label">⚙️ Industry sub-filters <span class="field-hint">— Fintech</span></div>
+            <div class="grid-3">
+              <div><div class="small" style="margin-bottom:4px">Sub-industry</div><select class="select"><option>Payments / BNPL</option><option>Open Banking</option><option>Lending</option><option>Wealthtech</option></select></div>
+              <div><div class="small" style="margin-bottom:4px">Funding stage</div><select class="select"><option selected>Series A+</option><option>Seed</option><option>Series B+</option></select></div>
+              <div><div class="small" style="margin-bottom:4px">Funding year</div><select class="select"><option selected>2024</option><option>2025</option><option>2023</option></select></div>
+            </div>
+          </div>
+          <div class="next-row">
+            <div class="left"><button class="btn btn-ghost btn-sm" onclick="gotoLayer(1)">← Back: Pick</button></div>
+            <div class="right"><button class="btn btn-primary btn-sm" onclick="gotoLayer(3)">Next: Tools →</button></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- LAYER 3 -->
+      <section class="layer hide" id="layer-3">
+        <div class="layer-h"><div class="layer-num">3</div><div class="layer-t">Tools<span class="layer-sub">— category → matching items</span></div></div>
+        <div class="layer-body">
+          <div style="margin-bottom:16px">
+            <div class="field-label">📚 Sources <button class="field-edit" onclick="openDrawerAt('sources')">Manage all 80</button></div>
+            <div class="grid-2">
+              <select class="select" id="src-cat" onchange="onSrcCat()">
+                <option value="ksa-market" selected>🇸🇦 Saudi market &amp; registries (11)</option>
+                <option value="arabic-press">📰 Arabic financial press (10)</option>
+                <option value="regional-press">🌍 Regional &amp; English biz press (14)</option>
+                <option value="global-open">⚖️ Global open-data &amp; legal (11)</option>
+                <option value="sector">🏗️ Sector / Real-estate (10)</option>
+                <option value="social">💬 Social &amp; live web (10)</option>
+              </select>
+              <div class="seg"><button class="on">Selected 6 of 80</button></div>
+            </div>
+            <div class="chips" id="src-chips" style="margin-top:10px"></div>
+          </div>
+
+          <div style="margin-bottom:16px">
+            <div class="field-label">🔌 Connectors <button class="field-edit" onclick="openDrawerAt('connectors')">Manage all 37</button></div>
+            <div class="grid-2">
+              <select class="select" id="conn-cat" onchange="onConnCat()">
+                <option value="scraping" selected>🌐 Scraping / Browsing (9)</option>
+                <option value="prod">⚙️ Productivity (8)</option>
+                <option value="files">📁 Files &amp; data (8)</option>
+                <option value="crm">💼 CRM &amp; sales (6)</option>
+                <option value="msg">💬 Messaging (6)</option>
+              </select>
+              <div class="seg"><button class="on">Selected 3 of 37</button></div>
+            </div>
+            <div class="chips" id="conn-chips" style="margin-top:10px"></div>
+          </div>
+
           <div>
-            <div class="field-label">📑 Template <button class="field-edit">+ Create / Edit</button></div>
-            <select class="select" id="tpl-sel" onchange="onTemplateChange()">
-              <option value="">— Choose a template (auto-fills next layers) —</option>
-              <option value="t1" selected>🎯 Saudi fintech CTOs · 2024 funded</option>
-              <option value="t2">⚖️ Tadawul board comparison</option>
-              <option value="t3">🏛️ Family-office contact map · GCC</option>
-              <option value="t4">🔬 CR Lookup deep dossier</option>
-              <option value="t5">📊 M&A candidates screen</option>
-              <option value="t6">💰 VC-backed founders map · MENA</option>
-              <option value="my1">💾 My Aramco Vendors (saved · 2025-05-19)</option>
-              <option value="blank">— Start blank —</option>
-            </select>
+            <div class="field-label">🧬 Skills <button class="field-edit" onclick="openDrawerAt('skills')">Manage / Create</button></div>
+            <div class="grid-2">
+              <select class="select" id="skill-cat" onchange="onSkillCat()">
+                <option value="finance" selected>🏦 Finance &amp; Investment (4)</option>
+                <option value="real">🏗️ Real-Estate &amp; Construction (3)</option>
+                <option value="energy">🛢️ Energy (2)</option>
+                <option value="people">👥 People &amp; Outreach (3)</option>
+                <option value="compliance">⚖️ Compliance (2)</option>
+                <option value="other">🛒 Other sectors (3)</option>
+              </select>
+              <div class="seg"><button class="on">Selected 1 of 17</button></div>
+            </div>
+            <div class="chips" id="skill-chips" style="margin-top:10px"></div>
           </div>
 
-          <div class="relative">
-            <div class="field-label">⚙️ Modes <span class="field-hint">— multi-select</span></div>
-            <div class="ms" id="mode-ms" onclick="toggleMS('mode')">
-              <span class="ms-tag" data-mode="leadgen">🎯 Lead Gen<span class="x" onclick="rmTag(event,'mode','leadgen')">×</span></span>
-              <span class="ms-tag" data-mode="enrich">🧪 Enrich<span class="x" onclick="rmTag(event,'mode','enrich')">×</span></span>
-              <span class="ms-chev">▾</span>
-            </div>
-            <div class="ms-pop hide" id="mode-pop">
-              <div class="ms-opt on" data-mode="leadgen"><div class="ck">✓</div>🎯 Lead Gen<span class="meta">finds people</span></div>
-              <div class="ms-opt on" data-mode="enrich"><div class="ck">✓</div>🧪 Enrich<span class="meta">adds fields</span></div>
-              <div class="ms-opt" data-mode="research"><div class="ck">✓</div>🔍 Research<span class="meta">open-ended</span></div>
-              <div class="ms-opt" data-mode="extract"><div class="ck">✓</div>📋 Extract<span class="meta">table only</span></div>
-              <div class="ms-opt" data-mode="compare"><div class="ck">✓</div>⚖️ Compare<span class="meta">side-by-side</span></div>
-              <div class="ms-opt" data-mode="deepdive"><div class="ck">✓</div>🔬 Deep Dive<span class="meta">exhaustive</span></div>
-              <div class="ms-opt" data-mode="signal"><div class="ck">✓</div>📡 Signal Watch<span class="meta">monitoring</span></div>
-              <div class="ms-opt" data-mode="custom"><div class="ck">✓</div>🛠️ Custom</div>
-            </div>
+          <div class="next-row">
+            <div class="left"><button class="btn btn-ghost btn-sm" onclick="gotoLayer(2)">← Back: Scope</button></div>
+            <div class="right"><button class="btn btn-primary btn-sm" onclick="gotoLayer(4)">Next: Ask →</button></div>
           </div>
         </div>
+      </section>
 
-        <div class="next-row">
-          <button class="btn btn-primary btn-sm" onclick="goLayer(2)">Next: Scope →</button>
+      <!-- LAYER 4 -->
+      <section class="layer hide" id="layer-4">
+        <div class="layer-h"><div class="layer-num">4</div><div class="layer-t">Ask<span class="layer-sub">— text + filters → both feed the enhancer</span></div></div>
+        <div class="layer-body">
+          <div style="display:flex; align-items:center; margin-bottom:10px">
+            <div class="seg" id="input-seg">
+              <button class="on" data-seg="both">⚡ Both</button>
+              <button data-seg="write">✍️ Write</button>
+              <button data-seg="filter">🎛️ Filters only</button>
+            </div>
+            <span class="small" style="margin-left:auto">Both inputs are honored.</span>
+          </div>
+          <div id="write-block">
+            <textarea class="input">Find 5 Saudi fintech CTOs at Series-A+ companies that closed 2024 funding and are hiring engineers in Riyadh.</textarea>
+          </div>
+          <div id="filter-block" style="margin-top:10px">
+            <div class="grid-3">
+              <div><div class="small" style="margin-bottom:4px">Role</div><select class="select"><option>CTO</option><option>CEO</option><option>CFO</option></select></div>
+              <div><div class="small" style="margin-bottom:4px">Seniority</div><select class="select"><option>C-Suite</option><option>VP</option><option>Director</option></select></div>
+              <div><div class="small" style="margin-bottom:4px">City</div><select class="select"><option>Riyadh</option><option>Jeddah</option><option>Dammam</option></select></div>
+              <div><div class="small" style="margin-bottom:4px">Emp. band</div><select class="select"><option>51-200</option><option>201-500</option></select></div>
+              <div><div class="small" style="margin-bottom:4px">Revenue</div><select class="select"><option>SAR 10-50M</option><option>SAR 50-250M</option></select></div>
+              <div><div class="small" style="margin-bottom:4px">Result count</div><select class="select"><option>5</option><option>10</option><option>25</option></select></div>
+            </div>
+          </div>
+          <div class="toggle-row" style="margin-top:12px">
+            <div class="toggle on" id="enhance-tgl" onclick="this.classList.toggle('on')"></div>
+            <div class="toggle-label">AI Prompt Enhancer</div>
+            <div class="toggle-hint">Merges text + filters + template + mode into one structured task. Asks clarifying questions if anything contradicts.</div>
+          </div>
+          <div class="next-row">
+            <div class="left"><button class="btn btn-ghost btn-sm" onclick="gotoLayer(3)">← Back: Tools</button></div>
+            <div class="right"><button class="btn btn-primary" onclick="kickoff()">Compose &amp; Run ⏵</button></div>
+          </div>
         </div>
-      </div>
+      </section>
     </section>
 
-    <!-- ───────────────── LAYER 2: SCOPE ───────────────── -->
-    <section class="layer hide" id="layer-2">
-      <div class="layer-h">
-        <div class="layer-num">2</div>
-        <div class="layer-t">Scope<span class="layer-sub">— country &amp; industry</span></div>
-      </div>
-      <div class="layer-body">
-        <div class="grid-2">
-          <div class="relative">
-            <div class="field-label">🌍 Country / Region <span class="field-hint">— multi</span></div>
-            <div class="ms" onclick="toggleMS('country')">
-              <span class="ms-tag">🇸🇦 Saudi Arabia<span class="x" onclick="event.stopPropagation()">×</span></span>
-              <span class="ms-chev">▾</span>
-            </div>
-            <div class="ms-pop hide" id="country-pop">
-              <div class="ms-opt on"><div class="ck">✓</div>🇸🇦 Saudi Arabia</div>
-              <div class="ms-opt"><div class="ck">✓</div>🇦🇪 UAE</div>
-              <div class="ms-opt"><div class="ck">✓</div>🇰🇼 Kuwait</div>
-              <div class="ms-opt"><div class="ck">✓</div>🇶🇦 Qatar</div>
-              <div class="ms-opt"><div class="ck">✓</div>🇧🇭 Bahrain</div>
-              <div class="ms-opt"><div class="ck">✓</div>🇴🇲 Oman</div>
-              <div class="ms-opt"><div class="ck">✓</div>🇪🇬 Egypt</div>
-              <div class="ms-opt"><div class="ck">✓</div>🇯🇴 Jordan</div>
-              <div class="ms-opt"><div class="ck">✓</div>🌐 GCC (all)</div>
-              <div class="ms-opt"><div class="ck">✓</div>🌐 MENA (all)</div>
-              <div class="ms-opt"><div class="ck">✓</div>🌐 Global</div>
-            </div>
-          </div>
-
-          <div>
-            <div class="field-label">🏭 Industry</div>
-            <select class="select" id="ind-sel" onchange="onIndustryChange()">
-              <option value="">Choose industry</option>
-              <option value="fintech" selected>💳 Fintech</option>
-              <option value="banking">🏦 Banking</option>
-              <option value="energy">🛢️ Energy / Oil &amp; Gas</option>
-              <option value="construction">🏗️ Construction / Real Estate</option>
-              <option value="healthcare">💊 Healthcare</option>
-              <option value="retail">🛒 Retail / E-commerce</option>
-              <option value="edtech">🎓 EdTech</option>
-              <option value="logistics">🚚 Logistics</option>
-              <option value="govt">🏛️ Government / Public Sector</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Sub-filters appear based on industry -->
-        <div style="margin-top:14px" id="subfilter-zone">
-          <div class="field-label">⚙️ Industry sub-filters <span class="field-hint">— based on Fintech</span></div>
-          <div class="grid-3">
-            <div>
-              <div class="small" style="margin-bottom:4px">Sub-industry</div>
-              <select class="select"><option>Payments / BNPL</option><option>Open Banking</option><option>Lending / Credit</option><option>Wealthtech</option><option>Insurtech</option><option>Crypto / Digital Assets</option></select>
-            </div>
-            <div>
-              <div class="small" style="margin-bottom:4px">Funding stage</div>
-              <select class="select"><option selected>Series A+</option><option>Seed</option><option>Series B+</option><option>PE / Growth</option><option>Listed</option></select>
-            </div>
-            <div>
-              <div class="small" style="margin-bottom:4px">Funding year</div>
-              <select class="select"><option selected>2024</option><option>2025</option><option>2023</option><option>Last 12m</option></select>
-            </div>
-          </div>
-        </div>
-
-        <div class="next-row">
-          <button class="btn btn-ghost btn-sm" onclick="goLayer(1)">← Back</button>
-          <button class="btn btn-primary btn-sm" onclick="goLayer(3)">Next: Tools →</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- ───────────────── LAYER 3: TOOLS ───────────────── -->
-    <section class="layer hide" id="layer-3">
-      <div class="layer-h">
-        <div class="layer-num">3</div>
-        <div class="layer-t">Tools<span class="layer-sub">— sources · connectors · skills (category → items)</span></div>
-      </div>
-      <div class="layer-body">
-
-        <!-- SOURCES: category → items -->
-        <div style="margin-bottom:18px">
-          <div class="field-label">📚 Sources <span class="field-hint">— pick a category, then which sources</span></div>
-          <div class="grid-2">
-            <select class="select" id="src-cat" onchange="onSrcCat()">
-              <option value="ksa-market" selected>🇸🇦 Saudi market &amp; registries (11)</option>
-              <option value="arabic-press">📰 Arabic financial press (10)</option>
-              <option value="regional-press">🌍 Regional &amp; English biz press (14)</option>
-              <option value="global-open">⚖️ Global open-data &amp; legal (11)</option>
-              <option value="sector">🏗️ Sector / Real-estate (10)</option>
-              <option value="social">💬 Social &amp; live web (10)</option>
-            </select>
-            <div class="seg">
-              <button class="on">Selected 6 of 80</button>
-            </div>
-          </div>
-          <div class="chips" id="src-chips" style="margin-top:10px">
-            <!-- populated by JS -->
-          </div>
-        </div>
-
-        <!-- CONNECTORS: category → items -->
-        <div style="margin-bottom:18px">
-          <div class="field-label">🔌 Connectors <span class="field-hint">— category dropdown filters which connectors show</span></div>
-          <div class="grid-2">
-            <select class="select" id="conn-cat" onchange="onConnCat()">
-              <option value="scraping" selected>🌐 Scraping / Browsing (9)</option>
-              <option value="prod">⚙️ Productivity &amp; collab (8)</option>
-              <option value="files">📁 Files &amp; data stores (8)</option>
-              <option value="crm">💼 CRM &amp; sales (6)</option>
-              <option value="msg">💬 Messaging (6)</option>
-            </select>
-            <div class="seg">
-              <button class="on">Selected 3 of 37</button>
-            </div>
-          </div>
-          <div class="chips" id="conn-chips" style="margin-top:10px"></div>
-        </div>
-
-        <!-- SKILLS: category → items -->
-        <div>
-          <div class="field-label">🧬 Skills <span class="field-hint">— sector-tailored bundles</span></div>
-          <div class="grid-2">
-            <select class="select" id="skill-cat" onchange="onSkillCat()">
-              <option value="finance" selected>🏦 Finance &amp; Investment (4)</option>
-              <option value="real">🏗️ Real-Estate &amp; Construction (3)</option>
-              <option value="energy">🛢️ Energy &amp; Industry (2)</option>
-              <option value="people">👥 People &amp; Outreach (3)</option>
-              <option value="compliance">⚖️ Compliance &amp; Risk (2)</option>
-              <option value="sector-other">🛒 Other sectors (3)</option>
-            </select>
-            <div class="seg">
-              <button class="on">Selected 1 of 17</button>
-            </div>
-          </div>
-          <div class="chips" id="skill-chips" style="margin-top:10px"></div>
-        </div>
-
-        <div class="next-row">
-          <button class="btn btn-ghost btn-sm" onclick="goLayer(2)">← Back</button>
-          <button class="btn btn-primary btn-sm" onclick="goLayer(4)">Next: Ask →</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- ───────────────── LAYER 4: ASK ───────────────── -->
-    <section class="layer hide" id="layer-4">
-      <div class="layer-h">
-        <div class="layer-num">4</div>
-        <div class="layer-t">Ask<span class="layer-sub">— text · filters · or both → AI enhances</span></div>
-      </div>
-      <div class="layer-body">
-        <div style="display:flex; align-items:center; margin-bottom:10px">
-          <div class="seg" id="input-seg">
-            <button class="on" data-seg="both">⚡ Both</button>
-            <button data-seg="write">✍️ Write</button>
-            <button data-seg="filter">🎛️ Filters only</button>
-          </div>
-          <span class="small" style="margin-left:auto">Text + filters both feed the AI enhancer.</span>
-        </div>
-
-        <div id="write-block">
-          <textarea class="input" placeholder="Describe what you want...">Find 5 Saudi fintech CTOs at Series-A+ companies that closed 2024 funding and are hiring engineers in Riyadh.</textarea>
-        </div>
-
-        <div id="filter-block" style="margin-top:10px">
-          <div class="grid-3">
-            <div><div class="small" style="margin-bottom:4px">Role</div><select class="select"><option>CTO</option><option>CEO</option><option>CFO</option><option>VP Eng</option><option>Head of Sales</option></select></div>
-            <div><div class="small" style="margin-bottom:4px">Seniority</div><select class="select"><option>C-Suite</option><option>VP</option><option>Director</option></select></div>
-            <div><div class="small" style="margin-bottom:4px">City</div><select class="select"><option>Riyadh</option><option>Jeddah</option><option>Dammam</option></select></div>
-            <div><div class="small" style="margin-bottom:4px">Employee band</div><select class="select"><option>51-200</option><option>201-500</option><option>501-1000</option></select></div>
-            <div><div class="small" style="margin-bottom:4px">Revenue band</div><select class="select"><option>SAR 10-50M</option><option>SAR 50-250M</option><option>SAR 250M+</option></select></div>
-            <div><div class="small" style="margin-bottom:4px">Result count</div><select class="select"><option>5</option><option>10</option><option>25</option><option>50</option></select></div>
-          </div>
-        </div>
-
-        <div class="toggle-row" style="margin-top:12px">
-          <div class="toggle on" id="enhance-tgl"></div>
-          <div class="toggle-label">AI Prompt Enhancer</div>
-          <div class="toggle-hint">Merges text + filters + template + mode into one structured task.</div>
-        </div>
-
-        <div class="next-row">
-          <button class="btn btn-ghost btn-sm" onclick="goLayer(3)">← Back</button>
-          <button class="btn btn-primary" onclick="kickoff()">Compose &amp; Run ⏵</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- ───────────────── ENHANCE / CLARIFY ───────────────── -->
-    <section id="view-clarify" class="hide" style="margin-top:14px">
+    <!-- ─────────────────  STAGE 2: ENHANCE  ───────────────── -->
+    <section id="stage-enhance" class="hide">
       <div class="layer">
-        <div class="layer-h">
-          <div class="layer-num" style="background:var(--sand)">✨</div>
-          <div class="layer-t">Enhanced Prompt<span class="layer-sub">— AI merged everything</span></div>
-        </div>
-        <div class="layer-body" style="font-size:12px">
-          <div style="background:rgba(245,240,247,.6); padding:14px; border-radius:10px; border:1px solid var(--line); font-family:ui-monospace, monospace;">
+        <div class="layer-h"><div class="layer-num" style="background:var(--sand)">✨</div><div class="layer-t">Enhanced Prompt<span class="layer-sub">— locked to your inputs, verbatim</span></div></div>
+        <div class="layer-body">
+          <div style="background:rgba(245,240,247,.6); padding:14px; border-radius:10px; border:1px solid var(--line); font-family:ui-monospace, monospace; font-size:12px">
             <strong>OBJECTIVE</strong> — Identify 5 Saudi-Arabia-based fintech companies that closed Series A+ in 2024, hiring engineers in Riyadh.<br/>
             <strong>FILTERS</strong> — Fintech · KSA · Riyadh · Series A+ · 2024 · CTO · 51-500 emp<br/>
             <strong>SOURCES</strong> — Tadawul · Argaam · Mubasher · Maal · GLEIF · Masar<br/>
             <strong>MODES</strong> — Lead Gen + Enrich<br/>
+            <strong>RULES</strong> — Honor every filter · halt on conflict · cite every claim · no invented data<br/>
             <strong>SCHEMA</strong> — LeadList · 5 rows · English
           </div>
-
-          <div style="background:rgba(212,184,150,.10); border:1px solid rgba(212,184,150,.30); border-radius:10px; padding:14px; margin-top:12px">
-            <div style="font-weight:600; margin-bottom:10px">💡 2 quick clarifications</div>
-            <div style="margin-bottom:10px">
-              <div class="small" style="margin-bottom:6px">Include "Head of Engineering" / "VP Eng"?</div>
-              <div class="chips"><span class="chip on">Yes</span><span class="chip">No — formal CTO only</span></div>
-            </div>
-            <div>
-              <div class="small" style="margin-bottom:6px">Min funding round?</div>
-              <div class="chips"><span class="chip">Any</span><span class="chip on">$2M+</span><span class="chip">$10M+</span></div>
-            </div>
-          </div>
-
           <div class="next-row">
-            <button class="btn btn-ghost btn-sm" onclick="goLayer(4)">← Back</button>
-            <button class="btn btn-primary" onclick="startAgents()">Run Research ⏵</button>
+            <div class="left"><button class="btn btn-ghost btn-sm" onclick="gotoStageById('compose')">← Back to Compose</button></div>
+            <div class="right"><button class="btn btn-primary btn-sm" onclick="gotoStageById('clarify')">Continue: Clarify →</button></div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ───────────────── RUN ───────────────── -->
-    <section id="view-run" class="hide" style="margin-top:14px">
+    <!-- ─────────────────  STAGE 3: CLARIFY  ───────────────── -->
+    <section id="stage-clarify" class="hide">
       <div class="layer">
-        <div class="layer-h">
-          <div class="layer-num" style="background:var(--lavender)"><div class="spinner" style="border-color:rgba(255,255,255,.4);border-top-color:white"></div></div>
-          <div class="layer-t">Agents Working<span class="layer-sub"><span class="pulse-dot"></span>streaming</span></div>
+        <div class="layer-h"><div class="layer-num" style="background:var(--sand)">💡</div><div class="layer-t">Clarify<span class="layer-sub">— answers become contract clauses</span></div></div>
+        <div class="layer-body">
+          <div style="margin-bottom:14px">
+            <div class="small" style="margin-bottom:6px; font-weight:600; color:var(--ink)">Include "Head of Engineering" / "VP Eng" as CTO equivalents?</div>
+            <div class="chips"><span class="chip on">Yes — senior tech leaders</span><span class="chip">No — formal CTO only</span></div>
+          </div>
+          <div style="margin-bottom:14px">
+            <div class="small" style="margin-bottom:6px; font-weight:600; color:var(--ink)">Minimum funding round?</div>
+            <div class="chips"><span class="chip">Any</span><span class="chip on">$2M+</span><span class="chip">$10M+</span><span class="chip">$50M+</span></div>
+          </div>
+          <div class="next-row">
+            <div class="left"><button class="btn btn-ghost btn-sm" onclick="gotoStageById('enhance')">← Back to Enhanced</button></div>
+            <div class="right"><button class="btn btn-primary btn-sm" onclick="startAgents()">Run Research ⏵</button></div>
+          </div>
         </div>
+      </div>
+    </section>
+
+    <!-- ─────────────────  STAGE 4: RUN  ───────────────── -->
+    <section id="stage-run" class="hide">
+      <div class="layer">
+        <div class="layer-h"><div class="layer-num" style="background:var(--lavender)"><div class="spinner" style="border-color:rgba(255,255,255,.4);border-top-color:white"></div></div><div class="layer-t">Agents Working<span class="layer-sub"><span class="pulse-dot"></span>streaming</span></div></div>
         <div class="layer-body">
           <div class="agent-log" id="agent-log"></div>
+          <div class="next-row" style="margin-top:14px">
+            <div class="left"><button class="btn btn-ghost btn-sm" onclick="gotoStageById('clarify')">← Back to Clarify</button></div>
+            <div class="right small">Can't proceed until agents finish</div>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- ───────────────── REPORT ───────────────── -->
-    <section id="view-report" class="hide" style="margin-top:14px">
+    <!-- ─────────────────  STAGE 5: REPORT  ───────────────── -->
+    <section id="stage-report" class="hide">
       <div class="layer">
         <div class="layer-body">
           <div class="report-h">
@@ -562,17 +543,17 @@
               <div class="report-title">Saudi Fintech CTOs — 5 Leads</div>
               <div class="small">Generated just now · 6 sources cited</div>
             </div>
-            <button class="exp-btn" onclick="toast('Template saved')">💾 Save as Template</button>
-            <button class="exp-btn" onclick="toast('Saved as new skill')">💾 Save as Skill</button>
+            <button class="exp-btn" onclick="toast('Template saved to DB')">💾 Save as Template</button>
+            <button class="exp-btn" onclick="toast('Skill saved to DB')">💾 Save as Skill</button>
           </div>
 
           <div class="blk">
             <div class="blk-h">Highlights</div>
             <div class="kpi-row">
               <div class="kpi"><div class="kpi-val">5</div><div class="kpi-label">Leads</div></div>
-              <div class="kpi"><div class="kpi-val">$87M</div><div class="kpi-label">Total 2024 funding</div></div>
+              <div class="kpi"><div class="kpi-val">$87M</div><div class="kpi-label">2024 funding</div></div>
               <div class="kpi"><div class="kpi-val">A+</div><div class="kpi-label">Avg quality</div></div>
-              <div class="kpi"><div class="kpi-val">28</div><div class="kpi-label">Open tech roles</div></div>
+              <div class="kpi"><div class="kpi-val">28</div><div class="kpi-label">Open roles</div></div>
             </div>
           </div>
 
@@ -590,39 +571,6 @@
             </div>
           </div>
 
-          <!-- Enrichment Layer -->
-          <div class="enrich-pane">
-            <div class="enrich-h">
-              <span style="font-size:18px">🧪</span>
-              <h3>Enrichment Layer</h3>
-              <span class="small" style="margin-left:auto">Optional · runs on <strong>5</strong> selected · all inserts pass dedup · validate · verify gates</span>
-            </div>
-            <div class="enrich-grid">
-              <div class="enrich-opt on"><div class="lbl">🔗 LinkedIn URL</div><div class="desc">Verified profile</div></div>
-              <div class="enrich-opt on"><div class="lbl">📧 Email</div><div class="desc">DNS+MX validated</div></div>
-              <div class="enrich-opt"><div class="lbl">📞 Phone</div><div class="desc">+966 / GCC</div></div>
-              <div class="enrich-opt on"><div class="lbl">💰 Financials</div><div class="desc">Revenue · CR</div></div>
-              <div class="enrich-opt"><div class="lbl">📰 Recent news</div><div class="desc">Last 90 days</div></div>
-              <div class="enrich-opt"><div class="lbl">🎯 ICP Score</div><div class="desc">Tier + reasons</div></div>
-              <div class="enrich-opt"><div class="lbl">📡 Buying signals</div><div class="desc">Hiring · funding</div></div>
-              <div class="enrich-opt"><div class="lbl">✉️ Outreach draft</div><div class="desc">Personalized Ar/En</div></div>
-            </div>
-            <div class="gate-row">
-              <span style="font-size:11px;font-weight:700">Gates before insert:</span>
-              <span class="gate-pill gate-ok">✓ pass</span>
-              <span class="gate-pill gate-warn">⚠ unverified</span>
-              <span class="gate-pill gate-dup">🛡 duplicate</span>
-              <span class="gate-pill gate-bad">✗ rejected</span>
-            </div>
-            <div style="display:flex; gap:8px; margin-top:14px; flex-wrap:wrap">
-              <button class="btn btn-seafoam btn-sm">🧪 Apply Enrichment</button>
-              <button class="btn btn-sand btn-sm" onclick="pushTo('leads')">📤 Push to Leads (gated)</button>
-              <button class="btn btn-sand btn-sm" onclick="pushTo('companies')">🏢 Push to Companies (gated)</button>
-              <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="resetAll()">↻ New Query</button>
-            </div>
-            <div id="push-result" class="small hide" style="margin-top:10px; padding:10px; background:white; border:1px solid var(--line); border-radius:8px"></div>
-          </div>
-
           <div class="exports">
             <button class="exp-btn">📊 XLSX</button>
             <button class="exp-btn">📄 PDF</button>
@@ -631,36 +579,165 @@
             <button class="exp-btn">📽️ PPTX</button>
             <button class="exp-btn">📋 CSV</button>
           </div>
+
+          <div class="next-row">
+            <div class="left"><button class="btn btn-ghost btn-sm" onclick="gotoStageById('run')">← Back to Run</button></div>
+            <div class="right"><button class="btn btn-primary btn-sm" onclick="gotoStageById('enrich')">Continue: Enrich →</button></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────────────  STAGE 6: ENRICH  ───────────────── -->
+    <section id="stage-enrich" class="hide">
+      <div class="layer">
+        <div class="layer-h"><div class="layer-num" style="background:var(--seafoam)">🧪</div><div class="layer-t">Enrich · Route<span class="layer-sub">— add fields, gate, push to DB</span></div></div>
+        <div class="layer-body">
+          <div class="small" style="margin-bottom:8px">Toggle what to enrich on the <strong>5</strong> selected rows. All inserts pass through <strong>dedup · validate · verify</strong> before reaching the database.</div>
+          <div class="enrich-grid">
+            <div class="enrich-opt on"><div class="lbl">🔗 LinkedIn URL</div><div class="desc">Verified profile</div></div>
+            <div class="enrich-opt on"><div class="lbl">📧 Email</div><div class="desc">DNS+MX validated</div></div>
+            <div class="enrich-opt"><div class="lbl">📞 Phone</div><div class="desc">+966 / GCC</div></div>
+            <div class="enrich-opt on"><div class="lbl">💰 Financials</div><div class="desc">Revenue · CR</div></div>
+            <div class="enrich-opt"><div class="lbl">📰 Recent news</div><div class="desc">Last 90 days</div></div>
+            <div class="enrich-opt"><div class="lbl">🎯 ICP Score</div><div class="desc">Tier + reasoning</div></div>
+            <div class="enrich-opt"><div class="lbl">📡 Buying signals</div><div class="desc">Hiring · funding</div></div>
+            <div class="enrich-opt"><div class="lbl">✉️ Outreach draft</div><div class="desc">Personalized Ar/En</div></div>
+          </div>
+          <div class="gate-row">
+            <span style="font-size:11px;font-weight:700">Gates before insert:</span>
+            <span class="gate-pill gate-ok">✓ pass</span>
+            <span class="gate-pill gate-warn">⚠ unverified</span>
+            <span class="gate-pill gate-dup">🛡 duplicate</span>
+            <span class="gate-pill gate-bad">✗ rejected</span>
+          </div>
+          <div style="display:flex; gap:8px; margin-top:14px; flex-wrap:wrap">
+            <button class="btn btn-seafoam btn-sm">🧪 Apply Enrichment</button>
+            <button class="btn btn-sand btn-sm" onclick="pushTo('leads')">📤 Push to Leads (gated)</button>
+            <button class="btn btn-sand btn-sm" onclick="pushTo('companies')">🏢 Push to Companies (gated)</button>
+            <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="resetAll()">↻ New Query</button>
+          </div>
+          <div id="push-result" class="small hide" style="margin-top:10px; padding:10px; background:white; border:1px solid var(--line); border-radius:8px"></div>
+          <div class="next-row" style="margin-top:14px">
+            <div class="left"><button class="btn btn-ghost btn-sm" onclick="gotoStageById('report')">← Back to Report</button></div>
+            <div class="right small">Final stage</div>
+          </div>
         </div>
       </div>
     </section>
 
   </main>
 
-  <!-- DRAWER -->
+  <!-- DRAWER — Claude-style plugin / connector / skill config -->
   <aside class="drawer hide" id="drawer">
     <button class="drawer-close" onclick="closeDrawer()">×</button>
-    <div style="font-weight:700; font-size:14px; margin-bottom:6px">⚙️ Customize Mid-Chat</div>
-    <p class="small" style="margin-bottom:14px">Tweak or AI-generate any of these without leaving the chat.</p>
-    <div class="drawer-tabs">
-      <span class="drawer-tab on">Sources</span>
-      <span class="drawer-tab">Connectors</span>
-      <span class="drawer-tab">Skills</span>
-      <span class="drawer-tab">Plugins</span>
-      <span class="drawer-tab">Templates</span>
-      <span class="drawer-tab">Modes</span>
+    <div style="font-weight:700; font-size:14px; margin-bottom:6px">⚙️ Customize</div>
+    <p class="small" style="margin-bottom:14px">Mid-chat: tweak or AI-generate. Each item has a structured config (name · system prompt · tool whitelist · schema · auth scope) — same shape Claude uses for skills &amp; plugins.</p>
+    <div class="drawer-tabs" id="drawer-tabs">
+      <span class="drawer-tab on" data-d="sources" onclick="setDrawer('sources')">Sources</span>
+      <span class="drawer-tab" data-d="connectors" onclick="setDrawer('connectors')">Connectors</span>
+      <span class="drawer-tab" data-d="skills" onclick="setDrawer('skills')">Skills</span>
+      <span class="drawer-tab" data-d="plugins" onclick="setDrawer('plugins')">Plugins</span>
+      <span class="drawer-tab" data-d="templates" onclick="setDrawer('templates')">Templates</span>
+      <span class="drawer-tab" data-d="modes" onclick="setDrawer('modes')">Modes</span>
     </div>
+
     <div>
       <div class="field-label">✨ AI Generate</div>
       <div class="ai-gen-row">
         <input class="input" placeholder="describe what you want..."/>
         <button class="btn btn-primary btn-sm">Build</button>
       </div>
-      <div class="small">AI generates the schema. You approve before activation.</div>
-      <div class="field-label" style="margin-top:12px">Active</div>
-      <div class="chips">
-        <span class="chip on">Tadawul</span><span class="chip on">Argaam</span><span class="chip on">Mubasher</span>
-        <span class="chip">CMA</span><span class="chip">SAMA</span><span class="chip">Wamda</span>
+
+      <div class="field-label" style="margin-top:12px">Manage existing</div>
+
+      <!-- SKILL CONFIG CARDS (Claude-style) -->
+      <div id="drawer-list">
+        <div class="item-card">
+          <div class="item-card-h">
+            <div>
+              <div class="item-card-title">🎯 Saudi Lead Hunter</div>
+              <div class="item-card-meta">v1.2 · LeadList schema · 5 tools allowed</div>
+            </div>
+            <span class="gate-pill gate-ok item-st">active</span>
+          </div>
+          <div class="item-config">
+            <div class="cfg-row">
+              <div class="lbl">Display Name</div>
+              <input class="input" value="Saudi Lead Hunter" />
+            </div>
+            <div class="cfg-row">
+              <div class="lbl">Description</div>
+              <input class="input" value="Find B2B prospects in Saudi-listed companies. Prefer Arabic sources for Tadawul-listed cos." />
+            </div>
+            <div class="cfg-row">
+              <div class="lbl">System Prompt</div>
+              <textarea class="input">You are a B2B prospect researcher specialised in Saudi Arabia. Rules:
+1. Honor every filter passed by the user (industry, role, city, funding stage).
+2. NEVER invent emails, phones, or CR numbers — leave blank and flag.
+3. Cite every fact with the source URL.
+4. Prefer Arabic-language sources for Tadawul-listed companies.
+5. If a filter conflicts with discovered data, halt and ask the user.</textarea>
+            </div>
+            <div class="cfg-row">
+              <div class="lbl">Tool Whitelist</div>
+              <div class="chips">
+                <span class="chip on">web_search</span>
+                <span class="chip on">url_crawl</span>
+                <span class="chip on">deep_scrape</span>
+                <span class="chip on">harvester_run</span>
+                <span class="chip">spawn_sub_agent</span>
+                <span class="chip">nexus_run</span>
+              </div>
+            </div>
+            <div class="cfg-row">
+              <div class="lbl">Report Schema</div>
+              <select class="select"><option selected>LeadList</option><option>CompanyDossier</option><option>CompareMatrix</option><option>SignalDigest</option><option>Custom</option></select>
+            </div>
+            <div class="cfg-row">
+              <div class="lbl">Model Hints (Nexus tier)</div>
+              <select class="select"><option selected>synthesis (Claude/GPT-4o)</option><option>extraction (DeepSeek/Gemini)</option><option>arabic (Kimi/Qwen)</option><option>realtime (Groq)</option></select>
+            </div>
+            <div class="cfg-row">
+              <div class="lbl">Visibility</div>
+              <select class="select"><option selected>Private</option><option>Workspace shared</option><option>Public marketplace</option></select>
+            </div>
+            <div class="cfg-actions">
+              <button class="btn btn-ghost btn-sm">Clone</button>
+              <button class="btn btn-ghost btn-sm">Export JSON</button>
+              <button class="btn btn-primary btn-sm" onclick="toast('Skill saved')">Save</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="item-card" onclick="this.classList.toggle('open')">
+          <div class="item-card-h">
+            <div>
+              <div class="item-card-title">📊 Tadawul Analyst</div>
+              <div class="item-card-meta">v1.0 · CompareMatrix · 4 tools</div>
+            </div>
+            <span class="gate-pill gate-warn item-st">inactive</span>
+          </div>
+        </div>
+
+        <div class="item-card" onclick="this.classList.toggle('open')">
+          <div class="item-card-h">
+            <div>
+              <div class="item-card-title">🏦 Bank Sector Compare</div>
+              <div class="item-card-meta">v0.3 · CompareMatrix · 3 tools</div>
+            </div>
+            <span class="gate-pill gate-warn item-st">inactive</span>
+          </div>
+        </div>
+
+        <div class="item-card" onclick="this.classList.toggle('open')">
+          <div class="item-card-h">
+            <div>
+              <div class="item-card-title">+ Create New Skill</div>
+              <div class="item-card-meta">Blank starter — define name, prompt, tools, schema</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </aside>
@@ -673,149 +750,13 @@
 // ── multi-select dropdowns ─────────────────────────────────────────────────
 function toggleMS(name) {
   const pop = document.getElementById(name + "-pop");
-  if (pop) pop.classList.toggle("hide");
   document.querySelectorAll(".ms-pop").forEach(p => { if (p.id !== name + "-pop") p.classList.add("hide"); });
+  if (pop) pop.classList.toggle("hide");
 }
-document.querySelectorAll(".ms-pop .ms-opt").forEach(o => o.addEventListener("click", e => {
-  e.stopPropagation();
-  o.classList.toggle("on");
-}));
+document.querySelectorAll(".ms-pop .ms-opt").forEach(o => o.addEventListener("click", e => { e.stopPropagation(); o.classList.toggle("on"); }));
 document.addEventListener("click", e => {
   if (!e.target.closest(".ms") && !e.target.closest(".ms-pop")) document.querySelectorAll(".ms-pop").forEach(p => p.classList.add("hide"));
 });
-function rmTag(e, name, val) { e.stopPropagation(); toast("Removed " + val); }
-
-// ── layers ─────────────────────────────────────────────────────────────────
-function goLayer(n) {
-  for (let i = 1; i <= 4; i++) {
-    document.getElementById("layer-" + i).classList.toggle("hide", i !== n);
-  }
-  document.querySelectorAll("#crumbs .crumb").forEach((c, i) => {
-    c.classList.remove("active", "done");
-    if (i + 1 < n) c.classList.add("done");
-    if (i + 1 === n) c.classList.add("active");
-  });
-  window.scrollTo({ top: 0, behavior: "smooth" });
-}
-
-function onTemplateChange() {
-  toast("Template applied · modes + filters auto-locked");
-}
-function onIndustryChange() {
-  toast("Sub-filters updated for industry");
-}
-
-// ── tools layer: category → items ─────────────────────────────────────────
-const SOURCES = {
-  "ksa-market": [
-    { n: "Tadawul", on: true }, { n: "CMA", on: false }, { n: "Edaa", on: false },
-    { n: "MCI / CR Registry", on: true }, { n: "Monsha'at", on: false }, { n: "SDAIA", on: false },
-    { n: "GASTAT", on: false }, { n: "SAMA", on: false }, { n: "ZATCA", on: false },
-    { n: "MISA", on: false }, { n: "Masar (CR)", on: true },
-  ],
-  "arabic-press": [
-    { n: "Argaam", on: true }, { n: "Mubasher", on: true }, { n: "Maal", on: true },
-    { n: "Al-Eqtisadiah", on: false }, { n: "Asharq Business", on: false },
-    { n: "Al-Iqtisadi", on: false }, { n: "Aleqt.com", on: false },
-    { n: "Saudi Gazette", on: false }, { n: "Arab News", on: false }, { n: "SPA", on: false },
-  ],
-  "regional-press": [
-    { n: "MEED", on: false }, { n: "Wamda", on: false }, { n: "MAGNiTT", on: false },
-    { n: "Crunchbase MENA", on: false }, { n: "Bloomberg ME", on: false }, { n: "Reuters ME", on: false },
-    { n: "FT MidEast", on: false }, { n: "Zawya", on: false }, { n: "The National (UAE)", on: false },
-    { n: "Khaleej Times", on: false }, { n: "Gulf Business", on: false }, { n: "Gulf News", on: false },
-    { n: "AGBI", on: false }, { n: "StartupScene ME", on: false },
-  ],
-  "global-open": [
-    { n: "GLEIF", on: true }, { n: "OpenCorporates", on: false }, { n: "Wikidata", on: false },
-    { n: "OpenSanctions", on: false }, { n: "OFAC SDN", on: false }, { n: "UN Consolidated", on: false },
-    { n: "EU Sanctions", on: false }, { n: "EDGAR (SEC)", on: false },
-    { n: "UK Companies House", on: false }, { n: "PEP database", on: false }, { n: "ICIJ Offshore Leaks", on: false },
-  ],
-  "sector": [
-    { n: "REGA", on: false }, { n: "Sakani", on: false }, { n: "Wafi Realty", on: false },
-    { n: "Bayut", on: false }, { n: "Property Finder", on: false }, { n: "MEED Projects", on: false },
-    { n: "Zawya Projects", on: false }, { n: "NEOM Updates", on: false }, { n: "PIF Portfolio", on: false }, { n: "CIB Saudi", on: false },
-  ],
-  "social": [
-    { n: "LinkedIn (public)", on: false }, { n: "X / Twitter", on: false },
-    { n: "Reddit", on: false }, { n: "YouTube transcripts", on: false }, { n: "Telegram channels", on: false },
-    { n: "Web (Tavily)", on: true }, { n: "Web (Perplexity)", on: false },
-    { n: "Google News RSS", on: false }, { n: "Maal RSS", on: false }, { n: "Mubasher RSS", on: false },
-  ],
-};
-
-const CONNECTORS = {
-  "scraping": [
-    { n: "Tavily", on: true, st: "ok" }, { n: "Playwright", on: true, st: "ok" },
-    { n: "Chrome DevTools", on: false, st: "ok" }, { n: "Crawl4AI", on: true, st: "ok" },
-    { n: "BeautifulSoup", on: false, st: "ok" }, { n: "Cheerio", on: false, st: "ok" },
-    { n: "OmniSearch", on: false, st: "ok" }, { n: "Serena", on: false, st: "ok" },
-    { n: "HuggingFace", on: false, st: "ok" },
-  ],
-  "prod": [
-    { n: "GitHub", on: false, st: "req" }, { n: "Slack", on: false, st: "req" },
-    { n: "Notion", on: false, st: "req" }, { n: "Linear", on: false, st: "req" },
-    { n: "Jira", on: false, st: "req" }, { n: "Asana", on: false, st: "req" },
-    { n: "Trello", on: false, st: "req" }, { n: "ClickUp", on: false, st: "req" },
-  ],
-  "files": [
-    { n: "Google Drive", on: false, st: "req" }, { n: "Google Sheets", on: false, st: "req" },
-    { n: "OneDrive", on: false, st: "req" }, { n: "Office365", on: false, st: "req" },
-    { n: "Dropbox", on: false, st: "req" }, { n: "S3 / R2", on: false, st: "req" },
-    { n: "Airtable", on: false, st: "req" }, { n: "Supabase", on: false, st: "req" },
-  ],
-  "crm": [
-    { n: "HubSpot", on: false, st: "req" }, { n: "Salesforce", on: false, st: "req" },
-    { n: "Pipedrive", on: false, st: "req" }, { n: "Zoho CRM", on: false, st: "req" },
-    { n: "Apollo.io", on: false, st: "req" }, { n: "Explorium", on: false, st: "req" },
-  ],
-  "msg": [
-    { n: "WhatsApp Cloud", on: false, st: "req" }, { n: "Telegram", on: false, st: "req" },
-    { n: "Discord", on: false, st: "req" }, { n: "Email (SMTP)", on: false, st: "req" },
-    { n: "SendGrid", on: false, st: "req" }, { n: "Resend", on: false, st: "req" },
-  ],
-};
-
-const SKILLS = {
-  "finance": [
-    { n: "🎯 Saudi Lead Hunter", on: true }, { n: "📊 Tadawul Analyst", on: false },
-    { n: "🏦 Bank Sector Compare", on: false }, { n: "💰 Funding Round Watch", on: false },
-  ],
-  "real": [
-    { n: "🏢 GCC Real-Estate", on: false }, { n: "🏗️ Construction Tender Scout", on: false }, { n: "🏛️ Government Vendor", on: false },
-  ],
-  "energy": [
-    { n: "🛢️ Energy Procurement", on: false }, { n: "⚡ Utilities Mapping", on: false },
-  ],
-  "people": [
-    { n: "📨 Outreach Writer (Ar/En)", on: false }, { n: "🔬 Company Dossier", on: false }, { n: "📡 Signal Hunter", on: false },
-  ],
-  "compliance": [
-    { n: "⚖️ PEP Check", on: false }, { n: "🛡️ Sanctions Screen", on: false },
-  ],
-  "sector-other": [
-    { n: "💊 Healthcare Vendor Map", on: false }, { n: "🎓 EdTech Prospects", on: false }, { n: "🛒 Retail Buyer Finder", on: false },
-  ],
-};
-
-function renderChips(targetId, items) {
-  const t = document.getElementById(targetId);
-  t.innerHTML = "";
-  items.forEach((it, idx) => {
-    const c = document.createElement("span");
-    c.className = "chip" + (it.on ? " on" : "");
-    let dot = "";
-    if (it.st === "ok") dot = '<span style="width:6px;height:6px;border-radius:99px;background:var(--ok);display:inline-block;margin-right:2px"></span>';
-    if (it.st === "req") dot = '<span style="width:6px;height:6px;border-radius:99px;background:var(--warn);display:inline-block;margin-right:2px"></span>';
-    c.innerHTML = dot + it.n;
-    c.onclick = () => { it.on = !it.on; c.classList.toggle("on", it.on); };
-    t.appendChild(c);
-  });
-}
-function onSrcCat() { renderChips("src-chips", SOURCES[document.getElementById("src-cat").value]); }
-function onConnCat() { renderChips("conn-chips", CONNECTORS[document.getElementById("conn-cat").value]); }
-function onSkillCat() { renderChips("skill-chips", SKILLS[document.getElementById("skill-cat").value]); }
 
 // ── input seg ──────────────────────────────────────────────────────────────
 document.querySelectorAll("#input-seg button").forEach(b => b.addEventListener("click", () => {
@@ -825,21 +766,90 @@ document.querySelectorAll("#input-seg button").forEach(b => b.addEventListener("
   document.getElementById("write-block").classList.toggle("hide", m === "filter");
   document.getElementById("filter-block").classList.toggle("hide", m === "write");
 }));
-document.getElementById("enhance-tgl").addEventListener("click", e => e.currentTarget.classList.toggle("on"));
+
+// ── stage / layer navigation (clickable everywhere) ───────────────────────
+let stageOrder = ["compose","enhance","clarify","run","report","enrich"];
+let stageReached = ["compose"];
+function gotoStageById(s) {
+  if (!stageReached.includes(s)) stageReached.push(s);
+  stageOrder.forEach(x => document.getElementById("stage-" + x).classList.toggle("hide", x !== s));
+  document.querySelectorAll("#stage-bar .stage").forEach(el => {
+    const x = el.dataset.stage;
+    el.classList.remove("active","done");
+    if (x === s) el.classList.add("active");
+    else if (stageReached.includes(x) && stageOrder.indexOf(x) < stageOrder.indexOf(s)) el.classList.add("done");
+  });
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+function gotoStage(el) {
+  const s = el.dataset.stage;
+  if (el.classList.contains("done") || el.classList.contains("active")) gotoStageById(s);
+}
+
+function gotoLayer(n) {
+  for (let i = 1; i <= 4; i++) document.getElementById("layer-" + i).classList.toggle("hide", i !== n);
+  document.querySelectorAll("#crumbs .crumb").forEach((c, i) => {
+    c.classList.remove("active","done");
+    if (i + 1 < n) c.classList.add("done");
+    if (i + 1 === n) c.classList.add("active");
+  });
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function openDrawerAt(tab) { openDrawer(); setDrawer(tab); }
+function setDrawer(tab) {
+  document.querySelectorAll(".drawer-tab").forEach(x => x.classList.toggle("on", x.dataset.d === tab));
+}
+
+// ── tools: category → items ────────────────────────────────────────────────
+const SOURCES = {
+  "ksa-market": [["Tadawul",1],["CMA",0],["Edaa",0],["MCI / CR Registry",1],["Monsha'at",0],["SDAIA",0],["GASTAT",0],["SAMA",0],["ZATCA",0],["MISA",0],["Masar (CR)",1]],
+  "arabic-press": [["Argaam",1],["Mubasher",1],["Maal",1],["Al-Eqtisadiah",0],["Asharq Business",0],["Al-Iqtisadi",0],["Aleqt.com",0],["Saudi Gazette",0],["Arab News",0],["SPA",0]],
+  "regional-press": [["MEED",0],["Wamda",0],["MAGNiTT",0],["Crunchbase MENA",0],["Bloomberg ME",0],["Reuters ME",0],["FT MidEast",0],["Zawya",0],["The National",0],["Khaleej Times",0],["Gulf Business",0],["Gulf News",0],["AGBI",0],["StartupScene ME",0]],
+  "global-open": [["GLEIF",1],["OpenCorporates",0],["Wikidata",0],["OpenSanctions",0],["OFAC SDN",0],["UN Consolidated",0],["EU Sanctions",0],["EDGAR (SEC)",0],["UK Companies House",0],["PEP database",0],["ICIJ Offshore Leaks",0]],
+  "sector": [["REGA",0],["Sakani",0],["Wafi Realty",0],["Bayut",0],["Property Finder",0],["MEED Projects",0],["Zawya Projects",0],["NEOM Updates",0],["PIF Portfolio",0],["CIB Saudi",0]],
+  "social": [["LinkedIn",0],["X / Twitter",0],["Reddit",0],["YouTube",0],["Telegram",0],["Tavily",1],["Perplexity",0],["Google News",0],["Maal RSS",0],["Mubasher RSS",0]],
+};
+const CONNECTORS = {
+  "scraping": [["Tavily",1,"ok"],["Playwright",1,"ok"],["Chrome DevTools",0,"ok"],["Crawl4AI",1,"ok"],["BeautifulSoup",0,"ok"],["Cheerio",0,"ok"],["OmniSearch",0,"ok"],["Serena",0,"ok"],["HuggingFace",0,"ok"]],
+  "prod": [["GitHub",0,"req"],["Slack",0,"req"],["Notion",0,"req"],["Linear",0,"req"],["Jira",0,"req"],["Asana",0,"req"],["Trello",0,"req"],["ClickUp",0,"req"]],
+  "files": [["Google Drive",0,"req"],["Google Sheets",0,"req"],["OneDrive",0,"req"],["Office365",0,"req"],["Dropbox",0,"req"],["S3 / R2",0,"req"],["Airtable",0,"req"],["Supabase",0,"req"]],
+  "crm": [["HubSpot",0,"req"],["Salesforce",0,"req"],["Pipedrive",0,"req"],["Zoho CRM",0,"req"],["Apollo.io",0,"req"],["Explorium",0,"req"]],
+  "msg": [["WhatsApp Cloud",0,"req"],["Telegram",0,"req"],["Discord",0,"req"],["Email (SMTP)",0,"req"],["SendGrid",0,"req"],["Resend",0,"req"]],
+};
+const SKILLS = {
+  "finance": [["🎯 Saudi Lead Hunter",1],["📊 Tadawul Analyst",0],["🏦 Bank Sector Compare",0],["💰 Funding Round Watch",0]],
+  "real": [["🏢 GCC Real-Estate",0],["🏗️ Construction Tender Scout",0],["🏛️ Government Vendor",0]],
+  "energy": [["🛢️ Energy Procurement",0],["⚡ Utilities Mapping",0]],
+  "people": [["📨 Outreach Writer",0],["🔬 Company Dossier",0],["📡 Signal Hunter",0]],
+  "compliance": [["⚖️ PEP Check",0],["🛡️ Sanctions Screen",0]],
+  "other": [["💊 Healthcare Vendor Map",0],["🎓 EdTech Prospects",0],["🛒 Retail Buyer Finder",0]],
+};
+function renderChips(id, items) {
+  const t = document.getElementById(id); t.innerHTML = "";
+  items.forEach(it => {
+    const c = document.createElement("span");
+    const name = it[0], on = it[1], st = it[2];
+    c.className = "chip" + (on ? " on" : "");
+    let dot = "";
+    if (st === "ok") dot = '<span style="width:6px;height:6px;border-radius:99px;background:var(--ok);display:inline-block;margin-right:2px"></span>';
+    if (st === "req") dot = '<span style="width:6px;height:6px;border-radius:99px;background:var(--warn);display:inline-block;margin-right:2px"></span>';
+    c.innerHTML = dot + name;
+    c.onclick = () => { it[1] = !it[1]; c.classList.toggle("on", !!it[1]); };
+    t.appendChild(c);
+  });
+}
+function onSrcCat() { renderChips("src-chips", SOURCES[document.getElementById("src-cat").value]); }
+function onConnCat() { renderChips("conn-chips", CONNECTORS[document.getElementById("conn-cat").value]); }
+function onSkillCat() { renderChips("skill-chips", SKILLS[document.getElementById("skill-cat").value]); }
 
 // ── flow ───────────────────────────────────────────────────────────────────
 function kickoff() {
-  if (document.getElementById("enhance-tgl").classList.contains("on")) {
-    document.querySelectorAll(".layer").forEach(l => l.classList.add("hide"));
-    document.getElementById("view-clarify").classList.remove("hide");
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  } else startAgents();
+  if (document.getElementById("enhance-tgl").classList.contains("on")) gotoStageById("enhance");
+  else startAgents();
 }
 function startAgents() {
-  document.querySelectorAll(".layer").forEach(l => l.classList.add("hide"));
-  document.getElementById("view-clarify").classList.add("hide");
-  document.getElementById("view-run").classList.remove("hide");
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  gotoStageById("run");
   const log = document.getElementById("agent-log"); log.innerHTML = "";
   const agents = [
     { n: "🧠 Planner",    d: "Decomposing query", t: 700 },
@@ -847,18 +857,11 @@ function startAgents() {
     { n: "🌐 Crawler",    d: "6 pages in parallel", t: 1300, p: "6/6" },
     { n: "🇸🇦 Arabic NLP", d: "Argaam + Maal", t: 700 },
     { n: "🛡️ Validator",  d: "Validate · verify · dedup", t: 1000, p: "5 pass" },
-    { n: "📝 Writer",     d: "Compose report", t: 1000 },
+    { n: "📝 Writer",     d: "Compose report blocks", t: 1000 },
   ];
   let i = 0;
   (function next() {
-    if (i >= agents.length) {
-      setTimeout(() => {
-        document.getElementById("view-run").classList.add("hide");
-        document.getElementById("view-report").classList.remove("hide");
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }, 300);
-      return;
-    }
+    if (i >= agents.length) { setTimeout(() => gotoStageById("report"), 300); return; }
     const a = agents[i];
     const row = document.createElement("div");
     row.className = "agent-row running";
@@ -868,11 +871,8 @@ function startAgents() {
   })();
 }
 function resetAll() {
-  document.getElementById("view-run").classList.add("hide");
-  document.getElementById("view-report").classList.add("hide");
-  document.getElementById("view-clarify").classList.add("hide");
+  stageReached = ["compose"]; gotoStageById("compose"); gotoLayer(1);
   document.getElementById("push-result").classList.add("hide");
-  goLayer(1);
 }
 
 function pushTo(target) {
@@ -883,28 +883,20 @@ function pushTo(target) {
     if (target === "leads") {
       r.innerHTML = `<strong>Push to Leads DB</strong> — <span class="gate-pill gate-ok">✓ 4 pushed</span> <span class="gate-pill gate-warn">⚠ 1 unverified</span> <span class="gate-pill gate-dup">🛡 0 dup</span>`;
     } else {
-      r.innerHTML = `<strong>Push to Companies DB</strong> — <span class="gate-pill gate-ok">✓ 4 pushed</span> <span class="gate-pill gate-dup">🛡 1 dup (fingerprint match, skipped)</span>`;
+      r.innerHTML = `<strong>Push to Companies DB</strong> — <span class="gate-pill gate-ok">✓ 4 pushed</span> <span class="gate-pill gate-dup">🛡 1 dup (skipped)</span>`;
     }
-  }, 1400);
+  }, 1300);
 }
 function toggleAll(cb) {
   document.querySelectorAll(".row-sel").forEach(x => { x.checked = cb.checked; x.closest("tr").classList.toggle("selected", cb.checked); });
 }
 document.querySelectorAll(".enrich-opt").forEach(c => c.addEventListener("click", () => c.classList.toggle("on")));
 
-// ── drawer ─────────────────────────────────────────────────────────────────
 function openDrawer() { document.getElementById("app").classList.add("drawer-open"); document.getElementById("drawer").classList.remove("hide"); }
 function closeDrawer() { document.getElementById("app").classList.remove("drawer-open"); document.getElementById("drawer").classList.add("hide"); }
 
-function toast(msg) {
-  const t = document.getElementById("toast");
-  t.textContent = msg;
-  t.classList.add("on");
-  clearTimeout(window._toastT);
-  window._toastT = setTimeout(() => t.classList.remove("on"), 2200);
-}
+function toast(m) { const t = document.getElementById("toast"); t.textContent = m; t.classList.add("on"); clearTimeout(window._t); window._t = setTimeout(() => t.classList.remove("on"), 2200); }
 
-// init
 onSrcCat(); onConnCat(); onSkillCat();
 </script>
 </body>
