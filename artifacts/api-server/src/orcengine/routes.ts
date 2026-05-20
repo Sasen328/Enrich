@@ -3,6 +3,7 @@ import { db } from "@workspace/db";
 import { companiesTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { createResearchJob, getResearchJob, executeResearchJob } from "./orchestrator";
+import { insertCompanyWithGate } from "../lib/company-gate.js";
 import { getLatestNews, refreshNewsCache, getNewsByCategory, getNewsSources } from "./news";
 import { enrichPerson, enrichCompany, getEnrichmentReport, chatWithReport, chatWithResearchJob, enrichDatabaseCompanies, enrichDatabaseExecutives } from "./enrichment";
 import { crawlUrls } from "./crawler";
@@ -330,8 +331,8 @@ Return ONLY the enhanced query text, no explanations.`
         } as any).where(eq(companiesTable.id, existing[0].id));
         res.json({ action: "updated", companyId: existing[0].id, name: report.subjectName });
       } else {
-        // Insert new
-        const [inserted] = await db.insert(companiesTable).values({
+        // Gated insert — runs validate + dedup + verify before touching DB
+        const { gate, company, inserted } = await insertCompanyWithGate({
           nameEn: String(report.subjectName || ""),
           nameAr: String(rd?.arabicName || overview?.arabicName || ""),
           industry: String(overview?.industry || rd?.industry || ""),
@@ -340,11 +341,12 @@ Return ONLY the enhanced query text, no explanations.`
           description: String(rd?.profileSummary || rd?.executiveSummary || ""),
           revenue: String(financials?.annualRevenue || ""),
           website: String(overview?.website || rd?.website || ""),
-          enrichmentStatus: "enriched",
-          enrichmentScore: 90,
-          dataSource: "orcengine",
-        } as any).returning({ id: companiesTable.id });
-        res.json({ action: "inserted", companyId: inserted.id, name: report.subjectName });
+        }, { enrichmentStatus: "enriched", enrichmentScore: 90, dataSource: "orcengine" });
+        if (!inserted) {
+          res.status(422).json({ ok: false, error: "Company rejected by validation gate", gate });
+          return;
+        }
+        res.json({ action: "inserted", companyId: company?.id, name: report.subjectName, gate });
       }
     } catch (error) {
       console.error("Save to companies error:", error);
@@ -568,26 +570,29 @@ Return ONLY the enhanced query text, no explanations.`
         });
       }
 
-      // Insert new company from scraped data
-      const [inserted] = await db.insert(companiesTable).values({
+      // Gated insert of scraped company — runs validate + dedup + verify
+      const { gate, company, inserted } = await insertCompanyWithGate({
         nameEn: domain || "Unknown (from scrape)",
-        website: primaryUrl || null,
-        email: emails[0] || null,
-        phone: phones[0] || null,
-        description: description,
+        website: primaryUrl || undefined,
+        email: emails[0] || undefined,
+        phone: phones[0] || undefined,
+        description,
         country: "Saudi Arabia",
-        enrichmentStatus: "partial",
-        enrichmentScore: 20,
-        dataSource: "orcengine:scrape",
-      } as any).returning({ id: companiesTable.id });
+      }, { enrichmentStatus: "partial", enrichmentScore: 20, dataSource: "orcengine:scrape" });
+
+      if (!inserted) {
+        res.status(422).json({ ok: false, action: "rejected", domain, gate });
+        return;
+      }
 
       res.json({
         ok: true,
         action: "inserted",
-        companyId: inserted.id,
+        companyId: company?.id,
         domain,
         emailsFound: emails.length,
         phonesFound: phones.length,
+        gate,
       });
 
     } catch (error) {
