@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>AI Chat Composer v3 — ProspectSA prototype</title>
+<title>AI Chat Composer v4 — ProspectSA prototype</title>
 <style>
   :root {
     --lavender: #c3a6d4; --rose: #c8a8b8; --seafoam: #92cdc0; --sand: #d4b896;
@@ -41,16 +41,37 @@
   .sb-item.active { background: rgba(195,166,212,.22); color: var(--ink); }
   .sb-item .badge { margin-left: auto; font-size: 9px; padding: 2px 6px; border-radius: 99px; background: rgba(195,166,212,.3); color: var(--ink); font-weight: 600; }
 
-  .main { padding: 22px 28px 60px; max-width: 1400px; }
+  .main { padding: 22px 28px 60px; max-width: 1200px; }
   h1 { margin: 0 0 4px; font-size: 22px; font-weight: 700; letter-spacing: -.02em; }
-  .h-sub { color: var(--ink-soft); font-size: 13px; margin-bottom: 14px; }
+  .h-sub { color: var(--ink-soft); font-size: 12px; margin-bottom: 14px; }
 
-  .card { background: rgba(255,255,255,.75); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); backdrop-filter: blur(20px); }
-  .card-h { padding: 12px 18px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 10px; }
-  .card-title { font-weight: 600; font-size: 13px; }
-  .card-body { padding: 16px 18px; }
+  /* ── collapsed crumb strip ───────────────────────────────────────────── */
+  .crumbs { display: flex; gap: 6px; align-items: center; padding: 8px; background: white; border: 1px solid var(--line); border-radius: 99px; margin-bottom: 14px; overflow: hidden; flex-wrap: wrap; }
+  .crumb { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 99px; font-size: 11px; font-weight: 600; color: var(--muted); background: transparent; cursor: pointer; flex-shrink: 0; }
+  .crumb.done { background: linear-gradient(180deg, rgba(146,205,192,.18), rgba(146,205,192,.06)); color: var(--ink); }
+  .crumb.done .check { color: var(--ok); }
+  .crumb.active { background: linear-gradient(180deg, rgba(195,166,212,.25), rgba(195,166,212,.10)); color: var(--ink); box-shadow: 0 0 0 1px var(--lavender); }
+  .crumb-sep { color: var(--muted); }
+  .crumb-val { color: var(--ink-soft); font-weight: 400; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-  .field-label { font-size: 11px; font-weight: 600; color: var(--ink-soft); margin-bottom: 8px; letter-spacing: .03em; text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
+  /* ── layer card ──────────────────────────────────────────────────────── */
+  .layer { background: rgba(255,255,255,.80); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 14px; transition: all 280ms; }
+  .layer.collapsed { padding: 0; }
+  .layer-h { padding: 12px 18px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 10px; }
+  .layer-num { width: 22px; height: 22px; border-radius: 99px; background: var(--lavender); color: white; display: grid; place-items: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+  .layer-t { font-weight: 700; font-size: 13px; }
+  .layer-sub { color: var(--ink-soft); font-weight: 400; font-size: 11px; margin-left: 4px; }
+  .layer-body { padding: 16px 18px; }
+
+  /* ── insights row ────────────────────────────────────────────────────── */
+  .insight-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+  .insight { background: linear-gradient(135deg, rgba(195,166,212,.10), white); border: 1px solid var(--line); border-radius: var(--r-sm); padding: 10px 12px; cursor: pointer; transition: all 160ms; }
+  .insight:hover { border-color: var(--lavender); transform: translateY(-1px); box-shadow: 0 2px 8px rgba(195,166,212,.18); }
+  .insight-h { display: flex; align-items: center; gap: 6px; font-size: 10px; color: var(--ink-soft); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 4px; }
+  .insight-t { font-size: 12px; font-weight: 600; color: var(--ink); line-height: 1.35; }
+
+  /* ── form bits ───────────────────────────────────────────────────────── */
+  .field-label { font-size: 11px; font-weight: 600; color: var(--ink-soft); margin-bottom: 6px; letter-spacing: .02em; text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
   .field-hint { color: var(--muted); font-weight: 400; text-transform: none; letter-spacing: 0; }
   .field-edit { margin-left: auto; font-size: 10px; padding: 3px 8px; border: 1px solid var(--line); border-radius: 99px; background: white; cursor: pointer; color: var(--ink-soft); font-weight: 600; }
   .field-edit:hover { color: var(--ink); border-color: var(--lavender); }
@@ -59,35 +80,41 @@
   .input:focus, .select:focus { outline: none; border-color: var(--lavender); box-shadow: 0 0 0 3px rgba(195,166,212,.18); }
   textarea.input { resize: vertical; min-height: 80px; }
 
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+  /* multi-select select (looks like single but pretends multi via tags) */
+  .ms { background: white; border: 1px solid var(--line); border-radius: var(--r-sm); padding: 6px 10px; min-height: 38px; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; cursor: pointer; }
+  .ms:hover { border-color: var(--lavender); }
+  .ms.open { border-color: var(--lavender); box-shadow: 0 0 0 3px rgba(195,166,212,.18); }
+  .ms-tag { background: rgba(195,166,212,.22); color: var(--ink); font-size: 11px; padding: 3px 8px; border-radius: 99px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
+  .ms-tag .x { font-size: 10px; opacity: .6; }
+  .ms-tag .x:hover { opacity: 1; }
+  .ms-placeholder { color: var(--muted); font-size: 13px; }
+  .ms-chev { margin-left: auto; color: var(--muted); }
+
+  .ms-pop { position: absolute; background: white; border: 1px solid var(--line); border-radius: var(--r-sm); box-shadow: var(--shadow-lg); margin-top: 4px; padding: 6px; z-index: 10; min-width: 260px; max-height: 280px; overflow-y: auto; }
+  .ms-opt { padding: 7px 10px; font-size: 12px; cursor: pointer; border-radius: 6px; color: var(--ink); display: flex; align-items: center; gap: 8px; }
+  .ms-opt:hover { background: rgba(195,166,212,.10); }
+  .ms-opt.on { background: rgba(146,205,192,.14); }
+  .ms-opt .ck { width: 14px; height: 14px; border-radius: 4px; border: 1px solid var(--line-2); display: grid; place-items: center; font-size: 10px; color: var(--ok); }
+  .ms-opt.on .ck { background: var(--seafoam); border-color: var(--seafoam); color: white; }
+  .ms-opt .meta { color: var(--ink-soft); font-size: 10px; margin-left: auto; }
+
+  /* chip lists when subfilter active */
   .chips { display: flex; flex-wrap: wrap; gap: 6px; }
   .chip { font-size: 11px; padding: 5px 10px; border-radius: 99px; background: white; border: 1px solid var(--line); cursor: pointer; color: var(--ink-soft); transition: all 160ms; display: inline-flex; align-items: center; gap: 5px; user-select: none; }
   .chip:hover { border-color: var(--lavender); color: var(--ink); }
-  .chip.on { background: linear-gradient(180deg, rgba(195,166,212,.25), rgba(195,166,212,.12)); border-color: var(--lavender); color: var(--ink); font-weight: 600; }
+  .chip.on { background: linear-gradient(180deg, rgba(146,205,192,.22), rgba(146,205,192,.10)); border-color: var(--seafoam); color: var(--ink); font-weight: 600; }
   .chip.on::before { content: "✓"; color: var(--ok); font-weight: 700; }
-  .chip-add { background: transparent; border: 1px dashed var(--line-2); color: var(--muted); }
-  .chip.locked::after { content: "🔗"; font-size: 9px; margin-left: 4px; opacity: .7; }
-  .mode-chips .chip { font-size: 12px; padding: 7px 12px; }
-  .mode-chips .chip.on { background: linear-gradient(180deg, rgba(146,205,192,.25), rgba(146,205,192,.12)); border-color: var(--seafoam); }
 
-  .tpl-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; }
-  .tpl { background: white; border: 1px solid var(--line); border-radius: var(--r-sm); padding: 10px 12px; min-width: 200px; cursor: pointer; transition: all 180ms; flex-shrink: 0; }
-  .tpl:hover { border-color: var(--lavender); transform: translateY(-1px); }
-  .tpl.on { border-color: var(--lavender); background: linear-gradient(180deg, rgba(195,166,212,.12), white); box-shadow: 0 2px 10px rgba(195,166,212,.2); }
-  .tpl-title { font-size: 12px; font-weight: 700; color: var(--ink); margin-bottom: 2px; }
-  .tpl-meta { font-size: 10px; color: var(--ink-soft); }
-  .tpl-add { background: transparent; border: 1px dashed var(--line-2); display: grid; place-items: center; color: var(--muted); min-width: 90px; }
-  .tpl-saved { background: linear-gradient(180deg, rgba(146,205,192,.15), white); border-color: var(--seafoam); }
-  .tpl-saved .tpl-title::before { content: "💾 "; }
-
-  .filter-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px 14px; padding: 12px; background: rgba(245,240,247,.45); border: 1px solid var(--line); border-radius: var(--r-sm); margin-top: 6px; }
-  .filter-cell .field-label { font-size: 10px; margin-bottom: 4px; text-transform: none; letter-spacing: 0; color: var(--ink-soft); }
-  .filter-cell .select, .filter-cell .input { padding: 7px 10px; font-size: 12px; }
-
+  /* segmented control */
   .seg { display: inline-flex; background: white; border: 1px solid var(--line); border-radius: 99px; padding: 3px; }
   .seg button { border: none; background: transparent; padding: 6px 12px; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--ink-soft); border-radius: 99px; font-family: inherit; }
   .seg button.on { background: var(--lavender); color: white; }
 
-  .toggle-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(146,205,192,.10); border: 1px solid rgba(146,205,192,.30); border-radius: var(--r-sm); margin-top: 10px; }
+  /* toggle */
+  .toggle-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(146,205,192,.10); border: 1px solid rgba(146,205,192,.30); border-radius: var(--r-sm); }
   .toggle { width: 36px; height: 20px; background: var(--line-2); border-radius: 99px; position: relative; cursor: pointer; transition: background 200ms; flex-shrink: 0; }
   .toggle::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; background: white; border-radius: 99px; transition: left 200ms; box-shadow: 0 1px 3px rgba(0,0,0,.15); }
   .toggle.on { background: var(--seafoam); }
@@ -95,32 +122,18 @@
   .toggle-label { font-size: 13px; font-weight: 600; color: var(--ink); }
   .toggle-hint { font-size: 11px; color: var(--ink-soft); margin-left: auto; }
 
-  .btn { border: none; border-radius: var(--r-sm); padding: 10px 16px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 7px; transition: all 200ms; }
+  .btn { border: none; border-radius: var(--r-sm); padding: 9px 14px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; display: inline-flex; align-items: center; gap: 6px; transition: all 200ms; }
   .btn-primary { background: linear-gradient(135deg, var(--lavender), var(--rose)); color: white; box-shadow: 0 2px 10px rgba(195,166,212,.4); }
   .btn-primary:hover { box-shadow: 0 4px 16px rgba(195,166,212,.55); transform: translateY(-1px); }
   .btn-ghost { background: white; color: var(--ink-soft); border: 1px solid var(--line); }
   .btn-ghost:hover { color: var(--ink); border-color: var(--line-2); }
+  .btn-sm { padding: 6px 10px; font-size: 11px; }
   .btn-seafoam { background: linear-gradient(135deg, var(--seafoam), var(--mist)); color: white; }
   .btn-sand { background: linear-gradient(135deg, var(--sand), var(--rose)); color: white; }
 
-  .run-row { margin-top: 14px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-  .run-summary { font-size: 11px; color: var(--ink-soft); margin-right: auto; max-width: 60%; }
+  .next-row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--line); }
 
-  .steps { display: flex; gap: 6px; align-items: center; margin: 0 0 14px; }
-  .step { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); font-weight: 600; }
-  .step .dot { width: 20px; height: 20px; border-radius: 99px; background: var(--line); display: grid; place-items: center; color: var(--ink-soft); font-size: 10px; }
-  .step.active .dot { background: var(--lavender); color: white; box-shadow: 0 0 0 3px rgba(195,166,212,.25); }
-  .step.done .dot { background: var(--ok); color: white; }
-  .step.done, .step.active { color: var(--ink); }
-  .step-line { flex: 1; height: 1px; background: var(--line); }
-
-  .clarify { background: rgba(212,184,150,.10); border: 1px solid rgba(212,184,150,.30); border-radius: var(--radius); padding: 18px; margin-bottom: 16px; }
-  .clarify-h { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
-  .clarify-q { margin-bottom: 16px; }
-  .clarify-q-label { font-size: 13px; color: var(--ink); margin-bottom: 8px; font-weight: 500; }
-  .clarify-opt { border: 1px solid var(--line); background: white; padding: 6px 12px; border-radius: 99px; cursor: pointer; font-size: 12px; color: var(--ink-soft); }
-  .clarify-opt.on { background: rgba(212,184,150,.25); border-color: var(--sand); color: var(--ink); font-weight: 600; }
-
+  /* steps + run */
   .agent-log { display: flex; flex-direction: column; gap: 8px; }
   .agent-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: white; border: 1px solid var(--line); border-radius: var(--r-sm); }
   .agent-row.running { border-color: var(--lavender); background: rgba(195,166,212,.06); }
@@ -134,17 +147,15 @@
   .spinner { width: 12px; height: 12px; border: 2px solid var(--line-2); border-top-color: var(--lavender); border-radius: 99px; animation: spin 800ms linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  .report-h { display: flex; align-items: center; gap: 14px; padding-bottom: 16px; border-bottom: 1px solid var(--line); margin-bottom: 18px; }
-  .report-title { font-size: 18px; font-weight: 700; letter-spacing: -.01em; }
-  .report-meta { font-size: 11px; color: var(--ink-soft); margin-left: auto; display: flex; gap: 6px; }
-  .meta-chip { background: white; border: 1px solid var(--line); padding: 3px 8px; border-radius: 99px; }
+  /* report */
+  .report-h { display: flex; align-items: center; gap: 14px; padding-bottom: 16px; border-bottom: 1px solid var(--line); margin-bottom: 18px; flex-wrap: wrap; }
+  .report-title { font-size: 18px; font-weight: 700; }
   .blk { margin-bottom: 22px; }
-  .blk-h { font-size: 12px; font-weight: 700; color: var(--ink); letter-spacing: .04em; text-transform: uppercase; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+  .blk-h { font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
   .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
   .kpi { background: white; border: 1px solid var(--line); border-radius: var(--r-sm); padding: 14px; }
   .kpi-val { font-size: 20px; font-weight: 700; }
   .kpi-label { font-size: 11px; color: var(--ink-soft); }
-  .kpi-delta { font-size: 10px; color: var(--ok); margin-top: 4px; }
   .tbl-wrap { border: 1px solid var(--line); border-radius: var(--r-sm); overflow: hidden; background: white; }
   table { width: 100%; border-collapse: collapse; }
   th { font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-soft); padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--line); background: rgba(245,240,247,.5); font-weight: 600; }
@@ -160,42 +171,13 @@
   .gate-warn { background: rgba(224,165,88,.18); color: var(--warn); }
   .gate-dup { background: rgba(168,196,196,.30); color: #4d7373; }
   .gate-bad { background: rgba(213,107,122,.18); color: var(--bad); }
-
-  .list { display: flex; flex-direction: column; gap: 8px; }
-  .list-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: white; border: 1px solid var(--line); border-radius: var(--r-sm); }
-  .list-item .ico-circle { width: 28px; height: 28px; border-radius: 99px; background: rgba(195,166,212,.18); color: var(--ink); display: grid; place-items: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
-  .cite { font-size: 11px; color: var(--ink-soft); padding: 8px 12px; background: rgba(245,240,247,.45); border-radius: var(--r-sm); display: inline-block; margin-right: 6px; margin-bottom: 4px; }
   .exports { display: flex; gap: 6px; padding-top: 16px; margin-top: 18px; border-top: 1px solid var(--line); flex-wrap: wrap; }
-  .exp-btn { font-size: 11px; padding: 6px 12px; border-radius: var(--r-sm); background: white; border: 1px solid var(--line); color: var(--ink-soft); cursor: pointer; display: inline-flex; align-items: center; gap: 5px; font-weight: 600; }
+  .exp-btn { font-size: 11px; padding: 6px 12px; border-radius: var(--r-sm); background: white; border: 1px solid var(--line); color: var(--ink-soft); cursor: pointer; font-weight: 600; }
   .exp-btn:hover { border-color: var(--lavender); color: var(--ink); }
-
-  /* drawer (in-chat customizer) */
-  .drawer { background: white; border-left: 1px solid var(--line); overflow-y: auto; box-shadow: -2px 0 12px rgba(45,36,58,.08); padding: 16px 16px 60px; height: 100vh; position: sticky; top: 0; }
-  .drawer-close { float: right; background: transparent; border: none; cursor: pointer; font-size: 18px; color: var(--ink-soft); }
-  .drawer-tabs { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 14px; padding: 4px; background: var(--base); border-radius: 99px; }
-  .drawer-tab { font-size: 11px; padding: 6px 10px; border-radius: 99px; cursor: pointer; color: var(--ink-soft); }
-  .drawer-tab.on { background: white; color: var(--ink); font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
-  .drawer-section { padding: 6px 0 14px; border-bottom: 1px dashed var(--line); }
-  .ai-gen-row { display: flex; gap: 6px; margin: 8px 0; }
-  .ai-gen-row .input { flex: 1; padding: 6px 10px; font-size: 12px; }
-  .ai-gen-row .btn { padding: 6px 12px; font-size: 11px; }
-
-  /* drawer open trigger floating */
-  .drawer-fab { position: fixed; top: 22px; right: 22px; z-index: 30; background: linear-gradient(135deg, var(--lavender), var(--rose)); color: white; border: none; border-radius: 99px; padding: 9px 14px; font-size: 12px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 16px rgba(195,166,212,.45); display: inline-flex; align-items: center; gap: 6px; }
-  .app.drawer-open .drawer-fab { display: none; }
-
-  /* behavior insights */
-  .insight-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
-  .insight { background: linear-gradient(135deg, rgba(195,166,212,.10), white); border: 1px solid var(--line); border-radius: var(--r-sm); padding: 12px; cursor: pointer; transition: all 160ms; }
-  .insight:hover { border-color: var(--lavender); transform: translateY(-1px); box-shadow: 0 2px 8px rgba(195,166,212,.18); }
-  .insight-h { display: flex; align-items: center; gap: 6px; font-size: 10px; color: var(--ink-soft); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 5px; }
-  .insight-t { font-size: 12px; font-weight: 600; color: var(--ink); line-height: 1.35; }
-  .insight-x { font-size: 10px; color: var(--ink-soft); margin-top: 4px; }
 
   /* enrichment panel */
   .enrich-pane { background: linear-gradient(180deg, rgba(146,205,192,.10), white); border: 1px solid rgba(146,205,192,.40); border-radius: var(--radius); padding: 16px; margin-top: 18px; }
-  .enrich-h { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
-  .enrich-h .icon { font-size: 18px; }
+  .enrich-h { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
   .enrich-h h3 { margin: 0; font-size: 14px; font-weight: 700; }
   .enrich-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 12px 0; }
   .enrich-opt { background: white; border: 1px solid var(--line); border-radius: var(--r-sm); padding: 10px; cursor: pointer; transition: all 160ms; }
@@ -203,36 +185,34 @@
   .enrich-opt.on { background: rgba(146,205,192,.18); border-color: var(--seafoam); }
   .enrich-opt .lbl { font-size: 11px; font-weight: 700; color: var(--ink); }
   .enrich-opt .desc { font-size: 10px; color: var(--ink-soft); margin-top: 2px; }
-  .gate-row { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; align-items: center; padding: 8px 12px; background: rgba(245,240,247,.45); border-radius: var(--r-sm); border: 1px dashed var(--line); }
+  .gate-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; padding: 8px 12px; background: rgba(245,240,247,.45); border-radius: var(--r-sm); border: 1px dashed var(--line); margin-top: 10px; }
 
-  /* modal */
-  .modal-backdrop { position: fixed; inset: 0; background: rgba(45,36,58,.35); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 50; }
-  .modal-backdrop.on { display: flex; }
-  .modal { background: white; border-radius: var(--radius); width: 560px; max-width: 92vw; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg); padding: 22px; }
-  .modal h2 { margin: 0 0 6px; font-size: 16px; }
-  .modal p { margin: 0 0 14px; color: var(--ink-soft); font-size: 12px; }
-  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+  /* drawer */
+  .drawer { background: white; border-left: 1px solid var(--line); overflow-y: auto; box-shadow: -2px 0 12px rgba(45,36,58,.08); padding: 16px 16px 60px; height: 100vh; position: sticky; top: 0; }
+  .drawer-close { float: right; background: transparent; border: none; cursor: pointer; font-size: 18px; color: var(--ink-soft); }
+  .drawer-tabs { display: flex; gap: 3px; flex-wrap: wrap; margin-bottom: 14px; padding: 4px; background: var(--base); border-radius: 99px; }
+  .drawer-tab { font-size: 11px; padding: 5px 10px; border-radius: 99px; cursor: pointer; color: var(--ink-soft); }
+  .drawer-tab.on { background: white; color: var(--ink); font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+  .ai-gen-row { display: flex; gap: 6px; margin: 8px 0 12px; }
+  .ai-gen-row .input { flex: 1; padding: 6px 10px; font-size: 12px; }
+  .drawer-fab { position: fixed; top: 22px; right: 22px; z-index: 30; background: linear-gradient(135deg, var(--lavender), var(--rose)); color: white; border: none; border-radius: 99px; padding: 9px 14px; font-size: 12px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 16px rgba(195,166,212,.45); }
+  .app.drawer-open .drawer-fab { display: none; }
 
   /* misc */
-  .pulse-dot { width: 6px; height: 6px; border-radius: 99px; background: var(--ok); animation: pulse 1.6s ease-in-out infinite; display: inline-block; vertical-align: middle; margin-right: 4px; }
-  @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .4; transform: scale(.85); } }
   .small { font-size: 11px; color: var(--ink-soft); }
   .hide { display: none !important; }
-  .dot-st { width: 6px; height: 6px; border-radius: 99px; display: inline-block; }
-  .dot-st.ok { background: var(--ok); }
-  .dot-st.req { background: var(--warn); }
+  .pulse-dot { width: 6px; height: 6px; border-radius: 99px; background: var(--ok); animation: pulse 1.6s ease-in-out infinite; display: inline-block; vertical-align: middle; margin-right: 4px; }
+  @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .4; transform: scale(.85); } }
   .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--ink); color: white; padding: 10px 18px; border-radius: 99px; font-size: 12px; box-shadow: var(--shadow-lg); display: none; z-index: 60; }
   .toast.on { display: block; animation: slidein 220ms ease-out; }
   @keyframes slidein { from { transform: translate(-50%, 20px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
-  .lnk-bar { background: linear-gradient(90deg, rgba(195,166,212,.10), rgba(146,205,192,.10), rgba(212,184,150,.10)); border: 1px solid var(--line); border-radius: var(--r-sm); padding: 10px 14px; margin: 10px 0 16px; display: flex; align-items: center; gap: 12px; font-size: 12px; }
-  .lnk-bar .arr { color: var(--muted); }
-  .lnk-bar strong { color: var(--ink); }
+
+  .relative { position: relative; }
 </style>
 </head>
 <body>
 <div class="app" id="app">
 
-  <!-- sidebar -->
   <aside class="sb">
     <div class="brand">
       <div class="brand-mark">P</div>
@@ -243,239 +223,353 @@
     </div>
     <div class="sb-h">Platform</div>
     <div class="sb-item">📊 Dashboard</div>
-    <div class="sb-item active">✨ AI Chat <span class="badge">v3</span></div>
+    <div class="sb-item active">✨ AI Chat <span class="badge">v4</span></div>
     <div class="sb-item">🎯 Leads</div>
     <div class="sb-item">⚡ Lead Factory</div>
     <div class="sb-h">Intelligence</div>
     <div class="sb-item">🧠 ProsEngine</div>
     <div class="sb-item">🏛️ Masaar</div>
     <div class="sb-item">🌐 OrcEngine</div>
-    <div class="sb-item">📚 Data Seeder</div>
     <div class="sb-h">Market Data</div>
     <div class="sb-item">📈 MeshBase</div>
     <div class="sb-item">💹 SA Market</div>
   </aside>
 
-  <!-- main -->
   <main class="main">
     <h1>AI Research Composer</h1>
-    <p class="h-sub">Linked Template ↔ Mode ↔ Question · in-chat customizer · enrichment routing · behavior-driven suggestions.</p>
+    <p class="h-sub">Guided 4-step composer · each layer reveals the next · auto-saves your loadout.</p>
 
-    <!-- 6. BEHAVIOR INSIGHTS (predictive) -->
+    <!-- ── insights ── -->
     <div class="insight-row" id="insight-row">
-      <div class="insight" onclick="applyInsight('repeat')">
+      <div class="insight" onclick="toast('Loaded · skip to step 4')">
         <div class="insight-h">🔁 You ran this 3× this week</div>
-        <div class="insight-t">Re-run "Saudi fintech CTOs · 2024 funded" with updated 2025 data</div>
-        <div class="insight-x">Saved you ~2 min · 1-click</div>
+        <div class="insight-t">Re-run "Saudi fintech CTOs" with 2025 data</div>
       </div>
-      <div class="insight" onclick="applyInsight('next')">
+      <div class="insight" onclick="toast('Loaded CFO follow-up template')">
         <div class="insight-h">⏭ Likely next step</div>
-        <div class="insight-t">Map Series-B fintech CFOs (you usually run CFO follow-ups after CTO queries)</div>
-        <div class="insight-x">Based on 7 past sessions</div>
+        <div class="insight-t">Map Series-B fintech CFOs</div>
       </div>
-      <div class="insight" onclick="applyInsight('trend')">
-        <div class="insight-h">📈 Trending in your tenant</div>
-        <div class="insight-t">"NEOM construction tender" queries spiked 6× yesterday</div>
-        <div class="insight-x">Try "NEOM Vendor Hunter" skill</div>
+      <div class="insight" onclick="toast('Activated NEOM Vendor Hunter')">
+        <div class="insight-h">📈 Trending in tenant</div>
+        <div class="insight-t">NEOM construction tender — try the new skill</div>
       </div>
     </div>
 
-    <!-- progress steps -->
-    <div class="steps" id="steps">
-      <div class="step active"><div class="dot">1</div>Compose</div>
-      <div class="step-line"></div>
-      <div class="step"><div class="dot">2</div>Enhance</div>
-      <div class="step-line"></div>
-      <div class="step"><div class="dot">3</div>Clarify</div>
-      <div class="step-line"></div>
-      <div class="step"><div class="dot">4</div>Run</div>
-      <div class="step-line"></div>
-      <div class="step"><div class="dot">5</div>Report</div>
-      <div class="step-line"></div>
-      <div class="step"><div class="dot">6</div>Enrich · Route</div>
+    <!-- ── crumbs ── -->
+    <div class="crumbs" id="crumbs">
+      <span class="crumb active" data-c="1"><span class="check">▸</span> Pick</span>
+      <span class="crumb-sep">›</span>
+      <span class="crumb" data-c="2">Scope</span>
+      <span class="crumb-sep">›</span>
+      <span class="crumb" data-c="3">Tools</span>
+      <span class="crumb-sep">›</span>
+      <span class="crumb" data-c="4">Ask</span>
     </div>
 
-    <!-- LINKAGE VISUAL BAR -->
-    <div class="lnk-bar">
-      🔗 <strong>Template</strong> <span class="arr">→</span> <strong>Mode</strong> <span class="arr">→</span> <strong>Question</strong>
-      <span class="small" style="margin-left:auto">picking a template auto-fills mode + filters + question · enhancer verifies coherence in step 3</span>
-    </div>
+    <!-- ───────────────── LAYER 1: PICK ───────────────── -->
+    <section class="layer" id="layer-1">
+      <div class="layer-h">
+        <div class="layer-num">1</div>
+        <div class="layer-t">Pick<span class="layer-sub">— template &amp; modes</span></div>
+      </div>
+      <div class="layer-body">
+        <div class="grid-2">
+          <div>
+            <div class="field-label">📑 Template <button class="field-edit">+ Create / Edit</button></div>
+            <select class="select" id="tpl-sel" onchange="onTemplateChange()">
+              <option value="">— Choose a template (auto-fills next layers) —</option>
+              <option value="t1" selected>🎯 Saudi fintech CTOs · 2024 funded</option>
+              <option value="t2">⚖️ Tadawul board comparison</option>
+              <option value="t3">🏛️ Family-office contact map · GCC</option>
+              <option value="t4">🔬 CR Lookup deep dossier</option>
+              <option value="t5">📊 M&A candidates screen</option>
+              <option value="t6">💰 VC-backed founders map · MENA</option>
+              <option value="my1">💾 My Aramco Vendors (saved · 2025-05-19)</option>
+              <option value="blank">— Start blank —</option>
+            </select>
+          </div>
 
-    <!-- STEP 1: COMPOSER -->
-    <section id="view-compose">
-      <div class="card">
-        <div class="card-h">
-          <span class="card-title">Compose</span>
-          <span class="small" style="margin-left:auto">Step 1 of 6</span>
+          <div class="relative">
+            <div class="field-label">⚙️ Modes <span class="field-hint">— multi-select</span></div>
+            <div class="ms" id="mode-ms" onclick="toggleMS('mode')">
+              <span class="ms-tag" data-mode="leadgen">🎯 Lead Gen<span class="x" onclick="rmTag(event,'mode','leadgen')">×</span></span>
+              <span class="ms-tag" data-mode="enrich">🧪 Enrich<span class="x" onclick="rmTag(event,'mode','enrich')">×</span></span>
+              <span class="ms-chev">▾</span>
+            </div>
+            <div class="ms-pop hide" id="mode-pop">
+              <div class="ms-opt on" data-mode="leadgen"><div class="ck">✓</div>🎯 Lead Gen<span class="meta">finds people</span></div>
+              <div class="ms-opt on" data-mode="enrich"><div class="ck">✓</div>🧪 Enrich<span class="meta">adds fields</span></div>
+              <div class="ms-opt" data-mode="research"><div class="ck">✓</div>🔍 Research<span class="meta">open-ended</span></div>
+              <div class="ms-opt" data-mode="extract"><div class="ck">✓</div>📋 Extract<span class="meta">table only</span></div>
+              <div class="ms-opt" data-mode="compare"><div class="ck">✓</div>⚖️ Compare<span class="meta">side-by-side</span></div>
+              <div class="ms-opt" data-mode="deepdive"><div class="ck">✓</div>🔬 Deep Dive<span class="meta">exhaustive</span></div>
+              <div class="ms-opt" data-mode="signal"><div class="ck">✓</div>📡 Signal Watch<span class="meta">monitoring</span></div>
+              <div class="ms-opt" data-mode="custom"><div class="ck">✓</div>🛠️ Custom</div>
+            </div>
+          </div>
         </div>
-        <div class="card-body">
 
-          <!-- Templates -->
-          <div class="field-label">
-            📑 Templates <span class="field-hint">— click to apply · auto-locks mode + filters + question</span>
-            <button class="field-edit" onclick="openModal('tpl')">+ Create / Edit</button>
-          </div>
-          <div class="tpl-row" id="tpl-row">
-            <div class="tpl on" data-tpl="t1">
-              <div class="tpl-title">Saudi fintech CTOs · 2024</div>
-              <div class="tpl-meta">Lead Gen · KSA · Fintech</div>
-            </div>
-            <div class="tpl" data-tpl="t2">
-              <div class="tpl-title">Tadawul board compare</div>
-              <div class="tpl-meta">Compare · KSA listed</div>
-            </div>
-            <div class="tpl" data-tpl="t3">
-              <div class="tpl-title">Family-office contact map</div>
-              <div class="tpl-meta">Research + Lead Gen · GCC</div>
-            </div>
-            <div class="tpl" data-tpl="t4">
-              <div class="tpl-title">CR Lookup dossier</div>
-              <div class="tpl-meta">Deep Dive · single co</div>
-            </div>
-            <div class="tpl tpl-saved" data-tpl="t99">
-              <div class="tpl-title">My Aramco Vendors</div>
-              <div class="tpl-meta">your saved · 2025-05-19</div>
-            </div>
-            <div class="tpl tpl-add" onclick="openModal('tpl')">+ New</div>
-          </div>
-
-          <!-- Modes (multi, locked when template active) -->
-          <div style="margin-top:16px">
-            <div class="field-label">
-              ⚙️ Modes <span class="field-hint">— linked to template (🔗 = locked by template)</span>
-            </div>
-            <div class="chips mode-chips" id="mode-chips">
-              <span class="chip" data-mode="research">🔍 Research</span>
-              <span class="chip" data-mode="extract">📋 Extract</span>
-              <span class="chip" data-mode="compare">⚖️ Compare</span>
-              <span class="chip on locked" data-mode="leadgen">🎯 Lead Gen</span>
-              <span class="chip on locked" data-mode="enrich">🧪 Enrich</span>
-              <span class="chip" data-mode="deepdive">🔬 Deep Dive</span>
-              <span class="chip" data-mode="signal">📡 Signal Watch</span>
-              <span class="chip" data-mode="custom">🛠️ Custom</span>
-            </div>
-          </div>
-
-          <!-- Question: linked + write/filter/both -->
-          <div style="margin-top:16px">
-            <div class="field-label">
-              💬 Your Question <span class="field-hint">— text + filters → both go into the enhanced prompt</span>
-              <div class="seg" style="margin-left:auto" id="input-seg">
-                <button class="on" data-seg="both">⚡ Both</button>
-                <button data-seg="write">✍️ Write</button>
-                <button data-seg="filter">🎛️ Filters</button>
-              </div>
-            </div>
-
-            <div id="write-block">
-              <textarea class="input" id="free-text" placeholder="Describe what you want...">Find 5 Saudi fintech CTOs at Series-A+ companies that closed 2024 funding and are hiring engineers in Riyadh.</textarea>
-            </div>
-
-            <div id="filter-block" class="filter-grid">
-              <div class="filter-cell"><div class="field-label">Industry</div><select class="select"><option>Fintech</option><option>Banking</option><option>Construction</option><option>Energy</option><option>Healthcare</option><option>Retail</option><option>Real Estate</option><option>EdTech</option></select></div>
-              <div class="filter-cell"><div class="field-label">Role</div><select class="select"><option>CTO</option><option>CEO / Founder</option><option>CFO</option><option>COO</option><option>VP Engineering</option><option>Head of Sales</option><option>Procurement Director</option></select></div>
-              <div class="filter-cell"><div class="field-label">Seniority</div><select class="select"><option>C-Suite</option><option>VP</option><option>Director</option></select></div>
-              <div class="filter-cell"><div class="field-label">Country</div><select class="select"><option>Saudi Arabia</option><option>UAE</option><option>Kuwait</option><option>Qatar</option><option>GCC</option></select></div>
-              <div class="filter-cell"><div class="field-label">City</div><select class="select"><option>Riyadh</option><option>Jeddah</option><option>Dammam</option></select></div>
-              <div class="filter-cell"><div class="field-label">Funding Stage</div><select class="select"><option>Series A</option><option>Series B</option><option>Series C+</option><option>PE / Growth</option></select></div>
-              <div class="filter-cell"><div class="field-label">Funding Year</div><select class="select"><option>2024</option><option>2025</option><option>2023</option><option>Last 12m</option></select></div>
-              <div class="filter-cell"><div class="field-label">Employee Band</div><select class="select"><option>51-200</option><option>201-500</option><option>501-1000</option></select></div>
-              <div class="filter-cell"><div class="field-label">Result count</div><select class="select"><option>5</option><option>10</option><option>25</option><option>50</option></select></div>
-            </div>
-          </div>
-
-          <!-- enhance toggle -->
-          <div class="toggle-row">
-            <div class="toggle on" id="enhance-tgl"></div>
-            <div class="toggle-label">AI Generative Prompt Enhancer</div>
-            <div class="toggle-hint">Merges template + mode + filters + question into one structured task. Asks clarifying questions if anything contradicts.</div>
-          </div>
-
-          <div class="run-row">
-            <div class="run-summary">
-              <strong style="color:var(--ink)">Loadout:</strong>
-              <span id="summary-text">Lead Gen + Enrich · 🇸🇦 KSA · Saudi Lead Hunter · Both inputs · Enhance ON</span>
-            </div>
-            <button class="btn btn-ghost" onclick="resetAll()">Reset</button>
-            <button class="btn btn-primary" onclick="kickoff()">Compose &amp; Run ⏵</button>
-          </div>
+        <div class="next-row">
+          <button class="btn btn-primary btn-sm" onclick="goLayer(2)">Next: Scope →</button>
         </div>
       </div>
     </section>
 
-    <!-- STEP 2+3 -->
-    <section id="view-clarify" class="hide" style="margin-top:14px">
-      <div class="card">
-        <div class="card-h">
-          <span class="card-title">🤖 Enhanced Prompt</span>
-          <span class="small" style="margin-left:auto">Step 2/6 — text + filters + template + mode merged</span>
+    <!-- ───────────────── LAYER 2: SCOPE ───────────────── -->
+    <section class="layer hide" id="layer-2">
+      <div class="layer-h">
+        <div class="layer-num">2</div>
+        <div class="layer-t">Scope<span class="layer-sub">— country &amp; industry</span></div>
+      </div>
+      <div class="layer-body">
+        <div class="grid-2">
+          <div class="relative">
+            <div class="field-label">🌍 Country / Region <span class="field-hint">— multi</span></div>
+            <div class="ms" onclick="toggleMS('country')">
+              <span class="ms-tag">🇸🇦 Saudi Arabia<span class="x" onclick="event.stopPropagation()">×</span></span>
+              <span class="ms-chev">▾</span>
+            </div>
+            <div class="ms-pop hide" id="country-pop">
+              <div class="ms-opt on"><div class="ck">✓</div>🇸🇦 Saudi Arabia</div>
+              <div class="ms-opt"><div class="ck">✓</div>🇦🇪 UAE</div>
+              <div class="ms-opt"><div class="ck">✓</div>🇰🇼 Kuwait</div>
+              <div class="ms-opt"><div class="ck">✓</div>🇶🇦 Qatar</div>
+              <div class="ms-opt"><div class="ck">✓</div>🇧🇭 Bahrain</div>
+              <div class="ms-opt"><div class="ck">✓</div>🇴🇲 Oman</div>
+              <div class="ms-opt"><div class="ck">✓</div>🇪🇬 Egypt</div>
+              <div class="ms-opt"><div class="ck">✓</div>🇯🇴 Jordan</div>
+              <div class="ms-opt"><div class="ck">✓</div>🌐 GCC (all)</div>
+              <div class="ms-opt"><div class="ck">✓</div>🌐 MENA (all)</div>
+              <div class="ms-opt"><div class="ck">✓</div>🌐 Global</div>
+            </div>
+          </div>
+
+          <div>
+            <div class="field-label">🏭 Industry</div>
+            <select class="select" id="ind-sel" onchange="onIndustryChange()">
+              <option value="">Choose industry</option>
+              <option value="fintech" selected>💳 Fintech</option>
+              <option value="banking">🏦 Banking</option>
+              <option value="energy">🛢️ Energy / Oil &amp; Gas</option>
+              <option value="construction">🏗️ Construction / Real Estate</option>
+              <option value="healthcare">💊 Healthcare</option>
+              <option value="retail">🛒 Retail / E-commerce</option>
+              <option value="edtech">🎓 EdTech</option>
+              <option value="logistics">🚚 Logistics</option>
+              <option value="govt">🏛️ Government / Public Sector</option>
+            </select>
+          </div>
         </div>
-        <div class="card-body" style="font-size:12px; line-height:1.6">
+
+        <!-- Sub-filters appear based on industry -->
+        <div style="margin-top:14px" id="subfilter-zone">
+          <div class="field-label">⚙️ Industry sub-filters <span class="field-hint">— based on Fintech</span></div>
+          <div class="grid-3">
+            <div>
+              <div class="small" style="margin-bottom:4px">Sub-industry</div>
+              <select class="select"><option>Payments / BNPL</option><option>Open Banking</option><option>Lending / Credit</option><option>Wealthtech</option><option>Insurtech</option><option>Crypto / Digital Assets</option></select>
+            </div>
+            <div>
+              <div class="small" style="margin-bottom:4px">Funding stage</div>
+              <select class="select"><option selected>Series A+</option><option>Seed</option><option>Series B+</option><option>PE / Growth</option><option>Listed</option></select>
+            </div>
+            <div>
+              <div class="small" style="margin-bottom:4px">Funding year</div>
+              <select class="select"><option selected>2024</option><option>2025</option><option>2023</option><option>Last 12m</option></select>
+            </div>
+          </div>
+        </div>
+
+        <div class="next-row">
+          <button class="btn btn-ghost btn-sm" onclick="goLayer(1)">← Back</button>
+          <button class="btn btn-primary btn-sm" onclick="goLayer(3)">Next: Tools →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────────────── LAYER 3: TOOLS ───────────────── -->
+    <section class="layer hide" id="layer-3">
+      <div class="layer-h">
+        <div class="layer-num">3</div>
+        <div class="layer-t">Tools<span class="layer-sub">— sources · connectors · skills (category → items)</span></div>
+      </div>
+      <div class="layer-body">
+
+        <!-- SOURCES: category → items -->
+        <div style="margin-bottom:18px">
+          <div class="field-label">📚 Sources <span class="field-hint">— pick a category, then which sources</span></div>
+          <div class="grid-2">
+            <select class="select" id="src-cat" onchange="onSrcCat()">
+              <option value="ksa-market" selected>🇸🇦 Saudi market &amp; registries (11)</option>
+              <option value="arabic-press">📰 Arabic financial press (10)</option>
+              <option value="regional-press">🌍 Regional &amp; English biz press (14)</option>
+              <option value="global-open">⚖️ Global open-data &amp; legal (11)</option>
+              <option value="sector">🏗️ Sector / Real-estate (10)</option>
+              <option value="social">💬 Social &amp; live web (10)</option>
+            </select>
+            <div class="seg">
+              <button class="on">Selected 6 of 80</button>
+            </div>
+          </div>
+          <div class="chips" id="src-chips" style="margin-top:10px">
+            <!-- populated by JS -->
+          </div>
+        </div>
+
+        <!-- CONNECTORS: category → items -->
+        <div style="margin-bottom:18px">
+          <div class="field-label">🔌 Connectors <span class="field-hint">— category dropdown filters which connectors show</span></div>
+          <div class="grid-2">
+            <select class="select" id="conn-cat" onchange="onConnCat()">
+              <option value="scraping" selected>🌐 Scraping / Browsing (9)</option>
+              <option value="prod">⚙️ Productivity &amp; collab (8)</option>
+              <option value="files">📁 Files &amp; data stores (8)</option>
+              <option value="crm">💼 CRM &amp; sales (6)</option>
+              <option value="msg">💬 Messaging (6)</option>
+            </select>
+            <div class="seg">
+              <button class="on">Selected 3 of 37</button>
+            </div>
+          </div>
+          <div class="chips" id="conn-chips" style="margin-top:10px"></div>
+        </div>
+
+        <!-- SKILLS: category → items -->
+        <div>
+          <div class="field-label">🧬 Skills <span class="field-hint">— sector-tailored bundles</span></div>
+          <div class="grid-2">
+            <select class="select" id="skill-cat" onchange="onSkillCat()">
+              <option value="finance" selected>🏦 Finance &amp; Investment (4)</option>
+              <option value="real">🏗️ Real-Estate &amp; Construction (3)</option>
+              <option value="energy">🛢️ Energy &amp; Industry (2)</option>
+              <option value="people">👥 People &amp; Outreach (3)</option>
+              <option value="compliance">⚖️ Compliance &amp; Risk (2)</option>
+              <option value="sector-other">🛒 Other sectors (3)</option>
+            </select>
+            <div class="seg">
+              <button class="on">Selected 1 of 17</button>
+            </div>
+          </div>
+          <div class="chips" id="skill-chips" style="margin-top:10px"></div>
+        </div>
+
+        <div class="next-row">
+          <button class="btn btn-ghost btn-sm" onclick="goLayer(2)">← Back</button>
+          <button class="btn btn-primary btn-sm" onclick="goLayer(4)">Next: Ask →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────────────── LAYER 4: ASK ───────────────── -->
+    <section class="layer hide" id="layer-4">
+      <div class="layer-h">
+        <div class="layer-num">4</div>
+        <div class="layer-t">Ask<span class="layer-sub">— text · filters · or both → AI enhances</span></div>
+      </div>
+      <div class="layer-body">
+        <div style="display:flex; align-items:center; margin-bottom:10px">
+          <div class="seg" id="input-seg">
+            <button class="on" data-seg="both">⚡ Both</button>
+            <button data-seg="write">✍️ Write</button>
+            <button data-seg="filter">🎛️ Filters only</button>
+          </div>
+          <span class="small" style="margin-left:auto">Text + filters both feed the AI enhancer.</span>
+        </div>
+
+        <div id="write-block">
+          <textarea class="input" placeholder="Describe what you want...">Find 5 Saudi fintech CTOs at Series-A+ companies that closed 2024 funding and are hiring engineers in Riyadh.</textarea>
+        </div>
+
+        <div id="filter-block" style="margin-top:10px">
+          <div class="grid-3">
+            <div><div class="small" style="margin-bottom:4px">Role</div><select class="select"><option>CTO</option><option>CEO</option><option>CFO</option><option>VP Eng</option><option>Head of Sales</option></select></div>
+            <div><div class="small" style="margin-bottom:4px">Seniority</div><select class="select"><option>C-Suite</option><option>VP</option><option>Director</option></select></div>
+            <div><div class="small" style="margin-bottom:4px">City</div><select class="select"><option>Riyadh</option><option>Jeddah</option><option>Dammam</option></select></div>
+            <div><div class="small" style="margin-bottom:4px">Employee band</div><select class="select"><option>51-200</option><option>201-500</option><option>501-1000</option></select></div>
+            <div><div class="small" style="margin-bottom:4px">Revenue band</div><select class="select"><option>SAR 10-50M</option><option>SAR 50-250M</option><option>SAR 250M+</option></select></div>
+            <div><div class="small" style="margin-bottom:4px">Result count</div><select class="select"><option>5</option><option>10</option><option>25</option><option>50</option></select></div>
+          </div>
+        </div>
+
+        <div class="toggle-row" style="margin-top:12px">
+          <div class="toggle on" id="enhance-tgl"></div>
+          <div class="toggle-label">AI Prompt Enhancer</div>
+          <div class="toggle-hint">Merges text + filters + template + mode into one structured task.</div>
+        </div>
+
+        <div class="next-row">
+          <button class="btn btn-ghost btn-sm" onclick="goLayer(3)">← Back</button>
+          <button class="btn btn-primary" onclick="kickoff()">Compose &amp; Run ⏵</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────────────── ENHANCE / CLARIFY ───────────────── -->
+    <section id="view-clarify" class="hide" style="margin-top:14px">
+      <div class="layer">
+        <div class="layer-h">
+          <div class="layer-num" style="background:var(--sand)">✨</div>
+          <div class="layer-t">Enhanced Prompt<span class="layer-sub">— AI merged everything</span></div>
+        </div>
+        <div class="layer-body" style="font-size:12px">
           <div style="background:rgba(245,240,247,.6); padding:14px; border-radius:10px; border:1px solid var(--line); font-family:ui-monospace, monospace;">
-            <strong>OBJECTIVE</strong> — Identify 5 Saudi-Arabia-based fintech companies that closed Series A or later in 2024, hiring software engineers in Riyadh. For each, find active CTO or senior tech lead.<br/><br/>
-            <strong>FILTERS</strong> — industry=Fintech · country=KSA · city=Riyadh · funding_stage=Series A+ · funding_year=2024 · role=CTO · employees=51-500 · result_count=5<br/>
-            <strong>SOURCES</strong> — Tadawul · Argaam · Mubasher · Maal · GLEIF · Masar CR · Tavily<br/>
-            <strong>MODES</strong> — Lead Gen (primary) + Enrich (CTO LinkedIn, phone)<br/>
+            <strong>OBJECTIVE</strong> — Identify 5 Saudi-Arabia-based fintech companies that closed Series A+ in 2024, hiring engineers in Riyadh.<br/>
+            <strong>FILTERS</strong> — Fintech · KSA · Riyadh · Series A+ · 2024 · CTO · 51-500 emp<br/>
+            <strong>SOURCES</strong> — Tadawul · Argaam · Mubasher · Maal · GLEIF · Masar<br/>
+            <strong>MODES</strong> — Lead Gen + Enrich<br/>
             <strong>SCHEMA</strong> — LeadList · 5 rows · English
           </div>
-        </div>
-      </div>
 
-      <div class="clarify" style="margin-top:14px">
-        <div class="clarify-h">
-          💡 <span style="font-weight:600">2 quick clarifications</span>
-          <span class="small" style="margin-left:auto">Step 3/6</span>
-        </div>
-        <div class="clarify-q">
-          <div class="clarify-q-label">Include "Head of Engineering" / "VP Eng" as CTO equivalents?</div>
-          <div class="chips"><span class="clarify-opt on">Yes</span><span class="clarify-opt">No — formal CTO only</span></div>
-        </div>
-        <div class="clarify-q">
-          <div class="clarify-q-label">Minimum funding round size?</div>
-          <div class="chips"><span class="clarify-opt">Any</span><span class="clarify-opt on">$2M+</span><span class="clarify-opt">$10M+</span><span class="clarify-opt">$50M+</span></div>
-        </div>
-        <div style="display:flex; gap:8px; justify-content:flex-end">
-          <button class="btn btn-ghost" onclick="backToCompose()">← Back</button>
-          <button class="btn btn-primary" onclick="startAgents()">Run Research ⏵</button>
+          <div style="background:rgba(212,184,150,.10); border:1px solid rgba(212,184,150,.30); border-radius:10px; padding:14px; margin-top:12px">
+            <div style="font-weight:600; margin-bottom:10px">💡 2 quick clarifications</div>
+            <div style="margin-bottom:10px">
+              <div class="small" style="margin-bottom:6px">Include "Head of Engineering" / "VP Eng"?</div>
+              <div class="chips"><span class="chip on">Yes</span><span class="chip">No — formal CTO only</span></div>
+            </div>
+            <div>
+              <div class="small" style="margin-bottom:6px">Min funding round?</div>
+              <div class="chips"><span class="chip">Any</span><span class="chip on">$2M+</span><span class="chip">$10M+</span></div>
+            </div>
+          </div>
+
+          <div class="next-row">
+            <button class="btn btn-ghost btn-sm" onclick="goLayer(4)">← Back</button>
+            <button class="btn btn-primary" onclick="startAgents()">Run Research ⏵</button>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- STEP 4 -->
+    <!-- ───────────────── RUN ───────────────── -->
     <section id="view-run" class="hide" style="margin-top:14px">
-      <div class="card">
-        <div class="card-h">
-          <span class="card-title">Agents Working</span>
-          <span class="small" style="margin-left:auto"><span class="pulse-dot"></span>Step 4/6</span>
+      <div class="layer">
+        <div class="layer-h">
+          <div class="layer-num" style="background:var(--lavender)"><div class="spinner" style="border-color:rgba(255,255,255,.4);border-top-color:white"></div></div>
+          <div class="layer-t">Agents Working<span class="layer-sub"><span class="pulse-dot"></span>streaming</span></div>
         </div>
-        <div class="card-body">
+        <div class="layer-body">
           <div class="agent-log" id="agent-log"></div>
-          <div class="small" style="margin-top:14px; text-align:center; color:var(--muted)">⏱ ~30-60s · runs in background</div>
         </div>
       </div>
     </section>
 
-    <!-- STEP 5+6 -->
+    <!-- ───────────────── REPORT ───────────────── -->
     <section id="view-report" class="hide" style="margin-top:14px">
-      <div class="card">
-        <div class="card-body">
+      <div class="layer">
+        <div class="layer-body">
           <div class="report-h">
             <div>
               <div class="report-title">Saudi Fintech CTOs — 5 Leads</div>
-              <div class="small">Generated just now · 6 sources · Step 5/6</div>
+              <div class="small">Generated just now · 6 sources cited</div>
             </div>
-            <div class="report-meta">
-              <span class="meta-chip">Lead Gen + Enrich</span>
-              <span class="meta-chip">🇸🇦 KSA</span>
-              <button class="exp-btn" onclick="saveAsTemplate()">💾 Save as Template</button>
-              <button class="exp-btn">💾 Save as Skill</button>
-            </div>
+            <button class="exp-btn" onclick="toast('Template saved')">💾 Save as Template</button>
+            <button class="exp-btn" onclick="toast('Saved as new skill')">💾 Save as Skill</button>
           </div>
 
           <div class="blk">
             <div class="blk-h">Highlights</div>
             <div class="kpi-row">
-              <div class="kpi"><div class="kpi-val">5</div><div class="kpi-label">Leads</div><div class="kpi-delta">all validated</div></div>
+              <div class="kpi"><div class="kpi-val">5</div><div class="kpi-label">Leads</div></div>
               <div class="kpi"><div class="kpi-val">$87M</div><div class="kpi-label">Total 2024 funding</div></div>
               <div class="kpi"><div class="kpi-val">A+</div><div class="kpi-label">Avg quality</div></div>
               <div class="kpi"><div class="kpi-val">28</div><div class="kpi-label">Open tech roles</div></div>
@@ -483,84 +577,49 @@
           </div>
 
           <div class="blk">
-            <div class="blk-h">
-              Lead Table
-              <span class="small" style="margin-left:auto;text-transform:none;letter-spacing:0;font-weight:400">
-                <label style="cursor:pointer"><input type="checkbox" id="sel-all" onclick="toggleAll(this)"> select all</label>
-              </span>
-            </div>
+            <div class="blk-h">Lead Table <span class="small" style="margin-left:auto;text-transform:none;letter-spacing:0;font-weight:400"><label><input type="checkbox" id="sel-all" onclick="toggleAll(this)" checked> select all</label></span></div>
             <div class="tbl-wrap">
-              <table><thead><tr><th width="32"></th><th>Company</th><th>Lead</th><th>Funding</th><th>Open Roles</th><th>Tier</th></tr></thead>
-              <tbody id="lead-tbody">
-                <tr class="selected"><td><input type="checkbox" class="row-sel" checked></td><td><strong>Tabby</strong><br/><span class="small">Riyadh · BNPL</span></td><td>Mohammed AlQasem<br/><span class="small">CTO</span></td><td><strong>$50M</strong></td><td>9</td><td><span class="pill pill-a">A+</span></td></tr>
-                <tr class="selected"><td><input type="checkbox" class="row-sel" checked></td><td><strong>Lean Technologies</strong><br/><span class="small">Riyadh · Open Finance</span></td><td>Hisham Al-Falih<br/><span class="small">CTO</span></td><td><strong>$28M</strong></td><td>7</td><td><span class="pill pill-a">A+</span></td></tr>
+              <table><thead><tr><th width="32"></th><th>Company</th><th>Lead</th><th>Funding</th><th>Roles</th><th>Tier</th></tr></thead>
+              <tbody>
+                <tr class="selected"><td><input type="checkbox" class="row-sel" checked></td><td><strong>Tabby</strong></td><td>Mohammed AlQasem<br/><span class="small">CTO</span></td><td><strong>$50M</strong></td><td>9</td><td><span class="pill pill-a">A+</span></td></tr>
+                <tr class="selected"><td><input type="checkbox" class="row-sel" checked></td><td><strong>Lean Tech</strong></td><td>Hisham Al-Falih<br/><span class="small">CTO</span></td><td><strong>$28M</strong></td><td>7</td><td><span class="pill pill-a">A+</span></td></tr>
                 <tr class="selected"><td><input type="checkbox" class="row-sel" checked></td><td><strong>Hala</strong></td><td>Esam Alkheshnam<br/><span class="small">Head of Eng</span></td><td><strong>$8M</strong></td><td>5</td><td><span class="pill pill-b">A</span></td></tr>
                 <tr class="selected"><td><input type="checkbox" class="row-sel" checked></td><td><strong>Lendo</strong></td><td>Mohammed Jawabri<br/><span class="small">CTO</span></td><td><strong>$28M</strong></td><td>4</td><td><span class="pill pill-a">A+</span></td></tr>
-                <tr><td><input type="checkbox" class="row-sel"></td><td><strong>NymCard</strong></td><td>Reuben Joseph<br/><span class="small">VP Eng</span></td><td><strong>$22M</strong></td><td>3</td><td><span class="pill pill-c">B</span></td></tr>
+                <tr class="selected"><td><input type="checkbox" class="row-sel" checked></td><td><strong>NymCard</strong></td><td>Reuben Joseph<br/><span class="small">VP Eng</span></td><td><strong>$22M</strong></td><td>3</td><td><span class="pill pill-c">B</span></td></tr>
               </tbody></table>
             </div>
           </div>
 
-          <!-- ── 5. ENRICHMENT LAYER ── -->
+          <!-- Enrichment Layer -->
           <div class="enrich-pane">
             <div class="enrich-h">
-              <span class="icon">🧪</span>
+              <span style="font-size:18px">🧪</span>
               <h3>Enrichment Layer</h3>
-              <span class="small" style="margin-left:auto">Step 6/6 — optional · runs on <span id="sel-count">4</span> selected rows</span>
+              <span class="small" style="margin-left:auto">Optional · runs on <strong>5</strong> selected · all inserts pass dedup · validate · verify gates</span>
             </div>
-            <div class="small">Toggle what to enrich. AI will fetch missing fields via Nexus (smart provider routing). All inserts pass through <strong>dedup · validate · verify</strong> before reaching the database.</div>
-
             <div class="enrich-grid">
-              <div class="enrich-opt on" data-en="linkedin">
-                <div class="lbl">🔗 LinkedIn URL</div>
-                <div class="desc">Find verified profile</div>
-              </div>
-              <div class="enrich-opt on" data-en="email">
-                <div class="lbl">📧 Email</div>
-                <div class="desc">DNS+MX validated only</div>
-              </div>
-              <div class="enrich-opt" data-en="phone">
-                <div class="lbl">📞 Phone</div>
-                <div class="desc">+966 / GCC numbers</div>
-              </div>
-              <div class="enrich-opt on" data-en="financials">
-                <div class="lbl">💰 Co. financials</div>
-                <div class="desc">Revenue · employees · CR</div>
-              </div>
-              <div class="enrich-opt" data-en="news">
-                <div class="lbl">📰 Recent news</div>
-                <div class="desc">Last 90 days mentions</div>
-              </div>
-              <div class="enrich-opt" data-en="icp">
-                <div class="lbl">🎯 ICP score</div>
-                <div class="desc">Tier A/B/C + reasoning</div>
-              </div>
-              <div class="enrich-opt" data-en="signals">
-                <div class="lbl">📡 Buying signals</div>
-                <div class="desc">Hiring · funding · tech stack</div>
-              </div>
-              <div class="enrich-opt" data-en="outreach">
-                <div class="lbl">✉️ Outreach draft</div>
-                <div class="desc">Personalized Ar/En</div>
-              </div>
+              <div class="enrich-opt on"><div class="lbl">🔗 LinkedIn URL</div><div class="desc">Verified profile</div></div>
+              <div class="enrich-opt on"><div class="lbl">📧 Email</div><div class="desc">DNS+MX validated</div></div>
+              <div class="enrich-opt"><div class="lbl">📞 Phone</div><div class="desc">+966 / GCC</div></div>
+              <div class="enrich-opt on"><div class="lbl">💰 Financials</div><div class="desc">Revenue · CR</div></div>
+              <div class="enrich-opt"><div class="lbl">📰 Recent news</div><div class="desc">Last 90 days</div></div>
+              <div class="enrich-opt"><div class="lbl">🎯 ICP Score</div><div class="desc">Tier + reasons</div></div>
+              <div class="enrich-opt"><div class="lbl">📡 Buying signals</div><div class="desc">Hiring · funding</div></div>
+              <div class="enrich-opt"><div class="lbl">✉️ Outreach draft</div><div class="desc">Personalized Ar/En</div></div>
             </div>
-
             <div class="gate-row">
-              <span style="font-size:11px; font-weight:700; color:var(--ink)">Before inserting, gate runs:</span>
+              <span style="font-size:11px;font-weight:700">Gates before insert:</span>
               <span class="gate-pill gate-ok">✓ pass</span>
               <span class="gate-pill gate-warn">⚠ unverified</span>
               <span class="gate-pill gate-dup">🛡 duplicate</span>
-              <span class="gate-pill gate-bad">✗ rejected (dummy)</span>
-              <span class="small" style="margin-left:auto">phone · email · CR · domain · fuzzy-name dedup</span>
+              <span class="gate-pill gate-bad">✗ rejected</span>
             </div>
-
             <div style="display:flex; gap:8px; margin-top:14px; flex-wrap:wrap">
-              <button class="btn btn-seafoam" onclick="runEnrich()">🧪 Apply Enrichment</button>
-              <button class="btn btn-sand" onclick="pushTo('leads')">📤 Push to Leads DB (gated)</button>
-              <button class="btn btn-sand" onclick="pushTo('companies')">🏢 Push to Companies DB (gated)</button>
-              <button class="btn btn-ghost" style="margin-left:auto" onclick="resetAll()">↻ New Query</button>
+              <button class="btn btn-seafoam btn-sm">🧪 Apply Enrichment</button>
+              <button class="btn btn-sand btn-sm" onclick="pushTo('leads')">📤 Push to Leads (gated)</button>
+              <button class="btn btn-sand btn-sm" onclick="pushTo('companies')">🏢 Push to Companies (gated)</button>
+              <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="resetAll()">↻ New Query</button>
             </div>
-
             <div id="push-result" class="small hide" style="margin-top:10px; padding:10px; background:white; border:1px solid var(--line); border-radius:8px"></div>
           </div>
 
@@ -578,217 +637,228 @@
 
   </main>
 
-  <!-- DRAWER: in-chat customizer -->
+  <!-- DRAWER -->
   <aside class="drawer hide" id="drawer">
     <button class="drawer-close" onclick="closeDrawer()">×</button>
-    <div style="font-weight:700; font-size:14px; margin-bottom:10px">⚙️ Customize Mid-Chat</div>
-    <p class="small" style="margin-bottom:14px">Tweak sources, connectors, skills, plugins, templates, or modes WITHOUT leaving the chat. AI can also generate any of these for you.</p>
-
-    <div class="drawer-tabs" id="drawer-tabs">
-      <span class="drawer-tab on" data-d="sources">Sources</span>
-      <span class="drawer-tab" data-d="connectors">Connectors</span>
-      <span class="drawer-tab" data-d="skills">Skills</span>
-      <span class="drawer-tab" data-d="plugins">Plugins</span>
-      <span class="drawer-tab" data-d="templates">Templates</span>
-      <span class="drawer-tab" data-d="modes">Modes</span>
+    <div style="font-weight:700; font-size:14px; margin-bottom:6px">⚙️ Customize Mid-Chat</div>
+    <p class="small" style="margin-bottom:14px">Tweak or AI-generate any of these without leaving the chat.</p>
+    <div class="drawer-tabs">
+      <span class="drawer-tab on">Sources</span>
+      <span class="drawer-tab">Connectors</span>
+      <span class="drawer-tab">Skills</span>
+      <span class="drawer-tab">Plugins</span>
+      <span class="drawer-tab">Templates</span>
+      <span class="drawer-tab">Modes</span>
     </div>
-
-    <!-- Sources tab -->
-    <div class="drawer-pane" data-pane="sources">
-      <div class="drawer-section">
-        <div class="field-label">AI Generate new source</div>
-        <div class="ai-gen-row">
-          <input class="input" placeholder="e.g. all Saudi government tenders sites"/>
-          <button class="btn btn-primary">✨ Generate</button>
-        </div>
-        <div class="small">AI will find and add matching feeds/sitemaps automatically.</div>
+    <div>
+      <div class="field-label">✨ AI Generate</div>
+      <div class="ai-gen-row">
+        <input class="input" placeholder="describe what you want..."/>
+        <button class="btn btn-primary btn-sm">Build</button>
       </div>
-      <div class="field-label" style="margin-top:10px">Currently enabled (80 total)</div>
+      <div class="small">AI generates the schema. You approve before activation.</div>
+      <div class="field-label" style="margin-top:12px">Active</div>
       <div class="chips">
         <span class="chip on">Tadawul</span><span class="chip on">Argaam</span><span class="chip on">Mubasher</span>
-        <span class="chip on">Maal</span><span class="chip on">GLEIF</span><span class="chip on">Tavily</span>
         <span class="chip">CMA</span><span class="chip">SAMA</span><span class="chip">Wamda</span>
-        <span class="chip">MEED</span><span class="chip">PIF</span><span class="chip">NEOM</span>
-        <span class="chip chip-add">+ Browse all 80</span>
-      </div>
-    </div>
-
-    <!-- Connectors tab -->
-    <div class="drawer-pane hide" data-pane="connectors">
-      <div class="drawer-section">
-        <div class="field-label">AI Connect</div>
-        <div class="ai-gen-row">
-          <input class="input" placeholder="e.g. connect my HubSpot"/>
-          <button class="btn btn-primary">✨ Setup</button>
-        </div>
-      </div>
-      <div class="chips">
-        <span class="chip on"><span class="dot-st ok"></span>Tavily</span>
-        <span class="chip on"><span class="dot-st ok"></span>Playwright</span>
-        <span class="chip on"><span class="dot-st ok"></span>Crawl4AI</span>
-        <span class="chip"><span class="dot-st req"></span>HubSpot</span>
-        <span class="chip"><span class="dot-st req"></span>Notion</span>
-        <span class="chip"><span class="dot-st req"></span>Slack</span>
-        <span class="chip"><span class="dot-st req"></span>Drive</span>
-        <span class="chip"><span class="dot-st req"></span>Salesforce</span>
-      </div>
-    </div>
-
-    <!-- Skills tab -->
-    <div class="drawer-pane hide" data-pane="skills">
-      <div class="drawer-section">
-        <div class="field-label">AI Generate Skill</div>
-        <div class="ai-gen-row">
-          <input class="input" placeholder="e.g. a skill that finds Aramco vendors..."/>
-          <button class="btn btn-primary">✨ Build</button>
-        </div>
-        <div class="small">AI drafts the system prompt + tool whitelist + report schema. You can edit.</div>
-      </div>
-      <div class="chips">
-        <span class="chip on">🎯 Saudi Lead Hunter</span>
-        <span class="chip">📊 Tadawul Analyst</span>
-        <span class="chip">🏦 Bank Sector Compare</span>
-        <span class="chip">⚖️ Compliance / PEP</span>
-        <span class="chip chip-add">+ Browse / Clone</span>
-      </div>
-    </div>
-
-    <!-- Plugins tab -->
-    <div class="drawer-pane hide" data-pane="plugins">
-      <div class="drawer-section">
-        <div class="field-label">AI Build a Plugin</div>
-        <div class="ai-gen-row">
-          <input class="input" placeholder="e.g. plugin to call my own /api/leads endpoint..."/>
-          <button class="btn btn-primary">✨ Scaffold</button>
-        </div>
-        <div class="small">AI generates JSON-schema tool definition. Approve before activation.</div>
-      </div>
-      <div class="chips">
-        <span class="chip on">📊 google-sheets-writer</span>
-        <span class="chip">📞 whatsapp-cloud</span>
-        <span class="chip">🔍 dnb-enrich</span>
-        <span class="chip chip-add">+ Browse marketplace</span>
-      </div>
-    </div>
-
-    <!-- Templates tab -->
-    <div class="drawer-pane hide" data-pane="templates">
-      <div class="drawer-section">
-        <div class="field-label">AI Generate Template</div>
-        <div class="ai-gen-row">
-          <input class="input" placeholder="describe a research query you do often..."/>
-          <button class="btn btn-primary">✨ Build</button>
-        </div>
-      </div>
-      <div class="chips">
-        <span class="chip on">Saudi fintech CTOs · 2024</span>
-        <span class="chip">My Aramco Vendors</span>
-        <span class="chip chip-add">+ All saved</span>
-      </div>
-    </div>
-
-    <!-- Modes tab -->
-    <div class="drawer-pane hide" data-pane="modes">
-      <div class="drawer-section">
-        <div class="field-label">AI Generate a New Mode</div>
-        <div class="ai-gen-row">
-          <input class="input" placeholder="e.g. a 'tender watch' mode..."/>
-          <button class="btn btn-primary">✨ Generate</button>
-        </div>
-        <div class="small">AI proposes mode = system prompt + default tools + default schema. Activate or refine.</div>
-      </div>
-      <div class="chips">
-        <span class="chip on">🎯 Lead Gen</span>
-        <span class="chip on">🧪 Enrich</span>
-        <span class="chip">🔍 Research</span>
-        <span class="chip">⚖️ Compare</span>
-        <span class="chip chip-add">+ Browse all 8</span>
       </div>
     </div>
   </aside>
 </div>
 
-<!-- floating drawer trigger -->
 <button class="drawer-fab" onclick="openDrawer()">⚙️ Customize</button>
-
-<!-- modals -->
-<div class="modal-backdrop" id="modal-backdrop">
-  <div class="modal" id="modal-tpl">
-    <h2>💾 Save / Edit Template</h2>
-    <p>Saves the current loadout (mode + sources + filters + question) into your library &amp; the database. Auto-applies next time.</p>
-    <div class="field-label">Name</div>
-    <input class="input" value="Saudi fintech CTOs · 2024" />
-    <div class="field-label">Default question text</div>
-    <textarea class="input">Find 5 Saudi fintech CTOs at Series-A+ companies that closed 2024 funding and are hiring engineers in Riyadh.</textarea>
-    <div class="field-label">Visibility</div>
-    <select class="select"><option>Private (me only)</option><option>Workspace shared</option><option>Public marketplace</option></select>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="onSavedTpl()">💾 Save to DB</button>
-    </div>
-  </div>
-</div>
-
-<div class="toast" id="toast">Saved</div>
+<div class="toast" id="toast">ok</div>
 
 <script>
-// ── chips ──────────────────────────────────────────────────────────────────
-document.querySelectorAll(".chip:not(.chip-add)").forEach(c => c.addEventListener("click", () => { c.classList.toggle("on"); updateSummary(); }));
-document.querySelectorAll(".enrich-opt").forEach(c => c.addEventListener("click", () => c.classList.toggle("on")));
-document.querySelectorAll(".tpl:not(.tpl-add)").forEach(t => t.addEventListener("click", () => {
-  document.querySelectorAll(".tpl").forEach(o => o.classList.remove("on"));
-  t.classList.add("on");
-  // simulate auto-lock of mode chips
-  toast("Template applied · mode + filters locked 🔗");
+// ── multi-select dropdowns ─────────────────────────────────────────────────
+function toggleMS(name) {
+  const pop = document.getElementById(name + "-pop");
+  if (pop) pop.classList.toggle("hide");
+  document.querySelectorAll(".ms-pop").forEach(p => { if (p.id !== name + "-pop") p.classList.add("hide"); });
+}
+document.querySelectorAll(".ms-pop .ms-opt").forEach(o => o.addEventListener("click", e => {
+  e.stopPropagation();
+  o.classList.toggle("on");
 }));
-document.querySelectorAll("[data-clarify]").forEach(g => g.querySelectorAll(".clarify-opt").forEach(o => o.addEventListener("click", () => { g.querySelectorAll(".clarify-opt").forEach(x => x.classList.remove("on")); o.classList.add("on"); })));
-document.getElementById("enhance-tgl").addEventListener("click", e => { e.currentTarget.classList.toggle("on"); updateSummary(); });
+document.addEventListener("click", e => {
+  if (!e.target.closest(".ms") && !e.target.closest(".ms-pop")) document.querySelectorAll(".ms-pop").forEach(p => p.classList.add("hide"));
+});
+function rmTag(e, name, val) { e.stopPropagation(); toast("Removed " + val); }
 
-// ── input segment ──────────────────────────────────────────────────────────
+// ── layers ─────────────────────────────────────────────────────────────────
+function goLayer(n) {
+  for (let i = 1; i <= 4; i++) {
+    document.getElementById("layer-" + i).classList.toggle("hide", i !== n);
+  }
+  document.querySelectorAll("#crumbs .crumb").forEach((c, i) => {
+    c.classList.remove("active", "done");
+    if (i + 1 < n) c.classList.add("done");
+    if (i + 1 === n) c.classList.add("active");
+  });
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function onTemplateChange() {
+  toast("Template applied · modes + filters auto-locked");
+}
+function onIndustryChange() {
+  toast("Sub-filters updated for industry");
+}
+
+// ── tools layer: category → items ─────────────────────────────────────────
+const SOURCES = {
+  "ksa-market": [
+    { n: "Tadawul", on: true }, { n: "CMA", on: false }, { n: "Edaa", on: false },
+    { n: "MCI / CR Registry", on: true }, { n: "Monsha'at", on: false }, { n: "SDAIA", on: false },
+    { n: "GASTAT", on: false }, { n: "SAMA", on: false }, { n: "ZATCA", on: false },
+    { n: "MISA", on: false }, { n: "Masar (CR)", on: true },
+  ],
+  "arabic-press": [
+    { n: "Argaam", on: true }, { n: "Mubasher", on: true }, { n: "Maal", on: true },
+    { n: "Al-Eqtisadiah", on: false }, { n: "Asharq Business", on: false },
+    { n: "Al-Iqtisadi", on: false }, { n: "Aleqt.com", on: false },
+    { n: "Saudi Gazette", on: false }, { n: "Arab News", on: false }, { n: "SPA", on: false },
+  ],
+  "regional-press": [
+    { n: "MEED", on: false }, { n: "Wamda", on: false }, { n: "MAGNiTT", on: false },
+    { n: "Crunchbase MENA", on: false }, { n: "Bloomberg ME", on: false }, { n: "Reuters ME", on: false },
+    { n: "FT MidEast", on: false }, { n: "Zawya", on: false }, { n: "The National (UAE)", on: false },
+    { n: "Khaleej Times", on: false }, { n: "Gulf Business", on: false }, { n: "Gulf News", on: false },
+    { n: "AGBI", on: false }, { n: "StartupScene ME", on: false },
+  ],
+  "global-open": [
+    { n: "GLEIF", on: true }, { n: "OpenCorporates", on: false }, { n: "Wikidata", on: false },
+    { n: "OpenSanctions", on: false }, { n: "OFAC SDN", on: false }, { n: "UN Consolidated", on: false },
+    { n: "EU Sanctions", on: false }, { n: "EDGAR (SEC)", on: false },
+    { n: "UK Companies House", on: false }, { n: "PEP database", on: false }, { n: "ICIJ Offshore Leaks", on: false },
+  ],
+  "sector": [
+    { n: "REGA", on: false }, { n: "Sakani", on: false }, { n: "Wafi Realty", on: false },
+    { n: "Bayut", on: false }, { n: "Property Finder", on: false }, { n: "MEED Projects", on: false },
+    { n: "Zawya Projects", on: false }, { n: "NEOM Updates", on: false }, { n: "PIF Portfolio", on: false }, { n: "CIB Saudi", on: false },
+  ],
+  "social": [
+    { n: "LinkedIn (public)", on: false }, { n: "X / Twitter", on: false },
+    { n: "Reddit", on: false }, { n: "YouTube transcripts", on: false }, { n: "Telegram channels", on: false },
+    { n: "Web (Tavily)", on: true }, { n: "Web (Perplexity)", on: false },
+    { n: "Google News RSS", on: false }, { n: "Maal RSS", on: false }, { n: "Mubasher RSS", on: false },
+  ],
+};
+
+const CONNECTORS = {
+  "scraping": [
+    { n: "Tavily", on: true, st: "ok" }, { n: "Playwright", on: true, st: "ok" },
+    { n: "Chrome DevTools", on: false, st: "ok" }, { n: "Crawl4AI", on: true, st: "ok" },
+    { n: "BeautifulSoup", on: false, st: "ok" }, { n: "Cheerio", on: false, st: "ok" },
+    { n: "OmniSearch", on: false, st: "ok" }, { n: "Serena", on: false, st: "ok" },
+    { n: "HuggingFace", on: false, st: "ok" },
+  ],
+  "prod": [
+    { n: "GitHub", on: false, st: "req" }, { n: "Slack", on: false, st: "req" },
+    { n: "Notion", on: false, st: "req" }, { n: "Linear", on: false, st: "req" },
+    { n: "Jira", on: false, st: "req" }, { n: "Asana", on: false, st: "req" },
+    { n: "Trello", on: false, st: "req" }, { n: "ClickUp", on: false, st: "req" },
+  ],
+  "files": [
+    { n: "Google Drive", on: false, st: "req" }, { n: "Google Sheets", on: false, st: "req" },
+    { n: "OneDrive", on: false, st: "req" }, { n: "Office365", on: false, st: "req" },
+    { n: "Dropbox", on: false, st: "req" }, { n: "S3 / R2", on: false, st: "req" },
+    { n: "Airtable", on: false, st: "req" }, { n: "Supabase", on: false, st: "req" },
+  ],
+  "crm": [
+    { n: "HubSpot", on: false, st: "req" }, { n: "Salesforce", on: false, st: "req" },
+    { n: "Pipedrive", on: false, st: "req" }, { n: "Zoho CRM", on: false, st: "req" },
+    { n: "Apollo.io", on: false, st: "req" }, { n: "Explorium", on: false, st: "req" },
+  ],
+  "msg": [
+    { n: "WhatsApp Cloud", on: false, st: "req" }, { n: "Telegram", on: false, st: "req" },
+    { n: "Discord", on: false, st: "req" }, { n: "Email (SMTP)", on: false, st: "req" },
+    { n: "SendGrid", on: false, st: "req" }, { n: "Resend", on: false, st: "req" },
+  ],
+};
+
+const SKILLS = {
+  "finance": [
+    { n: "🎯 Saudi Lead Hunter", on: true }, { n: "📊 Tadawul Analyst", on: false },
+    { n: "🏦 Bank Sector Compare", on: false }, { n: "💰 Funding Round Watch", on: false },
+  ],
+  "real": [
+    { n: "🏢 GCC Real-Estate", on: false }, { n: "🏗️ Construction Tender Scout", on: false }, { n: "🏛️ Government Vendor", on: false },
+  ],
+  "energy": [
+    { n: "🛢️ Energy Procurement", on: false }, { n: "⚡ Utilities Mapping", on: false },
+  ],
+  "people": [
+    { n: "📨 Outreach Writer (Ar/En)", on: false }, { n: "🔬 Company Dossier", on: false }, { n: "📡 Signal Hunter", on: false },
+  ],
+  "compliance": [
+    { n: "⚖️ PEP Check", on: false }, { n: "🛡️ Sanctions Screen", on: false },
+  ],
+  "sector-other": [
+    { n: "💊 Healthcare Vendor Map", on: false }, { n: "🎓 EdTech Prospects", on: false }, { n: "🛒 Retail Buyer Finder", on: false },
+  ],
+};
+
+function renderChips(targetId, items) {
+  const t = document.getElementById(targetId);
+  t.innerHTML = "";
+  items.forEach((it, idx) => {
+    const c = document.createElement("span");
+    c.className = "chip" + (it.on ? " on" : "");
+    let dot = "";
+    if (it.st === "ok") dot = '<span style="width:6px;height:6px;border-radius:99px;background:var(--ok);display:inline-block;margin-right:2px"></span>';
+    if (it.st === "req") dot = '<span style="width:6px;height:6px;border-radius:99px;background:var(--warn);display:inline-block;margin-right:2px"></span>';
+    c.innerHTML = dot + it.n;
+    c.onclick = () => { it.on = !it.on; c.classList.toggle("on", it.on); };
+    t.appendChild(c);
+  });
+}
+function onSrcCat() { renderChips("src-chips", SOURCES[document.getElementById("src-cat").value]); }
+function onConnCat() { renderChips("conn-chips", CONNECTORS[document.getElementById("conn-cat").value]); }
+function onSkillCat() { renderChips("skill-chips", SKILLS[document.getElementById("skill-cat").value]); }
+
+// ── input seg ──────────────────────────────────────────────────────────────
 document.querySelectorAll("#input-seg button").forEach(b => b.addEventListener("click", () => {
   document.querySelectorAll("#input-seg button").forEach(x => x.classList.remove("on"));
   b.classList.add("on");
   const m = b.dataset.seg;
   document.getElementById("write-block").classList.toggle("hide", m === "filter");
   document.getElementById("filter-block").classList.toggle("hide", m === "write");
-  updateSummary();
 }));
+document.getElementById("enhance-tgl").addEventListener("click", e => e.currentTarget.classList.toggle("on"));
 
-function updateSummary() {
-  const modes = [...document.querySelectorAll("#mode-chips .chip.on")].map(c => c.textContent.trim().replace(/^\W+/,"").trim()).join(" + ");
-  const seg = document.querySelector("#input-seg button.on")?.dataset.seg || "both";
-  const enh = document.getElementById("enhance-tgl").classList.contains("on") ? "Enhance ON" : "Enhance OFF";
-  document.getElementById("summary-text").textContent = `${modes || "no mode"} · ${seg} input · ${enh}`;
-}
-
-// ── steps ──────────────────────────────────────────────────────────────────
-function setStep(n) {
-  document.querySelectorAll("#steps .step").forEach((el, i) => { el.classList.remove("active","done"); if (i + 1 < n) el.classList.add("done"); if (i + 1 === n) el.classList.add("active"); });
-}
-function showOnly(id) {
-  ["view-compose","view-clarify","view-run","view-report"].forEach(v => document.getElementById(v).classList.toggle("hide", v !== id));
-  window.scrollTo({ top: 0, behavior: "smooth" });
-}
+// ── flow ───────────────────────────────────────────────────────────────────
 function kickoff() {
   if (document.getElementById("enhance-tgl").classList.contains("on")) {
-    setStep(2); setTimeout(() => { setStep(3); showOnly("view-clarify"); }, 600);
+    document.querySelectorAll(".layer").forEach(l => l.classList.add("hide"));
+    document.getElementById("view-clarify").classList.remove("hide");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   } else startAgents();
 }
-function backToCompose() { setStep(1); showOnly("view-compose"); }
 function startAgents() {
-  setStep(4); showOnly("view-run");
+  document.querySelectorAll(".layer").forEach(l => l.classList.add("hide"));
+  document.getElementById("view-clarify").classList.add("hide");
+  document.getElementById("view-run").classList.remove("hide");
+  window.scrollTo({ top: 0, behavior: "smooth" });
   const log = document.getElementById("agent-log"); log.innerHTML = "";
   const agents = [
-    { n: "🧠 Planner",    d: "Decomposing query", t: 800 },
-    { n: "🔍 Researcher", d: "Live-web (Perplexity)", t: 1200, p: "12 hits" },
-    { n: "🌐 Crawler",    d: "6 pages in parallel", t: 1400, p: "6/6" },
-    { n: "🇸🇦 Arabic NLP", d: "Argaam + Maal", t: 800 },
+    { n: "🧠 Planner",    d: "Decomposing query", t: 700 },
+    { n: "🔍 Researcher", d: "Live-web (Perplexity)", t: 1100, p: "12 hits" },
+    { n: "🌐 Crawler",    d: "6 pages in parallel", t: 1300, p: "6/6" },
+    { n: "🇸🇦 Arabic NLP", d: "Argaam + Maal", t: 700 },
     { n: "🛡️ Validator",  d: "Validate · verify · dedup", t: 1000, p: "5 pass" },
-    { n: "📝 Writer",     d: "Compose report blocks", t: 1100 },
+    { n: "📝 Writer",     d: "Compose report", t: 1000 },
   ];
   let i = 0;
   (function next() {
-    if (i >= agents.length) { setStep(5); setTimeout(() => showOnly("view-report"), 350); return; }
+    if (i >= agents.length) {
+      setTimeout(() => {
+        document.getElementById("view-run").classList.add("hide");
+        document.getElementById("view-report").classList.remove("hide");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }, 300);
+      return;
+    }
     const a = agents[i];
     const row = document.createElement("div");
     row.className = "agent-row running";
@@ -797,74 +867,34 @@ function startAgents() {
     setTimeout(() => { row.classList.remove("running"); row.classList.add("done"); row.querySelector(".agent-mark").innerHTML = "✓"; i++; next(); }, a.t);
   })();
 }
-
-// ── enrich / push ──────────────────────────────────────────────────────────
-function runEnrich() {
-  setStep(6);
-  const log = document.getElementById("agent-log");
-  toast("Running enrichment agents on selected rows...");
-  setTimeout(() => toast("Enrichment complete · 4 rows enriched · 0 rejected"), 1800);
+function resetAll() {
+  document.getElementById("view-run").classList.add("hide");
+  document.getElementById("view-report").classList.add("hide");
+  document.getElementById("view-clarify").classList.add("hide");
+  document.getElementById("push-result").classList.add("hide");
+  goLayer(1);
 }
+
 function pushTo(target) {
-  toast(`Gating ${target}: running dedup + validate + verify...`);
+  toast(`Gating ${target}: dedup + validate + verify...`);
   setTimeout(() => {
     const r = document.getElementById("push-result");
     r.classList.remove("hide");
     if (target === "leads") {
-      r.innerHTML = `<strong>Push to Leads DB</strong> — gate result: <span class="gate-pill gate-ok">✓ 3 pushed</span> <span class="gate-pill gate-warn">⚠ 1 unverified (kept)</span> <span class="gate-pill gate-dup">🛡 0 dup</span> <span class="gate-pill gate-bad">✗ 0 rejected</span>`;
+      r.innerHTML = `<strong>Push to Leads DB</strong> — <span class="gate-pill gate-ok">✓ 4 pushed</span> <span class="gate-pill gate-warn">⚠ 1 unverified</span> <span class="gate-pill gate-dup">🛡 0 dup</span>`;
     } else {
-      r.innerHTML = `<strong>Push to Companies DB</strong> — gate result: <span class="gate-pill gate-ok">✓ 4 pushed</span> <span class="gate-pill gate-warn">⚠ 0 unverified</span> <span class="gate-pill gate-dup">🛡 1 dup (skipped, fingerprint match)</span>`;
+      r.innerHTML = `<strong>Push to Companies DB</strong> — <span class="gate-pill gate-ok">✓ 4 pushed</span> <span class="gate-pill gate-dup">🛡 1 dup (fingerprint match, skipped)</span>`;
     }
   }, 1400);
 }
 function toggleAll(cb) {
   document.querySelectorAll(".row-sel").forEach(x => { x.checked = cb.checked; x.closest("tr").classList.toggle("selected", cb.checked); });
-  document.getElementById("sel-count").textContent = document.querySelectorAll(".row-sel:checked").length;
 }
-document.querySelectorAll(".row-sel").forEach(c => c.addEventListener("change", () => {
-  c.closest("tr").classList.toggle("selected", c.checked);
-  document.getElementById("sel-count").textContent = document.querySelectorAll(".row-sel:checked").length;
-}));
+document.querySelectorAll(".enrich-opt").forEach(c => c.addEventListener("click", () => c.classList.toggle("on")));
 
 // ── drawer ─────────────────────────────────────────────────────────────────
-function openDrawer() {
-  document.getElementById("app").classList.add("drawer-open");
-  document.getElementById("drawer").classList.remove("hide");
-}
-function closeDrawer() {
-  document.getElementById("app").classList.remove("drawer-open");
-  document.getElementById("drawer").classList.add("hide");
-}
-document.querySelectorAll("#drawer-tabs .drawer-tab").forEach(t => t.addEventListener("click", () => {
-  document.querySelectorAll("#drawer-tabs .drawer-tab").forEach(x => x.classList.remove("on"));
-  t.classList.add("on");
-  document.querySelectorAll(".drawer-pane").forEach(p => p.classList.toggle("hide", p.dataset.pane !== t.dataset.d));
-}));
-
-// ── modal ──────────────────────────────────────────────────────────────────
-function openModal(_) { document.getElementById("modal-backdrop").classList.add("on"); }
-function closeModal() { document.getElementById("modal-backdrop").classList.remove("on"); }
-document.getElementById("modal-backdrop").addEventListener("click", e => { if (e.target.id === "modal-backdrop") closeModal(); });
-function saveAsTemplate() { openModal("tpl"); }
-function onSavedTpl() {
-  closeModal();
-  toast("💾 Template saved to your DB · available next session");
-  // append a "saved" template card
-  const row = document.getElementById("tpl-row");
-  const newC = document.createElement("div");
-  newC.className = "tpl tpl-saved";
-  newC.innerHTML = `<div class="tpl-title">Saudi fintech CTOs · 2024</div><div class="tpl-meta">your saved · just now</div>`;
-  row.insertBefore(newC, row.querySelector(".tpl-add"));
-}
-
-// ── behavior insights ─────────────────────────────────────────────────────
-function applyInsight(kind) {
-  if (kind === "repeat") { toast("Loading 'Saudi fintech CTOs' with 2025 data..."); }
-  else if (kind === "next") { toast("Loaded CFO follow-up template ↗"); }
-  else { toast("Activated 'NEOM Vendor Hunter' skill ↗"); }
-}
-
-function resetAll() { setStep(1); showOnly("view-compose"); document.getElementById("agent-log").innerHTML = ""; document.getElementById("push-result").classList.add("hide"); }
+function openDrawer() { document.getElementById("app").classList.add("drawer-open"); document.getElementById("drawer").classList.remove("hide"); }
+function closeDrawer() { document.getElementById("app").classList.remove("drawer-open"); document.getElementById("drawer").classList.add("hide"); }
 
 function toast(msg) {
   const t = document.getElementById("toast");
@@ -874,7 +904,8 @@ function toast(msg) {
   window._toastT = setTimeout(() => t.classList.remove("on"), 2200);
 }
 
-updateSummary();
+// init
+onSrcCat(); onConnCat(); onSkillCat();
 </script>
 </body>
 </html>
