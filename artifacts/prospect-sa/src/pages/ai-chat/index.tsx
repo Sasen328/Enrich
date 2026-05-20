@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { Send, Loader2, Sparkles, User } from "lucide-react";
+import { Send, Loader2, Sparkles, User, Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { Composer } from "@/components/composer/Composer";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -25,6 +26,7 @@ export default function AIChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
+  const [showComposer, setShowComposer] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -112,14 +114,31 @@ export default function AIChatPage() {
         <h1 className="text-lg font-bold flex items-center gap-2">
           <Sparkles className="w-5 h-5 text-primary" />
           AI Chat Agent
-          <span className="text-[10px] font-normal text-muted-foreground ml-1">· Powered by ProsEngine</span>
+          <span className="text-[10px] font-normal text-muted-foreground ml-1">· Composer + multi-agent</span>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="ml-auto gap-1.5"
+            onClick={() => setShowComposer((v) => !v)}
+            title="Toggle composer"
+          >
+            <Settings2 className="w-3.5 h-3.5" />
+            {showComposer ? "Plain chat" : "Composer"}
+          </Button>
         </h1>
       </div>
 
       {/* Messages */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-6">
         <div className="max-w-3xl mx-auto space-y-6">
-          {messages.length === 0 && (
+          {showComposer && messages.length === 0 && (
+            <Composer
+              running={streaming}
+              onRun={({ enhancedPrompt }) => { setShowComposer(false); send(enhancedPrompt); }}
+            />
+          )}
+
+          {!showComposer && messages.length === 0 && (
             <div className="text-center py-12">
               <div className="inline-flex w-14 h-14 rounded-2xl items-center justify-center mb-4 brand-gradient">
                 <Sparkles className="w-7 h-7 text-white" />
