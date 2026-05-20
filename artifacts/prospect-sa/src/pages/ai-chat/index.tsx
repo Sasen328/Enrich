@@ -3,7 +3,7 @@ import { Send, Loader2, Sparkles, User, Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { Composer } from "@/components/composer/Composer";
+import ChatLayout from "@/components/composer/ChatLayout";
 import { CustomizeDrawer } from "@/components/composer/CustomizeDrawer";
 import { ReportView } from "@/components/composer/ReportView";
 
@@ -146,10 +146,10 @@ export default function AIChatPage() {
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-6">
         <div className="max-w-3xl mx-auto space-y-6">
           {showComposer && messages.length === 0 && (
-            <Composer
-              running={streaming}
-              onRun={({ enhancedPrompt }) => { setShowComposer(false); send(enhancedPrompt); }}
-            />
+            // Full 6-stage composer experience (per v8 prototype):
+            // Compose → Enhance → Clarify → Run → Report → Enrich +
+            // BehaviorAgent + MegaMindBanner + HistoryBar + ReportView.
+            <ChatLayout />
           )}
 
           {!showComposer && messages.length === 0 && (
