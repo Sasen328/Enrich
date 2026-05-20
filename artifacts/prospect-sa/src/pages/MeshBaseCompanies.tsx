@@ -540,14 +540,28 @@ export default function MeshBaseCompanies() {
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap gap-1.5">
-                    {c.industry && (
-                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 capitalize border-border/50">
-                        {c.industry}
+                  <div className="flex flex-wrap gap-1.5 min-w-0 overflow-hidden">
+                    {c.industry && c.industry.split(",").slice(0, 3).map((tag, i) => {
+                      const t = tag.trim();
+                      if (!t) return null;
+                      return (
+                        <Badge
+                          key={`${t}-${i}`}
+                          variant="outline"
+                          className="text-[10px] px-1.5 py-0 capitalize border-border/50 max-w-[140px] truncate"
+                          title={t}
+                        >
+                          <span className="truncate">{t}</span>
+                        </Badge>
+                      );
+                    })}
+                    {c.industry && c.industry.split(",").length > 3 && (
+                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-border/50 text-muted-foreground">
+                        +{c.industry.split(",").length - 3}
                       </Badge>
                     )}
                     {c.foundingYear && (
-                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-border/50 text-muted-foreground">
+                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-border/50 text-muted-foreground whitespace-nowrap">
                         Est. {c.foundingYear}
                       </Badge>
                     )}
