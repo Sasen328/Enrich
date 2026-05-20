@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { LeadFactoryTabs } from "@/components/lead-factory/LeadFactoryTabs";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -433,6 +434,9 @@ export default function RelationshipIntelPage() {
 
   return (
     <div className="space-y-6 animate-in">
+      {/* Lead Factory tab strip — keeps Relationship Intel inside the LF flow */}
+      <LeadFactoryTabs />
+
       {/* Header */}
       <div>
         <div className="flex items-center gap-3 mb-1">
