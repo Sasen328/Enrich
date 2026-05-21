@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 import { db } from "@workspace/db";
 import { pipeEmitterToSse } from "../lib/sse.js";
-import { leadFactoryJobsTable, leadFactoryResultsTable, relationshipIntelJobsTable, companiesTable, builderCompaniesTable } from "@workspace/db/schema";
+import { leadFactoryJobsTable, leadFactoryResultsTable, relationshipIntelJobsTable, companiesTable, builderCompaniesTable, masarCompaniesTable } from "@workspace/db/schema";
 import { eq, desc, ilike, or, sql } from "drizzle-orm";
 
 const p = (x: string | string[]): string => Array.isArray(x) ? x[0] : x;
@@ -487,10 +487,21 @@ router.get("/lead-factory/company-suggest", async (req: Request, res: Response) 
       .where(or(ilike(builderCompaniesTable.nameEn, `%${q}%`), ilike(builderCompaniesTable.nameAr, `%${q}%`)))
       .limit(6);
 
+    // Harvest AI — Masaar CR records (industry not on schema; null)
+    const masarRows = await db.select({
+      nameEn: masarCompaniesTable.nameEn,
+      nameAr: masarCompaniesTable.nameAr,
+      city: masarCompaniesTable.city,
+      domain: masarCompaniesTable.website,
+    }).from(masarCompaniesTable)
+      .where(or(ilike(masarCompaniesTable.nameEn, `%${q}%`), ilike(masarCompaniesTable.nameAr, `%${q}%`)))
+      .limit(6);
+    const masarMapped = masarRows.map((r) => ({ ...r, industry: null as string | null }));
+
     // Merge, deduplicate by nameEn
     const seen = new Set<string>();
     const merged: { nameEn: string | null; nameAr: string | null; city: string | null; industry: string | null; domain: string | null }[] = [];
-    for (const r of [...mainRows, ...builderRows]) {
+    for (const r of [...mainRows, ...builderRows, ...masarMapped]) {
       const key = (r.nameEn || r.nameAr || "").toLowerCase();
       if (key && !seen.has(key)) { seen.add(key); merged.push(r); }
     }
