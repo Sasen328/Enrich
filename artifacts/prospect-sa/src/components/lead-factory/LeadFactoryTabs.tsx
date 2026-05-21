@@ -16,7 +16,7 @@ const TABS = [
 export function LeadFactoryTabs() {
   const [path] = useLocation();
   return (
-    <div className="flex items-center gap-1 mb-4 overflow-x-auto pb-1 border-b border-border/30">
+    <div className="flex items-center gap-1 mb-4 overflow-x-auto pb-1 border-b border-border/40">
       {TABS.map(({ href, label, icon: Icon, match }) => {
         const isActive = match.test(path);
         return (
@@ -24,10 +24,10 @@ export function LeadFactoryTabs() {
             key={href}
             href={href}
             className={cn(
-              "inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-t-md whitespace-nowrap border-b-2 -mb-px transition-colors",
+              "inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-medium rounded-t-md whitespace-nowrap border-b-2 -mb-px transition-all duration-280 ease-[cubic-bezier(0.16,1,0.30,1)]",
               isActive
-                ? "border-primary text-primary bg-primary/5"
-                : "border-transparent text-muted-foreground hover:text-foreground hover:bg-card/60",
+                ? "border-primary text-primary bg-primary/10 shadow-[0_0_12px_hsl(var(--brand-lavender)/0.25)]"
+                : "border-transparent text-muted-foreground hover:text-primary hover:bg-primary/5",
             )}
           >
             <Icon className="w-3.5 h-3.5" />
