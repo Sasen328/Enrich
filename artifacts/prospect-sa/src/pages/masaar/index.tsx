@@ -585,7 +585,7 @@ export default function MasaarPage() {
         </div>
         <div className="flex-1">
           <div className="flex items-center gap-2 flex-wrap">
-            <h1 className="text-3xl font-display font-bold text-foreground">Masaar — CR Lookup Engine</h1>
+            <h1 className="text-3xl font-display font-bold text-foreground">Harvest AI — Masaar Engine</h1>
             {stealthMode && (
               <Badge className="bg-violet-500/20 border border-violet-500/30 text-violet-300 text-[10px] gap-1 px-2">
                 <Shield className="w-3 h-3" /> STEALTH
