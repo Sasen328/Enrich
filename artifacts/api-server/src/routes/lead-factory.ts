@@ -512,6 +512,45 @@ router.get("/lead-factory/company-suggest", async (req: Request, res: Response) 
   }
 });
 
+// ── Person Autocomplete Suggest ───────────────────────────────────────────────
+// Strict source routing (per user): Person Hunt pulls from leads + executives
+// (+ prosengine_research is fetched on demand by the engine itself).
+
+// GET /lead-factory/person-suggest?q=ahmed
+router.get("/lead-factory/person-suggest", async (req: Request, res: Response) => {
+  const q = ((req.query.q as string) || "").trim();
+  if (q.length < 2) { res.json({ suggestions: [] }); return; }
+  try {
+    const { leadsTable, executivesTable } = await import("@workspace/db/schema");
+    const leadRows = await db.select({
+      firstName: leadsTable.firstName, lastName: leadsTable.lastName,
+      title: leadsTable.title, email: leadsTable.email,
+    }).from(leadsTable)
+      .where(or(
+        ilike(leadsTable.firstName, `%${q}%`),
+        ilike(leadsTable.lastName,  `%${q}%`),
+        ilike(leadsTable.email,     `%${q}%`),
+      )).limit(6);
+    const execRows = await db.select({
+      firstName: executivesTable.firstName, lastName: executivesTable.lastName,
+      title: executivesTable.title, email: executivesTable.email,
+    }).from(executivesTable)
+      .where(or(
+        ilike(executivesTable.firstName, `%${q}%`),
+        ilike(executivesTable.lastName,  `%${q}%`),
+      )).limit(6);
+    const seen = new Set<string>();
+    const merged: { firstName: string | null; lastName: string | null; title: string | null; email: string | null }[] = [];
+    for (const r of [...leadRows, ...execRows]) {
+      const key = `${(r.firstName||"").toLowerCase()}|${(r.lastName||"").toLowerCase()}`;
+      if (key.trim() !== "|" && !seen.has(key)) { seen.add(key); merged.push(r); }
+    }
+    res.json({ suggestions: merged.slice(0, 8) });
+  } catch (err) {
+    res.json({ suggestions: [] });
+  }
+});
+
 // ── Signal Monitor ────────────────────────────────────────────────────────────
 
 // POST /signals/push  — starts a signal monitor run, returns SSE jobId

@@ -18,6 +18,8 @@ import nexusRouter from "./nexus";
 import scoutRouter from "./scout";
 import signalsRouter from "./signals";
 import leadFactoryRouter from "./lead-factory.js";
+import leadGenomeRouter from "./lead-genome.js";
+import harvestAiRouter from "./harvest-ai.js";
 
 const router: IRouter = Router();
 
@@ -40,5 +42,7 @@ router.use(nexusRouter);
 router.use(scoutRouter);
 router.use(signalsRouter);
 router.use(leadFactoryRouter);
+router.use(leadGenomeRouter);
+router.use(harvestAiRouter);
 
 export default router;
