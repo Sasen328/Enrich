@@ -65,6 +65,8 @@
   --brand-sky:        197 67% 92%;   /* #DCF0F8 — mist blue */
   --brand-seafoam:    202 73% 86%;   /* #C3E4F5 — pale teal */
   --brand-cream:       40 50% 96%;   /* #FAF6EE — warm off-white base */
+  --brand-pale-ice:   210 40% 96%;   /* #F0F4F8 — pale ice */
+  --brand-cool-silver:225 14% 88%;   /* #DCDEE5 — cool silver */
   --brand-ink:        245 24% 14%;   /* #1C1A2E — deep indigo text */
 
   /* shadcn / app tokens mapped to Soft Lavender */
@@ -121,6 +123,35 @@
   --ease-out:       cubic-bezier(0.16, 1, 0.30, 1);
   --ease-in-out:    cubic-bezier(0.65, 0, 0.35, 1);
   --ease-circ-out:  cubic-bezier(0.00, 0.55, 0.45, 1);
+
+  /* §8 — Spacing scale */
+  --sp-0:  0;
+  --sp-1:  4px;
+  --sp-2:  8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-7: 48px;
+  --sp-8: 64px;
+
+  /* §8 — Radius scale */
+  --r-xs:  4px;
+  --r-sm:  6px;
+  --r-md:  8px;
+  --r-lg: 12px;
+  --r-xl: 16px;
+  --r-2xl:24px;
+  --r-pill: 9999px;
+
+  /* §8 — Elevation (box-shadow) scale */
+  --el-0: none;
+  --el-1: 0 1px 2px hsl(var(--brand-ink) / 0.05);
+  --el-2: 0 2px 8px hsl(var(--brand-ink) / 0.07);
+  --el-3: 0 8px 24px hsl(var(--brand-ink) / 0.09);
+  --el-4: 0 16px 36px hsl(var(--brand-ink) / 0.12);
+  --el-5: 0 24px 48px hsl(var(--brand-ink) / 0.16);
+  --el-glow: 0 0 24px hsl(var(--glow) / 0.40);
 }
 
 .dark {
@@ -255,6 +286,39 @@
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid hsl(var(--bd) / 0.50);
+}
+
+/* §9 — Per-component transition tokens */
+.tr-bar    { transition: background-color 480ms var(--ease-out), color 480ms var(--ease-out); }
+.tr-tab    { transition: all 280ms var(--ease-out); }
+.tr-card   { transition: box-shadow 280ms var(--ease-out), transform 280ms var(--ease-out); }
+.tr-button { transition: all 180ms var(--ease-out); }
+.tr-rail   { transition: width 380ms var(--ease-circ-out), opacity 280ms var(--ease-out); }
+.tr-input  { transition: border-color 180ms var(--ease-out), box-shadow 180ms var(--ease-out); }
+.tr-overlay{ transition: opacity 480ms var(--ease-out); }
+.tr-chip   { transition: background-color 180ms var(--ease-out), color 180ms var(--ease-out); }
+.tr-glow   { transition: box-shadow 280ms var(--ease-out); }
+
+/* §9 — Theme flash overlay (mounted by ThemeFlash component on theme switch) */
+.theme-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 50%,
+    hsl(var(--glow) / 0.20) 0%,
+    hsl(var(--brand-cream) / 0.10) 40%,
+    transparent 70%);
+  opacity: 0;
+  animation: themeFlash 480ms var(--ease-out) forwards;
+}
+@keyframes themeFlash {
+  0%   { opacity: 0; }
+  35%  { opacity: 0.9; }
+  100% { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .theme-flash { animation: none; opacity: 0; }
 }
 
 .glass-panel {
