@@ -40,7 +40,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <ShortcutListener />
       <ThemeFlash />
       <MeshCanvas />
-      <div className="flex flex-col h-screen w-full bg-background text-foreground overflow-hidden">
+      <div className="flex flex-col h-screen w-full text-foreground overflow-hidden">
         <CommandBar />
         <MainTabBar />
         <SubTabBar />

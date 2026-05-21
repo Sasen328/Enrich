@@ -1,5 +1,5 @@
-// §7 — Stat Card (10-property spec).
-// Use across Dashboard, MeshBase Overview, Lead Factory Results.
+// §7 — Stat Card matched to prototype.
+// Big Playfair display value + small label + status badge bottom-left.
 import { cn } from "@/lib/utils";
 import { LucideIcon } from "lucide-react";
 
@@ -15,37 +15,57 @@ export interface StatCardProps {
   href?: string;
   loading?: boolean;
   className?: string;
+  badge?: { label: string; tone?: "live" | "good" | "active" | "neutral" };
 }
+
+const BADGE_TONES: Record<string, string> = {
+  live:    "bg-emerald-500/12 text-emerald-600 border-emerald-500/30",
+  good:    "bg-emerald-500/12 text-emerald-600 border-emerald-500/30",
+  active:  "bg-emerald-500/12 text-emerald-600 border-emerald-500/30",
+  neutral: "bg-[hsl(var(--brand-mist))]/40 text-[hsl(var(--ac))] border-[hsl(var(--brand-mist))]",
+};
 
 export function StatCard({
   label, value, sub, icon: Icon, trend, unit,
-  accentClass = "text-primary", bgClass = "bg-primary/10",
-  loading, className,
+  accentClass = "text-[hsl(var(--ac))]", bgClass = "bg-[hsl(var(--brand-mist))]/40",
+  loading, className, badge,
 }: StatCardProps) {
   return (
-    <div className={cn("surf p-5 tr-card hover:-translate-y-0.5", className)}>
+    <div className={cn(
+      "surf p-5 tr-card hover:-translate-y-0.5 group relative overflow-hidden",
+      className,
+    )}>
       {Icon && (
-        <div className={cn("w-11 h-11 rounded-xl flex items-center justify-center mb-4", bgClass)}>
-          <Icon className={cn("w-5 h-5", accentClass)} />
+        <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center mb-3", bgClass)}>
+          <Icon className={cn("w-4 h-4", accentClass)} />
         </div>
       )}
-      <p className="text-[11px] uppercase tracking-wider text-[hsl(var(--tx-q))] mb-1">{label}</p>
       {loading || value === null ? (
-        <div className="h-7 w-20 rounded bg-muted/40 animate-pulse" />
+        <div className="h-9 w-20 rounded bg-muted/40 animate-pulse" />
       ) : (
-        <h3 className="text-2xl font-display font-bold text-[hsl(var(--tx))]">
-          {value}{unit && <span className="text-base ml-1 text-[hsl(var(--tx-m))]">{unit}</span>}
+        <h3 className="font-display font-bold text-[hsl(var(--tx))] leading-none text-3xl md:text-4xl">
+          {value}{unit && <span className="text-base ml-1 text-[hsl(var(--tx-m))] font-medium">{unit}</span>}
         </h3>
       )}
-      {(sub || typeof trend === "number") && (
-        <p className="text-xs text-[hsl(var(--tx-q))] mt-1 flex items-center gap-1.5">
-          {typeof trend === "number" && (
-            <span className={cn("font-medium", trend >= 0 ? "text-emerald-500" : "text-rose-500")}>
-              {trend >= 0 ? "↑" : "↓"} {Math.abs(trend)}%
+      <p className="text-[11px] uppercase tracking-wider text-[hsl(var(--tx-q))] mt-2 font-medium">{label}</p>
+      {(sub || typeof trend === "number" || badge) && (
+        <div className="flex items-center gap-1.5 mt-3">
+          {badge && (
+            <span className={cn(
+              "px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border",
+              BADGE_TONES[badge.tone ?? "neutral"],
+            )}>
+              {badge.tone === "live" && <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1 animate-pulse" />}
+              {badge.label}
             </span>
           )}
-          {sub}
-        </p>
+          {typeof trend === "number" && (
+            <span className={cn("text-[10px] font-bold", trend >= 0 ? "text-emerald-600" : "text-rose-500")}>
+              {trend >= 0 ? "+" : ""}{trend} {trend >= 0 ? "↑" : "↓"}
+            </span>
+          )}
+          {sub && <span className="text-[10px] text-[hsl(var(--tx-q))]">{sub}</span>}
+        </div>
       )}
     </div>
   );
