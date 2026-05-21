@@ -1,7 +1,6 @@
-// §3 — Command Bar: search + global key (⌘K) shortcut to navigate.
+// §3 Bar 1 — Command Bar (spec markup: .cmd / .cmd-row / .app-logo / .cmd-search + .chips-row)
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
-import { Search } from "lucide-react";
 import { TAB_NAMES, TAB_SUBS } from "@/lib/tab-registry";
 
 interface FlatItem { label: string; url: string; group: string; }
@@ -14,9 +13,18 @@ function flatten(): FlatItem[] {
   return out;
 }
 
+const CHIPS = [
+  { id: "enhance", label: "Enhance prompts" },
+  { id: "stream",  label: "Stream agent" },
+  { id: "trace",   label: "Show trace" },
+  { id: "rtl",     label: "Arabic-first" },
+  { id: "compact", label: "Compact view" },
+] as const;
+
 export function CommandBar() {
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
+  const [chips, setChips] = useState<Record<string, boolean>>({ enhance: true, stream: true });
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [, navigate] = useLocation();
   const all = flatten();
@@ -35,20 +43,35 @@ export function CommandBar() {
   }, []);
 
   return (
-    <div className="relative w-full max-w-md">
-      <button
-        type="button"
-        onClick={() => { setOpen(true); setTimeout(() => inputRef.current?.focus(), 50); }}
-        className="tr-input flex items-center gap-2 w-full px-3 py-1.5 rounded-lg bar-bg text-xs text-muted-foreground hover:text-foreground"
-      >
-        <Search className="w-3.5 h-3.5" />
-        <span>Search pages…</span>
-        <kbd className="ml-auto px-1.5 py-0.5 text-[10px] rounded border border-border/50 bg-background/40">⌘K</kbd>
-      </button>
+    <div className="cmd">
+      <div className="cmd-row">
+        <span className="app-logo">Prospect<em>SA</em></span>
+        <button
+          type="button"
+          className="cmd-search"
+          onClick={() => { setOpen(true); setTimeout(() => inputRef.current?.focus(), 50); }}
+        >
+          <span>⌘K — Search pages, sub-tabs, leads…</span>
+        </button>
+        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+          <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_hsl(var(--glow)/0.40)] animate-pulse" />
+          <span>System Operational</span>
+        </div>
+      </div>
+      <div className="chips-row">
+        {CHIPS.map((c) => (
+          <button
+            key={c.id}
+            className={`chip ${chips[c.id] ? "on" : ""}`}
+            onClick={() => setChips((s) => ({ ...s, [c.id]: !s[c.id] }))}
+          >
+            {c.label}
+          </button>
+        ))}
+      </div>
       {open && (
-        <div className="absolute z-50 mt-1 w-full surf-strong p-2">
+        <div className="surf-strong p-2 absolute top-[68px] left-4 right-4 z-50 max-w-md">
           <div className="flex items-center gap-2 mb-2">
-            <Search className="w-3.5 h-3.5 text-muted-foreground" />
             <input
               ref={inputRef}
               value={q}
@@ -56,11 +79,10 @@ export function CommandBar() {
               placeholder="Type a page or sub-tab…"
               className="flex-1 bg-transparent outline-none text-sm"
             />
+            <button onClick={() => setOpen(false)} className="text-xs text-muted-foreground">esc</button>
           </div>
           <ul className="max-h-60 overflow-y-auto">
-            {matches.length === 0 && q && (
-              <li className="px-2 py-1.5 text-xs text-muted-foreground">No matches</li>
-            )}
+            {matches.length === 0 && q && <li className="px-2 py-1.5 text-xs text-muted-foreground">No matches</li>}
             {matches.map((m) => (
               <li key={m.url}>
                 <button
