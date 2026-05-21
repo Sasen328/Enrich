@@ -57,6 +57,30 @@ function useAllSourceStats() {
   });
 }
 
+function useHarvestAiStats() {
+  return useQuery<{ masaarCompanies: number; builderCompanies: number; masaarJobs: number; combined: number }>({
+    queryKey: ["harvest-ai-stats"],
+    queryFn: async () => {
+      const r = await fetch(`${BASE}/api/harvest-ai/stats`);
+      if (!r.ok) throw new Error("harvest stats failed");
+      return r.json();
+    },
+    staleTime: 60_000,
+  });
+}
+
+function useLeadGenomeStats() {
+  return useQuery<{ total: number; bySource: Record<string, number> }>({
+    queryKey: ["lead-genome-stats"],
+    queryFn: async () => {
+      const r = await fetch(`${BASE}/api/lead-genome/stats`);
+      if (!r.ok) throw new Error("lead-genome stats failed");
+      return r.json();
+    },
+    staleTime: 60_000,
+  });
+}
+
 const ENRICHMENT_COLORS = ["#10b981", "#f59e0b", "#6b7280"];
 
 const COVERAGE_FIELDS = [
@@ -73,6 +97,8 @@ export default function Dashboard() {
   const { data: stats, isLoading: statsLoading } = useGetDashboardStats();
   const { data: quality, isLoading: qualityLoading } = useCompanyStats();
   const { data: srcStats, isLoading: srcLoading } = useAllSourceStats();
+  const { data: harvestStats } = useHarvestAiStats();
+  const { data: genomeStats } = useLeadGenomeStats();
 
   const isLoading = statsLoading || qualityLoading;
 
@@ -82,8 +108,11 @@ export default function Dashboard() {
     { name: "Pending",  value: quality.byEnrichment.pending },
   ] : [];
 
-  // Combined Harvest AI count (Masaar CR records + AI DB Builder harvested rows)
-  const harvestAiCount = (srcStats?.masaar ?? 0) + (srcStats?.builder ?? 0);
+  // Combined Harvest AI count — prefer real backend stats endpoint, fall back
+  // to client-side sum if endpoint not yet seeded.
+  const harvestAiCount = harvestStats?.combined
+    ?? ((srcStats?.masaar ?? 0) + (srcStats?.builder ?? 0));
+  const leadGenomeTotal = genomeStats?.total ?? srcStats?.leadLists ?? 0;
 
   const sourceEngines = [
     {
@@ -123,8 +152,8 @@ export default function Dashboard() {
       color: "text-primary",
       bg: "bg-primary/10",
       border: "border-primary/10",
-      value: srcLoading ? null : (srcStats?.leadLists ?? 0).toLocaleString(),
-      unit: "lead lists",
+      value: srcLoading ? null : leadGenomeTotal.toLocaleString(),
+      unit: "saved leads",
     },
   ];
 
