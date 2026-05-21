@@ -155,48 +155,50 @@
 }
 
 .dark {
-  /* Soft Lavender — dark variant: deep indigo ground, lavender accent stays, cream text */
-  --background:   245 24% 10%;
-  --foreground:    40 40% 94%;
-  --card:         245 22% 14%;
-  --card-foreground: 40 40% 94%;
-  --popover:      245 22% 14%;
-  --popover-foreground: 40 30% 88%;
-  --primary:      263 50% 72%;
-  --primary-foreground: 245 24% 10%;
-  --secondary:    254 40% 28%;
-  --secondary-foreground: 40 40% 94%;
-  --muted:        245 16% 18%;
-  --muted-foreground: 250 12% 68%;
-  --accent:       202 50% 38%;
-  --accent-foreground: 40 40% 94%;
-  --destructive:  0 55% 55%;
+  /* Soft Lavender — dark variant: lavender-tinted night, NOT pure black.
+   * Keeps the warm brand feel (cream→darker, lavender accent retained).
+   */
+  --background:   260 22% 18%;
+  --foreground:    40 36% 92%;
+  --card:         260 18% 22%;
+  --card-foreground: 40 36% 92%;
+  --popover:      260 18% 22%;
+  --popover-foreground: 40 30% 86%;
+  --primary:      263 60% 74%;
+  --primary-foreground: 260 22% 14%;
+  --secondary:    254 35% 32%;
+  --secondary-foreground: 40 36% 92%;
+  --muted:        260 14% 26%;
+  --muted-foreground: 250 14% 72%;
+  --accent:       202 45% 42%;
+  --accent-foreground: 40 36% 92%;
+  --destructive:  0 55% 58%;
   --destructive-foreground: 0 0% 100%;
-  --border:       250 16% 22%;
-  --input:        250 16% 22%;
-  --ring:         263 50% 72%;
+  --border:       260 14% 30%;
+  --input:        260 14% 30%;
+  --ring:         263 60% 74%;
 
-  --sidebar:      245 26% 8%;
+  --sidebar:      260 24% 16%;
   --sidebar-foreground: 40 30% 90%;
-  --sidebar-border: 250 16% 18%;
-  --sidebar-primary: 263 50% 72%;
-  --sidebar-primary-foreground: 245 24% 10%;
-  --sidebar-accent: 245 20% 16%;
+  --sidebar-border: 260 16% 26%;
+  --sidebar-primary: 263 60% 74%;
+  --sidebar-primary-foreground: 260 22% 16%;
+  --sidebar-accent: 260 18% 24%;
   --sidebar-accent-foreground: 40 30% 90%;
-  --sidebar-ring: 263 50% 72%;
+  --sidebar-ring: 263 60% 74%;
 
-  /* v2 semantic aliases — dark variant */
-  --ac:      263 50% 72%;
-  --btx:     40 40% 94%;
-  --tx:      40 40% 94%;
-  --tx-m:    40 28% 78%;
-  --tx-q:   250 14% 64%;
-  --surf:   245 22% 14%;
-  --bd:     250 16% 22%;
-  --sub-bg: 245 20% 16%;
-  --bar-bg: 245 26% 11%;
-  --glow:   263 70% 78%;
-  --qa-bg:  254 40% 28%;
+  /* v2 semantic aliases — lavender-tinted dark */
+  --ac:      263 60% 74%;
+  --btx:     40 36% 92%;
+  --tx:      40 36% 92%;
+  --tx-m:    40 26% 76%;
+  --tx-q:   250 14% 70%;
+  --surf:   260 18% 22%;
+  --bd:     260 14% 30%;
+  --sub-bg: 260 18% 26%;
+  --bar-bg: 260 22% 16%;
+  --glow:   263 75% 80%;
+  --qa-bg:  254 38% 30%;
 }
 
 @layer base {
@@ -246,7 +248,7 @@
   animation: meshDrift 60s ease-in-out infinite alternate;
   filter: saturate(108%);
 }
-.dark .mesh-gradient-bg::before { opacity: 0.55; }
+.dark .mesh-gradient-bg::before { opacity: 0.85; filter: saturate(120%) brightness(1.05); }
 
 @keyframes meshDrift {
   0%   { background-position:   0%   0%, 100%   0%,    0% 100%, 100% 100%, 50% 50%, 65% 35%, 35% 80%; transform: scale(1); }
@@ -461,3 +463,187 @@
   color:      hsl(var(--brand-lavender));
   border:     1px solid hsl(var(--brand-rose) / 0.50);
 }
+
+/* ═════════════════════════════════════════════════════════════════════════
+ * §3 BAR STACK — verbatim spec implementation
+ * Token aliases (CSS spec uses camelCase-ish names like --txq, --txM, --tint).
+ * Map to existing hyphenated tokens.
+ * ═════════════════════════════════════════════════════════════════════════ */
+:root {
+  --txq: hsl(var(--tx-q));
+  --txM: hsl(var(--tx-m));
+  --tint: hsl(var(--brand-mist) / 0.40);
+}
+.dark {
+  --txq: hsl(var(--tx-q));
+  --txM: hsl(var(--tx-m));
+  --tint: hsl(var(--brand-lavender) / 0.20);
+}
+/* Re-expose hsl() wrapped versions so spec CSS can use `var(--surf)` directly */
+:root, .dark {
+  --surf-c:   hsl(var(--surf));
+  --bd-c:     hsl(var(--bd));
+  --ac-c:     hsl(var(--ac));
+  --tx-c:     hsl(var(--tx));
+  --btx-c:    hsl(var(--btx));
+  --bar-bg-c: hsl(var(--bar-bg));
+  --sub-bg-c: hsl(var(--sub-bg));
+}
+
+/* ── COMMAND BAR ── */
+.cmd { flex-shrink: 0; }
+.cmd-row {
+  display: flex; align-items: center; padding: 7px 16px; gap: 10px;
+  background: var(--surf-c); backdrop-filter: blur(28px);
+  border-bottom: 1px solid var(--bd-c); transition: background .6s;
+}
+.app-logo {
+  font-family: "Playfair Display", serif; font-size: 16px; font-weight: 700;
+  color: var(--tx-c); flex-shrink: 0; transition: color .6s; letter-spacing: -.3px;
+}
+.app-logo em { font-style: italic; color: var(--ac-c); transition: color .6s; }
+.cmd-search {
+  flex: 1; max-width: 420px; height: 29px; border-radius: 9999px;
+  border: 1.5px solid var(--bd-c); background: rgba(255,255,255,.85);
+  padding: 0 14px; display: flex; align-items: center; font-size: 11px;
+  color: var(--txq); cursor: text; transition: border-color .2s, color .6s;
+}
+.cmd-search:hover { border-color: var(--ac-c); }
+.chips-row {
+  display: flex; gap: 4px; padding: 0 16px 5px; overflow-x: auto; scrollbar-width: none;
+  background: var(--surf-c); backdrop-filter: blur(18px); transition: background .6s;
+}
+.chips-row::-webkit-scrollbar { display: none; }
+.chip {
+  height: 20px; padding: 0 9px; border-radius: 9999px; font-size: 10px;
+  font-weight: 500; cursor: pointer; border: 1px solid var(--bd-c);
+  color: var(--txq); background: rgba(255,255,255,.5);
+  flex-shrink: 0; display: inline-flex; align-items: center;
+  transition: all .2s, color .6s, border-color .6s;
+}
+.chip.on {
+  border-color: var(--ac-c); color: var(--btx-c); font-weight: 600;
+  background: rgba(255,255,255,.82);
+}
+
+/* ── SMART TAB BAR ── */
+.tabbar {
+  height: 37px; flex-shrink: 0; display: flex; align-items: stretch;
+  background: var(--bar-bg-c); backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--bd-c); overflow-x: auto; scrollbar-width: none;
+  transition: background .6s;
+}
+.tabbar::-webkit-scrollbar { display: none; }
+.tab {
+  display: flex; align-items: center; gap: 4px; padding: 0 12px; height: 37px;
+  flex-shrink: 0; font-size: 11px; font-weight: 400; color: var(--txq); cursor: pointer;
+  white-space: nowrap; border-bottom: 2px solid transparent;
+  transition: all .2s, color .6s; background: transparent; border-left: none; border-right: none; border-top: none;
+}
+.tab:hover { color: var(--btx-c); }
+.tab.on { color: var(--btx-c); font-weight: 600; border-bottom-color: var(--ac-c); }
+.tab svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; }
+.t-add {
+  width: 32px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  border-left: 1px solid var(--bd-c); color: var(--txq); cursor: pointer; margin-left: auto;
+  background: transparent;
+}
+.t-add svg { width: 11px; height: 11px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
+
+/* ── SUB-TAB BAR ── */
+.subbar { min-height: 0; flex-shrink: 0; overflow: hidden; transition: max-height .22s ease, background .6s; }
+.subbar.has-items { max-height: 31px; }
+.subbar.no-items  { max-height: 0; }
+.subbar-inner {
+  height: 31px; display: flex; align-items: center; gap: 2px;
+  padding: 0 12px; background: var(--sub-bg-c); backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--bd-c); overflow-x: auto; scrollbar-width: none;
+}
+.subbar-inner::-webkit-scrollbar { display: none; }
+.sub {
+  display: flex; align-items: center; gap: 3px; padding: 0 8px; height: 26px;
+  font-size: 11px; color: var(--txq); cursor: pointer; white-space: nowrap;
+  border-radius: 6px; margin: 2px 0; background: transparent; border: 0;
+  transition: all .15s, color .6s;
+}
+.sub:hover { background: rgba(255,255,255,.45); color: var(--btx-c); }
+.sub.on   { background: rgba(255,255,255,.62); color: var(--btx-c); font-weight: 600; }
+.sub svg { width: 7px; height: 7px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
+.sub.deep::after { content: "›"; margin-left: 2px; font-size: 12px; opacity: .55; }
+
+/* ── KEY STRIP ── */
+.kstrip {
+  flex-shrink: 0; display: flex; align-items: center; gap: 10px; padding: 2px 14px;
+  font-size: 8px; color: var(--txq); border-bottom: 1px solid var(--bd-c);
+  background: rgba(255,255,255,.25); transition: color .6s;
+}
+.kstrip kbd {
+  height: 13px; padding: 0 3px; border-radius: 3px; background: rgba(255,255,255,.7);
+  border: 1px solid var(--bd-c); font-family: "Geist Mono", monospace; font-size: 7px;
+  color: var(--btx-c); margin-right: 2px; display: inline-flex; align-items: center; transition: all .6s;
+}
+
+/* ── BODY ROW ── */
+.body-row { flex: 1; display: flex; overflow: hidden; min-height: 0; }
+
+/* ── GLASSMORPHIC RAIL SIDEBAR ── */
+.gsb { width: 0; flex-shrink: 0; overflow: hidden; transition: width .26s cubic-bezier(.4,0,.2,1); position: relative; z-index: 10; }
+.gsb.open  { width: 232px; }
+.gsb.icons { width: 28px; }
+.gsb-inner {
+  width: 232px; height: 100%; display: flex; flex-direction: column;
+  background: var(--surf-c); backdrop-filter: blur(28px);
+  border-right: 1px solid var(--bd-c); box-shadow: 6px 0 24px rgba(0,0,0,.06);
+  transition: background .6s, border-color .6s;
+}
+.gsb-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 10px 9px; border-bottom: 1px solid var(--bd-c); flex-shrink: 0;
+}
+.gsb-title {
+  font-size: 9px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
+  color: var(--btx-c); white-space: nowrap; overflow: hidden;
+  transition: opacity .2s, max-width .26s, color .6s; max-width: 150px;
+}
+.gsb.icons .gsb-title { opacity: 0; max-width: 0; }
+.gsb-btns { display: flex; gap: 3px; }
+.gsb-ibtn {
+  width: 19px; height: 19px; border-radius: 5px; border: 1px solid var(--bd-c);
+  background: rgba(255,255,255,.55); display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--txq); transition: all .13s;
+}
+.gsb-ibtn:hover { color: var(--btx-c); background: rgba(255,255,255,.9); }
+.gsb-ibtn svg { width: 9px; height: 9px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
+.gsb-body { flex: 1; overflow-y: auto; padding: 6px; scrollbar-width: none; }
+.gsb-body::-webkit-scrollbar { display: none; }
+.gsb-item {
+  display: flex; align-items: center; gap: 8px; padding: 7px 8px; border-radius: 9px;
+  cursor: pointer; font-size: 12px; color: var(--txM); white-space: nowrap;
+  transition: all .15s; border: 1px solid transparent; position: relative;
+  background: transparent;
+}
+.gsb-item:hover { background: rgba(255,255,255,.52); color: var(--btx-c); }
+.gsb-item.on   { background: rgba(255,255,255,.68); color: var(--btx-c); font-weight: 500; border-color: var(--bd-c); }
+.gsb-ico {
+  width: 26px; height: 26px; border-radius: 7px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--tint); transition: background .6s;
+}
+.gsb-ico svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; }
+.gsb-txt { overflow: hidden; transition: opacity .2s, max-width .26s; max-width: 130px; }
+.gsb.icons .gsb-txt { opacity: 0; max-width: 0; }
+.gsb-badge {
+  margin-left: auto; min-width: 15px; height: 15px; border-radius: 9999px;
+  background: var(--ac-c); color: #fff; font-size: 8px; font-weight: 700;
+  padding: 0 3px; display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: opacity .2s, background .6s;
+}
+.gsb.icons .gsb-badge { opacity: 0; }
+.gsb.icons .gsb-item  { justify-content: center; }
+.gsb.icons .gsb-item::after {
+  content: attr(data-tip); position: absolute;
+  left: calc(100% + 7px); top: 50%; transform: translateY(-50%);
+  background: #1a1a2e; color: #fff; font-size: 10px; white-space: nowrap;
+  padding: 3px 9px; border-radius: 6px; z-index: 999; display: none; pointer-events: none;
+}
+.gsb.icons .gsb-item:hover::after { display: block; }
