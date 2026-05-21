@@ -15,7 +15,6 @@ import { KeyStrip } from "./KeyStrip";
 import { RailProvider, useRail } from "./RailContext";
 import { RailSidebar } from "./RailSidebar";
 import { ThemeFlash } from "./ThemeFlash";
-import { MeshCanvas } from "./MeshCanvas";
 
 function ShortcutListener() {
   const { state, toggle, collapse } = useRail();
@@ -39,8 +38,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
     <RailProvider>
       <ShortcutListener />
       <ThemeFlash />
-      <MeshCanvas />
-      <div className="flex flex-col h-screen w-full text-foreground overflow-hidden">
+      <div className="flex flex-col h-screen w-full text-foreground overflow-hidden mesh-gradient-bg">
         <CommandBar />
         <MainTabBar />
         <SubTabBar />
