@@ -158,15 +158,15 @@ function AIProfileDrawer({
 
   return (
     <Sheet open={open} onOpenChange={onClose}>
-      <SheetContent side="right" className="w-full sm:max-w-xl bg-card border-l border-white/10 overflow-y-auto p-0">
+      <SheetContent side="right" className="w-full sm:max-w-xl bg-card border-l border-border/40 overflow-y-auto p-0">
         {/* Header */}
-        <SheetHeader className="px-6 py-5 bg-gradient-to-r from-primary/15 to-violet-500/10 border-b border-white/10 sticky top-0 z-10 backdrop-blur-sm">
+        <SheetHeader className="px-6 py-5 bg-gradient-to-r from-primary/15 to-violet-500/10 border-b border-border/40 sticky top-0 z-10 backdrop-blur-sm">
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-2xl bg-primary/20 border border-primary/30 flex items-center justify-center shrink-0">
               <span className="text-lg font-display font-bold text-primary">{initials(person.name)}</span>
             </div>
             <div className="flex-1 min-w-0">
-              <SheetTitle className="text-white font-display font-bold text-lg leading-tight">{person.name}</SheetTitle>
+              <SheetTitle className="text-foreground font-display font-bold text-lg leading-tight">{person.name}</SheetTitle>
               {companyName && <p className="text-sm text-primary/80 mt-0.5">Shareholder · {companyName}</p>}
               {person.ownershipPercent && (
                 <p className={`text-sm font-semibold mt-0.5 ${ownershipColor(person.ownershipPercent)}`}>
@@ -188,7 +188,7 @@ function AIProfileDrawer({
                 <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto">
                   <Sparkles className="w-6 h-6 text-primary" />
                 </div>
-                <p className="text-white font-medium">Generate AI Deep Profile</p>
+                <p className="text-foreground font-medium">Generate AI Deep Profile</p>
                 <p className="text-sm text-muted-foreground">AI will research investment appetite, estimated wealth, education, career history, and optimal approach strategy</p>
                 <Button onClick={() => generateMutation.mutate()} className="bg-primary hover:bg-primary/90">
                   <Sparkles className="w-4 h-4 mr-2" />Generate Profile
@@ -200,7 +200,7 @@ function AIProfileDrawer({
           {generateMutation.isPending && (
             <div className="flex flex-col items-center gap-3 py-10">
               <Loader2 className="w-8 h-8 text-primary animate-spin" />
-              <p className="text-white font-medium">AI is researching {person.name}…</p>
+              <p className="text-foreground font-medium">AI is researching {person.name}…</p>
               <p className="text-sm text-muted-foreground text-center">Analyzing investment profile, wealth estimation, career history, and optimal contact strategy</p>
             </div>
           )}
@@ -227,7 +227,7 @@ function AIProfileDrawer({
               )}
 
               {/* Profile score */}
-              <div className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/10">
+              <div className="flex items-center gap-3 p-3 bg-muted/40 rounded-xl border border-border/40">
                 <div className="flex-1">
                   <p className="text-xs text-muted-foreground mb-1">Profile confidence score</p>
                   <div className="h-2 bg-white/10 rounded-full overflow-hidden">
@@ -244,35 +244,35 @@ function AIProfileDrawer({
                 </h4>
                 <div className="grid grid-cols-1 gap-2">
                   {profile.estimatedWealth && (
-                    <div className="p-3 bg-white/5 rounded-xl border border-white/10">
+                    <div className="p-3 bg-muted/40 rounded-xl border border-border/40">
                       <p className="text-xs text-muted-foreground mb-0.5">Estimated Net Worth</p>
                       <p className="text-sm font-semibold text-emerald-400">{profile.estimatedWealth}</p>
                     </div>
                   )}
                   {profile.estimatedAnnualIncome && (
-                    <div className="p-3 bg-white/5 rounded-xl border border-white/10">
+                    <div className="p-3 bg-muted/40 rounded-xl border border-border/40">
                       <p className="text-xs text-muted-foreground mb-0.5">Estimated Annual Income</p>
                       <p className="text-sm font-semibold text-amber-400">{profile.estimatedAnnualIncome}</p>
                     </div>
                   )}
                   <div className="grid grid-cols-2 gap-2">
                     {profile.investmentAppetite && (
-                      <div className="p-3 bg-white/5 rounded-xl border border-white/10">
+                      <div className="p-3 bg-muted/40 rounded-xl border border-border/40">
                         <p className="text-xs text-muted-foreground mb-1">Investment Appetite</p>
                         <Badge className={`text-xs border ${APPETITE_COLORS[profile.investmentAppetite] ?? "bg-zinc-500/15 text-zinc-300"}`}>{profile.investmentAppetite}</Badge>
                       </div>
                     )}
                     {profile.riskProfile && (
-                      <div className="p-3 bg-white/5 rounded-xl border border-white/10">
+                      <div className="p-3 bg-muted/40 rounded-xl border border-border/40">
                         <p className="text-xs text-muted-foreground mb-1">Risk Profile</p>
                         <Badge className={`text-xs border ${RISK_COLORS[profile.riskProfile] ?? "bg-zinc-500/15 text-zinc-300"}`}>{profile.riskProfile}</Badge>
                       </div>
                     )}
                   </div>
                   {profile.investmentFocus && (
-                    <div className="p-3 bg-white/5 rounded-xl border border-white/10">
+                    <div className="p-3 bg-muted/40 rounded-xl border border-border/40">
                       <p className="text-xs text-muted-foreground mb-1">Investment Focus Areas</p>
-                      <p className="text-sm text-white">{profile.investmentFocus}</p>
+                      <p className="text-sm text-foreground">{profile.investmentFocus}</p>
                     </div>
                   )}
                 </div>
@@ -284,21 +284,21 @@ function AIProfileDrawer({
                   <GraduationCap className="w-3.5 h-3.5" />Background
                 </h4>
                 {profile.educationBackground && (
-                  <div className="p-3 bg-white/5 rounded-xl border border-white/10">
+                  <div className="p-3 bg-muted/40 rounded-xl border border-border/40">
                     <p className="text-xs text-muted-foreground mb-0.5">Education</p>
-                    <p className="text-sm text-white">{profile.educationBackground}</p>
+                    <p className="text-sm text-foreground">{profile.educationBackground}</p>
                   </div>
                 )}
                 {profile.careerHistory && (
-                  <div className="p-3 bg-white/5 rounded-xl border border-white/10">
+                  <div className="p-3 bg-muted/40 rounded-xl border border-border/40">
                     <p className="text-xs text-muted-foreground mb-0.5">Career History</p>
-                    <p className="text-sm text-white leading-relaxed">{profile.careerHistory}</p>
+                    <p className="text-sm text-foreground leading-relaxed">{profile.careerHistory}</p>
                   </div>
                 )}
                 {profile.boardMemberships && (
-                  <div className="p-3 bg-white/5 rounded-xl border border-white/10">
+                  <div className="p-3 bg-muted/40 rounded-xl border border-border/40">
                     <p className="text-xs text-muted-foreground mb-0.5">Board & Memberships</p>
-                    <p className="text-sm text-white">{profile.boardMemberships}</p>
+                    <p className="text-sm text-foreground">{profile.boardMemberships}</p>
                   </div>
                 )}
               </div>
@@ -309,8 +309,8 @@ function AIProfileDrawer({
                   <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
                     <Globe className="w-3.5 h-3.5" />Key Connections
                   </h4>
-                  <div className="p-3 bg-white/5 rounded-xl border border-white/10">
-                    <p className="text-sm text-white">{profile.keyConnections}</p>
+                  <div className="p-3 bg-muted/40 rounded-xl border border-border/40">
+                    <p className="text-sm text-foreground">{profile.keyConnections}</p>
                   </div>
                 </div>
               )}
@@ -326,7 +326,7 @@ function AIProfileDrawer({
                       <Clock className="w-3.5 h-3.5 text-amber-400" />
                       <p className="text-xs text-amber-300 font-semibold">Best Time to Contact</p>
                     </div>
-                    <p className="text-sm text-white">{profile.bestTimeToContact}</p>
+                    <p className="text-sm text-foreground">{profile.bestTimeToContact}</p>
                   </div>
                 )}
                 {profile.approachStrategy && (
@@ -335,7 +335,7 @@ function AIProfileDrawer({
                       <Lightbulb className="w-3.5 h-3.5 text-primary" />
                       <p className="text-xs text-primary font-semibold">Approach Strategy</p>
                     </div>
-                    <p className="text-sm text-white leading-relaxed">{profile.approachStrategy}</p>
+                    <p className="text-sm text-foreground leading-relaxed">{profile.approachStrategy}</p>
                   </div>
                 )}
               </div>
@@ -347,22 +347,22 @@ function AIProfileDrawer({
                 </h4>
                 <div className="grid grid-cols-2 gap-2">
                   {profile.philanthropyInterests && (
-                    <div className="p-3 bg-white/5 rounded-xl border border-white/10">
+                    <div className="p-3 bg-muted/40 rounded-xl border border-border/40">
                       <p className="text-xs text-muted-foreground mb-0.5">Philanthropy</p>
-                      <p className="text-xs text-white">{profile.philanthropyInterests}</p>
+                      <p className="text-xs text-foreground">{profile.philanthropyInterests}</p>
                     </div>
                   )}
                   {profile.geographicPresence && (
-                    <div className="p-3 bg-white/5 rounded-xl border border-white/10">
+                    <div className="p-3 bg-muted/40 rounded-xl border border-border/40">
                       <p className="text-xs text-muted-foreground mb-0.5">Geography</p>
-                      <p className="text-xs text-white">{profile.geographicPresence}</p>
+                      <p className="text-xs text-foreground">{profile.geographicPresence}</p>
                     </div>
                   )}
                 </div>
                 {profile.languagesSpoken && (
-                  <div className="p-3 bg-white/5 rounded-xl border border-white/10">
+                  <div className="p-3 bg-muted/40 rounded-xl border border-border/40">
                     <p className="text-xs text-muted-foreground mb-0.5">Languages</p>
-                    <p className="text-sm text-white">{profile.languagesSpoken}</p>
+                    <p className="text-sm text-foreground">{profile.languagesSpoken}</p>
                   </div>
                 )}
               </div>
@@ -394,12 +394,12 @@ function ShareholderCard({ sh, onProfile }: { sh: Shareholder; onProfile: (sh: S
   const pct = sh.ownershipPercent ?? 0;
   const barW = Math.min(pct, 100);
   return (
-    <div className="flex items-center gap-3 py-2.5 px-4 rounded-xl hover:bg-white/5 transition-colors group">
+    <div className="flex items-center gap-3 py-2.5 px-4 rounded-xl hover:bg-muted/40 transition-colors group">
       <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
         <span className="text-xs font-bold text-primary">{sh.shareholderName ? initials(sh.shareholderName) : "?"}</span>
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-white truncate">{sh.shareholderName}</p>
+        <p className="text-sm font-medium text-foreground truncate">{sh.shareholderName}</p>
         <div className="flex items-center gap-2 mt-0.5">
           <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden max-w-[100px]">
             <div className={`h-full rounded-full ${ownershipBarColor(sh.ownershipPercent)}`} style={{ width: `${barW}%` }} />
@@ -420,7 +420,7 @@ function ShareholderCard({ sh, onProfile }: { sh: Shareholder; onProfile: (sh: S
               <Sparkles className="w-3.5 h-3.5" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent className="bg-card border-white/10 text-xs">Generate AI Profile</TooltipContent>
+          <TooltipContent className="bg-card border-border/40 text-xs">Generate AI Profile</TooltipContent>
         </Tooltip>
       </TooltipProvider>
     </div>
@@ -442,7 +442,7 @@ function CompanyGroupCard({
     : "bg-blue-500/15 text-blue-300 border-blue-500/20";
 
   return (
-    <Card className="bg-card/40 border-white/10 hover:border-white/20 transition-all duration-150 overflow-hidden">
+    <Card className="bg-card/65 border-border/40 hover:border-white/20 transition-all duration-150 overflow-hidden">
       <button onClick={onExpand} className="w-full text-left">
         <CardHeader className="pb-3 pt-4 px-5">
           <div className="flex items-start gap-3">
@@ -451,9 +451,9 @@ function CompanyGroupCard({
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="font-display font-semibold text-white text-sm leading-tight">{company.companyName}</h3>
+                <h3 className="font-display font-semibold text-foreground text-sm leading-tight">{company.companyName}</h3>
                 <Badge className={`text-xs border ${indexBg}`}>{company.stockIndex}</Badge>
-                {company.stockCode && <Badge className="bg-white/5 text-zinc-400 border-white/10 border text-xs">{company.stockCode}</Badge>}
+                {company.stockCode && <Badge className="bg-muted/40 text-zinc-400 border-border/40 border text-xs">{company.stockCode}</Badge>}
               </div>
               {company.sector && <p className="text-xs text-muted-foreground mt-0.5"><BarChart3 className="w-3 h-3 inline mr-0.5" />{company.sector}</p>}
               {company.city && <p className="text-xs text-muted-foreground"><MapPin className="w-3 h-3 inline mr-0.5" />{company.city}</p>}
@@ -461,7 +461,7 @@ function CompanyGroupCard({
             <div className="flex flex-col items-end gap-1 shrink-0">
               <div className="flex items-center gap-1">
                 <Users className="w-3.5 h-3.5 text-muted-foreground" />
-                <span className="text-sm font-semibold text-white">{company.shareholderCount}</span>
+                <span className="text-sm font-semibold text-foreground">{company.shareholderCount}</span>
                 <span className="text-xs text-muted-foreground">shareholders</span>
               </div>
               {company.topShareholder && (
@@ -474,7 +474,7 @@ function CompanyGroupCard({
       </button>
 
       {expanded && (
-        <div className="border-t border-white/5 divide-y divide-white/5">
+        <div className="border-t border-border/30 divide-y divide-white/5">
           {shareholders.length === 0 ? (
             <div className="py-4 px-5 text-center text-sm text-muted-foreground flex items-center gap-2 justify-center">
               <Loader2 className="w-4 h-4 animate-spin" />Loading shareholders…
@@ -500,7 +500,7 @@ function StatsBar({ stats }: { stats: { total: number; sectors: { sector: string
         { label: "TASI Companies", value: (stats.indexes.find(i=>i.index==="TASI")?.count ?? 0).toString(), icon: Star, color: "text-emerald-400" },
         { label: "NOMU Companies", value: (stats.indexes.find(i=>i.index==="NOMU")?.count ?? 0).toString(), icon: Zap, color: "text-amber-400" },
       ].map(({ label, value, icon: Icon, color }) => (
-        <Card key={label} className="bg-card/40 border-white/10">
+        <Card key={label} className="bg-card/65 border-border/40">
           <CardContent className="py-3 px-4 flex items-center gap-3">
             <Icon className={`w-5 h-5 ${color} shrink-0`} />
             <div>
@@ -574,22 +574,22 @@ export default function ShareholdersPage() {
       {stats && <StatsBar stats={stats} />}
 
       {/* Filters */}
-      <Card className="bg-card/30 border-white/10">
+      <Card className="bg-card/30 border-border/40">
         <CardContent className="py-3 px-4">
           <div className="flex flex-wrap gap-3 items-center">
             <div className="relative flex-1 min-w-48">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input placeholder="Search by name or company…" value={search}
-                onChange={e => setSearch(e.target.value)} className="pl-9 bg-white/5 border-white/10 text-white h-9" />
+                onChange={e => setSearch(e.target.value)} className="pl-9 bg-muted/40 border-border/40 text-foreground h-9" />
             </div>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="border-white/10 text-muted-foreground hover:text-white gap-2 h-9 shrink-0">
+                <Button variant="outline" size="sm" className="border-border/40 text-muted-foreground hover:text-foreground gap-2 h-9 shrink-0">
                   <BarChart3 className="w-3.5 h-3.5" />{sector || "All Sectors"}<ChevronDown className="w-3 h-3 ml-auto" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="bg-card border-white/10 max-h-72 overflow-y-auto">
+              <DropdownMenuContent className="bg-card border-border/40 max-h-72 overflow-y-auto">
                 <DropdownMenuItem onClick={() => setSector("")} className="cursor-pointer">All Sectors</DropdownMenuItem>
                 {sectors.map(s => <DropdownMenuItem key={s} onClick={() => setSector(s)} className="cursor-pointer text-sm">{s}</DropdownMenuItem>)}
               </DropdownMenuContent>
@@ -597,11 +597,11 @@ export default function ShareholdersPage() {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="border-white/10 text-muted-foreground hover:text-white gap-2 h-9 shrink-0">
+                <Button variant="outline" size="sm" className="border-border/40 text-muted-foreground hover:text-foreground gap-2 h-9 shrink-0">
                   <Star className="w-3.5 h-3.5" />{stockIndex || "TASI + NOMU"}<ChevronDown className="w-3 h-3 ml-auto" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="bg-card border-white/10">
+              <DropdownMenuContent className="bg-card border-border/40">
                 <DropdownMenuItem onClick={() => setStockIndex("")} className="cursor-pointer">TASI + NOMU</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setStockIndex("TASI")} className="cursor-pointer">TASI only</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setStockIndex("NOMU")} className="cursor-pointer">NOMU only</DropdownMenuItem>
@@ -614,13 +614,13 @@ export default function ShareholdersPage() {
                 <Slider min={0} max={50} step={1} value={[minOwnership]}
                   onValueChange={([v]) => setMinOwnership(v)} />
               </div>
-              <span className="text-xs font-semibold text-white w-8">{minOwnership}%</span>
+              <span className="text-xs font-semibold text-foreground w-8">{minOwnership}%</span>
             </div>
 
-            <div className="flex items-center gap-1 border border-white/10 rounded-lg p-0.5 shrink-0">
+            <div className="flex items-center gap-1 border border-border/40 rounded-lg p-0.5 shrink-0">
               {(["grouped","flat"] as const).map(m => (
                 <button key={m} onClick={() => setViewMode(m)}
-                  className={`px-3 py-1 text-xs rounded-md transition-all ${viewMode===m ? "bg-primary/20 text-primary" : "text-muted-foreground hover:text-white"}`}>
+                  className={`px-3 py-1 text-xs rounded-md transition-all ${viewMode===m ? "bg-primary/20 text-primary" : "text-muted-foreground hover:text-foreground"}`}>
                   {m === "grouped" ? "By Company" : "All People"}
                 </button>
               ))}
@@ -634,7 +634,7 @@ export default function ShareholdersPage() {
       {/* Data */}
       {isLoading ? (
         <div className="space-y-3">
-          {Array.from({ length: 6 }).map((_, i) => <div key={i} className="h-24 bg-white/5 rounded-xl animate-pulse" />)}
+          {Array.from({ length: 6 }).map((_, i) => <div key={i} className="h-24 bg-muted/40 rounded-xl animate-pulse" />)}
         </div>
       ) : viewMode === "grouped" ? (
         <div className="space-y-3">
@@ -652,7 +652,7 @@ export default function ShareholdersPage() {
       ) : (
         <div className="space-y-1">
           {(rows as Shareholder[]).map(sh => (
-            <Card key={sh.id} className="bg-card/40 border-white/10 hover:border-white/20 transition-all">
+            <Card key={sh.id} className="bg-card/65 border-border/40 hover:border-white/20 transition-all">
               <CardContent className="py-0 px-2">
                 <ShareholderCard sh={sh} onProfile={s => setProfileTarget({ sh: s, companyName: s.companyName ?? "", sector: s.sector ?? "" })} />
               </CardContent>
@@ -662,10 +662,10 @@ export default function ShareholdersPage() {
       )}
 
       {rows.length === 0 && !isLoading && (
-        <Card className="bg-card/30 border-white/10 border-dashed">
+        <Card className="bg-card/30 border-border/40 border-dashed">
           <CardContent className="py-12 text-center">
             <TrendingUp className="w-10 h-10 text-muted-foreground mx-auto mb-3 opacity-40" />
-            <p className="text-white font-medium">No shareholders found</p>
+            <p className="text-foreground font-medium">No shareholders found</p>
             <p className="text-sm text-muted-foreground mt-1">Try broadening your filters.</p>
           </CardContent>
         </Card>

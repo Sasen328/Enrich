@@ -52,7 +52,7 @@ export function EnrichView({ onBack, onReset }: Props) {
   }
 
   return (
-    <div className="border border-border rounded-xl bg-card/60 p-4 space-y-3">
+    <div className="border border-border rounded-xl bg-card/70 p-4 space-y-3">
       <div className="text-sm font-bold flex items-center gap-2">🧪 Enrich · Route</div>
 
       <div className="flex gap-4 border-b border-border">

@@ -26,7 +26,7 @@ export function LeadFactoryTabs() {
             className={cn(
               "inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-medium rounded-t-md whitespace-nowrap border-b-2 -mb-px transition-all duration-280 ease-[cubic-bezier(0.16,1,0.30,1)]",
               isActive
-                ? "border-primary text-primary bg-primary/10 shadow-[0_0_12px_hsl(var(--brand-lavender)/0.25)]"
+                ? "border-primary text-primary bg-primary/10 shadow-[0_0_12px_hsl(var(--glow)/0.30)]"
                 : "border-transparent text-muted-foreground hover:text-primary hover:bg-primary/5",
             )}
           >

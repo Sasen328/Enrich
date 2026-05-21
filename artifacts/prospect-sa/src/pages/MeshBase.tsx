@@ -60,7 +60,7 @@ export default function MeshBaseOverview() {
         <div className="space-y-1">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/25">
-              <Network className="w-5 h-5 text-white" />
+              <Network className="w-5 h-5 text-foreground" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-foreground tracking-tight">OrcBase</h1>
@@ -75,7 +75,7 @@ export default function MeshBaseOverview() {
               Companies
             </Link>
           </Button>
-          <Button asChild size="sm" className="gap-2 bg-violet-600 hover:bg-violet-700 text-white">
+          <Button asChild size="sm" className="gap-2 bg-violet-600 hover:bg-violet-700 text-foreground">
             <Link href="/meshbase/executives">
               <Users className="w-4 h-4" />
               Executives
@@ -106,7 +106,7 @@ export default function MeshBaseOverview() {
       </div>
 
       {/* What is MeshBase */}
-      <Card className="border-border/50 bg-card/60 backdrop-blur-sm">
+      <Card className="border-border/50 bg-card/70 backdrop-blur-sm">
         <CardContent className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div className="space-y-4">
@@ -146,7 +146,7 @@ export default function MeshBaseOverview() {
 
       {/* Industry Distribution */}
       {industries.length > 0 && (
-        <Card className="border-border/50 bg-card/60 backdrop-blur-sm">
+        <Card className="border-border/50 bg-card/70 backdrop-blur-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-semibold flex items-center gap-2">
               <BarChart3 className="w-4 h-4 text-violet-400" />
@@ -186,7 +186,7 @@ export default function MeshBaseOverview() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {featuredCompanies.map((c) => (
-              <Card key={c.id} className="border-border/50 bg-card/60 hover:bg-card/80 transition-colors cursor-pointer group">
+              <Card key={c.id} className="border-border/50 bg-card/70 hover:bg-card/80 transition-colors cursor-pointer group">
                 <CardContent className="p-4 space-y-3">
                   <div className="flex items-center gap-3">
                     {c.logoUrl ? (
@@ -233,7 +233,7 @@ export default function MeshBaseOverview() {
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
             {featuredExecutives.map((e) => (
-              <Card key={e.id} className="border-border/50 bg-card/60 hover:bg-card/80 transition-colors cursor-pointer text-center group">
+              <Card key={e.id} className="border-border/50 bg-card/70 hover:bg-card/80 transition-colors cursor-pointer text-center group">
                 <CardContent className="p-4 space-y-2">
                   {e.photoUrl ? (
                     <img src={e.photoUrl} alt={e.name} className="w-14 h-14 rounded-full object-cover mx-auto border-2 border-border/50" onError={(ev) => { (ev.target as HTMLImageElement).style.display = "none"; }} />

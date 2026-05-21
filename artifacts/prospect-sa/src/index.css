@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 @plugin "@tailwindcss/typography";
@@ -97,6 +97,19 @@
   --sidebar-accent-foreground: 245 24% 14%;
   --sidebar-ring: 263 28% 51%;
 
+  /* Brand v2 semantic aliases (per §1 spec) */
+  --ac:      263 28% 51%;          /* accent — Muted Lavender */
+  --btx:    245 24% 14%;           /* button text on light surfaces */
+  --tx:     245 24% 14%;           /* primary text */
+  --tx-m:   245 18% 28%;           /* mid text */
+  --tx-q:   245 12% 42%;           /* quiet text */
+  --surf:   0 0% 100%;             /* surface */
+  --bd:     250 16% 88%;           /* border */
+  --sub-bg: 254 60% 95%;           /* sub-tab bar bg */
+  --bar-bg: 40 50% 98%;            /* command/quick bar bg */
+  --glow:   263 60% 70%;           /* glow tint */
+  --qa-bg:  254 92% 88%;           /* quick-action bg */
+
   /* Motion tokens — durations */
   --motion-instant:  100ms;
   --motion-quick:    180ms;
@@ -140,10 +153,31 @@
   --sidebar-accent: 245 20% 16%;
   --sidebar-accent-foreground: 40 30% 90%;
   --sidebar-ring: 263 50% 72%;
+
+  /* v2 semantic aliases — dark variant */
+  --ac:      263 50% 72%;
+  --btx:     40 40% 94%;
+  --tx:      40 40% 94%;
+  --tx-m:    40 28% 78%;
+  --tx-q:   250 14% 64%;
+  --surf:   245 22% 14%;
+  --bd:     250 16% 22%;
+  --sub-bg: 245 20% 16%;
+  --bar-bg: 245 26% 11%;
+  --glow:   263 70% 78%;
+  --qa-bg:  254 40% 28%;
 }
 
 @layer base {
   * { @apply border-border; }
+  /* §9 — global palette-switch transition (color tokens only; excludes transform/opacity) */
+  html, body, [data-theme-transition] {
+    transition:
+      background-color 480ms cubic-bezier(0.16, 1, 0.30, 1),
+      color            480ms cubic-bezier(0.16, 1, 0.30, 1),
+      border-color     480ms cubic-bezier(0.16, 1, 0.30, 1),
+      box-shadow       480ms cubic-bezier(0.16, 1, 0.30, 1);
+  }
   body {
     @apply bg-background text-foreground antialiased font-sans;
   }
@@ -157,6 +191,7 @@
  *  Use as: <div class="mesh-gradient-bg" /> behind the app.
  *  Per the brand spec: never put text directly on the mesh; always overlay a
  *  .glass-panel card. */
+/* Slow Sea Wave (§2) — 7-harmonic drift, ~60s loop, prefers-reduced-motion safe */
 .mesh-gradient-bg {
   position: relative;
   background-color: hsl(var(--brand-cream));
@@ -165,30 +200,61 @@
 .mesh-gradient-bg::before {
   content: "";
   position: absolute;
-  inset: -10%;
+  inset: -8%;
   z-index: -1;
   pointer-events: none;
   background-image:
-    radial-gradient(60% 50% at 18% 12%,  hsla(var(--brand-lavender) / 0.30) 0%, transparent 60%),
-    radial-gradient(55% 45% at 82% 22%,  hsla(var(--brand-seafoam)  / 0.32) 0%, transparent 60%),
-    radial-gradient(50% 45% at 12% 78%,  hsla(var(--brand-sand)     / 0.30) 0%, transparent 60%),
-    radial-gradient(55% 50% at 88% 82%,  hsla(var(--brand-rose)     / 0.28) 0%, transparent 60%),
-    radial-gradient(40% 35% at 45% 50%,  hsla(var(--brand-mist)     / 0.24) 0%, transparent 55%),
-    radial-gradient(35% 30% at 65% 35%,  hsla(var(--brand-sky)      / 0.20) 0%, transparent 50%);
+    radial-gradient(60% 50% at 18% 12%, hsla(var(--brand-lavender) / 0.30) 0%, transparent 60%),
+    radial-gradient(55% 45% at 82% 22%, hsla(var(--brand-seafoam)  / 0.32) 0%, transparent 60%),
+    radial-gradient(50% 45% at 12% 78%, hsla(var(--brand-sand)     / 0.30) 0%, transparent 60%),
+    radial-gradient(55% 50% at 88% 82%, hsla(var(--brand-rose)     / 0.28) 0%, transparent 60%),
+    radial-gradient(40% 35% at 45% 50%, hsla(var(--brand-mist)     / 0.24) 0%, transparent 55%),
+    radial-gradient(35% 30% at 65% 35%, hsla(var(--brand-sky)      / 0.22) 0%, transparent 50%),
+    radial-gradient(30% 28% at 35% 80%, hsla(var(--brand-lavender) / 0.18) 0%, transparent 55%);
   background-size: 140% 140%;
-  animation: mesh-drift 26s ease-in-out infinite alternate;
+  animation: meshDrift 60s ease-in-out infinite alternate;
   filter: saturate(108%);
 }
 .dark .mesh-gradient-bg::before { opacity: 0.55; }
 
-@keyframes mesh-drift {
-  0%   { background-position:   0%   0%,  100%   0%,    0% 100%, 100% 100%, 50% 50%, 65% 35%; transform: translate3d(0,0,0) scale(1); }
-  33%  { background-position:  12%  18%,   88%  10%,   18%  82%,  82%  90%, 55% 48%, 60% 40%; transform: translate3d(0.5%,-0.4%,0) scale(1.015); }
-  66%  { background-position:  -8%   6%,  108%  24%,    6%  72%, 110%  78%, 46% 52%, 70% 32%; transform: translate3d(-0.4%,0.6%,0) scale(1.025); }
-  100% { background-position:   4%  -4%,   96%  16%,   -4%  92%,  96% 104%, 52% 46%, 64% 38%; transform: translate3d(0.2%,0.2%,0) scale(1.01); }
+@keyframes meshDrift {
+  0%   { background-position:   0%   0%, 100%   0%,    0% 100%, 100% 100%, 50% 50%, 65% 35%, 35% 80%; transform: scale(1); }
+  20%  { background-position:   8%  12%,  92%   6%,   12%  88%,  92%  94%, 54% 47%, 60% 40%, 38% 75%; transform: scale(1.012); }
+  40%  { background-position:  -6%   4%, 106%  18%,   -4%  76%, 110%  82%, 47% 53%, 70% 30%, 30% 84%; transform: scale(1.020); }
+  60%  { background-position:  10%  -4%,  88%  22%,   18%  92%,  88%  78%, 52% 48%, 62% 36%, 40% 78%; transform: scale(1.016); }
+  80%  { background-position:  -2%   8%, 104%  10%,    4%  82%, 104%  92%, 49% 51%, 68% 34%, 32% 82%; transform: scale(1.008); }
+  100% { background-position:   4%  -2%,  96%  16%,   -2%  98%,  96% 104%, 51% 49%, 64% 38%, 36% 80%; transform: scale(1); }
 }
 @media (prefers-reduced-motion: reduce) {
   .mesh-gradient-bg::before { animation: none; }
+}
+
+/* §7 — Glassmorphic surface utilities for stat cards / activity feed */
+.surf {
+  background: hsl(var(--surf) / 0.65);
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  border: 1px solid hsl(var(--bd) / 0.60);
+  border-radius: 0.75rem;
+  box-shadow:
+    0 1px 0 hsl(0 0% 100% / 0.55) inset,
+    0 8px 28px hsl(var(--brand-ink) / 0.07);
+}
+.surf-strong {
+  background: hsl(var(--surf) / 0.85);
+  backdrop-filter: blur(36px) saturate(180%);
+  -webkit-backdrop-filter: blur(36px) saturate(180%);
+  border: 1px solid hsl(var(--bd) / 0.80);
+  border-radius: 0.875rem;
+  box-shadow:
+    0 1px 0 hsl(0 0% 100% / 0.65) inset,
+    0 12px 36px hsl(var(--brand-ink) / 0.10);
+}
+.bar-bg {
+  background: hsl(var(--bar-bg) / 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid hsl(var(--bd) / 0.50);
 }
 
 .glass-panel {

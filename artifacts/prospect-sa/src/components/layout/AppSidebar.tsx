@@ -58,7 +58,7 @@ function NavGroup({ label, icon: Icon, items, activeCheck }: {
     <SidebarMenuItem>
       <Collapsible open={open} onOpenChange={setOpen}>
         <CollapsibleTrigger asChild>
-          <SidebarMenuButton className={`h-10 rounded-xl transition-all duration-200 w-full ${activeCheck ? "bg-primary/12 text-primary" : "text-muted-foreground hover:bg-white/5 hover:text-foreground"}`}>
+          <SidebarMenuButton className={`h-10 rounded-xl transition-all duration-200 w-full ${activeCheck ? "bg-primary/12 text-primary" : "text-muted-foreground hover:bg-muted/40 hover:text-foreground"}`}>
             <div className="flex items-center gap-3 px-3 w-full">
               <Icon className={`w-4 h-4 flex-shrink-0 ${activeCheck ? "text-primary" : "text-muted-foreground"}`} />
               <span className="font-medium text-sm flex-1 text-left">{label}</span>
@@ -72,7 +72,7 @@ function NavGroup({ label, icon: Icon, items, activeCheck }: {
               const isActive = location === sub.url || (sub.url !== "/" && location.startsWith(sub.url));
               return (
                 <SidebarMenuSubItem key={sub.url}>
-                  <SidebarMenuSubButton asChild isActive={isActive} className={`h-8 rounded-lg transition-all duration-150 ${isActive ? "bg-primary/15 text-primary font-medium" : "text-muted-foreground hover:bg-white/5 hover:text-foreground"}`}>
+                  <SidebarMenuSubButton asChild isActive={isActive} className={`h-8 rounded-lg transition-all duration-150 ${isActive ? "bg-primary/15 text-primary font-medium" : "text-muted-foreground hover:bg-muted/40 hover:text-foreground"}`}>
                     <Link href={sub.url} className="flex items-center gap-2.5 px-2">
                       <sub.icon className={`w-3.5 h-3.5 ${isActive ? "text-primary" : "text-muted-foreground"}`} />
                       <span className="text-xs font-medium">{sub.title}</span>
@@ -93,7 +93,7 @@ function NavItem({ item }: { item: { title: string; url: string; icon: React.Com
   const isActive = location === item.url || (item.url !== "/" && location.startsWith(item.url));
   return (
     <SidebarMenuItem>
-      <SidebarMenuButton asChild isActive={isActive} className={`h-10 rounded-xl transition-all duration-200 ${isActive ? "bg-primary/15 text-primary glow-brand-sm" : "text-muted-foreground hover:bg-white/5 hover:text-foreground"}`}>
+      <SidebarMenuButton asChild isActive={isActive} className={`h-10 rounded-xl transition-all duration-200 ${isActive ? "bg-primary/15 text-primary glow-brand-sm" : "text-muted-foreground hover:bg-muted/40 hover:text-foreground"}`}>
         <Link href={item.url} className="flex items-center gap-3 px-3">
           <item.icon className={`w-4 h-4 ${isActive ? "text-primary" : "text-muted-foreground"}`} />
           <span className="font-medium text-sm flex-1">{item.title}</span>
@@ -112,7 +112,7 @@ export function AppSidebar() {
   const isSAActive     = location === "/sa-market"   || location.startsWith("/sa-market/");
 
   return (
-    <Sidebar variant="inset" className="border-r border-white/5 bg-sidebar/70 backdrop-blur-2xl">
+    <Sidebar variant="inset" className="border-r border-border/30 bg-sidebar/70 backdrop-blur-2xl">
       <SidebarHeader className="px-5 py-5 pb-3">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center glow-brand-sm">
@@ -174,7 +174,7 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="p-3">
-        <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors cursor-pointer border border-transparent hover:border-white/8">
+        <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-muted/40 transition-colors cursor-pointer border border-transparent hover:border-white/8">
           <Avatar className="w-8 h-8 border border-primary/30">
             <AvatarFallback className="bg-primary/15 text-primary font-semibold text-xs">SA</AvatarFallback>
           </Avatar>

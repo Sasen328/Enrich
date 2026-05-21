@@ -205,14 +205,14 @@ function EnrichmentTab() {
 
       {/* ── LEFT: Input form ── */}
       <div className="xl:col-span-2 space-y-4">
-        <Card className="bg-card/60 border-white/8">
+        <Card className="bg-card/70 border-white/8">
           <CardContent className="py-5 px-5 space-y-4">
             {/* Mode toggle */}
             <div className="flex gap-2">
               {(["company", "person"] as const).map((m) => (
                 <button key={m} onClick={() => setMode(m)}
                   className={cn("flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border transition-all flex-1 justify-center",
-                    mode === m ? "border-primary/50 bg-primary/15 text-primary" : "border-white/10 text-muted-foreground hover:border-white/20")}>
+                    mode === m ? "border-primary/50 bg-primary/15 text-primary" : "border-border/40 text-muted-foreground hover:border-white/20")}>
                   {m === "company" ? <Building2 className="w-4 h-4" /> : <User className="w-4 h-4" />}
                   {m === "company" ? "Company" : "Person"}
                 </button>
@@ -248,7 +248,7 @@ function EnrichmentTab() {
 
             {/* Context toggle */}
             <button onClick={() => setShowContext((v) => !v)}
-              className="text-[10px] text-muted-foreground hover:text-white flex items-center gap-1 transition-colors">
+              className="text-[10px] text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors">
               <ChevronDown className={cn("w-3 h-3 transition-transform", showContext && "rotate-180")} />
               Additional context
             </button>
@@ -278,15 +278,15 @@ function EnrichmentTab() {
                 const isPending = i >= agentPhase;
                 return (
                   <div key={agent.id} className={cn("flex items-center gap-3 rounded-lg px-3 py-2 border transition-all",
-                    isRunning ? agent.bg : isDone ? "bg-emerald-500/5 border-emerald-500/15" : "bg-white/2 border-white/5")}>
+                    isRunning ? agent.bg : isDone ? "bg-emerald-500/5 border-emerald-500/15" : "bg-white/2 border-border/30")}>
                     <div className={cn("w-5 h-5 rounded-full flex items-center justify-center shrink-0",
-                      isDone ? "bg-emerald-500/20" : isRunning ? "bg-primary/20" : "bg-white/5")}>
+                      isDone ? "bg-emerald-500/20" : isRunning ? "bg-primary/20" : "bg-muted/40")}>
                       {isDone    && <CheckCircle2 className="w-3 h-3 text-emerald-400" />}
                       {isRunning && <Loader2 className={cn("w-3 h-3 animate-spin", agent.color)} />}
                       {isPending && <div className="w-1.5 h-1.5 rounded-full bg-white/20" />}
                     </div>
                     <p className={cn("text-xs font-medium",
-                      isDone ? "text-emerald-400" : isRunning ? "text-white" : "text-white/30")}>
+                      isDone ? "text-emerald-400" : isRunning ? "text-foreground" : "text-foreground/30")}>
                       {agent.label}
                     </p>
                     {isDone && <span className="text-[9px] text-emerald-400 ml-auto">✓</span>}
@@ -302,7 +302,7 @@ function EnrichmentTab() {
         {chatReportId && (
           <Card className="bg-violet-500/5 border-violet-500/20">
             <CardHeader className="pb-2 pt-4 px-5 flex flex-row items-center justify-between">
-              <CardTitle className="text-sm font-bold text-white flex items-center gap-2">
+              <CardTitle className="text-sm font-bold text-foreground flex items-center gap-2">
                 <MessageSquare className="w-4 h-4 text-violet-400" /> Ask about this report
               </CardTitle>
               <Button size="sm" variant="ghost" onClick={() => { setChatReportId(null); setChatHistory([]); }}
@@ -311,7 +311,7 @@ function EnrichmentTab() {
             <CardContent className="px-5 pb-5 space-y-3">
               <div className="space-y-2 max-h-48 overflow-y-auto">
                 {chatHistory.map((m, i) => (
-                  <div key={i} className={cn("rounded-lg p-2.5 text-sm", m.role === "user" ? "bg-primary/10 text-primary" : "bg-white/5 text-white/80")}>
+                  <div key={i} className={cn("rounded-lg p-2.5 text-sm", m.role === "user" ? "bg-primary/10 text-primary" : "bg-muted/40 text-foreground/80")}>
                     {m.content}
                   </div>
                 ))}
@@ -344,14 +344,14 @@ function EnrichmentTab() {
           const data = (report.reportData || {}) as Record<string, unknown>;
           const sources = (report.sources || []) as unknown[];
           return (
-            <Card key={String(report.id || i)} className="bg-card/50 border-white/8">
+            <Card key={String(report.id || i)} className="bg-card/75 border-white/8">
               <button onClick={() => setExpanded(expanded === i ? null : i)} className="w-full text-left">
                 <CardContent className="py-3 px-5 flex items-center gap-3">
                   {report.type === "company"
                     ? <Building2 className="w-4 h-4 text-primary shrink-0" />
                     : <User className="w-4 h-4 text-violet-400 shrink-0" />}
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-white text-sm">{String(report.subjectName || "Unknown")}</p>
+                    <p className="font-semibold text-foreground text-sm">{String(report.subjectName || "Unknown")}</p>
                     <p className="text-xs text-muted-foreground capitalize">
                       {String(report.type)} · {sources.length} sources · {new Date(String(report.createdAt)).toLocaleDateString()}
                     </p>
@@ -364,7 +364,7 @@ function EnrichmentTab() {
                 </CardContent>
               </button>
               {expanded === i && (
-                <CardContent className="px-5 pb-5 pt-0 border-t border-white/5 space-y-3">
+                <CardContent className="px-5 pb-5 pt-0 border-t border-border/30 space-y-3">
                   {/* Export row */}
                   <div className="flex items-center justify-between pt-2">
                     <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Export Report</p>
@@ -375,7 +375,7 @@ function EnrichmentTab() {
                   {data.profileSummary && (
                     <div className="bg-black/20 rounded-xl p-3">
                       <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Summary</p>
-                      <p className="text-sm text-white/80 leading-relaxed">{String(data.profileSummary)}</p>
+                      <p className="text-sm text-foreground/80 leading-relaxed">{String(data.profileSummary)}</p>
                     </div>
                   )}
 
@@ -389,7 +389,7 @@ function EnrichmentTab() {
                           <p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-0.5">
                             {k.replace(/([A-Z])/g, " $1").trim()}
                           </p>
-                          <p className="text-xs text-white truncate">{String(v)}</p>
+                          <p className="text-xs text-foreground truncate">{String(v)}</p>
                         </div>
                       ))}
                   </div>
@@ -402,7 +402,7 @@ function EnrichmentTab() {
                         {((data.leadership as Record<string, unknown>).executiveTeam as Record<string, unknown>[])
                           .filter(Boolean).slice(0, 6).map((exec, ei) => (
                             <div key={ei} className="bg-primary/5 border border-primary/10 rounded-lg p-2.5">
-                              <p className="text-xs font-medium text-white">{String(exec?.name || "")}</p>
+                              <p className="text-xs font-medium text-foreground">{String(exec?.name || "")}</p>
                               <p className="text-[10px] text-muted-foreground">{String(exec?.title || "")}</p>
                             </div>
                           ))}
@@ -418,7 +418,7 @@ function EnrichmentTab() {
                         {sources.slice(0, 6).map((s: unknown, si) => {
                           const src = s as Record<string, unknown>;
                           return (
-                            <span key={si} className="text-[9px] bg-white/5 border border-white/8 rounded px-1.5 py-0.5 text-muted-foreground truncate max-w-[180px]">
+                            <span key={si} className="text-[9px] bg-muted/40 border border-white/8 rounded px-1.5 py-0.5 text-muted-foreground truncate max-w-[180px]">
                               {String(src.title || src.url || "")}
                             </span>
                           );
@@ -433,7 +433,7 @@ function EnrichmentTab() {
                       <MessageSquare className="w-3 h-3" /> Chat
                     </Button>
                     <Button size="sm" variant="outline" onClick={() => navigator.clipboard.writeText(JSON.stringify(data, null, 2))}
-                      className="gap-1.5 border-white/10 text-xs h-7">
+                      className="gap-1.5 border-border/40 text-xs h-7">
                       <Copy className="w-3 h-3" /> Copy JSON
                     </Button>
                   </div>
@@ -558,9 +558,9 @@ function ScrapeTab() {
 
       {/* ── LEFT: URL inputs + agent pipeline ── */}
       <div className="space-y-4">
-        <Card className="bg-card/60 border-white/8">
+        <Card className="bg-card/70 border-white/8">
           <CardHeader className="pb-2 pt-4 px-5">
-            <CardTitle className="text-sm font-bold text-white flex items-center gap-2">
+            <CardTitle className="text-sm font-bold text-foreground flex items-center gap-2">
               <Globe className="w-4 h-4 text-primary" /> Target URLs
             </CardTitle>
           </CardHeader>
@@ -577,7 +577,7 @@ function ScrapeTab() {
               </div>
             ))}
             <Button size="sm" variant="outline" onClick={() => setUrls((prev) => [...prev, ""])}
-              className="gap-1.5 text-xs border-white/10 h-7 mt-1">
+              className="gap-1.5 text-xs border-border/40 h-7 mt-1">
               <Plus className="w-3 h-3" /> Add URL
             </Button>
             <Button onClick={() => scrapeMutation.mutate()} disabled={scrapeMutation.isPending || !urls.some((u) => u.trim())}
@@ -590,7 +590,7 @@ function ScrapeTab() {
         </Card>
 
         {/* Agent pipeline */}
-        <Card className="bg-card/50 border-white/8">
+        <Card className="bg-card/75 border-white/8">
           <CardContent className="py-4 px-4">
             <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-3">Multi-Agent Pipeline</p>
             <div className="space-y-2">
@@ -599,15 +599,15 @@ function ScrapeTab() {
                 const isRunning = scrapePhase === i + 1;
                 return (
                   <div key={agent.id} className={cn("flex items-start gap-2.5 rounded-lg p-2.5 border transition-all",
-                    isRunning ? agent.bg : isDone ? "bg-emerald-500/5 border-emerald-500/10" : "bg-white/2 border-white/5")}>
+                    isRunning ? agent.bg : isDone ? "bg-emerald-500/5 border-emerald-500/10" : "bg-white/2 border-border/30")}>
                     <div className={cn("w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5",
-                      isDone ? "bg-emerald-500/20" : isRunning ? "bg-white/10" : "bg-white/5")}>
+                      isDone ? "bg-emerald-500/20" : isRunning ? "bg-white/10" : "bg-muted/40")}>
                       {isDone    && <CheckCircle2 className="w-3 h-3 text-emerald-400" />}
                       {isRunning && <Loader2 className={cn("w-3 h-3 animate-spin", agent.color)} />}
                       {!isDone && !isRunning && <div className="w-1.5 h-1.5 rounded-full bg-white/20" />}
                     </div>
                     <div>
-                      <p className={cn("text-xs font-medium", isDone ? "text-emerald-400" : isRunning ? "text-white" : "text-white/30")}>
+                      <p className={cn("text-xs font-medium", isDone ? "text-emerald-400" : isRunning ? "text-foreground" : "text-foreground/30")}>
                         {agent.label}
                       </p>
                       <p className="text-[10px] text-muted-foreground">{agent.desc}</p>
@@ -630,7 +630,7 @@ function ScrapeTab() {
                   ? <CheckCircle2 className="w-5 h-5 text-emerald-400" />
                   : <Loader2 className="w-5 h-5 text-amber-400 animate-spin" />}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-white">{isReady ? "Deep-Seed Complete" : "Multi-agent research in progress..."}</p>
+                  <p className="text-sm font-semibold text-foreground">{isReady ? "Deep-Seed Complete" : "Multi-agent research in progress..."}</p>
                   <p className="text-xs text-muted-foreground">Session #{session.id} · {knowledgeBase.length}/{(session.urls as string[])?.length ?? "?"} companies</p>
                 </div>
               </div>
@@ -649,7 +649,7 @@ function ScrapeTab() {
                 <div className="space-y-2">
                   <div className="flex gap-2">
                     <Button size="sm" variant="outline" onClick={handleExportSession} disabled={exporting}
-                      className="flex-1 border-white/10 text-xs gap-1.5">
+                      className="flex-1 border-border/40 text-xs gap-1.5">
                       {exporting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
                       Export JSON
                     </Button>
@@ -689,7 +689,7 @@ function ScrapeTab() {
                     {/* Header */}
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
-                        <p className="text-sm font-bold text-white truncate">{String(p.nameEn || p._sourceUrl || `Company ${i + 1}`)}</p>
+                        <p className="text-sm font-bold text-foreground truncate">{String(p.nameEn || p._sourceUrl || `Company ${i + 1}`)}</p>
                         {p.nameAr && <p className="text-xs text-muted-foreground" dir="rtl">{String(p.nameAr)}</p>}
                       </div>
                       {p.website && (
@@ -703,7 +703,7 @@ function ScrapeTab() {
                     {/* Tags */}
                     <div className="flex flex-wrap gap-1.5">
                       {p.industry && <span className="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-[10px] font-medium">{String(p.industry)}</span>}
-                      {p.city && <span className="bg-white/5 text-white/60 px-2 py-0.5 rounded-full text-[10px]">{String(p.city)}</span>}
+                      {p.city && <span className="bg-muted/40 text-foreground/60 px-2 py-0.5 rounded-full text-[10px]">{String(p.city)}</span>}
                       {p.crNumber && <span className="bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded-full text-[10px] font-mono">CR: {String(p.crNumber)}</span>}
                       {p.employees && <span className="bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded-full text-[10px]">{String(p.employees)} emp.</span>}
                       {p.revenue && <span className="bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full text-[10px]">{String(p.revenue)}</span>}
@@ -714,26 +714,26 @@ function ScrapeTab() {
                       {p.ceo && (
                         <div>
                           <p className="text-muted-foreground">CEO</p>
-                          <p className="text-white font-medium truncate">{String(p.ceo)}</p>
+                          <p className="text-foreground font-medium truncate">{String(p.ceo)}</p>
                         </div>
                       )}
                       {p.phone && (
                         <div>
                           <p className="text-muted-foreground">Phone</p>
-                          <p className="text-white font-medium">{String(p.phone)}</p>
+                          <p className="text-foreground font-medium">{String(p.phone)}</p>
                         </div>
                       )}
                       {p.email && (
                         <div className="col-span-2">
                           <p className="text-muted-foreground">Email</p>
-                          <p className="text-white font-medium truncate">{String(p.email)}</p>
+                          <p className="text-foreground font-medium truncate">{String(p.email)}</p>
                         </div>
                       )}
                     </div>
 
                     {/* Description */}
                     {p.description && (
-                      <p className="text-[11px] text-white/60 leading-relaxed line-clamp-3">{String(p.description)}</p>
+                      <p className="text-[11px] text-foreground/60 leading-relaxed line-clamp-3">{String(p.description)}</p>
                     )}
 
                     {/* Key people preview */}
@@ -747,7 +747,7 @@ function ScrapeTab() {
                                 <User className="w-2.5 h-2.5 text-primary" />
                               </div>
                               <div className="min-w-0">
-                                <span className="text-[10px] text-white font-medium truncate">{String(person.nameEn || "Unknown")}</span>
+                                <span className="text-[10px] text-foreground font-medium truncate">{String(person.nameEn || "Unknown")}</span>
                                 {person.role && <span className="text-[10px] text-muted-foreground ml-1">· {String(person.role)}</span>}
                               </div>
                               {person.linkedin && (
@@ -776,7 +776,7 @@ function ScrapeTab() {
                     {p.aiInsights && (
                       <div className="bg-violet-500/5 border border-violet-500/15 rounded-lg px-3 py-2">
                         <p className="text-[10px] font-bold text-violet-400 mb-1">AI Insight</p>
-                        <p className="text-[10px] text-white/60 leading-relaxed line-clamp-3">{String(p.aiInsights)}</p>
+                        <p className="text-[10px] text-foreground/60 leading-relaxed line-clamp-3">{String(p.aiInsights)}</p>
                       </div>
                     )}
                   </div>
@@ -787,7 +787,7 @@ function ScrapeTab() {
         )}
 
         {!session && !scrapeMutation.isPending && (
-          <div className="flex flex-col items-center justify-center h-48 text-muted-foreground border border-white/5 rounded-xl bg-white/2">
+          <div className="flex flex-col items-center justify-center h-48 text-muted-foreground border border-border/30 rounded-xl bg-white/2">
             <ScanSearch className="w-10 h-10 opacity-10 mb-3" />
             <p className="text-sm">Add company URLs and launch deep-seed</p>
             <p className="text-xs opacity-60 mt-1">12 AI agents will extract full company intelligence</p>
@@ -796,9 +796,9 @@ function ScrapeTab() {
       </div>
 
       {/* ── RIGHT: Chat with profiles ── */}
-      <Card className="bg-card/50 border-white/8 flex flex-col" style={{ minHeight: 420 }}>
+      <Card className="bg-card/75 border-white/8 flex flex-col" style={{ minHeight: 420 }}>
         <CardHeader className="pb-2 pt-4 px-5">
-          <CardTitle className="text-sm font-bold text-white flex items-center gap-2">
+          <CardTitle className="text-sm font-bold text-foreground flex items-center gap-2">
             <MessageSquare className="w-4 h-4 text-violet-400" /> Chat with Profiles
           </CardTitle>
           <p className="text-[10px] text-muted-foreground">Ask anything about the researched companies</p>
@@ -812,7 +812,7 @@ function ScrapeTab() {
                 <div className="space-y-1 mt-4">
                   {["Who is the CEO and their background?", "What are their key clients and revenue?", "How should I approach them for a sale?"].map((q) => (
                     <button key={q} onClick={() => { if (isReady) { setChatMsg(q); } }}
-                      className="block w-full text-left text-[10px] text-muted-foreground hover:text-white bg-white/3 hover:bg-white/5 border border-white/5 rounded-lg px-3 py-1.5 transition-colors">
+                      className="block w-full text-left text-[10px] text-muted-foreground hover:text-foreground bg-white/3 hover:bg-muted/40 border border-border/30 rounded-lg px-3 py-1.5 transition-colors">
                       {q}
                     </button>
                   ))}
@@ -820,14 +820,14 @@ function ScrapeTab() {
               </div>
             )
             : chatHistory.map((m, i) => (
-              <div key={i} className={cn("rounded-xl p-3 text-sm", m.role === "user" ? "bg-primary/10 text-primary ml-8" : "bg-white/5 text-white/80 mr-8")}>
+              <div key={i} className={cn("rounded-xl p-3 text-sm", m.role === "user" ? "bg-primary/10 text-primary ml-8" : "bg-muted/40 text-foreground/80 mr-8")}>
                 {m.content}
               </div>
             ))
           }
           <div ref={chatEndRef} />
         </CardContent>
-        <div className="px-5 pb-5 pt-3 border-t border-white/5 mt-3">
+        <div className="px-5 pb-5 pt-3 border-t border-border/30 mt-3">
           <div className="flex gap-2">
             <Input value={chatMsg} onChange={(e) => setChatMsg(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey && chatMsg && isReady) chatMutation.mutate(); }}
@@ -999,7 +999,7 @@ function ResearchTab() {
     <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
       {/* ── LEFT: Config panel ── */}
       <div className="xl:col-span-1 space-y-4">
-        <Card className="bg-card/60 border-white/8">
+        <Card className="bg-card/70 border-white/8">
           <CardContent className="py-4 px-4 space-y-3">
             <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Research Query</p>
             <Textarea value={query} onChange={(e) => setQuery(e.target.value)}
@@ -1022,7 +1022,7 @@ function ResearchTab() {
           </CardContent>
         </Card>
 
-        <Card className="bg-card/60 border-white/8">
+        <Card className="bg-card/70 border-white/8">
           <CardContent className="py-4 px-4 space-y-2">
             <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Data Sources</p>
             {DATA_SOURCES.map((src) => (
@@ -1036,11 +1036,11 @@ function ResearchTab() {
           </CardContent>
         </Card>
 
-        <Card className="bg-card/60 border-white/8">
+        <Card className="bg-card/70 border-white/8">
           <CardContent className="py-4 px-4 space-y-3">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-semibold text-white">Deep Verify</p>
+                <p className="text-xs font-semibold text-foreground">Deep Verify</p>
                 <p className="text-[10px] text-muted-foreground">Cross-check findings across sources</p>
               </div>
               <button onClick={() => setDeepVerify((v) => !v)}
@@ -1051,7 +1051,7 @@ function ResearchTab() {
               </button>
             </div>
             <button onClick={() => setShowFilters((v) => !v)}
-              className="w-full flex items-center justify-between text-xs text-muted-foreground hover:text-white transition-colors">
+              className="w-full flex items-center justify-between text-xs text-muted-foreground hover:text-foreground transition-colors">
               <span className="font-semibold">Advanced Filters</span>
               <ChevronDown className={cn("w-3.5 h-3.5 transition-transform", showFilters && "rotate-180")} />
             </button>
@@ -1098,8 +1098,8 @@ function ResearchTab() {
               <button key={String(job.id)} onClick={() => { setActiveJobId(String(job.id)); setChatHistory([]); }}
                 className={cn("w-full text-left p-2.5 border rounded-xl transition-all text-xs",
                   String(job.id) === activeJobId
-                    ? "border-primary/40 bg-primary/5 text-white"
-                    : "border-white/6 bg-white/2 hover:border-white/15 text-muted-foreground hover:text-white")}>
+                    ? "border-primary/40 bg-primary/5 text-foreground"
+                    : "border-white/6 bg-white/2 hover:border-white/15 text-muted-foreground hover:text-foreground")}>
                 <div className="flex items-center justify-between gap-2">
                   <p className="font-medium truncate">{String(job.query || "Research job")}</p>
                   <Badge variant="outline" className={cn("text-[9px] font-bold shrink-0",
@@ -1137,11 +1137,11 @@ function ResearchTab() {
                       <div className={cn("text-[9px] font-bold px-2 py-0.5 rounded-full border transition-all",
                         active ? "border-amber-500/50 bg-amber-500/20 text-amber-300"
                         : done  ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
-                        : "border-white/8 text-white/20")}>
+                        : "border-white/8 text-foreground/20")}>
                         {phase.label}
                       </div>
                       {i < RESEARCH_PHASES.filter((p) => !["failed"].includes(p.key)).length - 1 && (
-                        <span className="text-white/15 text-xs">›</span>
+                        <span className="text-foreground/15 text-xs">›</span>
                       )}
                     </div>
                   );
@@ -1165,12 +1165,12 @@ function ResearchTab() {
         )}
 
         {isComplete && report && (
-          <Card className="bg-card/50 border-white/8">
+          <Card className="bg-card/75 border-white/8">
             <CardContent className="py-5 px-5 space-y-5">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Research Report</p>
-                  <h2 className="text-lg font-bold text-white leading-snug">{String(report.title || activeJob?.query || "Research Report")}</h2>
+                  <h2 className="text-lg font-bold text-foreground leading-snug">{String(report.title || activeJob?.query || "Research Report")}</h2>
                   {(report.metadata as Record<string, unknown>)?.generatedAt && (
                     <p className="text-[10px] text-muted-foreground mt-0.5 flex items-center gap-1">
                       <Clock className="w-2.5 h-2.5" />
@@ -1190,7 +1190,7 @@ function ResearchTab() {
               {report.summary && (
                 <div className="bg-primary/5 border border-primary/15 rounded-xl p-4">
                   <p className="text-[10px] font-bold uppercase tracking-wider text-primary mb-2">Executive Summary</p>
-                  <p className="text-sm text-white/80 leading-relaxed">{String(report.summary)}</p>
+                  <p className="text-sm text-foreground/80 leading-relaxed">{String(report.summary)}</p>
                 </div>
               )}
 
@@ -1199,7 +1199,7 @@ function ResearchTab() {
                   <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">Key Findings</p>
                   <ul className="space-y-1.5">
                     {(report.keyFindings as string[]).map((f, i) => (
-                      <li key={i} className="flex items-start gap-2 text-sm text-white/75 bg-white/3 rounded-lg px-3 py-2">
+                      <li key={i} className="flex items-start gap-2 text-sm text-foreground/75 bg-white/3 rounded-lg px-3 py-2">
                         <span className="text-primary font-bold mt-0.5 shrink-0">{i + 1}.</span> {f}
                       </li>
                     ))}
@@ -1211,17 +1211,17 @@ function ResearchTab() {
                 <div className="space-y-3">
                   <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Report Sections</p>
                   {(report.sections as Record<string, unknown>[]).map((sec, i) => (
-                    <div key={i} className="bg-black/20 rounded-xl p-4 border border-white/5">
+                    <div key={i} className="bg-black/20 rounded-xl p-4 border border-border/30">
                       <p className="text-xs font-bold text-primary mb-2 uppercase tracking-wider">
                         {String(sec.title || sec.heading || `Section ${i + 1}`)}
                       </p>
-                      <p className="text-sm text-white/70 leading-relaxed whitespace-pre-line">
+                      <p className="text-sm text-foreground/70 leading-relaxed whitespace-pre-line">
                         {typeof sec.content === "object" ? JSON.stringify(sec.content, null, 2) : String(sec.content || "")}
                       </p>
                       {Array.isArray(sec.citations) && (sec.citations as string[]).length > 0 && (
                         <div className="mt-2 flex flex-wrap gap-1">
                           {(sec.citations as string[]).map((c, ci) => (
-                            <span key={ci} className="text-[9px] bg-white/5 border border-white/8 rounded px-1.5 py-0.5 text-muted-foreground">
+                            <span key={ci} className="text-[9px] bg-muted/40 border border-white/8 rounded px-1.5 py-0.5 text-muted-foreground">
                               [{ci + 1}] {c.length > 40 ? c.slice(0, 40) + "…" : c}
                             </span>
                           ))}
@@ -1246,9 +1246,9 @@ function ResearchTab() {
                       </thead>
                       <tbody>
                         {((report as Record<string, unknown>).peopleTable as Record<string, unknown>[]).map((row, ri) => (
-                          <tr key={ri} className="border-b border-white/5 hover:bg-white/3">
+                          <tr key={ri} className="border-b border-border/30 hover:bg-white/3">
                             {Object.values(row).map((val, vi) => (
-                              <td key={vi} className="px-3 py-2 text-white/70">{String(val ?? "")}</td>
+                              <td key={vi} className="px-3 py-2 text-foreground/70">{String(val ?? "")}</td>
                             ))}
                           </tr>
                         ))}
@@ -1267,7 +1267,7 @@ function ResearchTab() {
                     {jobSources.slice(0, 10).map((src, i) => (
                       <div key={i} className="flex items-center gap-2 bg-white/3 border border-white/6 rounded-lg px-2.5 py-1.5">
                         <ExternalLink className="w-3 h-3 text-muted-foreground shrink-0" />
-                        <p className="text-[11px] text-white/70 truncate flex-1">{src.title || src.url}</p>
+                        <p className="text-[11px] text-foreground/70 truncate flex-1">{src.title || src.url}</p>
                         <span className={cn("text-[9px] font-bold shrink-0",
                           src.reliability > 0.7 ? "text-emerald-400" : src.reliability > 0.4 ? "text-amber-400" : "text-muted-foreground")}>
                           {Math.round(src.reliability * 100)}%
@@ -1286,7 +1286,7 @@ function ResearchTab() {
                   )}
                   {chatHistory.map((m, i) => (
                     <div key={i} className={cn("rounded-xl px-3 py-2 text-sm",
-                      m.role === "user" ? "bg-primary/10 text-primary ml-8" : "bg-white/5 text-white/80 mr-8")}>
+                      m.role === "user" ? "bg-primary/10 text-primary ml-8" : "bg-muted/40 text-foreground/80 mr-8")}>
                       {m.content}
                     </div>
                   ))}
@@ -1382,10 +1382,10 @@ function TemplatesTab() {
           const isRunning = executing === id;
 
           return (
-            <Card key={id} className="bg-card/50 border-white/8">
+            <Card key={id} className="bg-card/75 border-white/8">
               <CardContent className="py-4 px-4">
                 <div className="flex items-start justify-between gap-2 mb-2">
-                  <p className="font-semibold text-white text-sm">{String(tmpl.name)}</p>
+                  <p className="font-semibold text-foreground text-sm">{String(tmpl.name)}</p>
                   <Badge variant="outline" className={cn("text-[9px] font-bold capitalize shrink-0", colorClass)}>
                     {String(tmpl.category)}
                   </Badge>
@@ -1415,7 +1415,7 @@ function TemplatesTab() {
                         reportId={id}
                       />
                     </div>
-                    <p className="text-xs text-white/70 line-clamp-4">
+                    <p className="text-xs text-foreground/70 line-clamp-4">
                       {typeof result === "string" ? result : JSON.stringify(result, null, 2).slice(0, 300)}
                     </p>
                   </div>
@@ -1478,13 +1478,13 @@ function BulkExportTab() {
       <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex gap-3">
         <Database className="w-5 h-5 text-primary shrink-0 mt-0.5" />
         <div>
-          <p className="text-sm font-semibold text-white">Bulk Database Export</p>
+          <p className="text-sm font-semibold text-foreground">Bulk Database Export</p>
           <p className="text-xs text-muted-foreground mt-0.5">
             Export your entire curated OrcBase company database. For per-report exports, use the export buttons inside each tab above.
           </p>
         </div>
       </div>
-      <Card className="bg-card/60 border-white/8">
+      <Card className="bg-card/70 border-white/8">
         <CardContent className="py-5 px-5 space-y-4">
           <div>
             <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">Export Title</p>
@@ -1497,9 +1497,9 @@ function BulkExportTab() {
               {FORMATS.map((f) => (
                 <button key={f.id} onClick={() => setFormat(f.id)}
                   className={cn("flex flex-col items-center gap-2 p-3 rounded-xl border text-center transition-all",
-                    format === f.id ? "border-primary/50 bg-primary/10" : "border-white/10 hover:border-white/20 bg-white/3")}>
+                    format === f.id ? "border-primary/50 bg-primary/10" : "border-border/40 hover:border-white/20 bg-white/3")}>
                   <f.icon className={cn("w-5 h-5", format === f.id ? "text-primary" : f.color)} />
-                  <span className="text-xs font-medium text-white">{f.label}</span>
+                  <span className="text-xs font-medium text-foreground">{f.label}</span>
                 </button>
               ))}
             </div>
@@ -1525,7 +1525,7 @@ export default function OrcEnginePage() {
           <div className="w-9 h-9 bg-violet-500/15 rounded-xl border border-violet-500/20 flex items-center justify-center">
             <Cpu className="w-5 h-5 text-violet-400" />
           </div>
-          <h1 className="text-3xl font-display font-bold text-white">OrcEngine</h1>
+          <h1 className="text-3xl font-display font-bold text-foreground">OrcEngine</h1>
         </div>
         <p className="text-muted-foreground text-sm ml-12">
           AI Intelligence Engine · 8-agent enrichment · Multi-agent scraping · Deep research · Inline export
@@ -1533,7 +1533,7 @@ export default function OrcEnginePage() {
       </div>
 
       <Tabs defaultValue="enrichment" className="flex-1 flex flex-col min-h-0">
-        <TabsList className="bg-white/5 border border-white/10 w-fit shrink-0 flex-wrap h-auto gap-0.5">
+        <TabsList className="bg-muted/40 border border-border/40 w-fit shrink-0 flex-wrap h-auto gap-0.5">
           <TabsTrigger value="enrichment" className="gap-2 data-[state=active]:bg-primary/15 data-[state=active]:text-primary">
             <Brain className="w-4 h-4" /> AI Enrichment
           </TabsTrigger>

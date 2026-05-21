@@ -32,7 +32,7 @@ const BLOCKS = [
 
 export function ClarifyView({ reportShape, onShapeChange, reportBlocks, onBlocksChange, onBack, onRun }: Props) {
   return (
-    <div className="border border-border rounded-xl bg-card/60 p-4 space-y-4">
+    <div className="border border-border rounded-xl bg-card/70 p-4 space-y-4">
       <div className="text-sm font-bold flex items-center gap-2">
         <Sparkles className="w-4 h-4 text-amber-500" /> Clarify &amp; Report Shape
       </div>

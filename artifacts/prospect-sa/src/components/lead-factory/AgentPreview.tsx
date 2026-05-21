@@ -24,7 +24,7 @@ const AGENTS = [
 function StatTile({ value, label, tone }: { value: string | number; label: string; tone: "lav" | "sea" | "sand" }) {
   const colour = tone === "lav" ? "text-primary" : tone === "sea" ? "text-accent" : "";
   return (
-    <div className="rounded-lg border border-border/40 bg-card/40 p-3 text-center">
+    <div className="rounded-lg border border-border/40 bg-card/65 p-3 text-center">
       <div className={cn("text-2xl font-bold", colour)} style={tone === "sand" ? { color: "hsl(var(--brand-sand))" } : undefined}>
         {value}
       </div>
@@ -53,7 +53,7 @@ export function AgentPreview({ jobId, estMatches, targetCount, agentState, error
   };
 
   return (
-    <div className="rounded-lg border border-border/40 bg-card/40 p-4">
+    <div className="rounded-lg border border-border/40 bg-card/65 p-4">
       <div className="flex items-center gap-2 mb-3">
         <Zap className="w-4 h-4 text-primary" />
         <span className="font-semibold text-sm">
@@ -79,7 +79,7 @@ export function AgentPreview({ jobId, estMatches, targetCount, agentState, error
             <div
               key={a.n}
               className={cn(
-                "flex items-center gap-3 px-3 py-2 rounded-lg border bg-card/40 transition-colors",
+                "flex items-center gap-3 px-3 py-2 rounded-lg border bg-card/65 transition-colors",
                 isRunning && "border-primary/40 bg-primary/5 shadow-[0_0_0_1px_hsl(var(--primary)/0.15)]",
                 isDone && "border-emerald-500/20",
               )}

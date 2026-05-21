@@ -234,7 +234,7 @@ export default function DatabaseBuilder() {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl md:text-4xl font-display font-bold text-white">AI Database Builder</h1>
+          <h1 className="text-3xl md:text-4xl font-display font-bold text-foreground">AI Database Builder</h1>
           <p className="text-muted-foreground mt-2">
             Autonomous harvesting from Saudi data sources. Click ▶ on any source to harvest it individually.
           </p>
@@ -252,10 +252,10 @@ export default function DatabaseBuilder() {
 
         <div className="flex items-center gap-3 flex-wrap">
           <Select value={enrichmentDepth} onValueChange={v => setEnrichmentDepth(v as typeof enrichmentDepth)}>
-            <SelectTrigger className="bg-black/40 border-white/15 text-white w-44 h-9 text-xs">
+            <SelectTrigger className="bg-black/40 border-white/15 text-foreground w-44 h-9 text-xs">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="bg-card border-white/10 text-white">
+            <SelectContent className="bg-card border-border/40 text-foreground">
               <SelectItem value="basic">Basic enrichment</SelectItem>
               <SelectItem value="standard">Standard enrichment</SelectItem>
               <SelectItem value="deep">Deep enrichment</SelectItem>
@@ -268,13 +268,13 @@ export default function DatabaseBuilder() {
 
           <Dialog open={addSourceOpen} onOpenChange={setAddSourceOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" className="border-white/15 text-white gap-2 h-9">
+              <Button variant="outline" className="border-white/15 text-foreground gap-2 h-9">
                 <Plus className="w-4 h-4" /> Add Source
               </Button>
             </DialogTrigger>
-            <DialogContent className="bg-card border-white/10 sm:max-w-[500px]">
+            <DialogContent className="bg-card border-border/40 sm:max-w-[500px]">
               <DialogHeader>
-                <DialogTitle className="text-white">Add Custom Data Source</DialogTitle>
+                <DialogTitle className="text-foreground">Add Custom Data Source</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 py-2">
                 <div className="grid grid-cols-2 gap-3">
@@ -282,21 +282,21 @@ export default function DatabaseBuilder() {
                     <Label className="text-muted-foreground text-xs">Source Name *</Label>
                     <Input value={srcName} onChange={e => setSrcName(e.target.value)}
                       placeholder="e.g. Saudi Exporters Directory"
-                      className="bg-black/40 border-white/10 text-white" />
+                      className="bg-black/40 border-border/40 text-foreground" />
                   </div>
                   <div className="space-y-1.5 col-span-2">
                     <Label className="text-muted-foreground text-xs">Website URL *</Label>
                     <Input value={srcUrl} onChange={e => setSrcUrl(e.target.value)}
                       placeholder="https://example.com"
-                      className="bg-black/40 border-white/10 text-white" />
+                      className="bg-black/40 border-border/40 text-foreground" />
                   </div>
                   <div className="space-y-1.5">
                     <Label className="text-muted-foreground text-xs">Category</Label>
                     <Select value={srcCategory} onValueChange={setSrcCategory}>
-                      <SelectTrigger className="bg-black/40 border-white/10 text-white">
+                      <SelectTrigger className="bg-black/40 border-border/40 text-foreground">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent className="bg-card border-white/10 text-white">
+                      <SelectContent className="bg-card border-border/40 text-foreground">
                         <SelectItem value="business-directory">Business Directory</SelectItem>
                         <SelectItem value="chamber-of-commerce">Chamber of Commerce</SelectItem>
                         <SelectItem value="government">Government Portal</SelectItem>
@@ -311,19 +311,19 @@ export default function DatabaseBuilder() {
                     <Label className="text-muted-foreground text-xs">Est. Companies Listed</Label>
                     <Input value={srcEstimated} onChange={e => setSrcEstimated(e.target.value.replace(/\D/g, ""))}
                       placeholder="e.g. 1200"
-                      className="bg-black/40 border-white/10 text-white" />
+                      className="bg-black/40 border-border/40 text-foreground" />
                   </div>
                   <div className="space-y-1.5 col-span-2">
                     <Label className="text-muted-foreground text-xs">Description (optional)</Label>
                     <Textarea value={srcDescription} onChange={e => setSrcDescription(e.target.value)}
                       placeholder="Briefly describe what this source provides..."
-                      className="bg-black/40 border-white/10 text-white resize-none min-h-[60px]" />
+                      className="bg-black/40 border-border/40 text-foreground resize-none min-h-[60px]" />
                   </div>
                 </div>
                 {addSourceError && <p className="text-xs text-rose-400">{addSourceError}</p>}
               </div>
               <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setAddSourceOpen(false)} className="border-white/10">Cancel</Button>
+                <Button variant="outline" onClick={() => setAddSourceOpen(false)} className="border-border/40">Cancel</Button>
                 <Button onClick={handleAddSource} disabled={addingSource} className="bg-primary hover:bg-primary/90">
                   {addingSource ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                   Add Source
@@ -348,7 +348,7 @@ export default function DatabaseBuilder() {
       {/* Sources Grid */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-display font-semibold text-white">
+          <h3 className="text-xl font-display font-semibold text-foreground">
             Data Sources
             <span className="text-sm font-normal text-muted-foreground ml-2">
               {sourcesLoading ? "..." : `${sources.length} configured`}
@@ -361,7 +361,7 @@ export default function DatabaseBuilder() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {sourcesLoading ? (
-            [1,2,3,4,5,6].map(i => <Card key={i} className="h-36 bg-white/5 border-white/5 animate-pulse" />)
+            [1,2,3,4,5,6].map(i => <Card key={i} className="h-36 bg-muted/40 border-border/30 animate-pulse" />)
           ) : sources.map(source => {
             const hs = harvestStates[source.id] || { status: "idle" };
             const isHarvesting = hs.status === "harvesting";
@@ -370,18 +370,18 @@ export default function DatabaseBuilder() {
 
             return (
               <Card key={source.id} className={cn(
-                "bg-card/40 backdrop-blur-sm border transition-all duration-200",
+                "bg-card/65 backdrop-blur-sm border transition-all duration-200",
                 isHarvesting && "border-primary/60 shadow-[0_0_20px_rgba(6,182,212,0.15)]",
                 isDone && "border-emerald-500/40",
                 isError && "border-rose-500/30",
-                !isHarvesting && !isDone && !isError && "border-white/10 hover:border-white/20",
+                !isHarvesting && !isDone && !isError && "border-border/40 hover:border-white/20",
               )}>
                 <CardContent className="p-5">
                   <div className="flex justify-between items-start gap-2">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <span>{categoryIcon[source.category] || "🔗"}</span>
-                        <h4 className="font-semibold text-white text-sm truncate">{source.name}</h4>
+                        <h4 className="font-semibold text-foreground text-sm truncate">{source.name}</h4>
                         {source.isCustom && (
                           <span className="text-[10px] bg-violet-500/20 text-violet-300 px-1.5 py-0.5 rounded shrink-0">Custom</span>
                         )}
@@ -433,7 +433,7 @@ export default function DatabaseBuilder() {
                     </div>
                   </div>
 
-                  <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground border-t border-white/5 pt-3">
+                  <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground border-t border-border/30 pt-3">
                     <div className="flex items-center gap-1.5">
                       <Database className="w-3 h-3" />
                       {(source.harvestedCount ?? 0) > 0

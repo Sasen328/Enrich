@@ -341,10 +341,10 @@ export default function LeadFactoryResultsPage() {
 
       {/* Table */}
       {data && rows.length > 0 && (
-        <Card className="bg-card/40 border-border/40">
+        <Card className="bg-card/65 border-border/40">
           <CardContent className="p-0 overflow-x-auto">
             <table className="w-full text-xs">
-              <thead className="bg-card/60 border-b border-border/40">
+              <thead className="bg-card/70 border-b border-border/40">
                 <tr>
                   <th className="px-2 py-2">
                     <input
@@ -373,7 +373,7 @@ export default function LeadFactoryResultsPage() {
                 {rows.map((r) => (
                   <tr
                     key={r.id}
-                    className={cn("border-b border-border/20 hover:bg-card/60 cursor-pointer", selected?.id === r.id && "bg-primary/5", checked.has(r.id) && "bg-primary/10")}
+                    className={cn("border-b border-border/20 hover:bg-card/70 cursor-pointer", selected?.id === r.id && "bg-primary/5", checked.has(r.id) && "bg-primary/10")}
                     onClick={() => setSelected(r)}
                   >
                     <td className="px-2 py-2" onClick={(e) => e.stopPropagation()}>

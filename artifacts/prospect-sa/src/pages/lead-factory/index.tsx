@@ -222,9 +222,9 @@ function AgentCard({ agentNum, state }: { agentNum: number; state: AgentState })
       <div className="flex items-center gap-2 mb-2">
         <div className={cn(
           "w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0",
-          state.status === "running" ? "bg-blue-500 text-white" :
-          state.status === "complete" ? "bg-emerald-500 text-white" :
-          state.status === "error" ? "bg-red-500 text-white" :
+          state.status === "running" ? "bg-blue-500 text-foreground" :
+          state.status === "complete" ? "bg-emerald-500 text-foreground" :
+          state.status === "error" ? "bg-red-500 text-foreground" :
           "bg-secondary text-muted-foreground",
         )}>
           {agentNum}
@@ -274,7 +274,7 @@ function LeadCard({ lead, onViewCopy }: { lead: LeadResult; onViewCopy: (lead: L
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <TierBadge tier={lead.priorityTier} />
-            <span className="text-sm font-semibold text-white truncate">{lead.companyName || "—"}</span>
+            <span className="text-sm font-semibold text-foreground truncate">{lead.companyName || "—"}</span>
             {lead.companyNameAr && <span className="text-xs text-muted-foreground font-arabic">{lead.companyNameAr}</span>}
             {lead.isDuplicate && <Badge variant="outline" className="text-[9px] border-orange-500/40 text-orange-400">dup</Badge>}
           </div>
@@ -295,7 +295,7 @@ function LeadCard({ lead, onViewCopy }: { lead: LeadResult; onViewCopy: (lead: L
             {lead.domain && <Globe className="w-3.5 h-3.5 text-muted-foreground" title={lead.domain} />}
           </div>
           <Button size="sm" variant="ghost" onClick={() => onViewCopy(lead)}
-            className="h-6 text-[10px] text-muted-foreground hover:text-white px-2">
+            className="h-6 text-[10px] text-muted-foreground hover:text-foreground px-2">
             <Sparkles className="w-3 h-3 mr-1" /> Copy
           </Button>
         </div>
@@ -315,17 +315,17 @@ function CopyModal({ lead, onClose }: { lead: LeadResult; onClose: () => void })
       <div className="bg-background border border-border/30 rounded-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
         <div className="flex items-center justify-between p-4 border-b border-border/30">
           <div>
-            <h3 className="text-sm font-semibold text-white">{lead.companyName}</h3>
+            <h3 className="text-sm font-semibold text-foreground">{lead.companyName}</h3>
             <p className="text-[11px] text-muted-foreground">{lead.openingAngle}</p>
           </div>
-          <button onClick={onClose} className="text-muted-foreground hover:text-white"><X className="w-4 h-4" /></button>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground"><X className="w-4 h-4" /></button>
         </div>
 
         <div className="flex border-b border-border/30 px-4">
           {(["email", "linkedin", "whatsapp"] as const).map(t => (
             <button key={t} onClick={() => setTab(t)}
               className={cn("px-3 py-2 text-xs font-medium capitalize border-b-2 transition-colors",
-                tab === t ? "border-blue-500 text-primary" : "border-transparent text-muted-foreground hover:text-white")}>
+                tab === t ? "border-blue-500 text-primary" : "border-transparent text-muted-foreground hover:text-foreground")}>
               {t === "linkedin" ? "LinkedIn" : t === "whatsapp" ? "WhatsApp" : "Email"}
             </button>
           ))}
@@ -445,7 +445,7 @@ function CompanyAutocomplete({ onAdd }: { onAdd: (name: string) => void }) {
           {suggestions.map((s, i) => (
             <button key={i} onMouseDown={() => pick(s)}
               className="w-full text-left px-3 py-2 hover:bg-secondary transition-colors">
-              <div className="text-xs font-medium text-white">{s.nameEn || s.nameAr}</div>
+              <div className="text-xs font-medium text-foreground">{s.nameEn || s.nameAr}</div>
               {(s.city || s.industry) && (
                 <div className="text-[10px] text-muted-foreground">{[s.industry, s.city].filter(Boolean).join(" · ")}</div>
               )}
@@ -540,7 +540,7 @@ function ICPWizard({ onSubmit, isRunning }: { onSubmit: (brief: LeadFactoryBrief
       <div className="space-y-4">
         <div>
           <div className="flex justify-between text-xs text-muted-foreground mb-2">
-            <span>Target leads</span><span className="font-semibold text-white">{targetCount}</span>
+            <span>Target leads</span><span className="font-semibold text-foreground">{targetCount}</span>
           </div>
           <input type="range" min={10} max={200} step={10} value={targetCount}
             onChange={e => setTargetCount(+e.target.value)} className="w-full accent-blue-500" />
@@ -558,7 +558,7 @@ function ICPWizard({ onSubmit, isRunning }: { onSubmit: (brief: LeadFactoryBrief
             ))}
           </div>
         </div>
-        <div className="bg-card/60 rounded-lg p-3 text-[11px] text-muted-foreground space-y-0.5">
+        <div className="bg-card/70 rounded-lg p-3 text-[11px] text-muted-foreground space-y-0.5">
           <div className="font-semibold text-slate-300 mb-1.5">Run summary</div>
           {summaryLines.map((l, i) => <div key={i}>{l}</div>)}
           <div>Target: {targetCount} leads · {depth} enrichment</div>
@@ -817,9 +817,9 @@ function ICPWizard({ onSubmit, isRunning }: { onSubmit: (brief: LeadFactoryBrief
 
   const activeColor = modeConfig[sourcing].color;
   const colorMap: Record<string, string> = {
-    violet: "bg-violet-600 border-violet-500 text-white",
-    blue:   "bg-blue-600 border-blue-500 text-white",
-    cyan:   "bg-cyan-600 border-cyan-500 text-white",
+    violet: "bg-violet-600 border-violet-500 text-foreground",
+    blue:   "bg-blue-600 border-blue-500 text-foreground",
+    cyan:   "bg-cyan-600 border-cyan-500 text-foreground",
   };
 
   // Which step content to render
@@ -872,9 +872,9 @@ function ICPWizard({ onSubmit, isRunning }: { onSubmit: (brief: LeadFactoryBrief
             <button key={m} onClick={() => switchMode(m)}
               className={cn("flex flex-col items-center gap-1 py-3 px-2 rounded-xl border text-center transition-all",
                 active ? colorMap[cfg.color] : "border-border/30 text-muted-foreground hover:border-border/50 bg-background/40")}>
-              <Icon className={cn("w-4 h-4", active ? "text-white" : "text-muted-foreground")} />
+              <Icon className={cn("w-4 h-4", active ? "text-foreground" : "text-muted-foreground")} />
               <span className="text-[10px] font-semibold leading-tight">{cfg.label}</span>
-              <span className={cn("text-[9px] leading-tight", active ? "text-white/70" : "text-slate-600")}>{cfg.desc}</span>
+              <span className={cn("text-[9px] leading-tight", active ? "text-foreground/70" : "text-slate-600")}>{cfg.desc}</span>
             </button>
           );
         })}
@@ -896,18 +896,18 @@ function ICPWizard({ onSubmit, isRunning }: { onSubmit: (brief: LeadFactoryBrief
       <div className="flex gap-2 pt-1">
         {sourcing !== "search" && step > 0 && (
           <Button size="sm" variant="ghost" onClick={() => setStep(s => s - 1)}
-            className="text-muted-foreground hover:text-white h-8">
+            className="text-muted-foreground hover:text-foreground h-8">
             <ChevronLeft className="w-4 h-4 mr-1" /> Back
           </Button>
         )}
         {!isLastStep && (
-          <Button size="sm" onClick={() => setStep(s => s + 1)} className="flex-1 h-8 bg-blue-600 hover:bg-blue-500 text-white text-xs">
+          <Button size="sm" onClick={() => setStep(s => s + 1)} className="flex-1 h-8 bg-blue-600 hover:bg-blue-500 text-foreground text-xs">
             Next <ChevronRight className="w-4 h-4 ml-1" />
           </Button>
         )}
         {isLastStep && (
           <Button size="sm" onClick={handleSubmit} disabled={isRunning || !canLaunch}
-            className="flex-1 h-8 bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 text-white font-semibold text-xs">
+            className="flex-1 h-8 bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 text-foreground font-semibold text-xs">
             {isRunning ? <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> Running…</> : <><Play className="w-3.5 h-3.5 mr-1.5" /> Launch Pipeline</>}
           </Button>
         )}
@@ -1073,13 +1073,13 @@ function HistoryPanel({ onLoadJob }: { onLoadJob: (jobId: number) => void }) {
           const date = job.createdAt ? new Date(job.createdAt).toLocaleDateString("en-SA", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "—";
           return (
             <button key={job.id} onClick={() => onLoadJob(job.id)}
-              className="w-full text-left border border-border/30/60 rounded-lg p-3 hover:border-border/50 hover:bg-card/40 transition-all bg-background/40">
+              className="w-full text-left border border-border/30/60 rounded-lg p-3 hover:border-border/50 hover:bg-card/65 transition-all bg-background/40">
               <div className="flex items-center gap-2 mb-1.5">
                 {statusIcon(job.status)}
                 <span className={cn("text-[10px] font-semibold uppercase tracking-wider", statusColor(job.status))}>{job.status}</span>
                 <span className="text-[10px] text-muted-foreground ml-auto flex items-center gap-1"><Clock className="w-3 h-3" />{date}</span>
               </div>
-              <div className="text-xs font-medium text-white truncate mb-1">
+              <div className="text-xs font-medium text-foreground truncate mb-1">
                 {industries.length > 0 ? industries.slice(0, 2).join(", ") : job.inputMode === "list" ? "Company List" : "All Industries"}
                 {cities.length > 0 && <span className="text-muted-foreground"> · {cities.slice(0, 2).join(", ")}</span>}
               </div>
@@ -1160,13 +1160,13 @@ function SignalPanel({ onClose }: { onClose: () => void }) {
         <div className="flex items-center justify-between p-4 border-b border-border/30 shrink-0">
           <div className="flex items-center gap-2">
             {isRunning ? <Radio className="w-4 h-4 text-primary animate-pulse" /> : <Activity className="w-4 h-4 text-emerald-400" />}
-            <span className="text-sm font-semibold text-white">Signal Monitor</span>
+            <span className="text-sm font-semibold text-foreground">Signal Monitor</span>
             {isDone && <span className="text-[11px] text-emerald-400">{total} signals collected</span>}
             {isRunning && <span className="text-[11px] text-primary animate-pulse">Scanning…</span>}
           </div>
           <div className="flex gap-2">
-            {!isRunning && <Button size="sm" variant="ghost" onClick={startMonitor} className="h-7 text-xs text-muted-foreground hover:text-white">Refresh</Button>}
-            <button onClick={onClose} className="text-muted-foreground hover:text-white"><X className="w-4 h-4" /></button>
+            {!isRunning && <Button size="sm" variant="ghost" onClick={startMonitor} className="h-7 text-xs text-muted-foreground hover:text-foreground">Refresh</Button>}
+            <button onClick={onClose} className="text-muted-foreground hover:text-foreground"><X className="w-4 h-4" /></button>
           </div>
         </div>
 
@@ -1283,18 +1283,18 @@ function RelationshipIntelPanel() {
         <div className="flex gap-2">
           <Input placeholder="Target company name (e.g. Saudi Aramco)" value={brief.targetCompanyName}
             onChange={e => setBrief(b => ({ ...b, targetCompanyName: e.target.value }))}
-            className="bg-card border-border/30 text-sm text-white" />
+            className="bg-card border-border/30 text-sm text-foreground" />
           <Input placeholder="CR number (optional)" value={brief.targetCrNumber || ""}
             onChange={e => setBrief(b => ({ ...b, targetCrNumber: e.target.value }))}
-            className="bg-card border-border/30 text-sm text-white w-40" />
+            className="bg-card border-border/30 text-sm text-foreground w-40" />
         </div>
         <div className="flex gap-2">
           <Input placeholder="Website (optional)" value={brief.targetWebsite || ""}
             onChange={e => setBrief(b => ({ ...b, targetWebsite: e.target.value }))}
-            className="bg-card border-border/30 text-sm text-white" />
+            className="bg-card border-border/30 text-sm text-foreground" />
           <Input placeholder="Arabic name (optional)" value={brief.targetCompanyNameAr || ""}
             onChange={e => setBrief(b => ({ ...b, targetCompanyNameAr: e.target.value }))}
-            className="bg-card border-border/30 text-sm text-white font-arabic" />
+            className="bg-card border-border/30 text-sm text-foreground font-arabic" />
         </div>
         <Textarea placeholder="Context (what are you selling, what's the goal?)"
           value={brief.context || ""} onChange={e => setBrief(b => ({ ...b, context: e.target.value }))}
@@ -1311,7 +1311,7 @@ function RelationshipIntelPanel() {
           </div>
           <Button size="sm" disabled={!brief.targetCompanyName || isRunning}
             onClick={() => startMutation.mutate(brief)}
-            className="bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500 text-white">
+            className="bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500 text-foreground">
             {isRunning ? <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> Mapping…</> : <><Network className="w-3.5 h-3.5 mr-1.5" /> Map Org</>}
           </Button>
         </div>
@@ -1343,7 +1343,7 @@ function RelationshipIntelPanel() {
               {/* Compact list below tree */}
               <div className="mt-3 space-y-1 max-h-40 overflow-y-auto pr-1">
                 {nodes.map((node, i) => (
-                  <div key={i} className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-card/40 transition-colors">
+                  <div key={i} className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-card/65 transition-colors">
                     <div className={cn("w-6 h-6 rounded-full flex items-center justify-center text-[8px] font-bold shrink-0",
                       node.seniority === "C-Suite" ? "bg-amber-500/20 text-amber-400 border border-amber-500/30" :
                       node.seniority === "Board" ? "bg-violet-500/20 text-violet-400 border border-violet-500/30" :
@@ -1351,7 +1351,7 @@ function RelationshipIntelPanel() {
                       {node.nameEn?.slice(0, 2).toUpperCase()}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <span className="text-xs font-medium text-white truncate">{node.nameEn}</span>
+                      <span className="text-xs font-medium text-foreground truncate">{node.nameEn}</span>
                       {node.nameAr && <span className="text-[10px] text-muted-foreground font-arabic ml-1">{node.nameAr}</span>}
                       <span className="text-[10px] text-muted-foreground ml-1.5">· {node.title}</span>
                     </div>
@@ -1374,12 +1374,12 @@ function RelationshipIntelPanel() {
                 {contacts.map((contact, i) => (
                   <div key={i} className="border border-border/30/60 rounded-lg p-3 bg-background/40 hover:border-border/50 transition-colors">
                     <div className="flex items-start gap-2">
-                      <div className="w-6 h-6 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-[9px] font-bold text-white shrink-0">
+                      <div className="w-6 h-6 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-[9px] font-bold text-foreground shrink-0">
                         #{contact.rank}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-semibold text-white">{contact.name}</span>
+                          <span className="text-xs font-semibold text-foreground">{contact.name}</span>
                           {contact.title && <span className="text-[10px] text-muted-foreground">{contact.title}</span>}
                         </div>
                         {contact.conversationHook && (
@@ -1404,7 +1404,7 @@ function RelationshipIntelPanel() {
           <div className="bg-background border border-border/30 rounded-xl w-full max-w-xl max-h-[80vh] overflow-hidden flex flex-col">
             <div className="flex items-center justify-between p-4 border-b border-border/30">
               <div>
-                <h3 className="text-sm font-semibold text-white">#{selectedContact.rank} — {selectedContact.name}</h3>
+                <h3 className="text-sm font-semibold text-foreground">#{selectedContact.rank} — {selectedContact.name}</h3>
                 <p className="text-[11px] text-muted-foreground">{selectedContact.title}</p>
               </div>
               <button onClick={() => setSelectedContact(null)}><X className="w-4 h-4 text-muted-foreground" /></button>
@@ -1584,15 +1584,15 @@ export default function LeadFactoryPage() {
   displayLeads.forEach(l => { if (l.priorityTier && tierCounts[l.priorityTier as keyof typeof tierCounts] !== undefined) tierCounts[l.priorityTier as keyof typeof tierCounts]++; });
 
   return (
-    <div className="h-full flex flex-col bg-[#0d1117] text-white">
+    <div className="h-full flex flex-col bg-[#0d1117] text-foreground">
       {/* Header */}
       <div className="border-b border-border/40 px-6 py-4 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center">
-            <Zap className="w-4 h-4 text-white" />
+            <Zap className="w-4 h-4 text-foreground" />
           </div>
           <div>
-            <h1 className="text-base font-bold text-white">Lead Factory</h1>
+            <h1 className="text-base font-bold text-foreground">Lead Factory</h1>
             <p className="text-[11px] text-muted-foreground">7-agent pipeline · 40+ free sources · Saudi B2B intelligence</p>
           </div>
         </div>
@@ -1610,7 +1610,7 @@ export default function LeadFactoryPage() {
             </div>
           )}
           <Button size="sm" variant="ghost" onClick={() => setShowSignalPanel(true)}
-            className="h-7 text-xs text-muted-foreground hover:text-white border border-border/40 hover:border-primary/30">
+            className="h-7 text-xs text-muted-foreground hover:text-foreground border border-border/40 hover:border-primary/30">
             <Bell className="w-3 h-3 mr-1.5" /> Push Signals
           </Button>
           {results.length > 0 && (
@@ -1627,7 +1627,7 @@ export default function LeadFactoryPage() {
               a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
               a.download = `leads_${Date.now()}.csv`;
               a.click();
-            }} className="text-muted-foreground hover:text-white h-7 text-xs">
+            }} className="text-muted-foreground hover:text-foreground h-7 text-xs">
               <Download className="w-3 h-3 mr-1" /> CSV
             </Button>
           )}
@@ -1635,7 +1635,7 @@ export default function LeadFactoryPage() {
       </div>
 
       <Tabs value={tab} onValueChange={setTab} className="flex-1 flex flex-col overflow-hidden">
-        <TabsList className="shrink-0 bg-card/60 border-b border-border/40 rounded-none px-6 h-9 justify-start gap-1">
+        <TabsList className="shrink-0 bg-card/70 border-b border-border/40 rounded-none px-6 h-9 justify-start gap-1">
           <TabsTrigger value="factory" className="text-xs data-[state=active]:bg-primary/15 data-[state=active]:text-primary rounded">
             <Zap className="w-3 h-3 mr-1.5" /> Lead Factory
           </TabsTrigger>
@@ -1676,7 +1676,7 @@ export default function LeadFactoryPage() {
                 <div className="shrink-0 border-b border-border/40 px-4 py-2 flex items-center gap-4">
                   <div className="flex items-center gap-1 text-xs text-muted-foreground">
                     <Users className="w-3.5 h-3.5" />
-                    <span className="font-semibold text-white">{displayLeads.length}</span>
+                    <span className="font-semibold text-foreground">{displayLeads.length}</span>
                     <span>leads</span>
                   </div>
                   {["A", "B", "C"].map(tier => tierCounts[tier as keyof typeof tierCounts] > 0 && (
@@ -1711,7 +1711,7 @@ export default function LeadFactoryPage() {
                     <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600/20 to-violet-600/20 border border-blue-500/20 flex items-center justify-center mb-4">
                       <Zap className="w-8 h-8 text-primary" />
                     </div>
-                    <h3 className="text-sm font-semibold text-white mb-2">Ready to generate leads</h3>
+                    <h3 className="text-sm font-semibold text-foreground mb-2">Ready to generate leads</h3>
                     <p className="text-xs text-muted-foreground max-w-sm leading-relaxed">
                       Configure your ICP using the wizard on the left, then launch the 7-agent pipeline. 
                       It queries 40+ free Saudi & GCC sources and delivers enriched, scored leads with AI outreach copy.

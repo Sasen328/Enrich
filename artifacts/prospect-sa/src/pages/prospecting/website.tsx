@@ -166,13 +166,13 @@ function StepBar({ current, mode = "directory" }: { current: number; mode?: "dir
                 "w-9 h-9 rounded-full flex items-center justify-center border-2 transition-all duration-500 shrink-0",
                 done ? "bg-primary border-primary text-primary-foreground shadow-[0_0_12px_rgba(6,182,212,0.4)]" :
                 active ? "bg-primary/20 border-primary text-primary shadow-[0_0_12px_rgba(6,182,212,0.2)]" :
-                "bg-card border-white/10 text-muted-foreground",
+                "bg-card border-border/40 text-muted-foreground",
               )}>
                 {done ? <CheckCircle2 className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
               </div>
               <span className={cn(
                 "text-[10px] font-medium hidden sm:block",
-                active ? "text-white" : done ? "text-primary" : "text-muted-foreground",
+                active ? "text-foreground" : done ? "text-primary" : "text-muted-foreground",
               )}>{s.label}</span>
             </div>
             {i < steps.length - 1 && (
@@ -267,7 +267,7 @@ function RecordCard({ data, enrichmentStatus }: { data: CompanyData; enrichmentS
           <Layers className={cn("w-4 h-4", isEnriched ? "text-emerald-400" : "text-primary")} />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-white truncate">{primaryLabel}</p>
+          <p className="text-sm font-medium text-foreground truncate">{primaryLabel}</p>
           {subInfo.length > 0 && (
             <p className="text-[10px] text-muted-foreground mt-0.5 truncate">{subInfo.join(" · ")}</p>
           )}
@@ -282,7 +282,7 @@ function RecordCard({ data, enrichmentStatus }: { data: CompanyData; enrichmentS
             "text-[9px] font-bold shrink-0",
             isEnriched ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" :
             isPartial ? "bg-amber-500/20 text-amber-400 border-amber-500/30" :
-            "bg-white/10 text-white/50 border-white/10",
+            "bg-white/10 text-foreground/50 border-border/40",
           )}
           variant="outline"
         >
@@ -290,12 +290,12 @@ function RecordCard({ data, enrichmentStatus }: { data: CompanyData; enrichmentS
         </Badge>
       </button>
       {expanded && (
-        <div className="px-4 pb-3 border-t border-white/5 pt-3 space-y-2">
+        <div className="px-4 pb-3 border-t border-border/30 pt-3 space-y-2">
           <div className="grid grid-cols-2 gap-x-6 gap-y-1.5 text-[11px]">
             {standardFields.map(({ key, label, value }) => {
               const kl = key.toLowerCase().replace(/[^a-z]/g, '');
               const IconComp = ICON_MAP[kl] || Hash;
-              const iconColor = ICON_COLORS[kl] || "text-white/40";
+              const iconColor = ICON_COLORS[kl] || "text-foreground/40";
               const isLink = key === 'phone' || key === 'email' || key === 'website';
               const href = key === 'phone' ? `tel:${value}` : key === 'email' ? `mailto:${value}` : String(value);
               return (
@@ -304,7 +304,7 @@ function RecordCard({ data, enrichmentStatus }: { data: CompanyData; enrichmentS
                   {isLink ? (
                     <a href={href} target={key === 'website' ? '_blank' : undefined} rel="noopener" className={cn("truncate hover:underline", iconColor, "opacity-80")}>{value}</a>
                   ) : (
-                    <span className="text-white/70 truncate"><span className="text-white/35">{label}: </span>{value}</span>
+                    <span className="text-foreground/70 truncate"><span className="text-foreground/35">{label}: </span>{value}</span>
                   )}
                 </div>
               );
@@ -312,12 +312,12 @@ function RecordCard({ data, enrichmentStatus }: { data: CompanyData; enrichmentS
           </div>
           {data.executives && data.executives.length > 0 && (
             <div className="mt-2 p-2 bg-white/3 rounded-md">
-              <p className="text-[10px] text-white/40 uppercase tracking-wider mb-1">Key People</p>
+              <p className="text-[10px] text-foreground/40 uppercase tracking-wider mb-1">Key People</p>
               {data.executives.map((ex, i) => (
                 <div key={i} className="flex items-center gap-2 text-[11px]">
                   <User className="w-3 h-3 text-purple-400 shrink-0" />
-                  <span className="text-white/80">{ex.name}</span>
-                  {ex.title && <span className="text-white/40">— {ex.title}</span>}
+                  <span className="text-foreground/80">{ex.name}</span>
+                  {ex.title && <span className="text-foreground/40">— {ex.title}</span>}
                   {ex.email && <a href={`mailto:${ex.email}`} className="text-blue-400/60 hover:underline ml-1">{ex.email}</a>}
                   {ex.phone && <a href={`tel:${ex.phone}`} className="text-emerald-400/60 hover:underline ml-1">{ex.phone}</a>}
                 </div>
@@ -331,15 +331,15 @@ function RecordCard({ data, enrichmentStatus }: { data: CompanyData; enrichmentS
                 const displayLabel = focusField?.label || FIELD_LABELS[k] || k.replace(/_/g, ' ');
                 return (
                   <div key={k} className="flex items-start gap-1.5">
-                    <span className="text-white/30 shrink-0">{displayLabel}:</span>
-                    <span className="text-white/65 break-words">{v}</span>
+                    <span className="text-foreground/30 shrink-0">{displayLabel}:</span>
+                    <span className="text-foreground/65 break-words">{v}</span>
                   </div>
                 );
               })}
             </div>
           )}
           {data.description && (
-            <p className="text-[10px] text-white/50 mt-1 italic">{data.description}</p>
+            <p className="text-[10px] text-foreground/50 mt-1 italic">{data.description}</p>
           )}
         </div>
       )}
@@ -832,14 +832,14 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
               <ArrowLeft className="w-4 h-4" />
             </Button>
             <div>
-              <h1 className="text-3xl font-display font-bold text-white">Website Intelligence</h1>
+              <h1 className="text-3xl font-display font-bold text-foreground">Website Intelligence</h1>
               <p className="text-muted-foreground mt-1 text-sm">
                 3-phase automated pipeline: Scan · Extract · Enrich
               </p>
             </div>
           </div>
           {step > 1 && (
-            <Button variant="ghost" size="sm" onClick={resetFlow} className="text-muted-foreground hover:text-white gap-2">
+            <Button variant="ghost" size="sm" onClick={resetFlow} className="text-muted-foreground hover:text-foreground gap-2">
               <X className="w-4 h-4" /> New Job
             </Button>
           )}
@@ -849,14 +849,14 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
 
         {/* Step 1: URL Input */}
         {step === 1 && !viewJobId && (
-          <Card className="bg-card/60 border-white/8 backdrop-blur-md">
+          <Card className="bg-card/70 border-white/8 backdrop-blur-md">
             <CardContent className="pt-8 pb-10 px-8">
               <div className="max-w-2xl mx-auto space-y-6">
                 <div className="text-center space-y-2">
                   <div className="w-14 h-14 bg-primary/15 rounded-2xl flex items-center justify-center mx-auto border border-primary/20">
                     <Globe className="w-7 h-7 text-primary" />
                   </div>
-                  <h2 className="text-2xl font-bold text-white">Enter Target</h2>
+                  <h2 className="text-2xl font-bold text-foreground">Enter Target</h2>
                   <p className="text-muted-foreground text-sm max-w-md mx-auto">
                     Provide a website URL to scan, or describe what you want in plain text.
                     The engine scans, detects the data type, asks tailored questions, then extracts and enriches.
@@ -864,13 +864,13 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
                 </div>
 
                 {/* Mode toggle */}
-                <div className="flex gap-1 p-1 bg-white/5 rounded-xl border border-white/8 w-fit mx-auto">
+                <div className="flex gap-1 p-1 bg-muted/40 rounded-xl border border-white/8 w-fit mx-auto">
                   <button onClick={() => setInputMode("url")}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${inputMode === "url" ? "bg-primary/20 text-white border border-primary/30" : "text-muted-foreground hover:text-white"}`}>
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${inputMode === "url" ? "bg-primary/20 text-foreground border border-primary/30" : "text-muted-foreground hover:text-foreground"}`}>
                     <Globe className="w-3.5 h-3.5" />Website URL
                   </button>
                   <button onClick={() => setInputMode("text")}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${inputMode === "text" ? "bg-primary/20 text-white border border-primary/30" : "text-muted-foreground hover:text-white"}`}>
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${inputMode === "text" ? "bg-primary/20 text-foreground border border-primary/30" : "text-muted-foreground hover:text-foreground"}`}>
                     <ClipboardList className="w-3.5 h-3.5" />Describe in text
                   </button>
                 </div>
@@ -878,13 +878,13 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
                 {inputMode === "url" && (
                   <div className="space-y-4">
                     {/* Sub-mode toggle: Directory vs Single Company */}
-                    <div className="flex gap-1 p-1 bg-white/5 rounded-lg border border-white/8 w-fit mx-auto">
+                    <div className="flex gap-1 p-1 bg-muted/40 rounded-lg border border-white/8 w-fit mx-auto">
                       <button onClick={() => { setUrlMode("directory"); setCompanyProfile(null); }}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${urlMode === "directory" ? "bg-primary/20 text-white border border-primary/30" : "text-muted-foreground hover:text-white"}`}>
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${urlMode === "directory" ? "bg-primary/20 text-foreground border border-primary/30" : "text-muted-foreground hover:text-foreground"}`}>
                         <Layers className="w-3 h-3" />Directory Scan
                       </button>
                       <button onClick={() => { setUrlMode("single"); setCompanyProfile(null); }}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${urlMode === "single" ? "bg-primary/20 text-white border border-primary/30" : "text-muted-foreground hover:text-white"}`}>
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${urlMode === "single" ? "bg-primary/20 text-foreground border border-primary/30" : "text-muted-foreground hover:text-foreground"}`}>
                         <Search className="w-3 h-3" />Single Company
                       </button>
                     </div>
@@ -897,7 +897,7 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
                             onChange={(e) => setUrl(e.target.value)}
                             onKeyDown={(e) => { if (e.key === "Enter" && url) scanMutation.mutate(url); }}
                             placeholder="https://chamber.org.sa/directory or https://exhibitor-list.com/companies"
-                            className="h-12 bg-black/30 border-white/15 focus-visible:ring-primary/40 text-white placeholder:text-white/30"
+                            className="h-12 bg-black/30 border-white/15 focus-visible:ring-primary/40 text-foreground placeholder:text-foreground/30"
                           />
                           <Button
                             onClick={() => scanMutation.mutate(url)}
@@ -931,7 +931,7 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
                             onChange={(e) => setUrl(e.target.value)}
                             onKeyDown={(e) => { if (e.key === "Enter" && url) researchMutation.mutate(url); }}
                             placeholder="https://company.com.sa — the company's own website"
-                            className="h-12 bg-black/30 border-white/15 focus-visible:ring-primary/40 text-white placeholder:text-white/30"
+                            className="h-12 bg-black/30 border-white/15 focus-visible:ring-primary/40 text-foreground placeholder:text-foreground/30"
                           />
                           <Button
                             onClick={() => { setCompanyProfile(null); setChatMessages([]); setSaveStatus("idle"); setStep(2); researchMutation.mutate(url); }}
@@ -956,7 +956,7 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
                       value={textPrompt}
                       onChange={(e) => setTextPrompt(e.target.value)}
                       placeholder={"Examples:\n• 30 construction companies in Jeddah with CEO contacts\n• Saudi healthcare companies with 100+ employees\n• Tech startups in Riyadh founded after 2020"}
-                      className="min-h-[130px] bg-black/30 border-white/15 text-white placeholder:text-white/30 resize-none"
+                      className="min-h-[130px] bg-black/30 border-white/15 text-foreground placeholder:text-foreground/30 resize-none"
                     />
                     <Button
                       onClick={() => navigate(`/prospecting/seeder?prompt=${encodeURIComponent(textPrompt)}`)}
@@ -975,12 +975,12 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
 
         {/* Step 2: Single Company Researching */}
         {step === 2 && urlMode === "single" && (
-          <Card className="bg-card/60 border-white/8 backdrop-blur-md">
+          <Card className="bg-card/70 border-white/8 backdrop-blur-md">
             <CardContent className="py-20 px-8 text-center">
               <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-primary/20">
                 <Loader2 className="w-9 h-9 text-primary animate-spin" />
               </div>
-              <h2 className="text-xl font-bold text-white mb-2">Researching Company Intelligence</h2>
+              <h2 className="text-xl font-bold text-foreground mb-2">Researching Company Intelligence</h2>
               <p className="text-muted-foreground text-sm max-w-md mx-auto">
                 Crawling the website, extracting company data, cross-referencing with market intelligence, and synthesizing a comprehensive profile...
               </p>
@@ -1011,7 +1011,7 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
           return (
             <div className="space-y-4">
               {/* Header Card */}
-              <Card className="bg-card/60 border-white/8 backdrop-blur-md overflow-hidden">
+              <Card className="bg-card/70 border-white/8 backdrop-blur-md overflow-hidden">
                 <div className="h-1 bg-gradient-to-r from-primary via-cyan-400 to-emerald-400" />
                 <CardContent className="pt-6 pb-4 px-6">
                   <div className="flex items-start gap-4 flex-wrap">
@@ -1019,10 +1019,10 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
                       <Building2 className="w-7 h-7 text-primary" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h2 className="text-2xl font-bold text-white leading-tight">{companyName}</h2>
+                      <h2 className="text-2xl font-bold text-foreground leading-tight">{companyName}</h2>
                       {str(p.nameAr) && <p className="text-emerald-300/80 text-base mt-0.5">{str(p.nameAr)}</p>}
                       <div className="flex flex-wrap gap-2 mt-2">
-                        {str(p.legalForm) && <span className="text-xs px-2.5 py-1 rounded-full bg-white/8 border border-white/12 text-white/60">{str(p.legalForm)}</span>}
+                        {str(p.legalForm) && <span className="text-xs px-2.5 py-1 rounded-full bg-white/8 border border-white/12 text-foreground/60">{str(p.legalForm)}</span>}
                         {str(p.industry) && <span className="text-xs px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary/80">{str(p.industry)}</span>}
                         {str(p.city) && <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400/80">{str(p.city)}</span>}
                       </div>
@@ -1031,7 +1031,7 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
                     <div className="flex flex-wrap items-center gap-2 ml-auto">
                       {/* Export dropdown */}
                       <div className="relative group">
-                        <Button size="sm" variant="outline" className="border-white/15 text-white/70 hover:text-white gap-1.5 h-8 pr-2">
+                        <Button size="sm" variant="outline" className="border-white/15 text-foreground/70 hover:text-foreground gap-1.5 h-8 pr-2">
                           <FileDown className="w-3.5 h-3.5" />Export<ChevronDown className="w-3 h-3 ml-0.5" />
                         </Button>
                         <div className="absolute right-0 top-full mt-1 w-48 bg-card border border-white/15 rounded-xl shadow-xl shadow-black/30 overflow-hidden z-50 hidden group-hover:block">
@@ -1041,7 +1041,7 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
                             { label: "Download Word", icon: BookUser, fmt: "word" as const },
                           ].map(({ label, icon: Icon, fmt }) => (
                             <button key={fmt} onClick={() => exportProfile(fmt)}
-                              className="flex items-center gap-2.5 w-full px-4 py-2.5 text-sm text-white/70 hover:text-white hover:bg-white/5 transition-colors text-left">
+                              className="flex items-center gap-2.5 w-full px-4 py-2.5 text-sm text-foreground/70 hover:text-foreground hover:bg-muted/40 transition-colors text-left">
                               <Icon className="w-4 h-4 text-primary/70" />{label}
                             </button>
                           ))}
@@ -1062,7 +1062,7 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
                               a.click();
                               URL.revokeObjectURL(a.href);
                             } catch { alert("PPT export failed"); }
-                          }} className="flex items-center gap-2.5 w-full px-4 py-2.5 text-sm text-white/70 hover:text-white hover:bg-white/5 transition-colors text-left">
+                          }} className="flex items-center gap-2.5 w-full px-4 py-2.5 text-sm text-foreground/70 hover:text-foreground hover:bg-muted/40 transition-colors text-left">
                             <FileDown className="w-4 h-4 text-violet-400/70" />Download PPT
                           </button>
                         </div>
@@ -1094,7 +1094,7 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
                         <Database className="w-3.5 h-3.5" />Seed More
                       </Button>
                       <Button size="sm" variant="ghost" onClick={() => setChatOpen(v => !v)}
-                        className="h-8 gap-1.5 text-white/60 hover:text-white border border-white/10 hover:border-white/20">
+                        className="h-8 gap-1.5 text-foreground/60 hover:text-foreground border border-border/40 hover:border-white/20">
                         <MessageCircle className="w-3.5 h-3.5" />AI Chat
                       </Button>
                     </div>
@@ -1130,7 +1130,7 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
                       {href ? (
                         <a href={href} className={cn("text-sm font-medium break-all hover:underline", color)}>{val}</a>
                       ) : (
-                        <p className="text-sm font-medium text-white/90 break-words">{val}</p>
+                        <p className="text-sm font-medium text-foreground/90 break-words">{val}</p>
                       )}
                     </CardContent>
                   </Card>
@@ -1173,12 +1173,12 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
                             <User className={cn("w-3.5 h-3.5", color)} />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-white/90 leading-tight">{person.nameEn}</p>
+                            <p className="text-sm font-medium text-foreground/90 leading-tight">{person.nameEn}</p>
                             {person.nameAr && <p className="text-xs text-muted-foreground/60">{person.nameAr}</p>}
                             <p className={cn("text-xs mt-0.5", color, "opacity-80")}>{person.title || person.role || person.ownershipPct}</p>
                           </div>
                           {person.nationality && (
-                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/8 border border-white/10 text-white/50 shrink-0">{person.nationality}</span>
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/8 border border-border/40 text-foreground/50 shrink-0">{person.nationality}</span>
                           )}
                           {/* Generate Person Intel button */}
                           <Button
@@ -1194,7 +1194,7 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
                               if (person.nationality) params.set("nationality", person.nationality);
                               navigate(`/prospecting/person?${params.toString()}`);
                             }}
-                            className="h-7 px-2 text-[10px] gap-1 text-muted-foreground hover:text-white hover:bg-white/8 shrink-0"
+                            className="h-7 px-2 text-[10px] gap-1 text-muted-foreground hover:text-foreground hover:bg-white/8 shrink-0"
                             title="Generate full person intelligence report"
                           >
                             <BookUser className="w-3 h-3" />Intel
@@ -1219,7 +1219,7 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
                         <div key={i} className="rounded-lg bg-emerald-500/5 border border-emerald-500/15 px-3 py-2 text-xs">
                           <div className="flex items-center gap-1.5 mb-1">
                             <MapPin className="w-3 h-3 text-emerald-400 shrink-0" />
-                            <span className="text-white/80 font-medium">{o.city}</span>
+                            <span className="text-foreground/80 font-medium">{o.city}</span>
                             {o.label && <span className="text-emerald-400/60 ml-auto">{o.label}</span>}
                           </div>
                           {o.address && <p className="text-muted-foreground/50 pl-4">{o.address}</p>}
@@ -1242,7 +1242,7 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
                     <p className="text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider mb-3">Products & Services</p>
                     <div className="flex flex-wrap gap-2">
                       {products.map((prod, i) => (
-                        <span key={i} className="text-xs px-3 py-1 rounded-full bg-white/8 border border-white/10 text-white/70">{prod}</span>
+                        <span key={i} className="text-xs px-3 py-1 rounded-full bg-white/8 border border-border/40 text-foreground/70">{prod}</span>
                       ))}
                     </div>
                   </CardContent>
@@ -1273,7 +1273,7 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
               )}
 
               {/* Inline AI Chat */}
-              <Card className="bg-card/60 border-white/8 backdrop-blur-md">
+              <Card className="bg-card/70 border-white/8 backdrop-blur-md">
                 <CardContent className="p-0">
                   <button
                     onClick={() => setChatOpen(v => !v)}
@@ -1284,7 +1284,7 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
                         <Bot className="w-4 h-4 text-primary" />
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-white">AI Research Assistant</p>
+                        <p className="text-sm font-semibold text-foreground">AI Research Assistant</p>
                         <p className="text-xs text-muted-foreground">Ask questions, request edits, or dig deeper into this company</p>
                       </div>
                     </div>
@@ -1307,7 +1307,7 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
                                 `Suggest a sales approach`,
                               ].map(q => (
                                 <button key={q} onClick={() => { setChatInput(q); }}
-                                  className="text-[11px] px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-muted-foreground hover:text-white hover:border-white/20 transition-colors">
+                                  className="text-[11px] px-2.5 py-1 rounded-full bg-muted/40 border border-border/40 text-muted-foreground hover:text-foreground hover:border-white/20 transition-colors">
                                   {q}
                                 </button>
                               ))}
@@ -1319,12 +1319,12 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
                             <div className={cn("w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5",
                               msg.role === "user" ? "bg-primary/20 border border-primary/30" : "bg-white/8 border border-white/12"
                             )}>
-                              {msg.role === "user" ? <User className="w-3.5 h-3.5 text-primary" /> : <Bot className="w-3.5 h-3.5 text-white/70" />}
+                              {msg.role === "user" ? <User className="w-3.5 h-3.5 text-primary" /> : <Bot className="w-3.5 h-3.5 text-foreground/70" />}
                             </div>
                             <div className={cn("max-w-[80%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed",
                               msg.role === "user"
-                                ? "bg-primary/15 border border-primary/20 text-white/90 rounded-tr-sm"
-                                : "bg-white/5 border border-white/8 text-white/85 rounded-tl-sm"
+                                ? "bg-primary/15 border border-primary/20 text-foreground/90 rounded-tr-sm"
+                                : "bg-muted/40 border border-white/8 text-foreground/85 rounded-tl-sm"
                             )}>
                               {msg.content}
                             </div>
@@ -1333,9 +1333,9 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
                         {chatMutation.isPending && (
                           <div className="flex gap-2.5">
                             <div className="w-7 h-7 rounded-full bg-white/8 border border-white/12 flex items-center justify-center shrink-0">
-                              <Bot className="w-3.5 h-3.5 text-white/70" />
+                              <Bot className="w-3.5 h-3.5 text-foreground/70" />
                             </div>
-                            <div className="bg-white/5 border border-white/8 rounded-2xl rounded-tl-sm px-4 py-3">
+                            <div className="bg-muted/40 border border-white/8 rounded-2xl rounded-tl-sm px-4 py-3">
                               <div className="flex gap-1">
                                 <div className="w-1.5 h-1.5 rounded-full bg-primary/60 animate-bounce" />
                                 <div className="w-1.5 h-1.5 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: "0.15s" }} />
@@ -1347,13 +1347,13 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
                         <div ref={chatEndRef} />
                       </div>
                       {/* Input */}
-                      <div className="px-4 pb-4 border-t border-white/5 pt-3 flex gap-2">
+                      <div className="px-4 pb-4 border-t border-border/30 pt-3 flex gap-2">
                         <input
                           value={chatInput}
                           onChange={e => setChatInput(e.target.value)}
                           onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendChat(); } }}
                           placeholder="Ask about this company…"
-                          className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-primary/40 focus:bg-white/8 transition-colors"
+                          className="flex-1 bg-muted/40 border border-border/40 rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-foreground/30 focus:outline-none focus:border-primary/40 focus:bg-white/8 transition-colors"
                         />
                         <Button size="sm" onClick={sendChat} disabled={!chatInput.trim() || chatMutation.isPending}
                           className="h-10 w-10 p-0 bg-primary hover:bg-primary/90 shrink-0 rounded-xl">
@@ -1385,7 +1385,7 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
 
         {/* Step 2: Scanning (Directory mode only) */}
         {step === 2 && urlMode === "directory" && (
-          <Card className="bg-card/60 border-white/8 backdrop-blur-md">
+          <Card className="bg-card/70 border-white/8 backdrop-blur-md">
             <CardContent className="py-16 px-8">
               <div className="max-w-md mx-auto text-center space-y-6">
                 <div className="relative">
@@ -1395,12 +1395,12 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
                   <div className="absolute inset-0 rounded-full border-2 border-primary/20 animate-ping" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-white">Phase 1: Scanning</h3>
+                  <h3 className="text-xl font-bold text-foreground">Phase 1: Scanning</h3>
                   <p className="text-muted-foreground text-sm mt-2">
                     {scanProgressMsg || "Detecting pagination, sampling records, analyzing structure..."}
                   </p>
                 </div>
-                <div className="w-full bg-white/5 rounded-full h-1.5 mt-2">
+                <div className="w-full bg-muted/40 rounded-full h-1.5 mt-2">
                   <div
                     className="bg-primary h-1.5 rounded-full transition-all duration-700"
                     style={{ width: `${Math.min((job?.progress || 0), 95)}%` }}
@@ -1419,7 +1419,7 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
                     return (
                       <div key={i} className="flex items-center gap-2 text-xs text-muted-foreground">
                         <div className={`w-1.5 h-1.5 rounded-full ${isDone ? 'bg-emerald-400' : isActive ? 'bg-primary animate-pulse' : 'bg-white/20'}`} />
-                        <span className={isDone ? 'text-emerald-400/80' : isActive ? 'text-white/80' : ''}>{msg}</span>
+                        <span className={isDone ? 'text-emerald-400/80' : isActive ? 'text-foreground/80' : ''}>{msg}</span>
                       </div>
                     );
                   })}
@@ -1480,16 +1480,16 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
 
             {/* Detected Records Sample */}
             {((scanSummary.sampleItems || scanSummary.sampleCompanies) || []).length > 0 && (
-              <Card className="bg-card/50 border-white/8">
+              <Card className="bg-card/75 border-white/8">
                 <CardHeader className="pb-2 pt-4 px-5">
-                  <CardTitle className="text-sm font-semibold text-white/70 uppercase tracking-wider">
+                  <CardTitle className="text-sm font-semibold text-foreground/70 uppercase tracking-wider">
                     Detected Records Sample
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="px-5 pb-4">
                   <div className="flex flex-wrap gap-2">
                     {(scanSummary.sampleItems || scanSummary.sampleCompanies || []).slice(0, 15).map((name, i) => (
-                      <Badge key={i} variant="outline" className="bg-white/5 border-white/10 text-white/70 text-xs">
+                      <Badge key={i} variant="outline" className="bg-muted/40 border-border/40 text-foreground/70 text-xs">
                         <Layers className="w-3 h-3 mr-1 text-primary" />
                         {name}
                       </Badge>
@@ -1501,19 +1501,19 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
 
             {/* Suggested questions */}
             {scanSummary.suggestedQuestions && scanSummary.suggestedQuestions.length > 0 && (
-              <Card className="bg-card/50 border-white/8">
+              <Card className="bg-card/75 border-white/8">
                 <CardHeader className="pb-2 pt-4 px-5">
-                  <CardTitle className="text-sm font-semibold text-white/70 uppercase tracking-wider">
+                  <CardTitle className="text-sm font-semibold text-foreground/70 uppercase tracking-wider">
                     Filter Questions
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="px-5 pb-4 space-y-4">
                   {scanSummary.suggestedQuestions.map((q, i) => (
                     <div key={i} className="space-y-2">
-                      <p className="text-sm text-white/80">{q.question}</p>
+                      <p className="text-sm text-foreground/80">{q.question}</p>
                       {q.options && q.options.length > 0 ? (
                         <>
-                          <p className="text-[10px] text-white/40">Select one or more options</p>
+                          <p className="text-[10px] text-foreground/40">Select one or more options</p>
                           <div className="flex flex-wrap gap-2">
                             {q.options.map((opt, j) => {
                               const selected = (answers[q.question] || []).includes(opt);
@@ -1531,7 +1531,7 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
                                     "text-xs px-3 py-1.5 rounded-lg border transition-all",
                                     selected
                                       ? "border-primary bg-primary/20 text-primary"
-                                      : "border-white/10 bg-white/5 text-white/60 hover:border-white/20",
+                                      : "border-border/40 bg-muted/40 text-foreground/60 hover:border-white/20",
                                   )}
                                 >
                                   {opt}
@@ -1546,7 +1546,7 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
                           value={(answers[q.question] || [])[0] || ""}
                           onChange={(e) => setAnswers(prev => ({ ...prev, [q.question]: e.target.value ? [e.target.value] : [] }))}
                           placeholder="Type your answer..."
-                          className="h-9 bg-black/20 border-white/10 text-white text-sm"
+                          className="h-9 bg-black/20 border-border/40 text-foreground text-sm"
                         />
                       )}
                     </div>
@@ -1556,9 +1556,9 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
             )}
 
             {/* Focus Fields — fixed enrichment fields that map to backend search terms */}
-            <Card className="bg-card/50 border-white/8">
+            <Card className="bg-card/75 border-white/8">
               <CardHeader className="pb-2 pt-4 px-5">
-                <CardTitle className="text-sm font-semibold text-white/70 uppercase tracking-wider">
+                <CardTitle className="text-sm font-semibold text-foreground/70 uppercase tracking-wider">
                   Report Focus Fields
                 </CardTitle>
                 <p className="text-xs text-muted-foreground mt-1">Select which data points to enrich via Perplexity + GPT-4o</p>
@@ -1575,7 +1575,7 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
                           "text-[10px] px-2 py-2 rounded-lg border transition-all text-center leading-tight",
                           isSelected
                             ? "border-primary bg-primary/20 text-primary"
-                            : "border-white/10 bg-white/5 text-white/50 hover:border-white/20",
+                            : "border-border/40 bg-muted/40 text-foreground/50 hover:border-white/20",
                         )}
                       >
                         {label}
@@ -1592,7 +1592,7 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
                   </button>
                   <button
                     onClick={() => setReportFields({})}
-                    className="text-[10px] text-white/40 hover:text-white/60 underline"
+                    className="text-[10px] text-foreground/40 hover:text-foreground/60 underline"
                   >
                     Clear All
                   </button>
@@ -1601,9 +1601,9 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
             </Card>
 
             {/* Extraction settings */}
-            <Card className="bg-card/50 border-white/8">
+            <Card className="bg-card/75 border-white/8">
               <CardHeader className="pb-2 pt-4 px-5">
-                <CardTitle className="text-sm font-semibold text-white/70 uppercase tracking-wider">
+                <CardTitle className="text-sm font-semibold text-foreground/70 uppercase tracking-wider">
                   Extraction Settings
                 </CardTitle>
               </CardHeader>
@@ -1615,7 +1615,7 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
                       type="number"
                       value={maxPages}
                       onChange={(e) => setMaxPages(Math.min(100, Math.max(1, parseInt(e.target.value) || 1)))}
-                      className="h-9 bg-black/20 border-white/10 text-white"
+                      className="h-9 bg-black/20 border-border/40 text-foreground"
                     />
                   </div>
                   <div>
@@ -1629,7 +1629,7 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
                             "text-xs px-3 py-2 rounded-lg border capitalize transition-all flex-1",
                             enrichmentDepth === d
                               ? "border-primary bg-primary/20 text-primary"
-                              : "border-white/10 bg-white/5 text-white/60 hover:border-white/20",
+                              : "border-border/40 bg-muted/40 text-foreground/60 hover:border-white/20",
                           )}
                         >
                           {d}
@@ -1648,7 +1648,7 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
                             "text-xs px-3 py-2 rounded-lg border capitalize transition-all flex-1",
                             extractionLanguage === lang
                               ? "border-primary bg-primary/20 text-primary"
-                              : "border-white/10 bg-white/5 text-white/60 hover:border-white/20",
+                              : "border-border/40 bg-muted/40 text-foreground/60 hover:border-white/20",
                           )}
                         >
                           {lang}
@@ -1677,11 +1677,11 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
         {/* Step 4: Extraction in progress (Directory mode only) */}
         {step === 4 && urlMode === "directory" && job && (
           <div className="space-y-5">
-            <Card className="bg-card/60 border-white/8 backdrop-blur-md">
+            <Card className="bg-card/70 border-white/8 backdrop-blur-md">
               <CardContent className="py-6 px-6 space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-lg font-bold text-white">
+                    <h3 className="text-lg font-bold text-foreground">
                       {job.status === "extracting" ? "Phase 2: Extracting Records" :
                        job.status === "enriching" ? "Phase 3: Enriching Data" :
                        "Processing..."}
@@ -1694,7 +1694,7 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
                   </div>
                   <div className="flex gap-4 text-center">
                     <div>
-                      <p className="text-2xl font-bold text-white">{job.totalCompaniesFound || 0}</p>
+                      <p className="text-2xl font-bold text-foreground">{job.totalCompaniesFound || 0}</p>
                       <p className="text-[10px] text-muted-foreground">Extracted</p>
                     </div>
                     <div>
@@ -1718,9 +1718,9 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
 
             {/* Live results feed */}
             {results.length > 0 && (
-              <Card className="bg-card/50 border-white/8">
+              <Card className="bg-card/75 border-white/8">
                 <CardHeader className="pb-2 pt-4 px-5">
-                  <CardTitle className="text-sm font-semibold text-white/70 uppercase tracking-wider">
+                  <CardTitle className="text-sm font-semibold text-foreground/70 uppercase tracking-wider">
                     Live Results ({results.length})
                   </CardTitle>
                 </CardHeader>
@@ -1776,9 +1776,9 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
             )}
 
             {displayResults.length > 0 && (
-              <Card className="bg-card/50 border-white/8">
+              <Card className="bg-card/75 border-white/8">
                 <CardHeader className="pb-2 pt-4 px-5 flex flex-row items-center justify-between">
-                  <CardTitle className="text-sm font-semibold text-white/70 uppercase tracking-wider">
+                  <CardTitle className="text-sm font-semibold text-foreground/70 uppercase tracking-wider">
                     Records ({displayResults.length})
                   </CardTitle>
                   {viewJobId && (
@@ -1786,7 +1786,7 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
                       size="sm"
                       variant="ghost"
                       onClick={() => setViewJobId(null)}
-                      className="text-muted-foreground hover:text-white text-xs h-7"
+                      className="text-muted-foreground hover:text-foreground text-xs h-7"
                     >
                       <X className="w-3 h-3 mr-1" /> Close
                     </Button>
@@ -1801,7 +1801,7 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
             )}
 
             {displayResults.length === 0 && (
-              <Card className="bg-card/50 border-white/8">
+              <Card className="bg-card/75 border-white/8">
                 <CardContent className="py-12 text-center">
                   <Layers className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-30" />
                   <p className="text-muted-foreground text-sm">No results yet</p>
@@ -1815,13 +1815,13 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
       {/* Sidebar: Past Jobs + Export History */}
       <div className="w-72 shrink-0 space-y-3 overflow-y-auto hidden lg:block">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-white/70 uppercase tracking-wider">Past Jobs</h3>
+          <h3 className="text-sm font-semibold text-foreground/70 uppercase tracking-wider">Past Jobs</h3>
           <div className="flex items-center gap-1">
             <Button
               size="sm"
               variant="ghost"
               onClick={() => { setShowExportHistory(!showExportHistory); if (!showExportHistory) refetchExportHistory(); }}
-              className={cn("h-7 px-2 text-[10px] gap-1", showExportHistory ? "text-primary" : "text-muted-foreground hover:text-white")}
+              className={cn("h-7 px-2 text-[10px] gap-1", showExportHistory ? "text-primary" : "text-muted-foreground hover:text-foreground")}
             >
               <Download className="w-3 h-3" />
               History
@@ -1830,7 +1830,7 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
               size="sm"
               variant="ghost"
               onClick={() => refetchJobs()}
-              className="h-7 w-7 p-0 text-muted-foreground hover:text-white"
+              className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
             >
               <RefreshCw className="w-3 h-3" />
             </Button>
@@ -1838,9 +1838,9 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
         </div>
 
         {showExportHistory && (
-          <Card className="bg-card/50 border-white/8">
+          <Card className="bg-card/75 border-white/8">
             <CardHeader className="pb-2 pt-3 px-4">
-              <CardTitle className="text-[10px] font-semibold text-white/60 uppercase tracking-wider flex items-center gap-1.5">
+              <CardTitle className="text-[10px] font-semibold text-foreground/60 uppercase tracking-wider flex items-center gap-1.5">
                 <Download className="w-3 h-3 text-primary" />
                 Export History
               </CardTitle>
@@ -1852,12 +1852,12 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
                 exportHistory.map((exp) => (
                   <div key={exp.id} className="flex items-center justify-between py-1.5 px-2 bg-white/3 rounded-md">
                     <div className="flex-1 min-w-0">
-                      <p className="text-[10px] text-white/70 truncate">{exp.filename}</p>
+                      <p className="text-[10px] text-foreground/70 truncate">{exp.filename}</p>
                       <p className="text-[9px] text-muted-foreground">
                         {exp.recordCount} records · {new Date(exp.createdAt).toLocaleDateString()}
                       </p>
                     </div>
-                    <Badge variant="outline" className="text-[8px] ml-2 shrink-0 border-white/10 text-white/50">
+                    <Badge variant="outline" className="text-[8px] ml-2 shrink-0 border-border/40 text-foreground/50">
                       {exp.format.toUpperCase()}
                     </Badge>
                   </div>
@@ -1875,7 +1875,7 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
           <Card
             key={j.id}
             className={cn(
-              "bg-card/50 border-white/8 cursor-pointer hover:border-white/20 transition-all group",
+              "bg-card/75 border-white/8 cursor-pointer hover:border-white/20 transition-all group",
               viewJobId === j.id && "border-primary/50 bg-primary/5",
             )}
             onClick={() => {
@@ -1885,7 +1885,7 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
           >
             <CardContent className="py-3 px-4">
               <div className="flex items-start justify-between mb-1">
-                <p className="text-xs font-medium text-white truncate flex-1 mr-2">
+                <p className="text-xs font-medium text-foreground truncate flex-1 mr-2">
                   {j.targetUrl ? new URL(j.targetUrl).hostname : "Unknown"}
                 </p>
                 <div className="flex items-center gap-1 shrink-0">
@@ -1897,7 +1897,7 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
                       j.status === "failed" ? "bg-rose-500/20 text-rose-400 border-rose-500/30" :
                       (j.status === "scanning" || j.status === "extracting" || j.status === "enriching")
                         ? "bg-blue-500/20 text-blue-400 border-blue-500/30" :
-                      "bg-white/10 text-white/50 border-white/10",
+                      "bg-white/10 text-foreground/50 border-border/40",
                     )}
                   >
                     {j.status}

@@ -114,7 +114,7 @@ export default function AIChatPage() {
   return (
     <div className="flex flex-col h-screen max-h-screen">
       {/* Header */}
-      <div className="border-b border-border/40 px-4 py-3 bg-card/40 backdrop-blur">
+      <div className="border-b border-border/40 px-4 py-3 bg-card/65 backdrop-blur">
         <h1 className="text-lg font-bold flex items-center gap-2">
           <Sparkles className="w-5 h-5 text-primary" />
           AI Chat Agent
@@ -155,7 +155,7 @@ export default function AIChatPage() {
           {!showComposer && messages.length === 0 && (
             <div className="text-center py-12">
               <div className="inline-flex w-14 h-14 rounded-2xl items-center justify-center mb-4 brand-gradient">
-                <Sparkles className="w-7 h-7 text-white" />
+                <Sparkles className="w-7 h-7 text-foreground" />
               </div>
               <h2 className="text-xl font-bold mb-2">What do you want to research?</h2>
               <p className="text-sm text-muted-foreground mb-6">
@@ -166,7 +166,7 @@ export default function AIChatPage() {
                   <button
                     key={s}
                     onClick={() => send(s)}
-                    className="text-left text-xs p-3 rounded-lg border border-border/40 bg-card/40 hover:bg-card/70 hover:border-primary/30 transition-colors"
+                    className="text-left text-xs p-3 rounded-lg border border-border/40 bg-card/65 hover:bg-card/70 hover:border-primary/30 transition-colors"
                   >
                     {s}
                   </button>
@@ -178,7 +178,7 @@ export default function AIChatPage() {
           {messages.map((m) => (
             <div key={m.id} className={cn("flex gap-3", m.role === "user" && "justify-end")}>
               {m.role === "assistant" && (
-                <div className="w-8 h-8 rounded-lg flex-shrink-0 brand-gradient flex items-center justify-center text-white">
+                <div className="w-8 h-8 rounded-lg flex-shrink-0 brand-gradient flex items-center justify-center text-foreground">
                   <Sparkles className="w-4 h-4" />
                 </div>
               )}
@@ -186,7 +186,7 @@ export default function AIChatPage() {
                 "rounded-2xl px-4 py-3 max-w-[85%] text-sm whitespace-pre-wrap",
                 m.role === "user"
                   ? "bg-primary text-primary-foreground"
-                  : "bg-card/60 border border-border/40",
+                  : "bg-card/70 border border-border/40",
               )}>
                 {m.steps && m.steps.length > 0 && (
                   <div className="mb-2 space-y-1">
@@ -240,7 +240,7 @@ export default function AIChatPage() {
       </div>
 
       {/* Input */}
-      <div className="border-t border-border/40 bg-card/40 backdrop-blur px-4 py-3">
+      <div className="border-t border-border/40 bg-card/65 backdrop-blur px-4 py-3">
         <form
           onSubmit={(e) => { e.preventDefault(); send(); }}
           className="max-w-3xl mx-auto flex gap-2"

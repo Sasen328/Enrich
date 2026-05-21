@@ -174,7 +174,7 @@ export default function MeshBaseCompanyProfile() {
       </Button>
 
       {/* Company Header */}
-      <Card className="border-border/50 bg-card/60">
+      <Card className="border-border/50 bg-card/70">
         <CardContent className="p-6">
           <div className="flex items-start gap-5">
             {company.logoUrl ? (
@@ -263,7 +263,7 @@ export default function MeshBaseCompanyProfile() {
         {/* Left: Description + AI Insights */}
         <div className="lg:col-span-2 space-y-5">
           {company.description && (
-            <Card className="border-border/50 bg-card/60">
+            <Card className="border-border/50 bg-card/70">
               <CardHeader className="pb-2 pt-4 px-5">
                 <CardTitle className="text-sm font-semibold flex items-center gap-2">
                   <Info className="w-4 h-4 text-blue-400" />About
@@ -287,7 +287,7 @@ export default function MeshBaseCompanyProfile() {
             </Card>
           )}
           {company.marketPositioning && (
-            <Card className="border-border/50 bg-card/60">
+            <Card className="border-border/50 bg-card/70">
               <CardHeader className="pb-2 pt-4 px-5">
                 <CardTitle className="text-sm font-semibold flex items-center gap-2">
                   <BarChart3 className="w-4 h-4 text-emerald-400" />Market Position
@@ -299,7 +299,7 @@ export default function MeshBaseCompanyProfile() {
             </Card>
           )}
           {company.recentNews && (
-            <Card className="border-border/50 bg-card/60">
+            <Card className="border-border/50 bg-card/70">
               <CardHeader className="pb-2 pt-4 px-5">
                 <CardTitle className="text-sm font-semibold flex items-center gap-2">
                   <FileText className="w-4 h-4 text-amber-400" />Recent News
@@ -313,7 +313,7 @@ export default function MeshBaseCompanyProfile() {
 
           {/* Executives */}
           {executives.length > 0 && (
-            <Card className="border-border/50 bg-card/60">
+            <Card className="border-border/50 bg-card/70">
               <CardHeader className="pb-2 pt-4 px-5">
                 <div className="flex items-center justify-between gap-3 flex-wrap">
                   <CardTitle className="text-sm font-semibold flex items-center gap-2">
@@ -415,7 +415,7 @@ export default function MeshBaseCompanyProfile() {
 
         {/* Right: Details sidebar */}
         <div className="space-y-5">
-          <Card className="border-border/50 bg-card/60">
+          <Card className="border-border/50 bg-card/70">
             <CardHeader className="pb-2 pt-4 px-5">
               <CardTitle className="text-sm font-semibold">Company Details</CardTitle>
             </CardHeader>
@@ -435,7 +435,7 @@ export default function MeshBaseCompanyProfile() {
           </Card>
 
           {(company.ownerName || company.ownerEmail || company.ownerPhone || company.ownerLinkedin) && (
-            <Card className="border-border/50 bg-card/60">
+            <Card className="border-border/50 bg-card/70">
               <CardHeader className="pb-2 pt-4 px-5">
                 <CardTitle className="text-sm font-semibold flex items-center gap-2">
                   <User className="w-4 h-4 text-amber-400" />Key Contact
@@ -452,7 +452,7 @@ export default function MeshBaseCompanyProfile() {
           )}
 
           {company.tags && (
-            <Card className="border-border/50 bg-card/60">
+            <Card className="border-border/50 bg-card/70">
               <CardHeader className="pb-2 pt-4 px-5">
                 <CardTitle className="text-sm font-semibold flex items-center gap-2">
                   <Tag className="w-4 h-4 text-muted-foreground" />Tags

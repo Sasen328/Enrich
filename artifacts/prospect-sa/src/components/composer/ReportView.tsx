@@ -61,7 +61,7 @@ function Block({ b }: { b: ReportBlock }) {
   if (b.type === "kpi") return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
       {b.kpis.map((k, i) => (
-        <div key={i} className="border border-border rounded-lg p-3 bg-card/60">
+        <div key={i} className="border border-border rounded-lg p-3 bg-card/70">
           <div className="text-xl font-bold">{k.value}</div>
           <div className="text-[11px] text-muted-foreground uppercase tracking-wide">{k.label}</div>
           {k.delta && <div className="text-[10px] text-emerald-500 mt-1">{k.delta}</div>}

@@ -74,7 +74,7 @@ export default function ProsEngineHub() {
             <Sparkles className="w-5 h-5 text-primary" />
           </div>
           <div>
-            <h1 className="text-3xl font-display font-bold text-white">ProsEngine</h1>
+            <h1 className="text-3xl font-display font-bold text-foreground">ProsEngine</h1>
             <p className="text-sm text-muted-foreground">Saudi Arabia Intelligence Platform — choose your mode</p>
           </div>
         </div>
@@ -91,18 +91,18 @@ export default function ProsEngineHub() {
             >
               <CardContent className="p-6 flex flex-col h-full">
                 <div className="flex items-start justify-between mb-5">
-                  <div className={`w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:scale-110 transition-transform`}>
+                  <div className={`w-12 h-12 rounded-2xl bg-muted/40 flex items-center justify-center border border-border/40 group-hover:scale-110 transition-transform`}>
                     <Icon className={`w-6 h-6 ${mode.iconColor}`} />
                   </div>
                   <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${mode.badge}`}>{mode.badgeLabel}</span>
                 </div>
 
-                <h2 className="text-xl font-display font-bold text-white mb-2">{mode.title}</h2>
+                <h2 className="text-xl font-display font-bold text-foreground mb-2">{mode.title}</h2>
                 <p className="text-sm text-muted-foreground leading-relaxed mb-5">{mode.description}</p>
 
                 <ul className="space-y-1.5 mb-6 flex-1">
                   {mode.bullets.map((b) => (
-                    <li key={b} className="flex items-center gap-2 text-xs text-white/70">
+                    <li key={b} className="flex items-center gap-2 text-xs text-foreground/70">
                       <div className={`w-1.5 h-1.5 rounded-full ${mode.iconColor.replace("text-", "bg-")}`} />
                       {b}
                     </li>
@@ -122,7 +122,7 @@ export default function ProsEngineHub() {
         })}
       </div>
 
-      <div className="mt-10 p-5 rounded-2xl border border-white/5 bg-white/2">
+      <div className="mt-10 p-5 rounded-2xl border border-border/30 bg-white/2">
         <p className="text-xs text-muted-foreground text-center">
           All intelligence data is for B2B prospecting purposes only. AI-generated profiles clearly indicate estimated vs. confirmed data.
         </p>

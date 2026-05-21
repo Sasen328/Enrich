@@ -17,7 +17,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <div className="flex h-screen w-full bg-background mesh-gradient-bg text-foreground overflow-hidden">
         <AppSidebar />
         <div className="flex flex-col flex-1 relative z-10 w-full overflow-hidden">
-          <header className="flex items-center justify-between px-6 py-4 bg-background/80 backdrop-blur-md border-b border-border/30 z-20">
+          <header className="flex items-center justify-between px-6 py-4 bar-bg z-20">
             <div className="flex items-center gap-4">
               <SidebarTrigger className="text-muted-foreground hover:text-foreground transition-colors" />
             </div>
