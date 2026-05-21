@@ -10,6 +10,7 @@ import { useTheme } from "next-themes";
 import { CommandBar } from "./CommandBar";
 import { MainTabBar } from "./MainTabBar";
 import { SubTabBar } from "./SubTabBar";
+import { QuickActionBar } from "./QuickActionBar";
 import { KeyStrip } from "./KeyStrip";
 import { RailProvider, useRail } from "./RailContext";
 import { RailSidebar } from "./RailSidebar";
@@ -43,6 +44,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <CommandBar />
         <MainTabBar />
         <SubTabBar />
+        <QuickActionBar />
         <KeyStrip />
         <div className="body-row">
           <RailSidebar />
