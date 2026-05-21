@@ -5,28 +5,32 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all duration-280 ease-[cubic-bezier(0.16,1,0.30,1)] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0" +
-" hover-elevate active-elevate-2",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium transition-all duration-280 ease-[cubic-bezier(0.16,1,0.30,1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ac))]/40 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
+        // Filled lavender pill
         default:
-           "bg-primary text-primary-foreground border border-primary-border hover:shadow-[0_4px_18px_hsl(var(--glow)/0.35)]",
+           "bg-[hsl(var(--ac))] text-white border border-[hsl(var(--ac))] hover:shadow-[0_6px_20px_hsl(var(--glow)/0.40)] hover:-translate-y-0.5",
         destructive:
-          "bg-destructive text-destructive-foreground shadow-sm border-destructive-border",
+          "bg-destructive text-destructive-foreground border border-destructive hover:shadow-[0_6px_20px_hsl(var(--destructive)/0.30)]",
+        // Outline / ghost — transparent with lavender border
         outline:
-          // Inherits the current text color. Uses shadow-xs. no shadow on active
-          // No hover state
-          " border [border-color:var(--button-outline)] shadow-xs active:shadow-none ",
+          "border border-[hsl(var(--ac))] text-[hsl(var(--ac))] bg-transparent hover:bg-[hsl(var(--ac))]/10",
+        // Ghost: outline-only feel, faded
+        ghost:
+          "border border-[hsl(var(--bd))] text-[hsl(var(--tx-m))] bg-transparent hover:bg-[hsl(var(--ac))]/8 hover:text-[hsl(var(--ac))] hover:border-[hsl(var(--ac))]",
+        // Soft: light lavender wash
+        soft:
+          "bg-[hsl(var(--brand-mist))]/50 text-[hsl(var(--ac))] border border-[hsl(var(--brand-mist))] hover:bg-[hsl(var(--brand-mist))]/70 hover:shadow-[0_4px_14px_hsl(var(--glow)/0.20)]",
         secondary:
-          "border bg-secondary text-secondary-foreground border border-secondary-border ",
-        ghost: "border border-transparent",
-        link: "text-primary underline-offset-4 hover:underline",
+          "border bg-secondary text-secondary-foreground border-secondary",
+        link: "text-primary underline-offset-4 hover:underline rounded-none",
       },
       size: {
-        default: "min-h-9 px-4 py-2",
-        sm: "min-h-8 rounded-md px-3 text-xs",
-        lg: "min-h-10 rounded-md px-8",
+        default: "h-9 px-4 py-2",
+        sm: "h-8 px-3 text-xs",
+        lg: "h-11 px-8",
         icon: "h-9 w-9",
       },
     },

@@ -44,7 +44,13 @@ export function MeshCanvas() {
       if (t - lastDraw > 33) { // ~30fps
         lastDraw = t;
         const w = c.clientWidth, h = c.clientHeight;
-        ctx.clearRect(0, 0, w, h);
+        // Paint base cream first so we always have a warm canvas under the mesh
+        const root = getComputedStyle(document.documentElement);
+        ctx.fillStyle = `hsl(${root.getPropertyValue("--brand-cream").trim()})`;
+        if (document.documentElement.classList.contains("dark")) {
+          ctx.fillStyle = `hsl(${root.getPropertyValue("--background").trim()})`;
+        }
+        ctx.fillRect(0, 0, w, h);
         ctx.globalCompositeOperation = "lighter";
         const cols = palette();
         const u = t * SPEED;
@@ -54,8 +60,8 @@ export function MeshCanvas() {
           const py = 0.5 + Math.cos(u * (1 + i * 0.17) + i * 2) * MX * (1 + i * 0.05);
           const r  = Math.min(w, h) * (0.45 + 0.06 * Math.sin(u * 0.6 + i)) * SC;
           const g  = ctx.createRadialGradient(px * w, py * h, 0, px * w, py * h, r);
-          g.addColorStop(0,   `hsla(${cols[i]} / 0.22)`);
-          g.addColorStop(0.6, `hsla(${cols[i]} / 0.06)`);
+          g.addColorStop(0,   `hsla(${cols[i]} / 0.55)`);
+          g.addColorStop(0.6, `hsla(${cols[i]} / 0.18)`);
           g.addColorStop(1,   "hsla(0 0% 0% / 0)");
           ctx.fillStyle = g;
           ctx.fillRect(0, 0, w, h);
@@ -72,7 +78,8 @@ export function MeshCanvas() {
     <canvas
       ref={ref}
       aria-hidden
-      className="pointer-events-none fixed inset-0 -z-10 w-full h-full opacity-90 dark:opacity-85"
+      className="pointer-events-none fixed inset-0 -z-10 w-full h-full"
+      style={{ opacity: 1 }}
     />
   );
 }
