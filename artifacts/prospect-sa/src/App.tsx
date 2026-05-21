@@ -84,9 +84,18 @@ function Router() {
         <Route path="/prospecting/company" component={CompanyIntelPage} />
         <Route path="/prospecting/seeder" component={DataSeederPage} />
         <Route path="/prospecting" component={ProspectingPage} />
+        {/* ProsEngine aliases — same pages, new prefix */}
+        <Route path="/prosengine/website" component={WebsiteIntelPage} />
+        <Route path="/prosengine/person"  component={PersonIntelPage} />
+        <Route path="/prosengine/company" component={CompanyIntelPage} />
+        <Route path="/prosengine/seeder"  component={DataSeederPage} />
+        <Route path="/prosengine" component={ProspectingPage} />
         <Route path="/database-builder" component={DatabaseBuilder} />
         <Route path="/database-builder/results" component={BuilderResults} />
         <Route path="/leads" component={LeadsPage} />
+        {/* New Lead Genome alias for /leads */}
+        <Route path="/lead-genome" component={LeadsPage} />
+        <Route path="/lead-genome/lists" component={LeadsPage} />
         <Route path="/meshbase/companies/:id" component={MeshBaseCompanyProfile} />
         <Route path="/meshbase/executives/:id" component={MeshBaseExecutiveProfile} />
         <Route path="/meshbase/companies" component={MeshBaseCompanies} />
@@ -94,6 +103,12 @@ function Router() {
         <Route path="/meshbase" component={MeshBase} />
         <Route path="/orcengine" component={OrcEnginePage} />
         <Route path="/masaar/database" component={MasaarDatabasePage} />
+        {/* Harvest AI = Masaar Engine + Masaar Database + AI DB Builder, grouped */}
+        <Route path="/harvest-ai/masaar-engine"   component={MasaarPage} />
+        <Route path="/harvest-ai/masaar-database" component={MasaarDatabasePage} />
+        <Route path="/harvest-ai/db-builder"      component={DatabaseBuilder} />
+        <Route path="/harvest-ai/db-builder/results" component={BuilderResults} />
+        <Route path="/harvest-ai">{() => <Redirect to="/harvest-ai/masaar-engine" />}</Route>
         {/* ── Lead Factory + its sub-tools ────────────────────────────────
             Signal Intel and Relationship Intel are now Lead Factory tools.
             They live under /lead-factory/* paths. The old top-level URLs

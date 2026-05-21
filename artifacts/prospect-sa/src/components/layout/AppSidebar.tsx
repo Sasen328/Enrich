@@ -16,34 +16,23 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 const coreNav = [
-  { title: "Dashboard",        url: "/",                      icon: LayoutDashboard },
-  { title: "AI Chat",          url: "/ai-chat",               icon: Sparkles },
-  { title: "Leads",            url: "/leads",                 icon: Target },
-  { title: "Lead Factory",     url: "/lead-factory/person",   icon: Zap },
-  { title: "  ↳ Company Hunt", url: "/lead-factory/company",  icon: Zap },
+  { title: "Dashboard",     url: "/",                      icon: LayoutDashboard },
+  { title: "AI Chat",       url: "/ai-chat",               icon: Sparkles },
+  { title: "Lead Genome",   url: "/lead-genome",           icon: Target },
+  { title: "Lead Factory",  url: "/lead-factory/person",   icon: Zap },
 ];
 
 const prosEngineTools = [
-  { title: "Company Intel", url: "/prospecting/company",  icon: Building2 },
-  { title: "Person Intel",  url: "/prospecting/person",   icon: User },
-  { title: "Website Intel", url: "/prospecting/website",  icon: Globe },
-  { title: "Data Seeder",   url: "/prospecting/seeder",   icon: Layers },
+  { title: "Company Intel", url: "/prosengine/company",  icon: Building2 },
+  { title: "Person Intel",  url: "/prosengine/person",   icon: User },
+  { title: "Website Intel", url: "/prosengine/website",  icon: Globe },
+  { title: "Data Seeder",   url: "/prosengine/seeder",   icon: Layers },
 ];
 
-const masaarTools = [
-  { title: "CR Lookup",      url: "/masaar",          icon: Search },
-  { title: "Masar Database", url: "/masaar/database", icon: TableProperties },
-];
-
-const orcbaseItems = [
-  { title: "Overview",   url: "/meshbase",            icon: BarChart3 },
-  { title: "Companies",  url: "/meshbase/companies",  icon: Building2 },
-  { title: "Executives", url: "/meshbase/executives", icon: UserCircle },
-];
-
-const saMarketItems: { title: string; url: string; icon: React.ComponentType<{ className?: string }> }[] = [
-  // Tadawul shareholders + executives temporarily removed pending fresh data sheet.
-  // Re-enable once the operator pushes the updated dataset.
+const harvestAiTools = [
+  { title: "Masaar Engine",       url: "/harvest-ai/masaar-engine",   icon: Search },
+  { title: "Masaar Database",     url: "/harvest-ai/masaar-database", icon: TableProperties },
+  { title: "AI Database Builder", url: "/harvest-ai/db-builder",      icon: Database },
 ];
 
 function NavGroup({ label, icon: Icon, items, activeCheck }: {
@@ -106,10 +95,10 @@ function NavItem({ item }: { item: { title: string; url: string; icon: React.Com
 
 export function AppSidebar() {
   const [location] = useLocation();
-  const isProsActive   = location === "/prospecting" || location.startsWith("/prospecting/");
-  const isMasaarActive = location === "/masaar"      || location.startsWith("/masaar/");
-  const isOrcActive    = location === "/meshbase"    || location.startsWith("/meshbase/");
-  const isSAActive     = location === "/sa-market"   || location.startsWith("/sa-market/");
+  const isProsActive    = location.startsWith("/prosengine") || location.startsWith("/prospecting");
+  const isHarvestActive = location.startsWith("/harvest-ai")
+                       || location.startsWith("/masaar")
+                       || location.startsWith("/database-builder");
 
   return (
     <Sidebar variant="inset" className="border-r border-border/30 bg-sidebar/70 backdrop-blur-2xl">
@@ -142,31 +131,15 @@ export function AppSidebar() {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel className="text-[10px] font-semibold text-muted-foreground/60 uppercase tracking-widest mb-1 px-1">Intelligence</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-[10px] font-semibold text-muted-foreground/60 uppercase tracking-widest mb-1 px-1">Engines</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="gap-0.5">
               <NavGroup label="ProsEngine" icon={BrainCircuit} items={prosEngineTools} activeCheck={isProsActive} />
-              <NavGroup label="Masaar" icon={Landmark} items={masaarTools} activeCheck={isMasaarActive} />
-              <NavItem item={{ title: "OrcEngine", url: "/orcengine", icon: Network }} />
-              <NavItem item={{ title: "AI Database Builder", url: "/database-builder", icon: Database }} />
-              {/* Signal Intel + Relationship Intel are now Lead Factory tools.
-                  Kept at top-level paths as redirects in App.tsx so old bookmarks
-                  still work, but removed from the sidebar to consolidate the
-                  workflow inside Lead Factory. */}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-[10px] font-semibold text-muted-foreground/60 uppercase tracking-widest mb-1 px-1">Market Data</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu className="gap-0.5">
-              <NavGroup label="OrcBase / MeshBase" icon={BarChart3} items={orcbaseItems} activeCheck={isOrcActive} />
-              {/* SA Market (Tadawul shareholders + executives) temporarily hidden
-                  pending fresh dataset from operator. Re-enable when ready. */}
-              {saMarketItems.length > 0 && (
-                <NavGroup label="SA Market" icon={TrendingUp} items={saMarketItems} activeCheck={isSAActive} />
-              )}
+              <NavGroup label="Harvest AI" icon={Landmark} items={harvestAiTools} activeCheck={isHarvestActive} />
+              {/* MeshBase / OrcEngine / SA Market hidden from nav per product
+                  decision — routes still live at their original paths for
+                  direct-URL admin access. MeshBase data is now sourced
+                  silently into Lead Factory hunts on the backend. */}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

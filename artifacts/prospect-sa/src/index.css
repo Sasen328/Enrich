@@ -156,14 +156,14 @@
 
 .dark {
   /* Soft Lavender — dark variant: lavender-tinted night, NOT pure black.
-   * Keeps the warm brand feel (cream→darker, lavender accent retained).
+   * Lightened 2026-05-21 per feedback (too close to black previously).
    */
-  --background:   260 22% 18%;
-  --foreground:    40 36% 92%;
-  --card:         260 18% 22%;
-  --card-foreground: 40 36% 92%;
-  --popover:      260 18% 22%;
-  --popover-foreground: 40 30% 86%;
+  --background:   260 16% 28%;
+  --foreground:    40 36% 94%;
+  --card:         260 14% 33%;
+  --card-foreground: 40 36% 94%;
+  --popover:      260 14% 33%;
+  --popover-foreground: 40 30% 90%;
   --primary:      263 60% 74%;
   --primary-foreground: 260 22% 14%;
   --secondary:    254 35% 32%;
@@ -193,10 +193,10 @@
   --tx:      40 36% 92%;
   --tx-m:    40 26% 76%;
   --tx-q:   250 14% 70%;
-  --surf:   260 18% 22%;
-  --bd:     260 14% 30%;
-  --sub-bg: 260 18% 26%;
-  --bar-bg: 260 22% 16%;
+  --surf:   260 14% 33%;
+  --bd:     260 12% 42%;
+  --sub-bg: 260 14% 36%;
+  --bar-bg: 260 18% 24%;
   --glow:   263 75% 80%;
   --qa-bg:  254 38% 30%;
 }

@@ -1,10 +1,13 @@
-// §3 — Tab registry (placeholders filled with actual app routes).
-// TAB_NAMES, TAB_SUBS, TAB_DEEP map to /lead-factory, /prospecting, etc.
+// §3 — Tab registry. Refactored 2026-05-21:
+//   - Removed from nav: MeshBase, OrcEngine, SA Market (kept as silent
+//     backend sources / direct-URL admin pages).
+//   - Renamed: Leads → Lead Genome, Prospecting → ProsEngine
+//   - Merged: Masaar (CR engine + DB) + AI Database Builder → "Harvest AI"
 
 import {
   LayoutDashboard, Sparkles, Target, Zap, Building2, User, Globe,
-  Layers, Search, TableProperties, BarChart3, UserCircle, Network,
-  Database, Activity, GitFork, FileBarChart,
+  Layers, Search, TableProperties, FileBarChart, Activity, GitFork,
+  Database, Sprout, FolderHeart,
 } from "lucide-react";
 
 export interface TabItem {
@@ -17,16 +20,12 @@ export interface TabItem {
 }
 
 export const TAB_NAMES: TabItem[] = [
-  { id: "dashboard",       label: "Dashboard",         url: "/",                icon: LayoutDashboard },
-  { id: "ai-chat",         label: "AI Chat",           url: "/ai-chat",         icon: Sparkles },
-  { id: "leads",           label: "Leads",             url: "/leads",           icon: Target },
-  { id: "lead-factory",    label: "Lead Factory",      url: "/lead-factory/person", icon: Zap },
-  { id: "prospecting",     label: "Prospecting",       url: "/prospecting",     icon: Building2 },
-  { id: "masaar",          label: "Masaar",            url: "/masaar",          icon: Search },
-  { id: "meshbase",        label: "MeshBase",          url: "/meshbase",        icon: BarChart3 },
-  { id: "sa-market",       label: "SA Market",         url: "/sa-market",       icon: TableProperties },
-  { id: "orcengine",       label: "OrcEngine",         url: "/orcengine",       icon: Network },
-  { id: "db-builder",      label: "AI Database Builder", url: "/database-builder", icon: Database },
+  { id: "dashboard",    label: "Dashboard",    url: "/",                       icon: LayoutDashboard },
+  { id: "ai-chat",      label: "AI Chat",      url: "/ai-chat",                icon: Sparkles },
+  { id: "lead-genome",  label: "Lead Genome",  url: "/lead-genome",            icon: FolderHeart },
+  { id: "lead-factory", label: "Lead Factory", url: "/lead-factory/person",    icon: Zap },
+  { id: "prosengine",   label: "ProsEngine",   url: "/prosengine/company",     icon: Building2 },
+  { id: "harvest-ai",   label: "Harvest AI",   url: "/harvest-ai/masaar-engine", icon: Sprout },
 ];
 
 export const TAB_SUBS: Record<string, TabItem[]> = {
@@ -37,24 +36,20 @@ export const TAB_SUBS: Record<string, TabItem[]> = {
     { id: "signals",      label: "Signals",       url: "/lead-factory/signals",      icon: Activity },
     { id: "relationship", label: "Relationship",  url: "/lead-factory/relationship", icon: GitFork },
   ],
-  "prospecting": [
-    { id: "company-intel", label: "Company Intel", url: "/prospecting/company",  icon: Building2 },
-    { id: "person-intel",  label: "Person Intel",  url: "/prospecting/person",   icon: User },
-    { id: "website-intel", label: "Website Intel", url: "/prospecting/website",  icon: Globe },
-    { id: "seeder",        label: "Data Seeder",   url: "/prospecting/seeder",   icon: Layers },
+  "prosengine": [
+    { id: "company-intel", label: "Company Intel", url: "/prosengine/company",  icon: Building2 },
+    { id: "person-intel",  label: "Person Intel",  url: "/prosengine/person",   icon: User },
+    { id: "website-intel", label: "Website Intel", url: "/prosengine/website",  icon: Globe },
+    { id: "seeder",        label: "Data Seeder",   url: "/prosengine/seeder",   icon: Layers },
   ],
-  "masaar": [
-    { id: "cr-lookup",  label: "CR Lookup",      url: "/masaar",          icon: Search },
-    { id: "database",   label: "Masar Database", url: "/masaar/database", icon: TableProperties },
+  "harvest-ai": [
+    { id: "masaar-engine",   label: "Masaar Engine",       url: "/harvest-ai/masaar-engine",   icon: Search },
+    { id: "masaar-database", label: "Masaar Database",     url: "/harvest-ai/masaar-database", icon: TableProperties },
+    { id: "db-builder",      label: "AI Database Builder", url: "/harvest-ai/db-builder",      icon: Database },
   ],
-  "meshbase": [
-    { id: "overview",   label: "Overview",   url: "/meshbase",            icon: BarChart3,  rail: true },
-    { id: "companies",  label: "Companies",  url: "/meshbase/companies",  icon: Building2,  rail: true },
-    { id: "executives", label: "Executives", url: "/meshbase/executives", icon: UserCircle, rail: true },
-  ],
-  "sa-market": [
-    { id: "shareholders", label: "Shareholders", url: "/sa-market/shareholders", icon: User },
-    { id: "executives",   label: "Executives",   url: "/sa-market/executives",   icon: UserCircle },
+  "lead-genome": [
+    { id: "saved", label: "Saved Leads",  url: "/lead-genome",       icon: FolderHeart },
+    { id: "lists", label: "Lead Lists",   url: "/lead-genome/lists", icon: FileBarChart },
   ],
 };
 
@@ -63,26 +58,28 @@ export const TAB_DEEP: Record<string, { id: string; label: string }[]> = {
   "lead-factory/person":   [{ id: "form",    label: "Filters" }, { id: "preview", label: "Preview" }, { id: "history", label: "History" }],
   "lead-factory/company":  [{ id: "form",    label: "Filters" }, { id: "preview", label: "Preview" }, { id: "history", label: "History" }],
   "lead-factory/results":  [{ id: "lists",   label: "Lists" },   { id: "export",  label: "Export" },  { id: "logs",    label: "Logs" }],
-  "meshbase/overview":     [{ id: "kpis",    label: "KPIs" },    { id: "trends",  label: "Trends" },  { id: "feed",    label: "Activity" }],
-  "meshbase/companies":    [{ id: "filter",  label: "Filter" },  { id: "table",   label: "Table" },   { id: "map",     label: "Map View" }],
-  "meshbase/executives":   [{ id: "filter",  label: "Filter" },  { id: "table",   label: "Table" }],
 };
 
 /** Quick Action Bar tabs — fixed shortcuts beneath the command bar */
 export const QUICK_TABS: { id: string; label: string; url: string }[] = [
-  { id: "new-hunt",   label: "+ New Hunt",      url: "/lead-factory/person" },
-  { id: "ai-chat",    label: "AI Chat",         url: "/ai-chat" },
-  { id: "leads",      label: "My Leads",        url: "/leads" },
-  { id: "meshbase",   label: "MeshBase",        url: "/meshbase" },
-  { id: "signals",    label: "Signals",         url: "/lead-factory/signals" },
+  { id: "new-hunt",  label: "+ New Hunt",   url: "/lead-factory/person" },
+  { id: "ai-chat",   label: "AI Chat",      url: "/ai-chat" },
+  { id: "genome",    label: "Lead Genome",  url: "/lead-genome" },
+  { id: "prosengine",label: "ProsEngine",   url: "/prosengine/company" },
+  { id: "harvest",   label: "Harvest AI",   url: "/harvest-ai/masaar-engine" },
 ];
 
 /** Resolve sub-tabs for a given path */
 export function subsForPath(path: string): TabItem[] {
   if (path.startsWith("/lead-factory")) return TAB_SUBS["lead-factory"];
-  if (path.startsWith("/prospecting"))  return TAB_SUBS["prospecting"];
-  if (path.startsWith("/masaar"))       return TAB_SUBS["masaar"];
-  if (path.startsWith("/meshbase"))     return TAB_SUBS["meshbase"];
-  if (path.startsWith("/sa-market"))    return TAB_SUBS["sa-market"];
+  if (path.startsWith("/prosengine"))   return TAB_SUBS["prosengine"];
+  // Legacy /prospecting paths still resolve to ProsEngine sub-tabs
+  if (path.startsWith("/prospecting"))  return TAB_SUBS["prosengine"];
+  if (path.startsWith("/harvest-ai"))   return TAB_SUBS["harvest-ai"];
+  // Legacy /masaar and /database-builder map to Harvest AI subs
+  if (path.startsWith("/masaar"))       return TAB_SUBS["harvest-ai"];
+  if (path.startsWith("/database-builder")) return TAB_SUBS["harvest-ai"];
+  if (path.startsWith("/lead-genome"))  return TAB_SUBS["lead-genome"];
+  if (path.startsWith("/leads"))        return TAB_SUBS["lead-genome"];
   return [];
 }

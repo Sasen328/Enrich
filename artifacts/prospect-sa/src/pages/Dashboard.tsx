@@ -82,10 +82,13 @@ export default function Dashboard() {
     { name: "Pending",  value: quality.byEnrichment.pending },
   ] : [];
 
+  // Combined Harvest AI count (Masaar CR records + AI DB Builder harvested rows)
+  const harvestAiCount = (srcStats?.masaar ?? 0) + (srcStats?.builder ?? 0);
+
   const sourceEngines = [
     {
-      label: "OrcBase",
-      sub: "Master company database",
+      label: "MeshBase",
+      sub: "Master B2B database (silent source for hunts)",
       icon: Network,
       color: "text-blue-400",
       bg: "bg-blue-500/10",
@@ -94,24 +97,14 @@ export default function Dashboard() {
       unit: "companies",
     },
     {
-      label: "Masaar",
-      sub: "CR registry intelligence",
+      label: "Harvest AI",
+      sub: "Masaar CR + AI-built databases",
       icon: Landmark,
       color: "text-amber-400",
       bg: "bg-amber-500/10",
       border: "border-amber-500/10",
-      value: srcLoading ? null : (srcStats?.masaar ?? 0).toLocaleString(),
-      unit: "CR records",
-    },
-    {
-      label: "AI Database Builder",
-      sub: "Harvested companies",
-      icon: Database,
-      color: "text-violet-400",
-      bg: "bg-violet-500/10",
-      border: "border-violet-500/10",
-      value: srcLoading ? null : (srcStats?.builder ?? 0).toLocaleString(),
-      unit: "companies",
+      value: srcLoading ? null : harvestAiCount.toLocaleString(),
+      unit: "rows",
     },
     {
       label: "ProsEngine",
@@ -124,7 +117,7 @@ export default function Dashboard() {
       unit: "prospects",
     },
     {
-      label: "AI Leads Engine",
+      label: "Lead Genome",
       sub: "Saved lead lists",
       icon: Target,
       color: "text-primary",

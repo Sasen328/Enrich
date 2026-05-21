@@ -1387,7 +1387,7 @@ export default function MasaarDatabasePage() {
           <div>
             <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
               <Database className="w-6 h-6 text-primary" />
-              Masaar — CR Database &amp; Seed Tool
+              Harvest AI — Masaar Database
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
               AI-harvested Saudi company intelligence from {SOURCES.length}+ verified data sources
