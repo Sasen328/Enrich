@@ -76,28 +76,50 @@ export async function personSuggest(q: string) {
   return r.json() as Promise<{ suggestions: any[] }>;
 }
 
-// REAL RESEARCH — calls Lead Factory's research engine (Perplexity / Tavily /
-// web scrape) and auto-saves results into Lead Genome on completion.
-export interface ResearchBrief {
-  icpDescription: string;
-  titles?: string[];
-  seniority?: string[];
-  departments?: string[];
-  industries?: string[];
-  location?: string;
-  languages?: string[];
-  limit?: number;
-  source?: "lead-factory" | "prosengine" | "ai-chat" | "manual";
-}
+// REAL RESEARCH lives in the engines (Lead Factory / ProsEngine / Harvest AI
+// / AI Chat). They push found leads into Lead Genome via /save.
+// Lead Genome itself only does: save · hunt (filter saved) · lists · enrich.
 
-export async function researchLeadGenome(brief: ResearchBrief) {
-  const r = await fetch(`${BASE}/api/lead-genome/research`, {
+// ── Lists (categorization / segmentation / personas) ─────────────────────
+export async function createLeadList(name: string, criteria = "") {
+  const r = await fetch(`${BASE}/api/lead-genome/lists`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(brief),
+    body: JSON.stringify({ name, criteria }),
   });
-  if (!r.ok) throw new Error(`research failed: ${r.status}`);
-  return r.json() as Promise<{ ok: boolean; jobId: string; message: string }>;
+  if (!r.ok) throw new Error(`list create failed: ${r.status}`);
+  return r.json() as Promise<{ ok: boolean; list: any }>;
+}
+
+export async function listLeadLists() {
+  const r = await fetch(`${BASE}/api/lead-genome/lists`);
+  if (!r.ok) throw new Error(`list query failed: ${r.status}`);
+  return r.json() as Promise<{ lists: any[] }>;
+}
+
+export async function getLeadList(id: number) {
+  const r = await fetch(`${BASE}/api/lead-genome/lists/${id}`);
+  if (!r.ok) throw new Error(`list ${id} failed: ${r.status}`);
+  return r.json() as Promise<{ list: any; items: any[] }>;
+}
+
+export async function addLeadsToList(id: number, leadIds: number[]) {
+  const r = await fetch(`${BASE}/api/lead-genome/lists/${id}/items`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ leadIds }),
+  });
+  if (!r.ok) throw new Error(`add items failed: ${r.status}`);
+  return r.json() as Promise<{ ok: boolean; added: number }>;
+}
+
+// ── Deep enrich an existing saved lead ───────────────────────────────────
+export async function enrichSavedLead(leadId: number) {
+  const r = await fetch(`${BASE}/api/lead-genome/enrich/${leadId}`, {
+    method: "POST",
+  });
+  if (!r.ok) throw new Error(`enrich failed: ${r.status}`);
+  return r.json() as Promise<{ ok: boolean; jobId: string; leadId: number; message: string }>;
 }
 
 export async function companySuggest(q: string) {
