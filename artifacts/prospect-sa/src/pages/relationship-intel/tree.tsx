@@ -114,7 +114,7 @@ function OrgNodeRow({
     <>
       <div
         className={cn(
-          "flex items-center gap-2 px-2 py-1.5 hover:bg-card/60 cursor-pointer rounded transition-colors",
+          "flex items-center gap-2 px-2 py-1.5 hover:bg-card/70 cursor-pointer rounded transition-colors",
           selectedId === node.id && "bg-primary/10 ring-1 ring-primary/30",
         )}
         style={{ paddingLeft: `${depth * 16 + 8}px` }}
@@ -369,12 +369,12 @@ export default function RelationshipIntelTreePage() {
 
       {/* States */}
       {!activeJobId && (
-        <Card className="bg-card/40 border-border/40"><CardContent className="p-6 text-sm text-muted-foreground text-center">
+        <Card className="bg-card/65 border-border/40"><CardContent className="p-6 text-sm text-muted-foreground text-center">
           Enter a job id to load the org chart, or start a new run from <a href="/relationship-intel" className="text-primary hover:underline">/relationship-intel</a>.
         </CardContent></Card>
       )}
       {activeJobId && isLoading && (
-        <Card className="bg-card/40 border-border/40"><CardContent className="p-6 text-sm text-muted-foreground text-center flex items-center justify-center gap-2">
+        <Card className="bg-card/65 border-border/40"><CardContent className="p-6 text-sm text-muted-foreground text-center flex items-center justify-center gap-2">
           <Loader2 className="w-4 h-4 animate-spin" /> Loading job {activeJobId}…
         </CardContent></Card>
       )}
@@ -387,7 +387,7 @@ export default function RelationshipIntelTreePage() {
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6">
         {/* Org chart */}
         {job && rootNodes.length > 0 && (
-          <Card className="bg-card/40 border-border/40">
+          <Card className="bg-card/65 border-border/40">
             <CardContent className="p-2">
               <div className="text-xs font-semibold uppercase text-muted-foreground px-2 py-2 border-b border-border/30 mb-2">
                 Org chart ({rootNodes.length} root{rootNodes.length === 1 ? "" : "s"})
@@ -413,7 +413,7 @@ export default function RelationshipIntelTreePage() {
         {job && (
           <div className="space-y-4">
             {job.networkData && job.networkData.length > 0 && (
-              <Card className="bg-card/40 border-border/40">
+              <Card className="bg-card/65 border-border/40">
                 <CardContent className="p-3">
                   <div className="text-xs font-semibold uppercase text-muted-foreground mb-2">Adjacent companies</div>
                   <div className="space-y-1.5">
@@ -440,7 +440,7 @@ export default function RelationshipIntelTreePage() {
             )}
 
             {job.outreachPlan && job.outreachPlan.length > 0 && (
-              <Card className="bg-card/40 border-border/40">
+              <Card className="bg-card/65 border-border/40">
                 <CardContent className="p-3">
                   <div className="text-xs font-semibold uppercase text-muted-foreground mb-2">Outreach plan</div>
                   <div className="space-y-1.5">

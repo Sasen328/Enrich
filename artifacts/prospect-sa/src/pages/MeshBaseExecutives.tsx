@@ -472,7 +472,7 @@ export default function MeshBaseExecutives() {
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {Array.from({ length: 12 }).map((_, i) => (
-            <div key={i} className="h-52 rounded-xl border border-border/40 bg-card/40 animate-pulse" />
+            <div key={i} className="h-52 rounded-xl border border-border/40 bg-card/65 animate-pulse" />
           ))}
         </div>
       ) : executives.length === 0 ? (
@@ -492,7 +492,7 @@ export default function MeshBaseExecutives() {
               <Card
                 key={e.id}
                 className={cn(
-                  "border-border/50 bg-card/60 hover:bg-card/80 transition-all cursor-pointer group relative",
+                  "border-border/50 bg-card/70 hover:bg-card/80 transition-all cursor-pointer group relative",
                   manageMode && isSelected && "border-primary/50 bg-primary/5 ring-1 ring-primary/30"
                 )}
                 onClick={() => manageMode ? toggleSelect(e.id) : navigate(`/meshbase/executives/${e.id}`)}

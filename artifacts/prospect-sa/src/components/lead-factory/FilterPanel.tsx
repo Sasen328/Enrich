@@ -75,7 +75,7 @@ function Section({ title, defaultOpen, children }: { title: string; defaultOpen?
     <div className="border-b border-border/40 last:border-b-0">
       <button
         type="button"
-        className="w-full flex items-center justify-between py-2 px-3 hover:bg-card/40 text-sm font-semibold uppercase tracking-wide text-muted-foreground"
+        className="w-full flex items-center justify-between py-2 px-3 hover:bg-card/65 text-sm font-semibold uppercase tracking-wide text-muted-foreground"
         onClick={() => setOpen(!open)}
       >
         <span>{title}</span>
@@ -110,7 +110,7 @@ function ChipMulti({
             "text-[11px] px-2 py-0.5 rounded-md border transition-colors",
             sel.has(o)
               ? "bg-primary/20 border-primary/50 text-primary"
-              : "bg-card/40 border-border/40 text-muted-foreground hover:border-primary/30"
+              : "bg-card/65 border-border/40 text-muted-foreground hover:border-primary/30"
           )}
         >
           {o}
@@ -176,8 +176,8 @@ export function FilterPanel({ mode, value, onChange, onSubmit, submitting }: Fil
   const patch = (delta: Partial<LeadFactoryBrief>) => onChange({ ...value, ...delta });
 
   return (
-    <div className="rounded-lg border border-border/40 bg-card/40 overflow-hidden">
-      <div className="flex items-center gap-2 px-3 py-2 border-b border-border/40 bg-card/60">
+    <div className="rounded-lg border border-border/40 bg-card/65 overflow-hidden">
+      <div className="flex items-center gap-2 px-3 py-2 border-b border-border/40 bg-card/70">
         <Filter className="w-4 h-4 text-primary" />
         <span className="font-semibold text-sm">
           Filters — {mode === "person" ? "Person mode" : "Company mode"}
@@ -347,7 +347,7 @@ export function FilterPanel({ mode, value, onChange, onSubmit, submitting }: Fil
         </label>
       </Section>
 
-      <div className="p-3 border-t border-border/40 bg-card/60">
+      <div className="p-3 border-t border-border/40 bg-card/70">
         <Button onClick={onSubmit} disabled={submitting} className="w-full gap-2">
           {submitting ? "Running…" : `Run ${mode === "person" ? "Person" : "Company"} Hunt →`}
         </Button>

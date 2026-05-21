@@ -94,7 +94,7 @@ export default function ChatLayout() {
           >
             <span className={`w-4 h-4 rounded-full inline-flex items-center justify-center text-[9px] ${
               stage === s.id ? "bg-primary text-primary-foreground"
-              : reached.has(s.id) ? "bg-emerald-500 text-white"
+              : reached.has(s.id) ? "bg-emerald-500 text-foreground"
               : "bg-muted"
             }`}>{i + 1}</span>
             {s.label}
@@ -125,7 +125,7 @@ export default function ChatLayout() {
                   setReportShape((r.reportShape as "exec" | "detail" | "custom") || "detail");
                   goto("report");
                 }}
-                className="text-left text-xs p-2 rounded-lg border border-border bg-card/40 hover:border-primary/30"
+                className="text-left text-xs p-2 rounded-lg border border-border bg-card/65 hover:border-primary/30"
               >
                 <div className="text-[10px] text-muted-foreground">{new Date(r.createdAt).toLocaleString()}</div>
                 <div className="font-semibold text-foreground truncate mt-0.5">
@@ -152,7 +152,7 @@ export default function ChatLayout() {
       )}
 
       {stage === "enhance" && (
-        <div className="border border-border rounded-xl bg-card/60 p-4">
+        <div className="border border-border rounded-xl bg-card/70 p-4">
           <div className="text-sm font-bold mb-3 flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-amber-500" /> Enhanced Prompt
           </div>
@@ -181,7 +181,7 @@ export default function ChatLayout() {
       )}
 
       {stage === "run" && (
-        <div className="border border-border rounded-xl bg-card/60 p-4">
+        <div className="border border-border rounded-xl bg-card/70 p-4">
           <div className="text-sm font-bold mb-3 flex items-center gap-2">
             <span className="w-3 h-3 rounded-full bg-primary animate-pulse" /> Agents working
           </div>
@@ -202,7 +202,7 @@ export default function ChatLayout() {
       )}
 
       {stage === "report" && (
-        <div className="border border-border rounded-xl bg-card/60 p-4">
+        <div className="border border-border rounded-xl bg-card/70 p-4">
           <div className="flex items-center justify-between mb-3">
             <div className="text-sm font-bold">Report</div>
             <Button variant="ghost" size="sm" onClick={() => goto("enrich")}>Continue: Enrich →</Button>

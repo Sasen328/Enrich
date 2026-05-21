@@ -14,13 +14,13 @@ function MarkdownMessage({ text }: { text: string }) {
     const line = lines[i];
     // H3 ###
     if (line.startsWith("### ")) {
-      elements.push(<p key={i} className="font-bold text-white mt-2 mb-0.5 text-[13px]">{inlineRender(line.slice(4))}</p>);
+      elements.push(<p key={i} className="font-bold text-foreground mt-2 mb-0.5 text-[13px]">{inlineRender(line.slice(4))}</p>);
     // H2 ##
     } else if (line.startsWith("## ")) {
       elements.push(<p key={i} className="font-bold text-primary mt-2.5 mb-1 text-[13px] uppercase tracking-wide">{inlineRender(line.slice(3))}</p>);
     // H1 #
     } else if (line.startsWith("# ")) {
-      elements.push(<p key={i} className="font-bold text-white mt-2 mb-1 text-sm">{inlineRender(line.slice(2))}</p>);
+      elements.push(<p key={i} className="font-bold text-foreground mt-2 mb-1 text-sm">{inlineRender(line.slice(2))}</p>);
     // Bullet - or *
     } else if (/^[-*] /.test(line)) {
       elements.push(
@@ -40,7 +40,7 @@ function MarkdownMessage({ text }: { text: string }) {
       );
     // Horizontal rule
     } else if (line.trim() === "---" || line.trim() === "***") {
-      elements.push(<hr key={i} className="border-white/10 my-1.5" />);
+      elements.push(<hr key={i} className="border-border/40 my-1.5" />);
     // Empty line
     } else if (line.trim() === "") {
       elements.push(<div key={i} className="h-1.5" />);
@@ -53,14 +53,14 @@ function MarkdownMessage({ text }: { text: string }) {
         i++;
       }
       elements.push(
-        <pre key={`code-${i}`} className="bg-white/5 rounded p-2 text-[10px] overflow-x-auto my-1 text-white/70 font-mono">{codeLines.join("\n")}</pre>
+        <pre key={`code-${i}`} className="bg-muted/40 rounded p-2 text-[10px] overflow-x-auto my-1 text-foreground/70 font-mono">{codeLines.join("\n")}</pre>
       );
     } else {
       elements.push(<p key={i} className="leading-relaxed">{inlineRender(line)}</p>);
     }
     i++;
   }
-  return <div className="space-y-0.5 text-sm text-white/85">{elements}</div>;
+  return <div className="space-y-0.5 text-sm text-foreground/85">{elements}</div>;
 }
 
 function inlineRender(text: string): React.ReactNode {
@@ -68,9 +68,9 @@ function inlineRender(text: string): React.ReactNode {
   const parts = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`)/g);
   return parts.map((part, idx) => {
     if (part.startsWith("**") && part.endsWith("**"))
-      return <strong key={idx} className="text-white font-semibold">{part.slice(2, -2)}</strong>;
+      return <strong key={idx} className="text-foreground font-semibold">{part.slice(2, -2)}</strong>;
     if (part.startsWith("*") && part.endsWith("*"))
-      return <em key={idx} className="text-white/70 italic">{part.slice(1, -1)}</em>;
+      return <em key={idx} className="text-foreground/70 italic">{part.slice(1, -1)}</em>;
     if (part.startsWith("`") && part.endsWith("`"))
       return <code key={idx} className="bg-white/10 px-1 rounded text-[11px] font-mono text-emerald-300">{part.slice(1, -1)}</code>;
     return <Fragment key={idx}>{part}</Fragment>;
@@ -258,19 +258,19 @@ export default function ProsEngineChat({ mode: modeProp, context: contextProp, c
               <Bot className={`w-4 h-4 ${modeAccent}`} />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-white">AI Research Assistant</p>
+              <p className="text-sm font-semibold text-foreground">AI Research Assistant</p>
               <p className="text-xs text-muted-foreground">{modeLabel} · Ask anything</p>
             </div>
             {/* Model selector */}
-            <div className="flex gap-1 bg-white/5 rounded-lg p-0.5 border border-white/8">
+            <div className="flex gap-1 bg-muted/40 rounded-lg p-0.5 border border-white/8">
               {MODELS.map(m => (
                 <button
                   key={m.id}
                   onClick={() => setSelectedModel(m.id)}
                   className={`text-[10px] font-medium px-2 py-1 rounded-md transition-all ${
                     selectedModel === m.id
-                      ? "bg-primary/25 text-white border border-primary/30"
-                      : "text-white/40 hover:text-white/70"
+                      ? "bg-primary/25 text-foreground border border-primary/30"
+                      : "text-foreground/40 hover:text-foreground/70"
                   }`}
                   title={m.label}
                 >
@@ -278,7 +278,7 @@ export default function ProsEngineChat({ mode: modeProp, context: contextProp, c
                 </button>
               ))}
             </div>
-            <Button variant="ghost" size="icon" className="w-7 h-7 text-muted-foreground hover:text-white shrink-0"
+            <Button variant="ghost" size="icon" className="w-7 h-7 text-muted-foreground hover:text-foreground shrink-0"
               onClick={() => setOpen(false)}>
               <ChevronDown className="w-4 h-4" />
             </Button>
@@ -292,14 +292,14 @@ export default function ProsEngineChat({ mode: modeProp, context: contextProp, c
                   <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center shrink-0 mt-0.5">
                     <Bot className={`w-3.5 h-3.5 ${modeAccent}`} />
                   </div>
-                  <div className="flex-1 bg-white/5 rounded-xl rounded-tl-sm px-3 py-2.5 text-sm text-white/85">
+                  <div className="flex-1 bg-muted/40 rounded-xl rounded-tl-sm px-3 py-2.5 text-sm text-foreground/85">
                     I have full context of the generated {modeLabel.toLowerCase()} data. Ask me anything — follow-up research, corrections, deeper analysis, or outreach strategy.
                   </div>
                 </div>
                 <div className="space-y-1.5 pl-8">
                   {suggestions.map((s, i) => (
                     <button key={i} onClick={() => send(s)}
-                      className="w-full text-left text-xs px-3 py-2 rounded-lg border border-white/8 bg-white/3 text-white/70 hover:bg-white/8 hover:text-white transition-all">
+                      className="w-full text-left text-xs px-3 py-2 rounded-lg border border-white/8 bg-white/3 text-foreground/70 hover:bg-white/8 hover:text-foreground transition-all">
                       {s}
                     </button>
                   ))}
@@ -315,8 +315,8 @@ export default function ProsEngineChat({ mode: modeProp, context: contextProp, c
                 </div>
                 <div className={`flex-1 rounded-xl px-3 py-2.5 max-w-[85%] ${
                   msg.role === "user"
-                    ? "bg-primary/15 text-white rounded-tr-sm text-sm leading-relaxed whitespace-pre-wrap"
-                    : "bg-white/5 rounded-tl-sm"}`}>
+                    ? "bg-primary/15 text-foreground rounded-tr-sm text-sm leading-relaxed whitespace-pre-wrap"
+                    : "bg-muted/40 rounded-tl-sm"}`}>
                   {msg.role === "user"
                     ? msg.content
                     : <MarkdownMessage text={msg.content} />}
@@ -328,7 +328,7 @@ export default function ProsEngineChat({ mode: modeProp, context: contextProp, c
                 <div className="w-6 h-6 rounded-full bg-white/8 flex items-center justify-center shrink-0 mt-0.5">
                   <Bot className={`w-3.5 h-3.5 ${modeAccent}`} />
                 </div>
-                <div className="bg-white/5 rounded-xl rounded-tl-sm px-3 py-2.5 flex-1 space-y-1.5">
+                <div className="bg-muted/40 rounded-xl rounded-tl-sm px-3 py-2.5 flex-1 space-y-1.5">
                   {liveSteps.map((step, i) => (
                     <div key={i} className="flex items-center gap-2 text-[11px]">
                       <span className={`flex items-center justify-center w-4 h-4 rounded-full shrink-0 ${
@@ -338,7 +338,7 @@ export default function ProsEngineChat({ mode: modeProp, context: contextProp, c
                           ? <Loader2 className="w-3 h-3 animate-spin" />
                           : AGENT_ICONS[step.agent] ?? <Zap className="w-3 h-3" />}
                       </span>
-                      <span className={`${step.status === "running" ? "text-white/70" : step.status === "done" ? "text-white/50" : "text-red-400/70"}`}>
+                      <span className={`${step.status === "running" ? "text-foreground/70" : step.status === "done" ? "text-foreground/50" : "text-red-400/70"}`}>
                         {step.agent}
                         {step.status === "done" ? " ✓" : step.status === "failed" ? " ✗" : "…"}
                       </span>
@@ -352,7 +352,7 @@ export default function ProsEngineChat({ mode: modeProp, context: contextProp, c
                 <div className="w-6 h-6 rounded-full bg-white/8 flex items-center justify-center shrink-0">
                   <Bot className={`w-3.5 h-3.5 ${modeAccent}`} />
                 </div>
-                <div className="bg-white/5 rounded-xl rounded-tl-sm px-3 py-2.5">
+                <div className="bg-muted/40 rounded-xl rounded-tl-sm px-3 py-2.5">
                   <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
                 </div>
               </div>
@@ -371,7 +371,7 @@ export default function ProsEngineChat({ mode: modeProp, context: contextProp, c
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
                 placeholder="Ask a follow-up, request corrections, or fetch more data…"
-                className="flex-1 min-h-[38px] max-h-[100px] resize-none bg-white/5 border-white/10 text-white placeholder:text-muted-foreground text-sm py-2 px-3"
+                className="flex-1 min-h-[38px] max-h-[100px] resize-none bg-muted/40 border-border/40 text-foreground placeholder:text-muted-foreground text-sm py-2 px-3"
                 rows={1}
               />
               <Button size="icon" onClick={() => send()}
@@ -393,7 +393,7 @@ export default function ProsEngineChat({ mode: modeProp, context: contextProp, c
         {open ? <X className="w-4 h-4" /> : <MessageCircle className="w-4 h-4" />}
         {open ? "Close" : "AI Assistant"}
         {!open && messages.length > 0 && (
-          <span className="bg-white/20 text-white text-xs px-1.5 py-0.5 rounded-full">{messages.filter(m => m.role === "user").length}</span>
+          <span className="bg-white/20 text-foreground text-xs px-1.5 py-0.5 rounded-full">{messages.filter(m => m.role === "user").length}</span>
         )}
       </Button>
     </div>

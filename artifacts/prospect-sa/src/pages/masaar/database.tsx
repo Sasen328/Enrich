@@ -1382,7 +1382,7 @@ export default function MasaarDatabasePage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="border-b border-border/40 bg-card/50 backdrop-blur-xl px-6 py-5">
+      <div className="border-b border-border/40 bg-card/75 backdrop-blur-xl px-6 py-5">
         <div className="flex items-start justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
@@ -1493,7 +1493,7 @@ export default function MasaarDatabasePage() {
       <div className="p-6 space-y-4">
 
         {/* ── Harvest Control ── */}
-        <div className="bg-card/60 border border-border/40 rounded-2xl p-5 space-y-4">
+        <div className="bg-card/70 border border-border/40 rounded-2xl p-5 space-y-4">
           <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
             <Zap className="w-4 h-4 text-primary" />
             AI Agent Harvester
@@ -1970,7 +1970,7 @@ export default function MasaarDatabasePage() {
         </div>
 
         {/* ── Table ── */}
-        <div className="bg-card/60 border border-border/40 rounded-2xl overflow-hidden">
+        <div className="bg-card/70 border border-border/40 rounded-2xl overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>

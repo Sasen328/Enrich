@@ -76,11 +76,11 @@ function Section({ title, icon: Icon, color = "text-primary", badge, children, d
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <Card className="bg-card/60 border-white/8">
+    <Card className="bg-card/70 border-white/8">
       <button className="w-full px-5 py-4 flex items-center gap-3" onClick={() => setOpen(!open)}>
         <Icon className={`w-4 h-4 ${color}`} />
-        <span className="text-sm font-semibold text-white">{title}</span>
-        {badge && <Badge className="bg-white/5 text-white/60 border-white/10 border text-xs ml-1">{badge}</Badge>}
+        <span className="text-sm font-semibold text-foreground">{title}</span>
+        {badge && <Badge className="bg-muted/40 text-foreground/60 border-border/40 border text-xs ml-1">{badge}</Badge>}
         <div className="ml-auto">{open ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}</div>
       </button>
       {open && <CardContent className="px-5 pb-5 pt-0">{children}</CardContent>}
@@ -100,10 +100,10 @@ function StepBar({ current }: { current: number }) {
         return (
           <div key={label} className="flex items-center gap-1.5 flex-1">
             <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-all
-              ${done ? "bg-primary text-white" : active ? "bg-primary/20 text-primary border border-primary/50" : "bg-white/5 text-muted-foreground border border-white/10"}`}>
+              ${done ? "bg-primary text-foreground" : active ? "bg-primary/20 text-primary border border-primary/50" : "bg-muted/40 text-muted-foreground border border-border/40"}`}>
               {done ? <CheckCircle2 className="w-3.5 h-3.5" /> : idx}
             </div>
-            <span className={`text-xs hidden sm:block ${active ? "text-white font-medium" : "text-muted-foreground"}`}>{label}</span>
+            <span className={`text-xs hidden sm:block ${active ? "text-foreground font-medium" : "text-muted-foreground"}`}>{label}</span>
             {i < STEP_LABELS.length - 1 && <div className={`flex-1 h-px ${done ? "bg-primary/40" : "bg-white/10"}`} />}
           </div>
         );
@@ -116,7 +116,7 @@ function StepBar({ current }: { current: number }) {
 function CopyBtn({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
   return (
-    <Button variant="ghost" size="sm" className="h-7 px-2 text-muted-foreground hover:text-white shrink-0"
+    <Button variant="ghost" size="sm" className="h-7 px-2 text-muted-foreground hover:text-foreground shrink-0"
       onClick={() => { navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 1500); }}>
       {copied ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" />}
     </Button>
@@ -263,7 +263,7 @@ export default function PersonIntelPage() {
             <Brain className="w-4 h-4 text-violet-400" />
           </div>
           <div>
-            <h1 className="text-xl font-display font-bold text-white">Person Intelligence</h1>
+            <h1 className="text-xl font-display font-bold text-foreground">Person Intelligence</h1>
             <p className="text-xs text-muted-foreground">AI-powered dossier · wealth · career · strategy</p>
           </div>
         </div>
@@ -278,40 +278,40 @@ export default function PersonIntelPage() {
         </div>
       )}
 
-      <Card className="bg-card/60 border-white/8">
+      <Card className="bg-card/70 border-white/8">
         <CardContent className="p-6">
           {/* Step 1: Identity */}
           {step === 1 && (
             <div className="space-y-4">
               <div>
-                <p className="text-base font-semibold text-white mb-1">Who is the target person?</p>
+                <p className="text-base font-semibold text-foreground mb-1">Who is the target person?</p>
                 <p className="text-sm text-muted-foreground mb-4">The more you provide, the more accurate and personalised the intelligence report will be.</p>
               </div>
               <div>
                 <label className="text-xs text-muted-foreground mb-1.5 block">Full Name <span className="text-red-400">*</span></label>
                 <Input placeholder="e.g. Mohammed Al-Rashid" value={wizard.name}
                   onChange={(e) => set("name", e.target.value)}
-                  className="bg-white/5 border-white/10 text-white placeholder:text-muted-foreground" />
+                  className="bg-muted/40 border-border/40 text-foreground placeholder:text-muted-foreground" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-muted-foreground mb-1.5 block">Title / Role</label>
                   <Input placeholder="e.g. CEO" value={wizard.title}
                     onChange={(e) => set("title", e.target.value)}
-                    className="bg-white/5 border-white/10 text-white placeholder:text-muted-foreground" />
+                    className="bg-muted/40 border-border/40 text-foreground placeholder:text-muted-foreground" />
                 </div>
                 <div>
                   <label className="text-xs text-muted-foreground mb-1.5 block">Company</label>
                   <Input placeholder="e.g. Saudi Aramco" value={wizard.company}
                     onChange={(e) => set("company", e.target.value)}
-                    className="bg-white/5 border-white/10 text-white placeholder:text-muted-foreground" />
+                    className="bg-muted/40 border-border/40 text-foreground placeholder:text-muted-foreground" />
                 </div>
               </div>
               <div>
                 <label className="text-xs text-muted-foreground mb-1.5 block">LinkedIn URL (optional)</label>
                 <Input placeholder="https://linkedin.com/in/..." value={wizard.linkedin}
                   onChange={(e) => set("linkedin", e.target.value)}
-                  className="bg-white/5 border-white/10 text-white placeholder:text-muted-foreground" />
+                  className="bg-muted/40 border-border/40 text-foreground placeholder:text-muted-foreground" />
               </div>
               {/* Quick-fill executives from Website Intelligence localStorage */}
               {contextExecs.length > 0 && !wizard.name && (
@@ -329,7 +329,7 @@ export default function PersonIntelPage() {
                           title: exec.title || w.title,
                           company: exec.company || w.company,
                         }))}
-                        className="text-left px-3 py-1.5 rounded-lg bg-violet-500/10 border border-violet-500/20 hover:bg-violet-500/20 transition-all text-xs text-violet-200 hover:text-white">
+                        className="text-left px-3 py-1.5 rounded-lg bg-violet-500/10 border border-violet-500/20 hover:bg-violet-500/20 transition-all text-xs text-violet-200 hover:text-foreground">
                         <span className="font-medium">{exec.name}</span>
                         {exec.title && <span className="text-violet-400/70 ml-1">· {exec.title}</span>}
                       </button>
@@ -344,20 +344,20 @@ export default function PersonIntelPage() {
           {step === 2 && (
             <div className="space-y-4">
               <div>
-                <p className="text-base font-semibold text-white mb-1">What's your selling context?</p>
+                <p className="text-base font-semibold text-foreground mb-1">What's your selling context?</p>
                 <p className="text-sm text-muted-foreground mb-4">This personalises the approach strategy and value proposition to your specific situation. Skip if not applicable.</p>
               </div>
               <div>
                 <label className="text-xs text-muted-foreground mb-1.5 block">Your company name</label>
                 <Input placeholder="e.g. Acme Solutions" value={wizard.sellerContext.companyName}
                   onChange={(e) => setCtx("companyName", e.target.value)}
-                  className="bg-white/5 border-white/10 text-white placeholder:text-muted-foreground" />
+                  className="bg-muted/40 border-border/40 text-foreground placeholder:text-muted-foreground" />
               </div>
               <div>
                 <label className="text-xs text-muted-foreground mb-1.5 block">Your product or service</label>
                 <Input placeholder="e.g. ERP software for manufacturing companies" value={wizard.sellerContext.product}
                   onChange={(e) => setCtx("product", e.target.value)}
-                  className="bg-white/5 border-white/10 text-white placeholder:text-muted-foreground" />
+                  className="bg-muted/40 border-border/40 text-foreground placeholder:text-muted-foreground" />
               </div>
               <div>
                 <label className="text-xs text-muted-foreground mb-1.5 block">Your objective <span className="text-muted-foreground/60">(select all that apply)</span></label>
@@ -366,7 +366,7 @@ export default function PersonIntelPage() {
                     const active = wizard.sellerContext.objectives.includes(obj);
                     return (
                       <button key={obj} onClick={() => toggleObjective(obj)}
-                        className={`text-xs px-3 py-2 rounded-lg border transition-all flex items-center gap-1.5 ${active ? "border-primary/50 bg-primary/15 text-white" : "border-white/10 bg-white/5 text-muted-foreground hover:border-white/20"}`}>
+                        className={`text-xs px-3 py-2 rounded-lg border transition-all flex items-center gap-1.5 ${active ? "border-primary/50 bg-primary/15 text-foreground" : "border-border/40 bg-muted/40 text-muted-foreground hover:border-white/20"}`}>
                         {active && <Check className="w-3 h-3 text-primary" />}
                         {obj}
                       </button>
@@ -381,7 +381,7 @@ export default function PersonIntelPage() {
           {step === 3 && (
             <div className="space-y-4">
               <div>
-                <p className="text-base font-semibold text-white mb-1">What intelligence do you need?</p>
+                <p className="text-base font-semibold text-foreground mb-1">What intelligence do you need?</p>
                 <p className="text-sm text-muted-foreground mb-4">Select all that apply. Each section will be generated in depth.</p>
               </div>
               <div className="space-y-2">
@@ -390,11 +390,11 @@ export default function PersonIntelPage() {
                   return (
                     <button key={id} onClick={() => toggleGoal(id)}
                       className={`w-full flex items-center gap-3 p-3.5 rounded-xl border transition-all text-left ${active ? "border-violet-500/40 bg-violet-500/10" : "border-white/8 bg-white/3 hover:border-white/15"}`}>
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${active ? "bg-violet-500/20" : "bg-white/5"}`}>
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${active ? "bg-violet-500/20" : "bg-muted/40"}`}>
                         <Icon className={`w-4 h-4 ${active ? "text-violet-400" : "text-muted-foreground"}`} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-white">{label}</p>
+                        <p className="text-sm font-medium text-foreground">{label}</p>
                         <p className="text-xs text-muted-foreground">{desc}</p>
                       </div>
                       {active && <CheckCircle2 className="w-4 h-4 text-violet-400 shrink-0" />}
@@ -409,14 +409,14 @@ export default function PersonIntelPage() {
           {step === 4 && (
             <div className="space-y-4">
               <div>
-                <p className="text-base font-semibold text-white mb-1">What do you already know about this person?</p>
+                <p className="text-base font-semibold text-foreground mb-1">What do you already know about this person?</p>
                 <p className="text-sm text-muted-foreground mb-4">Add any facts, notes, or context you already have. The AI will treat these as confirmed data and build on them to produce a more accurate report.</p>
               </div>
               <Textarea
                 placeholder={`Examples:\n• Met at the Vision 2030 conference in Riyadh, Dec 2025\n• Company recently raised Series B of $40M\n• Known to be interested in digital transformation\n• Has been with current company for 8 years\n• Previously worked at KPMG Saudi Arabia`}
                 value={wizard.knownFacts}
                 onChange={(e) => set("knownFacts", e.target.value)}
-                className="bg-white/5 border-white/10 text-white placeholder:text-muted-foreground/60 min-h-[200px] text-sm resize-none"
+                className="bg-muted/40 border-border/40 text-foreground placeholder:text-muted-foreground/60 min-h-[200px] text-sm resize-none"
               />
               <p className="text-xs text-muted-foreground">Leave empty to rely entirely on AI knowledge. The more facts you provide, the more accurate the dossier.</p>
             </div>
@@ -426,21 +426,21 @@ export default function PersonIntelPage() {
           {step === 5 && (
             <div className="space-y-4">
               <div>
-                <p className="text-base font-semibold text-white mb-1">Ready to generate intelligence report</p>
+                <p className="text-base font-semibold text-foreground mb-1">Ready to generate intelligence report</p>
                 <p className="text-sm text-muted-foreground mb-4">Review your inputs, then launch the AI analysis.</p>
               </div>
               <div className="space-y-2">
-                <div className="p-3 rounded-xl bg-white/5 border border-white/8">
+                <div className="p-3 rounded-xl bg-muted/40 border border-white/8">
                   <p className="text-xs text-muted-foreground mb-0.5">Target Person</p>
-                  <p className="text-sm font-medium text-white">{wizard.name}{wizard.title && ` · ${wizard.title}`}{wizard.company && ` @ ${wizard.company}`}</p>
+                  <p className="text-sm font-medium text-foreground">{wizard.name}{wizard.title && ` · ${wizard.title}`}{wizard.company && ` @ ${wizard.company}`}</p>
                 </div>
                 {wizard.sellerContext.companyName && (
-                  <div className="p-3 rounded-xl bg-white/5 border border-white/8">
+                  <div className="p-3 rounded-xl bg-muted/40 border border-white/8">
                     <p className="text-xs text-muted-foreground mb-0.5">Your Context</p>
-                    <p className="text-sm font-medium text-white">{wizard.sellerContext.companyName} · {wizard.sellerContext.product || "—"}{wizard.sellerContext.objectives.length > 0 && ` · ${wizard.sellerContext.objectives.join(" + ")}`}</p>
+                    <p className="text-sm font-medium text-foreground">{wizard.sellerContext.companyName} · {wizard.sellerContext.product || "—"}{wizard.sellerContext.objectives.length > 0 && ` · ${wizard.sellerContext.objectives.join(" + ")}`}</p>
                   </div>
                 )}
-                <div className="p-3 rounded-xl bg-white/5 border border-white/8">
+                <div className="p-3 rounded-xl bg-muted/40 border border-white/8">
                   <p className="text-xs text-muted-foreground mb-1.5">Intelligence Modules ({wizard.goals.length})</p>
                   <div className="flex flex-wrap gap-1.5">
                     {wizard.goals.map(g => {
@@ -450,9 +450,9 @@ export default function PersonIntelPage() {
                   </div>
                 </div>
                 {wizard.knownFacts.trim() && (
-                  <div className="p-3 rounded-xl bg-white/5 border border-white/8">
+                  <div className="p-3 rounded-xl bg-muted/40 border border-white/8">
                     <p className="text-xs text-muted-foreground mb-1">Known Facts</p>
-                    <p className="text-xs text-white/70 line-clamp-3">{wizard.knownFacts}</p>
+                    <p className="text-xs text-foreground/70 line-clamp-3">{wizard.knownFacts}</p>
                   </div>
                 )}
               </div>
@@ -469,12 +469,12 @@ export default function PersonIntelPage() {
             {step < 5 && (
               <>
                 {step > 1 && (
-                  <Button variant="outline" className="border-white/10 text-white hover:bg-white/5" onClick={() => setStep(s => s - 1)}>
+                  <Button variant="outline" className="border-border/40 text-foreground hover:bg-muted/40" onClick={() => setStep(s => s - 1)}>
                     <ArrowLeft className="w-4 h-4 mr-1.5" />Back
                   </Button>
                 )}
                 <Button onClick={() => setStep(s => s + 1)} disabled={!canNext()}
-                  className="flex-1 bg-violet-600 hover:bg-violet-700 text-white">
+                  className="flex-1 bg-violet-600 hover:bg-violet-700 text-foreground">
                   {step === 4 ? "Preview" : "Continue"}
                   <ArrowRight className="w-4 h-4 ml-1.5" />
                 </Button>
@@ -482,12 +482,12 @@ export default function PersonIntelPage() {
             )}
             {step === 5 && (
               <>
-                <Button variant="outline" className="border-white/10 text-white hover:bg-white/5" onClick={() => setStep(4)}>
+                <Button variant="outline" className="border-border/40 text-foreground hover:bg-muted/40" onClick={() => setStep(4)}>
                   <ArrowLeft className="w-4 h-4 mr-1.5" />Back
                 </Button>
                 <Button onClick={() => generateMutation.mutate()}
                   disabled={generateMutation.isPending}
-                  className="flex-1 bg-violet-600 hover:bg-violet-700 text-white font-semibold">
+                  className="flex-1 bg-violet-600 hover:bg-violet-700 text-foreground font-semibold">
                   {generateMutation.isPending
                     ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />{LOADING_MSGS[loadingMsgIdx]}</>
                     : <><Sparkles className="w-4 h-4 mr-2" />Generate Intelligence Report</>}
@@ -513,12 +513,12 @@ export default function PersonIntelPage() {
           <ArrowLeft className="w-4 h-4" />
         </Button>
         <div className="flex-1 min-w-0">
-          <h1 className="text-xl font-display font-bold text-white truncate">{profile.profile?.fullName}</h1>
+          <h1 className="text-xl font-display font-bold text-foreground truncate">{profile.profile?.fullName}</h1>
           <p className="text-xs text-muted-foreground">Intelligence Report · Generated by AI</p>
         </div>
         <div className="flex gap-2 shrink-0">
           <Button size="sm" onClick={() => { setProfile(null); setWizard(DEFAULT_WIZARD); setStep(1); setSaved(false); }}
-            variant="outline" className="border-white/10 text-white hover:bg-white/5 text-xs">
+            variant="outline" className="border-border/40 text-foreground hover:bg-muted/40 text-xs">
             <RefreshCw className="w-3.5 h-3.5 mr-1.5" />New Profile
           </Button>
           <Button size="sm" onClick={() => saveMutation.mutate()} disabled={saved || saveMutation.isPending}
@@ -539,7 +539,7 @@ export default function PersonIntelPage() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-start gap-3 flex-wrap">
                   <div>
-                    <h2 className="text-2xl font-display font-bold text-white">{profile.profile?.fullName}</h2>
+                    <h2 className="text-2xl font-display font-bold text-foreground">{profile.profile?.fullName}</h2>
                     {profile.profile?.arabicName && !["not found", "n/a", "unknown", "null", "none", "not available", ""].includes(profile.profile.arabicName.toLowerCase().trim()) && <p className="text-base text-violet-300 font-medium mt-0.5">{profile.profile.arabicName}</p>}
                   </div>
                   {profile.intelligence_notes?.confidence_level && (
@@ -567,39 +567,39 @@ export default function PersonIntelPage() {
             <div className="space-y-4">
               {profile.approach_strategy.recommended_approach && (
                 <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
-                  <p className="text-sm text-white/90 leading-relaxed whitespace-pre-wrap">{profile.approach_strategy.recommended_approach}</p>
+                  <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-wrap">{profile.approach_strategy.recommended_approach}</p>
                 </div>
               )}
               <div className="grid grid-cols-2 gap-3">
                 {profile.approach_strategy.best_channel && (
-                  <div className="p-3 rounded-xl bg-white/5 border border-white/8">
+                  <div className="p-3 rounded-xl bg-muted/40 border border-white/8">
                     <p className="text-xs text-muted-foreground mb-1">Best Channel</p>
-                    <p className="text-sm font-medium text-white">{profile.approach_strategy.best_channel}</p>
+                    <p className="text-sm font-medium text-foreground">{profile.approach_strategy.best_channel}</p>
                   </div>
                 )}
                 {profile.approach_strategy.best_timing && (
-                  <div className="p-3 rounded-xl bg-white/5 border border-white/8">
+                  <div className="p-3 rounded-xl bg-muted/40 border border-white/8">
                     <p className="text-xs text-muted-foreground mb-1">Best Timing</p>
-                    <p className="text-sm font-medium text-white">{profile.approach_strategy.best_timing}</p>
+                    <p className="text-sm font-medium text-foreground">{profile.approach_strategy.best_timing}</p>
                   </div>
                 )}
               </div>
               {profile.approach_strategy.opening_angle && (
                 <div>
                   <p className="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wider">Opening Angle</p>
-                  <p className="text-sm text-white/80 bg-white/5 rounded-lg p-3 border border-white/8">{profile.approach_strategy.opening_angle}</p>
+                  <p className="text-sm text-foreground/80 bg-muted/40 rounded-lg p-3 border border-white/8">{profile.approach_strategy.opening_angle}</p>
                 </div>
               )}
               {profile.approach_strategy.value_proposition && (
                 <div>
                   <p className="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wider">Value Proposition</p>
-                  <p className="text-sm text-white/80 bg-white/5 rounded-lg p-3 border border-white/8">{profile.approach_strategy.value_proposition}</p>
+                  <p className="text-sm text-foreground/80 bg-muted/40 rounded-lg p-3 border border-white/8">{profile.approach_strategy.value_proposition}</p>
                 </div>
               )}
               {profile.approach_strategy.cultural_notes && (
                 <div className="p-3 rounded-xl bg-amber-500/8 border border-amber-500/20">
                   <p className="text-xs font-semibold text-amber-400 mb-1">Cultural Notes (Saudi Context)</p>
-                  <p className="text-sm text-white/80">{profile.approach_strategy.cultural_notes}</p>
+                  <p className="text-sm text-foreground/80">{profile.approach_strategy.cultural_notes}</p>
                 </div>
               )}
               {profile.approach_strategy.conversation_starters && profile.approach_strategy.conversation_starters.length > 0 && (
@@ -607,7 +607,7 @@ export default function PersonIntelPage() {
                   <p className="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wider">Conversation Starters</p>
                   <div className="flex flex-wrap gap-2">
                     {profile.approach_strategy.conversation_starters.map((s, i) => (
-                      <span key={i} className="text-xs px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-white/80">{s}</span>
+                      <span key={i} className="text-xs px-3 py-1.5 rounded-lg bg-muted/40 border border-border/40 text-foreground/80">{s}</span>
                     ))}
                   </div>
                 </div>
@@ -617,7 +617,7 @@ export default function PersonIntelPage() {
                   <p className="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wider">Potential Objections</p>
                   <ul className="space-y-1">
                     {profile.approach_strategy.potential_objections.map((o, i) => (
-                      <li key={i} className="text-sm text-white/70 flex gap-2"><span className="text-red-400 shrink-0">×</span>{o}</li>
+                      <li key={i} className="text-sm text-foreground/70 flex gap-2"><span className="text-red-400 shrink-0">×</span>{o}</li>
                     ))}
                   </ul>
                 </div>
@@ -638,9 +638,9 @@ export default function PersonIntelPage() {
                   </div>
                 )}
                 {profile.wealth_profile.income_estimate && (
-                  <div className="p-4 rounded-xl bg-white/5 border border-white/8">
+                  <div className="p-4 rounded-xl bg-muted/40 border border-white/8">
                     <p className="text-xs text-muted-foreground mb-1">Annual Income Estimate</p>
-                    <p className="text-lg font-display font-bold text-white">{profile.wealth_profile.income_estimate}</p>
+                    <p className="text-lg font-display font-bold text-foreground">{profile.wealth_profile.income_estimate}</p>
                   </div>
                 )}
               </div>
@@ -650,9 +650,9 @@ export default function PersonIntelPage() {
                   <div className="flex flex-wrap gap-2">{profile.wealth_profile.wealth_sources.map((s, i) => <Badge key={i} className="bg-emerald-500/10 text-emerald-300 border-emerald-500/20 border">{s}</Badge>)}</div>
                 </div>
               )}
-              {profile.wealth_profile.assets && <div className="p-3 rounded-lg bg-white/5 border border-white/8"><p className="text-xs text-muted-foreground mb-1">Notable Assets & Holdings</p><p className="text-sm text-white/80">{profile.wealth_profile.assets}</p></div>}
-              {profile.wealth_profile.investments && <div className="p-3 rounded-lg bg-white/5 border border-white/8"><p className="text-xs text-muted-foreground mb-1">Investment Portfolio</p><p className="text-sm text-white/80">{profile.wealth_profile.investments}</p></div>}
-              {profile.wealth_profile.lifestyle_indicators && <div className="p-3 rounded-lg bg-white/5 border border-white/8"><p className="text-xs text-muted-foreground mb-1">Lifestyle Indicators</p><p className="text-sm text-white/80">{profile.wealth_profile.lifestyle_indicators}</p></div>}
+              {profile.wealth_profile.assets && <div className="p-3 rounded-lg bg-muted/40 border border-white/8"><p className="text-xs text-muted-foreground mb-1">Notable Assets & Holdings</p><p className="text-sm text-foreground/80">{profile.wealth_profile.assets}</p></div>}
+              {profile.wealth_profile.investments && <div className="p-3 rounded-lg bg-muted/40 border border-white/8"><p className="text-xs text-muted-foreground mb-1">Investment Portfolio</p><p className="text-sm text-foreground/80">{profile.wealth_profile.investments}</p></div>}
+              {profile.wealth_profile.lifestyle_indicators && <div className="p-3 rounded-lg bg-muted/40 border border-white/8"><p className="text-xs text-muted-foreground mb-1">Lifestyle Indicators</p><p className="text-sm text-foreground/80">{profile.wealth_profile.lifestyle_indicators}</p></div>}
             </div>
           </Section>
         )}
@@ -670,18 +670,18 @@ export default function PersonIntelPage() {
                   { label: "Est. Revenue", value: profile.company_analysis.revenue_estimate },
                   { label: "Market Position", value: profile.company_analysis.market_position },
                 ].filter(f => f.value).map(({ label, value }) => (
-                  <div key={label} className="p-3 rounded-xl bg-white/5 border border-white/8">
+                  <div key={label} className="p-3 rounded-xl bg-muted/40 border border-white/8">
                     <p className="text-xs text-muted-foreground mb-1">{label}</p>
-                    <p className="text-sm font-medium text-white">{value}</p>
+                    <p className="text-sm font-medium text-foreground">{value}</p>
                   </div>
                 ))}
               </div>
-              {profile.company_analysis.performance && <div className="p-3 rounded-lg bg-blue-500/8 border border-blue-500/20"><p className="text-xs font-semibold text-blue-400 mb-1">Performance Summary</p><p className="text-sm text-white/80">{profile.company_analysis.performance}</p></div>}
-              {profile.company_analysis.recent_developments && <div className="p-3 rounded-lg bg-white/5 border border-white/8"><p className="text-xs text-muted-foreground mb-1">Recent Developments</p><p className="text-sm text-white/80">{profile.company_analysis.recent_developments}</p></div>}
+              {profile.company_analysis.performance && <div className="p-3 rounded-lg bg-blue-500/8 border border-blue-500/20"><p className="text-xs font-semibold text-blue-400 mb-1">Performance Summary</p><p className="text-sm text-foreground/80">{profile.company_analysis.performance}</p></div>}
+              {profile.company_analysis.recent_developments && <div className="p-3 rounded-lg bg-muted/40 border border-white/8"><p className="text-xs text-muted-foreground mb-1">Recent Developments</p><p className="text-sm text-foreground/80">{profile.company_analysis.recent_developments}</p></div>}
               {profile.company_analysis.pain_points && profile.company_analysis.pain_points.length > 0 && (
                 <div>
                   <p className="text-xs text-muted-foreground mb-2">Likely Business Pain Points</p>
-                  <ul className="space-y-1">{profile.company_analysis.pain_points.map((p, i) => <li key={i} className="text-sm text-white/70 flex gap-2"><Zap className="w-3.5 h-3.5 text-yellow-400 shrink-0 mt-0.5" />{p}</li>)}</ul>
+                  <ul className="space-y-1">{profile.company_analysis.pain_points.map((p, i) => <li key={i} className="text-sm text-foreground/70 flex gap-2"><Zap className="w-3.5 h-3.5 text-yellow-400 shrink-0 mt-0.5" />{p}</li>)}</ul>
                 </div>
               )}
               {profile.company_analysis.competitors && profile.company_analysis.competitors.length > 0 && (
@@ -703,13 +703,13 @@ export default function PersonIntelPage() {
                 {profile.career.map((job, i) => (
                   <div key={i} className="relative">
                     <div className="absolute -left-5 top-1.5 w-2.5 h-2.5 rounded-full bg-orange-500/60 border-2 border-orange-500/30" />
-                    <div className="p-3 rounded-xl bg-white/5 border border-white/8">
+                    <div className="p-3 rounded-xl bg-muted/40 border border-white/8">
                       <div className="flex items-start justify-between gap-2 mb-1">
-                        <p className="text-sm font-semibold text-white">{job.title}</p>
+                        <p className="text-sm font-semibold text-foreground">{job.title}</p>
                         <span className="text-xs text-muted-foreground shrink-0">{job.period}</span>
                       </div>
                       <p className="text-xs font-medium text-orange-400 mb-1.5">{job.company}</p>
-                      {job.description && <p className="text-xs text-white/70 leading-relaxed">{job.description}</p>}
+                      {job.description && <p className="text-xs text-foreground/70 leading-relaxed">{job.description}</p>}
                     </div>
                   </div>
                 ))}
@@ -723,10 +723,10 @@ export default function PersonIntelPage() {
           <Section title="Education" icon={GraduationCap} color="text-indigo-400" defaultOpen={false}>
             <div className="space-y-3">
               {profile.education.map((edu, i) => (
-                <div key={i} className="p-3 rounded-xl bg-white/5 border border-white/8 flex items-start gap-3">
+                <div key={i} className="p-3 rounded-xl bg-muted/40 border border-white/8 flex items-start gap-3">
                   <div className="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center shrink-0 mt-0.5"><BookOpen className="w-4 h-4 text-indigo-400" /></div>
                   <div>
-                    <p className="text-sm font-medium text-white">{edu.degree}</p>
+                    <p className="text-sm font-medium text-foreground">{edu.degree}</p>
                     <p className="text-xs text-indigo-400">{edu.institution}</p>
                     {edu.year && <p className="text-xs text-muted-foreground mt-0.5">{edu.year}</p>}
                   </div>
@@ -740,7 +740,7 @@ export default function PersonIntelPage() {
         {profile.personal_profile && (wizard.goals.length === 0 || wizard.goals.includes("personal")) && (
           <Section title="Personal Profile" icon={Heart} color="text-pink-400" defaultOpen={false}>
             <div className="space-y-4">
-              {profile.personal_profile.communication_style && <div className="p-3 rounded-lg bg-white/5 border border-white/8"><p className="text-xs text-muted-foreground mb-1">Communication Style</p><p className="text-sm text-white/80">{profile.personal_profile.communication_style}</p></div>}
+              {profile.personal_profile.communication_style && <div className="p-3 rounded-lg bg-muted/40 border border-white/8"><p className="text-xs text-muted-foreground mb-1">Communication Style</p><p className="text-sm text-foreground/80">{profile.personal_profile.communication_style}</p></div>}
               {profile.personal_profile.interests && profile.personal_profile.interests.length > 0 && (
                 <div>
                   <p className="text-xs text-muted-foreground mb-2">Interests</p>
@@ -750,20 +750,20 @@ export default function PersonIntelPage() {
               {profile.personal_profile.personality_traits && profile.personal_profile.personality_traits.length > 0 && (
                 <div>
                   <p className="text-xs text-muted-foreground mb-2">Personality Traits</p>
-                  <div className="flex flex-wrap gap-2">{profile.personal_profile.personality_traits.map((t, i) => <Badge key={i} className="bg-white/5 text-white/80 border-white/10 border">{t}</Badge>)}</div>
+                  <div className="flex flex-wrap gap-2">{profile.personal_profile.personality_traits.map((t, i) => <Badge key={i} className="bg-muted/40 text-foreground/80 border-border/40 border">{t}</Badge>)}</div>
                 </div>
               )}
-              {profile.personal_profile.social_presence && <div className="p-3 rounded-lg bg-white/5 border border-white/8"><p className="text-xs text-muted-foreground mb-1">Social Presence</p><p className="text-sm text-white/80">{profile.personal_profile.social_presence}</p></div>}
+              {profile.personal_profile.social_presence && <div className="p-3 rounded-lg bg-muted/40 border border-white/8"><p className="text-xs text-muted-foreground mb-1">Social Presence</p><p className="text-sm text-foreground/80">{profile.personal_profile.social_presence}</p></div>}
               {profile.personal_profile.board_memberships && profile.personal_profile.board_memberships.length > 0 && (
                 <div>
                   <p className="text-xs text-muted-foreground mb-2">Board Memberships</p>
-                  <ul className="space-y-1">{profile.personal_profile.board_memberships.map((b, i) => <li key={i} className="text-xs text-white/80">{b}</li>)}</ul>
+                  <ul className="space-y-1">{profile.personal_profile.board_memberships.map((b, i) => <li key={i} className="text-xs text-foreground/80">{b}</li>)}</ul>
                 </div>
               )}
               {profile.personal_profile.awards && profile.personal_profile.awards.length > 0 && (
                 <div>
                   <p className="text-xs text-muted-foreground mb-2">Awards & Recognition</p>
-                  <ul className="space-y-1">{profile.personal_profile.awards.map((a, i) => <li key={i} className="text-xs text-white/80 flex gap-2"><Star className="w-3 h-3 text-yellow-400 shrink-0 mt-0.5" />{a}</li>)}</ul>
+                  <ul className="space-y-1">{profile.personal_profile.awards.map((a, i) => <li key={i} className="text-xs text-foreground/80 flex gap-2"><Star className="w-3 h-3 text-yellow-400 shrink-0 mt-0.5" />{a}</li>)}</ul>
                 </div>
               )}
             </div>
@@ -777,19 +777,19 @@ export default function PersonIntelPage() {
               {profile.intelligence_notes.verified_facts && profile.intelligence_notes.verified_facts.length > 0 && (
                 <div>
                   <p className="text-xs font-semibold text-green-400 mb-2">✓ Confirmed Public Knowledge</p>
-                  <ul className="space-y-1">{profile.intelligence_notes.verified_facts.map((f, i) => <li key={i} className="text-xs text-white/70 flex gap-2"><span className="text-green-400 shrink-0">✓</span>{f}</li>)}</ul>
+                  <ul className="space-y-1">{profile.intelligence_notes.verified_facts.map((f, i) => <li key={i} className="text-xs text-foreground/70 flex gap-2"><span className="text-green-400 shrink-0">✓</span>{f}</li>)}</ul>
                 </div>
               )}
               {profile.intelligence_notes.estimated_facts && profile.intelligence_notes.estimated_facts.length > 0 && (
                 <div>
                   <p className="text-xs font-semibold text-amber-400 mb-2">~ Intelligent Inference (not confirmed)</p>
-                  <ul className="space-y-1">{profile.intelligence_notes.estimated_facts.map((f, i) => <li key={i} className="text-xs text-white/70 flex gap-2"><span className="text-amber-400 shrink-0">~</span>{f}</li>)}</ul>
+                  <ul className="space-y-1">{profile.intelligence_notes.estimated_facts.map((f, i) => <li key={i} className="text-xs text-foreground/70 flex gap-2"><span className="text-amber-400 shrink-0">~</span>{f}</li>)}</ul>
                 </div>
               )}
               {profile.intelligence_notes.caveats && (
                 <div className="p-3 rounded-xl border border-amber-500/20 bg-amber-500/5 flex gap-3">
                   <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                  <p className="text-xs text-white/70">{profile.intelligence_notes.caveats}</p>
+                  <p className="text-xs text-foreground/70">{profile.intelligence_notes.caveats}</p>
                 </div>
               )}
               {profile.intelligence_notes.data_sources && (

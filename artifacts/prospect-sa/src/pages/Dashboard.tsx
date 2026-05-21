@@ -138,7 +138,7 @@ export default function Dashboard() {
   return (
     <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-500">
       <div>
-        <h1 className="text-3xl md:text-4xl font-display font-bold text-white tracking-tight">Intelligence Dashboard</h1>
+        <h1 className="text-3xl md:text-4xl font-display font-bold text-foreground tracking-tight">Intelligence Dashboard</h1>
         <p className="text-muted-foreground mt-1">Saudi B2B platform — real-time overview across all engines</p>
       </div>
 
@@ -178,16 +178,16 @@ export default function Dashboard() {
             bg: "bg-emerald-500/10",
           },
         ].map(({ label, value, sub, icon: Icon, color, bg }) => (
-          <Card key={label} className="border-white/10 bg-card/50 backdrop-blur-xl group hover:-translate-y-0.5 transition-all duration-300">
+          <Card key={label} className="border-border/40 bg-card/75 backdrop-blur-xl group hover:-translate-y-0.5 transition-all duration-300">
             <CardContent className="p-5">
               <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${bg} mb-4`}>
                 <Icon className={`w-5 h-5 ${color}`} />
               </div>
               <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">{label}</p>
               {value === null ? (
-                <Skeleton className="h-8 w-20 bg-white/5" />
+                <Skeleton className="h-8 w-20 bg-muted/40" />
               ) : (
-                <h3 className="text-2xl font-display font-bold text-white">{value}</h3>
+                <h3 className="text-2xl font-display font-bold text-foreground">{value}</h3>
               )}
               <p className="text-xs text-muted-foreground mt-1">{sub}</p>
             </CardContent>
@@ -202,14 +202,14 @@ export default function Dashboard() {
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-3">
           {sourceEngines.map(({ label, sub, icon: Icon, color, bg, border, value, unit }) => (
-            <Card key={label} className={`border-white/10 ${border} bg-card/40 backdrop-blur-sm hover:-translate-y-0.5 transition-all duration-200`}>
+            <Card key={label} className={`border-border/40 ${border} bg-card/65 backdrop-blur-sm hover:-translate-y-0.5 transition-all duration-200`}>
               <CardContent className="p-4">
                 <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${bg} mb-3`}>
                   <Icon className={`w-4 h-4 ${color}`} />
                 </div>
                 <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">{label}</p>
                 {value === null ? (
-                  <Skeleton className="h-7 w-16 bg-white/5 mb-1" />
+                  <Skeleton className="h-7 w-16 bg-muted/40 mb-1" />
                 ) : (
                   <h4 className={`text-2xl font-display font-bold ${color}`}>{value}</h4>
                 )}
@@ -222,7 +222,7 @@ export default function Dashboard() {
 
       {/* Charts row 1 */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2 bg-card/40 backdrop-blur-sm border-white/10">
+        <Card className="lg:col-span-2 bg-card/65 backdrop-blur-sm border-border/40">
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-display">Top Industries</CardTitle>
             <CardDescription>OrcBase — companies by sector (top 15)</CardDescription>
@@ -231,7 +231,7 @@ export default function Dashboard() {
             {isLoading ? (
               <div className="h-full flex items-end gap-2">
                 {Array.from({ length: 10 }).map((_, i) => (
-                  <div key={i} className="flex-1 bg-white/5 rounded animate-pulse" style={{ height: `${Math.random() * 60 + 20}%` }} />
+                  <div key={i} className="flex-1 bg-muted/40 rounded animate-pulse" style={{ height: `${Math.random() * 60 + 20}%` }} />
                 ))}
               </div>
             ) : (
@@ -240,12 +240,12 @@ export default function Dashboard() {
                   data={(quality?.byIndustry ?? stats?.industriesBreakdown?.map(i => ({ industry: i.industry, count: i.count })) ?? []).slice(0, 15)}
                   margin={{ top: 0, right: 8, left: -20, bottom: 60 }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border) / 0.5)" vertical={false} />
                   <XAxis dataKey="industry" stroke="hsl(var(--muted-foreground))" fontSize={9} tickLine={false} axisLine={false} angle={-45} textAnchor="end" interval={0} />
                   <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={false} />
                   <Tooltip
-                    cursor={{ fill: "rgba(255,255,255,0.03)" }}
-                    contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", fontSize: "12px" }}
+                    cursor={{ fill: "hsl(var(--muted) / 0.4)" }}
+                    contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px", fontSize: "12px" }}
                   />
                   <Bar dataKey="count" fill="hsl(var(--primary))" radius={[3, 3, 0, 0]} />
                 </BarChart>
@@ -254,14 +254,14 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card className="bg-card/40 backdrop-blur-sm border-white/10">
+        <Card className="bg-card/65 backdrop-blur-sm border-border/40">
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-display">Enrichment Status</CardTitle>
             <CardDescription>OrcBase profile data quality</CardDescription>
           </CardHeader>
           <CardContent>
             {qualityLoading ? (
-              <div className="h-36 bg-white/5 rounded animate-pulse" />
+              <div className="h-36 bg-muted/40 rounded animate-pulse" />
             ) : (
               <>
                 <div className="h-36">
@@ -271,7 +271,7 @@ export default function Dashboard() {
                         {enrichmentPie.map((_, i) => <Cell key={i} fill={ENRICHMENT_COLORS[i]} />)}
                       </Pie>
                       <Tooltip
-                        contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", fontSize: "12px" }}
+                        contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px", fontSize: "12px" }}
                       />
                     </PieChart>
                   </ResponsiveContainer>
@@ -287,7 +287,7 @@ export default function Dashboard() {
                         <div className={`w-2.5 h-2.5 rounded-full ${color}`} />
                         <span className="text-muted-foreground">{label}</span>
                       </div>
-                      <span className="text-white font-medium">{value.toLocaleString()}</span>
+                      <span className="text-foreground font-medium">{value.toLocaleString()}</span>
                     </div>
                   ))}
                 </div>
@@ -299,14 +299,14 @@ export default function Dashboard() {
 
       {/* Row 2: Field coverage + City distribution */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="bg-card/40 backdrop-blur-sm border-white/10">
+        <Card className="bg-card/65 backdrop-blur-sm border-border/40">
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-display">Data Field Coverage</CardTitle>
             <CardDescription>% of OrcBase companies with each field populated</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             {qualityLoading ? (
-              Array.from({ length: 7 }).map((_, i) => <div key={i} className="h-6 bg-white/5 rounded animate-pulse" />)
+              Array.from({ length: 7 }).map((_, i) => <div key={i} className="h-6 bg-muted/40 rounded animate-pulse" />)
             ) : (
               COVERAGE_FIELDS.map(({ key, label, icon: Icon }) => {
                 const f = quality?.fieldCoverage[key];
@@ -315,8 +315,8 @@ export default function Dashboard() {
                 return (
                   <div key={key} className="flex items-center gap-3">
                     <Icon className="w-4 h-4 text-muted-foreground shrink-0" />
-                    <span className="text-sm text-white/70 w-28 shrink-0">{label}</span>
-                    <div className="flex-1 h-2 bg-white/5 rounded-full overflow-hidden">
+                    <span className="text-sm text-foreground/70 w-28 shrink-0">{label}</span>
+                    <div className="flex-1 h-2 bg-muted/40 rounded-full overflow-hidden">
                       <div className={`h-full ${color} rounded-full transition-all`} style={{ width: `${pct}%` }} />
                     </div>
                     <span className="text-xs text-muted-foreground w-12 text-right shrink-0">{pct}%</span>
@@ -327,22 +327,22 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card className="bg-card/40 backdrop-blur-sm border-white/10">
+        <Card className="bg-card/65 backdrop-blur-sm border-border/40">
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-display">Top Cities</CardTitle>
             <CardDescription>Geographic distribution of OrcBase companies</CardDescription>
           </CardHeader>
           <CardContent className="h-[240px]">
             {qualityLoading ? (
-              <div className="h-full bg-white/5 rounded animate-pulse" />
+              <div className="h-full bg-muted/40 rounded animate-pulse" />
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={quality?.byCity ?? []} layout="vertical" margin={{ top: 0, right: 40, left: 0, bottom: 0 }}>
                   <XAxis type="number" stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={false} />
                   <YAxis type="category" dataKey="city" stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={false} width={70} />
                   <Tooltip
-                    cursor={{ fill: "rgba(255,255,255,0.03)" }}
-                    contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", fontSize: "12px" }}
+                    cursor={{ fill: "hsl(var(--muted) / 0.4)" }}
+                    contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px", fontSize: "12px" }}
                   />
                   <Bar dataKey="count" fill="hsl(var(--primary) / 0.6)" radius={[0, 3, 3, 0]} label={{ position: "right", fill: "rgba(255,255,255,0.3)", fontSize: 10 }} />
                 </BarChart>

@@ -140,7 +140,7 @@ function CaptchaOverlay({
               <KeyRound className="w-4 h-4 text-rose-400" />
             </div>
             <div>
-              <p className="font-bold text-white text-sm">Manual CAPTCHA Required</p>
+              <p className="font-bold text-foreground text-sm">Manual CAPTCHA Required</p>
               <p className="text-xs text-muted-foreground">AI could not auto-solve — your input needed</p>
             </div>
             <Badge variant="outline" className="ml-auto text-[9px] border-rose-500/30 text-rose-400 bg-rose-500/10">
@@ -150,7 +150,7 @@ function CaptchaOverlay({
         </CardHeader>
         <CardContent className="px-5 pb-5 space-y-4">
           <p className="text-sm text-muted-foreground">{request.label}</p>
-          <div className="rounded-xl overflow-hidden border border-white/10 bg-black">
+          <div className="rounded-xl overflow-hidden border border-border/40 bg-black">
             <img src={`data:image/png;base64,${request.screenshot}`} alt="CAPTCHA screenshot" className="w-full object-contain max-h-72" />
           </div>
           <p className="text-xs text-muted-foreground leading-relaxed">
@@ -169,10 +169,10 @@ function CaptchaOverlay({
               onChange={(e) => setCode(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter" && code.trim()) submit(); }}
               placeholder="Type the verification code..."
-              className="bg-black/40 border-rose-500/20 focus:border-rose-500/50 h-11 font-mono text-white tracking-widest uppercase"
+              className="bg-black/40 border-rose-500/20 focus:border-rose-500/50 h-11 font-mono text-foreground tracking-widest uppercase"
               disabled={submitting}
             />
-            <Button onClick={submit} disabled={!code.trim() || submitting} className="bg-rose-500 hover:bg-rose-400 text-white font-bold h-11 px-5 gap-2 shrink-0">
+            <Button onClick={submit} disabled={!code.trim() || submitting} className="bg-rose-500 hover:bg-rose-400 text-foreground font-bold h-11 px-5 gap-2 shrink-0">
               {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               Submit
             </Button>
@@ -227,7 +227,7 @@ function AgentCard({ agent, state }: { agent: typeof AGENTS[0]; state: AgentStat
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-xs font-bold text-muted-foreground">AGENT {agent.num}</span>
-              <span className="font-semibold text-sm text-white">{agent.name}</span>
+              <span className="font-semibold text-sm text-foreground">{agent.name}</span>
               {state.status === "stealth_solving" && <StealthSolvingBadge />}
               {state.status === "waiting_captcha" && (
                 <Badge className="text-[9px] bg-rose-500/15 text-rose-400 border-rose-500/30 border h-4 px-1.5 gap-1 animate-pulse">
@@ -251,7 +251,7 @@ function AgentCard({ agent, state }: { agent: typeof AGENTS[0]; state: AgentStat
         </CardContent>
       </button>
       {expanded && state.logs.length > 0 && (
-        <CardContent className="px-4 pb-3 pt-0 border-t border-white/5">
+        <CardContent className="px-4 pb-3 pt-0 border-t border-border/30">
           <div className="bg-black/30 rounded-lg p-2 mt-2 space-y-1 max-h-48 overflow-y-auto">
             {state.logs.map((line, i) => (
               <p key={i} className={cn(
@@ -263,7 +263,7 @@ function AgentCard({ agent, state }: { agent: typeof AGENTS[0]; state: AgentStat
                 line.startsWith("🛡") ? "text-violet-300" :
                 line.startsWith("⏳") ? "text-blue-300" :
                 line.startsWith("ERROR") ? "text-rose-400" :
-                "text-white/60"
+                "text-foreground/60"
               )}>
                 {line}
               </p>
@@ -282,8 +282,8 @@ function FieldRow({ label, value, valueAr }: { label: string; value?: string | n
   return (
     <div className="grid grid-cols-3 gap-3 py-2 border-b border-white/4 last:border-0">
       <p className="text-xs font-semibold text-muted-foreground">{label}</p>
-      <p className="text-sm text-white">{value || "—"}</p>
-      <p className="text-sm text-white/70 text-right" dir="rtl">{valueAr || "—"}</p>
+      <p className="text-sm text-foreground">{value || "—"}</p>
+      <p className="text-sm text-foreground/70 text-right" dir="rtl">{valueAr || "—"}</p>
     </div>
   );
 }
@@ -293,15 +293,15 @@ function ShareholderTable({ shareholders }: { shareholders: MasaarReport["parsed
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
-        <thead><tr className="border-b border-white/10">
+        <thead><tr className="border-b border-border/40">
           {["Name (EN)", "الاسم", "National ID", "Ownership %", "Nationality"].map((h) => (
             <th key={h} className="text-left text-xs font-bold text-muted-foreground pb-2 pr-4">{h}</th>
           ))}
         </tr></thead>
         <tbody>{shareholders.map((sh, i) => (
           <tr key={i} className="border-b border-white/4 hover:bg-white/3">
-            <td className="py-2 pr-4 text-white">{sh.nameEn || "—"}</td>
-            <td className="py-2 pr-4 text-white/80" dir="rtl">{sh.nameAr || "—"}</td>
+            <td className="py-2 pr-4 text-foreground">{sh.nameEn || "—"}</td>
+            <td className="py-2 pr-4 text-foreground/80" dir="rtl">{sh.nameAr || "—"}</td>
             <td className="py-2 pr-4 text-muted-foreground font-mono text-xs">{sh.nationalId || "—"}</td>
             <td className="py-2 pr-4"><Badge variant="outline" className="text-xs border-primary/30 text-primary bg-primary/5">{sh.ownershipPct || "—"}</Badge></td>
             <td className="py-2 text-muted-foreground">{sh.nationality || "—"}</td>
@@ -317,18 +317,18 @@ function ManagerTable({ managers }: { managers: MasaarReport["parsed"]["managers
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
-        <thead><tr className="border-b border-white/10">
+        <thead><tr className="border-b border-border/40">
           {["Name (EN)", "الاسم", "National ID", "Term", "Powers"].map((h) => (
             <th key={h} className="text-left text-xs font-bold text-muted-foreground pb-2 pr-4">{h}</th>
           ))}
         </tr></thead>
         <tbody>{managers.map((m, i) => (
           <tr key={i} className="border-b border-white/4 hover:bg-white/3">
-            <td className="py-2 pr-4 text-white">{m.nameEn || "—"}</td>
-            <td className="py-2 pr-4 text-white/80">{m.nameAr || "—"}</td>
+            <td className="py-2 pr-4 text-foreground">{m.nameEn || "—"}</td>
+            <td className="py-2 pr-4 text-foreground/80">{m.nameAr || "—"}</td>
             <td className="py-2 pr-4 text-muted-foreground font-mono text-xs">{m.nationalId || "—"}</td>
             <td className="py-2 pr-4 text-muted-foreground">{m.appointmentTerm || "—"}</td>
-            <td className="py-2 text-white/60 text-xs max-w-[200px] truncate">{m.powers || "—"}</td>
+            <td className="py-2 text-foreground/60 text-xs max-w-[200px] truncate">{m.powers || "—"}</td>
           </tr>
         ))}</tbody>
       </table>
@@ -351,10 +351,10 @@ function ConflictList({ conflicts }: { conflicts: MasaarReport["conflicts"] }) {
             <div className="flex items-start gap-2">
               <AlertTriangle className={cn("w-4 h-4 mt-0.5 shrink-0", c.severity === "high" ? "text-rose-400" : "text-amber-400")} />
               <div className="flex-1">
-                <p className="font-semibold text-sm text-white">{c.field}</p>
+                <p className="font-semibold text-sm text-foreground">{c.field}</p>
                 <div className="grid grid-cols-2 gap-2 mt-1">
-                  <div><p className="text-xs text-muted-foreground">{c.source1}</p><p className="text-xs text-white/80">{c.value1}</p></div>
-                  <div><p className="text-xs text-muted-foreground">{c.source2}</p><p className="text-xs text-white/80">{c.value2}</p></div>
+                  <div><p className="text-xs text-muted-foreground">{c.source1}</p><p className="text-xs text-foreground/80">{c.value1}</p></div>
+                  <div><p className="text-xs text-muted-foreground">{c.source2}</p><p className="text-xs text-foreground/80">{c.value2}</p></div>
                 </div>
                 {c.recommendation && <p className="text-xs text-muted-foreground mt-1 italic">{c.recommendation}</p>}
               </div>
@@ -373,12 +373,12 @@ function MarkdownRenderer({ text }: { text: string }) {
   return (
     <div className="space-y-1 text-sm leading-relaxed">
       {text.split("\n").map((line, i) => {
-        if (line.startsWith("## "))  return <h2 key={i} className="text-lg font-bold text-white mt-4 mb-2 pb-1 border-b border-white/10">{line.slice(3)}</h2>;
+        if (line.startsWith("## "))  return <h2 key={i} className="text-lg font-bold text-foreground mt-4 mb-2 pb-1 border-b border-border/40">{line.slice(3)}</h2>;
         if (line.startsWith("### ")) return <h3 key={i} className="text-base font-semibold text-primary mt-3 mb-1">{line.slice(4)}</h3>;
-        if (line.startsWith("#### ")) return <h4 key={i} className="text-sm font-semibold text-white/80 mt-2 mb-1">{line.slice(5)}</h4>;
-        if (line.startsWith("- ") || line.startsWith("* ")) return <li key={i} className="ml-4 text-white/70 list-disc">{line.slice(2)}</li>;
+        if (line.startsWith("#### ")) return <h4 key={i} className="text-sm font-semibold text-foreground/80 mt-2 mb-1">{line.slice(5)}</h4>;
+        if (line.startsWith("- ") || line.startsWith("* ")) return <li key={i} className="ml-4 text-foreground/70 list-disc">{line.slice(2)}</li>;
         if (line.trim() === "") return <div key={i} className="h-1" />;
-        return <p key={i} className="text-white/70">{line}</p>;
+        return <p key={i} className="text-foreground/70">{line}</p>;
       })}
     </div>
   );
@@ -395,7 +395,7 @@ function StealthModeToggle({ enabled, onChange, disabled }: { enabled: boolean; 
         "flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-bold transition-all duration-200",
         enabled
           ? "bg-violet-500/15 border-violet-500/30 text-violet-300 hover:bg-violet-500/25"
-          : "bg-white/5 border-white/10 text-muted-foreground hover:bg-white/10",
+          : "bg-muted/40 border-border/40 text-muted-foreground hover:bg-white/10",
         disabled && "opacity-50 cursor-not-allowed"
       )}
     >
@@ -585,7 +585,7 @@ export default function MasaarPage() {
         </div>
         <div className="flex-1">
           <div className="flex items-center gap-2 flex-wrap">
-            <h1 className="text-3xl font-display font-bold text-white">Masaar — CR Lookup Engine</h1>
+            <h1 className="text-3xl font-display font-bold text-foreground">Masaar — CR Lookup Engine</h1>
             {stealthMode && (
               <Badge className="bg-violet-500/20 border border-violet-500/30 text-violet-300 text-[10px] gap-1 px-2">
                 <Shield className="w-3 h-3" /> STEALTH
@@ -616,7 +616,7 @@ export default function MasaarPage() {
       )}
 
       {/* Input card */}
-      <Card className="bg-card/60 border-white/8">
+      <Card className="bg-card/70 border-white/8">
         <CardContent className="py-4 px-5">
           <div className="flex gap-3 items-end">
             <div className="flex-1">
@@ -670,7 +670,7 @@ export default function MasaarPage() {
                   {doneCount}/7 complete
                 </p>
               </div>
-              <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+              <div className="h-1.5 bg-muted/40 rounded-full overflow-hidden">
                 <div
                   className={cn(
                     "h-full rounded-full transition-all duration-500",
@@ -722,12 +722,12 @@ export default function MasaarPage() {
             { label: "City",       value: report.parsed.headquarterCity || "—",                icon: Landmark,      color: "text-emerald-400" },
             { label: "Conflicts",  value: String(report.conflicts.length),                      icon: AlertTriangle, color: report.conflicts.length > 0 ? "text-rose-400" : "text-emerald-400" },
           ].map(({ label, value, icon: Icon, color }) => (
-            <Card key={label} className="bg-card/40 border-white/8">
+            <Card key={label} className="bg-card/65 border-white/8">
               <CardContent className="py-3 px-4 flex items-center gap-3">
                 <Icon className={cn("w-4 h-4 shrink-0", color)} />
                 <div className="min-w-0">
                   <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{label}</p>
-                  <p className="text-sm font-semibold text-white truncate">{value}</p>
+                  <p className="text-sm font-semibold text-foreground truncate">{value}</p>
                 </div>
               </CardContent>
             </Card>
@@ -738,7 +738,7 @@ export default function MasaarPage() {
       {/* Main Tabs */}
       {(status !== "idle" || report) && (
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
-          <TabsList className="bg-white/5 border border-white/10 w-fit shrink-0">
+          <TabsList className="bg-muted/40 border border-border/40 w-fit shrink-0">
             <TabsTrigger value="pipeline" className="gap-2 data-[state=active]:bg-amber-500/15 data-[state=active]:text-amber-400">
               <Network className="w-4 h-4" /> Pipeline
               {status === "running" && (
@@ -783,19 +783,19 @@ export default function MasaarPage() {
           {/* Report */}
           {report && (
             <TabsContent value="report" className="flex-1 mt-4 overflow-hidden">
-              <Card className="bg-card/50 border-white/8 h-full flex flex-col">
+              <Card className="bg-card/75 border-white/8 h-full flex flex-col">
                 <CardHeader className="pb-3 px-5 pt-4 shrink-0">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-sm text-white flex items-center gap-2">
+                    <CardTitle className="text-sm text-foreground flex items-center gap-2">
                       <BookOpen className="w-4 h-4 text-amber-400" />
                       {reportLang === "en" ? "English Intelligence Report" : "تقرير الاستخبارات بالعربي"}
                       {report.stealthMode && <Badge className="text-[9px] bg-violet-500/15 text-violet-300 border border-violet-500/20 gap-1"><Bot className="w-2.5 h-2.5" /> Stealth</Badge>}
                     </CardTitle>
                     <div className="flex gap-2">
-                      <Button size="sm" variant="outline" onClick={() => setReportLang(reportLang === "en" ? "ar" : "en")} className="gap-1.5 border-white/10 text-xs h-7">
+                      <Button size="sm" variant="outline" onClick={() => setReportLang(reportLang === "en" ? "ar" : "en")} className="gap-1.5 border-border/40 text-xs h-7">
                         <Languages className="w-3 h-3" /> {reportLang === "en" ? "عربي" : "English"}
                       </Button>
-                      <Button size="sm" variant="outline" onClick={() => navigator.clipboard.writeText(reportLang === "en" ? report.reportEn : report.reportAr)} className="gap-1.5 border-white/10 text-xs h-7">
+                      <Button size="sm" variant="outline" onClick={() => navigator.clipboard.writeText(reportLang === "en" ? report.reportEn : report.reportAr)} className="gap-1.5 border-border/40 text-xs h-7">
                         <Copy className="w-3 h-3" /> Copy
                       </Button>
                       <Button size="sm" variant="outline" onClick={() => {
@@ -807,7 +807,7 @@ export default function MasaarPage() {
                         a.download = `masaar-cr-${report.crNumber}-${new Date().toISOString().slice(0,10)}.txt`;
                         a.click();
                         URL.revokeObjectURL(url);
-                      }} className="gap-1.5 border-white/10 text-xs h-7">
+                      }} className="gap-1.5 border-border/40 text-xs h-7">
                         <Download className="w-3 h-3" /> Export
                       </Button>
                       <Button size="sm" variant="outline" onClick={() => {
@@ -819,7 +819,7 @@ export default function MasaarPage() {
                         a.download = `masaar-cr-${report.crNumber}-${new Date().toISOString().slice(0,10)}.json`;
                         a.click();
                         URL.revokeObjectURL(url);
-                      }} className="gap-1.5 border-white/10 text-xs h-7">
+                      }} className="gap-1.5 border-border/40 text-xs h-7">
                         <FileText className="w-3 h-3" /> JSON
                       </Button>
                     </div>
@@ -837,9 +837,9 @@ export default function MasaarPage() {
           {/* Structured Data */}
           {report && (
             <TabsContent value="structured" className="flex-1 mt-4 overflow-y-auto space-y-4 pb-4">
-              <Card className="bg-card/50 border-white/8">
+              <Card className="bg-card/75 border-white/8">
                 <CardHeader className="pb-2 px-5 pt-4">
-                  <CardTitle className="text-sm text-white flex items-center gap-2"><Building2 className="w-4 h-4 text-blue-400" /> Company Identity</CardTitle>
+                  <CardTitle className="text-sm text-foreground flex items-center gap-2"><Building2 className="w-4 h-4 text-blue-400" /> Company Identity</CardTitle>
                 </CardHeader>
                 <CardContent className="px-5 pb-4">
                   <FieldRow label="Company Name"      value={report.parsed.nameEn}           valueAr={report.parsed.nameAr} />
@@ -854,42 +854,42 @@ export default function MasaarPage() {
               </Card>
 
               {(report.parsed.summaryEn || report.parsed.summaryAr) && (
-                <Card className="bg-card/50 border-white/8">
+                <Card className="bg-card/75 border-white/8">
                   <CardHeader className="pb-2 px-5 pt-4">
-                    <CardTitle className="text-sm text-white flex items-center gap-2"><Info className="w-4 h-4 text-violet-400" /> Company Summary</CardTitle>
+                    <CardTitle className="text-sm text-foreground flex items-center gap-2"><Info className="w-4 h-4 text-violet-400" /> Company Summary</CardTitle>
                   </CardHeader>
                   <CardContent className="px-5 pb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {report.parsed.summaryEn && <div><p className="text-xs font-bold text-muted-foreground mb-1">English</p><p className="text-sm text-white/80 leading-relaxed">{report.parsed.summaryEn}</p></div>}
-                    {report.parsed.summaryAr && <div dir="rtl"><p className="text-xs font-bold text-muted-foreground mb-1">عربي</p><p className="text-sm text-white/80 leading-relaxed">{report.parsed.summaryAr}</p></div>}
+                    {report.parsed.summaryEn && <div><p className="text-xs font-bold text-muted-foreground mb-1">English</p><p className="text-sm text-foreground/80 leading-relaxed">{report.parsed.summaryEn}</p></div>}
+                    {report.parsed.summaryAr && <div dir="rtl"><p className="text-xs font-bold text-muted-foreground mb-1">عربي</p><p className="text-sm text-foreground/80 leading-relaxed">{report.parsed.summaryAr}</p></div>}
                   </CardContent>
                 </Card>
               )}
 
-              <Card className="bg-card/50 border-white/8">
+              <Card className="bg-card/75 border-white/8">
                 <CardHeader className="pb-2 px-5 pt-4">
-                  <CardTitle className="text-sm text-white flex items-center gap-2"><Users className="w-4 h-4 text-emerald-400" /> Shareholders ({report.parsed.shareholders?.length || 0})</CardTitle>
+                  <CardTitle className="text-sm text-foreground flex items-center gap-2"><Users className="w-4 h-4 text-emerald-400" /> Shareholders ({report.parsed.shareholders?.length || 0})</CardTitle>
                 </CardHeader>
                 <CardContent className="px-5 pb-4"><ShareholderTable shareholders={report.parsed.shareholders} /></CardContent>
               </Card>
 
-              <Card className="bg-card/50 border-white/8">
+              <Card className="bg-card/75 border-white/8">
                 <CardHeader className="pb-2 px-5 pt-4">
-                  <CardTitle className="text-sm text-white flex items-center gap-2"><Landmark className="w-4 h-4 text-amber-400" /> Managers & Governance ({report.parsed.managers?.length || 0})</CardTitle>
+                  <CardTitle className="text-sm text-foreground flex items-center gap-2"><Landmark className="w-4 h-4 text-amber-400" /> Managers & Governance ({report.parsed.managers?.length || 0})</CardTitle>
                 </CardHeader>
                 <CardContent className="px-5 pb-4">
                   <ManagerTable managers={report.parsed.managers} />
                   {report.parsed.boardComposition && (
-                    <div className="mt-3 pt-3 border-t border-white/5">
+                    <div className="mt-3 pt-3 border-t border-border/30">
                       <p className="text-xs font-bold text-muted-foreground mb-1">Board Composition</p>
-                      <p className="text-sm text-white/70">{report.parsed.boardComposition}</p>
+                      <p className="text-sm text-foreground/70">{report.parsed.boardComposition}</p>
                     </div>
                   )}
                 </CardContent>
               </Card>
 
-              <Card className="bg-card/50 border-white/8">
+              <Card className="bg-card/75 border-white/8">
                 <CardHeader className="pb-2 px-5 pt-4">
-                  <CardTitle className="text-sm text-white flex items-center gap-2"><Scale className="w-4 h-4 text-rose-400" /> AOA Legal Provisions</CardTitle>
+                  <CardTitle className="text-sm text-foreground flex items-center gap-2"><Scale className="w-4 h-4 text-rose-400" /> AOA Legal Provisions</CardTitle>
                 </CardHeader>
                 <CardContent className="px-5 pb-4 space-y-3">
                   {[
@@ -901,16 +901,16 @@ export default function MasaarPage() {
                   ].filter(({ value }) => value).map(({ label, value }) => (
                     <div key={label} className="bg-black/15 rounded-lg p-3">
                       <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1">{label}</p>
-                      <p className="text-sm text-white/75">{value}</p>
+                      <p className="text-sm text-foreground/75">{value}</p>
                     </div>
                   ))}
                 </CardContent>
               </Card>
 
               {report.parsed.contactDetails && Object.keys(report.parsed.contactDetails).length > 0 && (
-                <Card className="bg-card/50 border-white/8">
+                <Card className="bg-card/75 border-white/8">
                   <CardHeader className="pb-2 px-5 pt-4">
-                    <CardTitle className="text-sm text-white flex items-center gap-2"><ExternalLink className="w-4 h-4 text-cyan-400" /> Contact Details</CardTitle>
+                    <CardTitle className="text-sm text-foreground flex items-center gap-2"><ExternalLink className="w-4 h-4 text-cyan-400" /> Contact Details</CardTitle>
                   </CardHeader>
                   <CardContent className="px-5 pb-4">
                     {Object.entries(report.parsed.contactDetails).filter(([, v]) => v).map(([k, v]) => (
@@ -921,13 +921,13 @@ export default function MasaarPage() {
               )}
 
               {report.legalAgencies?.length > 0 && (
-                <Card className="bg-card/50 border-white/8">
+                <Card className="bg-card/75 border-white/8">
                   <CardHeader className="pb-2 px-5 pt-4">
-                    <CardTitle className="text-sm text-white flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-violet-400" /> Legal Agencies (Najiz)</CardTitle>
+                    <CardTitle className="text-sm text-foreground flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-violet-400" /> Legal Agencies (Najiz)</CardTitle>
                   </CardHeader>
                   <CardContent className="px-5 pb-4 space-y-1">
                     {report.legalAgencies.slice(0, 10).map((a, i) => (
-                      <p key={i} className="text-xs text-white/60 py-1 border-b border-white/5 last:border-0">{String(a.text || a.name || JSON.stringify(a)).slice(0, 200)}</p>
+                      <p key={i} className="text-xs text-foreground/60 py-1 border-b border-border/30 last:border-0">{String(a.text || a.name || JSON.stringify(a)).slice(0, 200)}</p>
                     ))}
                   </CardContent>
                 </Card>
@@ -958,10 +958,10 @@ export default function MasaarPage() {
             )}
           </div>
           <div>
-            <h3 className="text-xl font-bold text-white mb-2">Saudi CR Intelligence Pipeline</h3>
+            <h3 className="text-xl font-bold text-foreground mb-2">Saudi CR Intelligence Pipeline</h3>
             <p className="text-muted-foreground max-w-lg text-sm leading-relaxed">
               {stealthMode
-                ? <>Enter any Saudi CR number. The <strong className="text-violet-300">stealth agent</strong> opens mc.gov.sa with a fingerprint-spoofed browser, uses <strong className="text-white">Claude Vision</strong> to auto-read the CAPTCHA, then all 7 agents run fully automatically.</>
+                ? <>Enter any Saudi CR number. The <strong className="text-violet-300">stealth agent</strong> opens mc.gov.sa with a fingerprint-spoofed browser, uses <strong className="text-foreground">Claude Vision</strong> to auto-read the CAPTCHA, then all 7 agents run fully automatically.</>
                 : <>Enter any Saudi CR number. Agent 1 opens mc.gov.sa — you'll see a screenshot and enter the CAPTCHA manually. The remaining 6 agents then run automatically.</>}
             </p>
           </div>
@@ -977,7 +977,7 @@ export default function MasaarPage() {
                   {isStealthAgent && <Bot className="w-4 h-4 mt-0.5 shrink-0 text-violet-400" />}
                   {!isStealthAgent && <Icon className={cn("w-4 h-4 mt-0.5 shrink-0", a.color)} />}
                   <div>
-                    <p className="text-xs font-semibold text-white">Agent {a.num}: {a.name}</p>
+                    <p className="text-xs font-semibold text-foreground">Agent {a.num}: {a.name}</p>
                     <p className="text-[10px] text-muted-foreground leading-snug">{a.desc}</p>
                   </div>
                 </div>

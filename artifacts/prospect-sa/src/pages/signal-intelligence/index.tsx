@@ -71,7 +71,7 @@ function SignalCard({ signal }: { signal: SignalAlert }) {
     <div
       className={cn(
         "rounded-xl border p-4 transition-all cursor-pointer hover:border-primary/30",
-        isNegative ? "bg-red-500/5 border-red-500/15" : "bg-card/60 border-border/30"
+        isNegative ? "bg-red-500/5 border-red-500/15" : "bg-card/70 border-border/30"
       )}
       onClick={() => setExpanded(!expanded)}
     >
@@ -170,12 +170,12 @@ function CompanyScanner() {
             value={query} onChange={e => setQuery(e.target.value)}
             onKeyDown={e => e.key === "Enter" && scan()}
             placeholder="Company name in English (e.g. Saudi Aramco, stc, Almarai)"
-            className="bg-white/5 border-white/10 text-foreground placeholder:text-muted-foreground"
+            className="bg-muted/40 border-border/40 text-foreground placeholder:text-muted-foreground"
           />
           <Input
             value={queryAr} onChange={e => setQueryAr(e.target.value)}
             placeholder="اسم الشركة (اختياري)"
-            className="bg-white/5 border-white/10 text-foreground placeholder:text-muted-foreground w-48 font-arabic text-right"
+            className="bg-muted/40 border-border/40 text-foreground placeholder:text-muted-foreground w-48 font-arabic text-right"
             dir="rtl"
           />
           <Button onClick={scan} disabled={scanning || !query.trim()} className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2 shrink-0">
@@ -399,7 +399,7 @@ function RecentSignals() {
                 ? <p className="text-xs text-muted-foreground py-4 text-center">None</p>
                 : <div className="space-y-2 max-h-64 overflow-y-auto">
                     {signals.map((s, i) => (
-                      <div key={i} className="rounded-lg bg-white/3 border border-white/5 p-3">
+                      <div key={i} className="rounded-lg bg-white/3 border border-border/30 p-3">
                         <p className="text-xs font-medium text-foreground leading-snug">{s.headline}</p>
                         {s.company && <p className="text-[10px] text-primary mt-1">{s.company}</p>}
                       </div>
@@ -446,7 +446,7 @@ export default function SignalIntelligencePage() {
           { label: "Hiring Signals", icon: <TrendingUp className="w-4 h-4" />, color: "text-violet-400" },
         ].map(({ label, icon, color }) => (
           <div key={label} className="glass-card rounded-xl p-3 flex items-center gap-3">
-            <div className={cn("w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center", color)}>{icon}</div>
+            <div className={cn("w-8 h-8 rounded-lg bg-muted/40 flex items-center justify-center", color)}>{icon}</div>
             <span className="text-xs font-medium text-foreground">{label}</span>
           </div>
         ))}

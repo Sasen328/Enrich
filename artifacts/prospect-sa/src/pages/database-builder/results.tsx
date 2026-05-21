@@ -237,7 +237,7 @@ function DetailPanel({
   const shareholders: Record<string, unknown>[] | null = savedShareholders ?? parseJSON(company.shareholders);
 
   return (
-    <div className="fixed inset-y-0 right-0 w-full max-w-[520px] bg-[#0d1117] border-l border-white/10 z-50 flex flex-col shadow-2xl overflow-hidden">
+    <div className="fixed inset-y-0 right-0 w-full max-w-[520px] bg-[#0d1117] border-l border-border/40 z-50 flex flex-col shadow-2xl overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-white/8 shrink-0">
         <div className="flex items-center gap-3 min-w-0">
@@ -245,7 +245,7 @@ function DetailPanel({
             <Building2 className="w-4 h-4 text-emerald-400" />
           </div>
           <div className="min-w-0">
-            <p className="font-bold text-white text-sm truncate">{name}</p>
+            <p className="font-bold text-foreground text-sm truncate">{name}</p>
             {company.nameAr && company.nameEn && (
               <p className="text-[10px] text-muted-foreground" dir="rtl">{company.nameAr}</p>
             )}
@@ -261,14 +261,14 @@ function DetailPanel({
         <div className="flex flex-wrap gap-2">
           {company.enrichmentStatus && (
             <Badge variant="outline" className={cn("text-[10px]",
-              company.enrichmentStatus === "enriched" ? "border-emerald-500/30 text-emerald-400 bg-emerald-500/10" : "border-white/10 text-muted-foreground")}>
+              company.enrichmentStatus === "enriched" ? "border-emerald-500/30 text-emerald-400 bg-emerald-500/10" : "border-border/40 text-muted-foreground")}>
               {company.enrichmentStatus}
             </Badge>
           )}
           {company.isDuplicate && <Badge variant="outline" className="text-[10px] border-rose-500/20 text-rose-400 bg-rose-500/10">duplicate</Badge>}
           {company.isValidated && <Badge variant="outline" className="text-[10px] border-emerald-500/20 text-emerald-400 bg-emerald-500/10">validated</Badge>}
           {score > 0 && <Badge variant="outline" className={cn("text-[10px]", scoreColor)}>{score}% enriched</Badge>}
-          <Badge variant="outline" className="text-[10px] border-white/10 text-muted-foreground">via {company.sourceName || company.sourceId}</Badge>
+          <Badge variant="outline" className="text-[10px] border-border/40 text-muted-foreground">via {company.sourceName || company.sourceId}</Badge>
         </div>
 
         {/* Core info grid */}
@@ -290,7 +290,7 @@ function DetailPanel({
               <p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-0.5 flex items-center gap-1">
                 <Icon className="w-2.5 h-2.5" />{label}
               </p>
-              <p className="text-xs text-white truncate">{value}</p>
+              <p className="text-xs text-foreground truncate">{value}</p>
             </div>
           ))}
         </div>
@@ -306,17 +306,17 @@ function DetailPanel({
               </a>
             )}
             {company.phone && (
-              <div className="flex items-center gap-2 text-xs text-white/70">
+              <div className="flex items-center gap-2 text-xs text-foreground/70">
                 <Phone className="w-3 h-3 text-muted-foreground" /> {company.phone}
               </div>
             )}
             {company.email && (
-              <div className="flex items-center gap-2 text-xs text-white/70">
+              <div className="flex items-center gap-2 text-xs text-foreground/70">
                 <Mail className="w-3 h-3 text-muted-foreground" /> {company.email}
               </div>
             )}
             {company.address && (
-              <div className="flex items-start gap-2 text-xs text-white/70">
+              <div className="flex items-start gap-2 text-xs text-foreground/70">
                 <MapPin className="w-3 h-3 text-muted-foreground shrink-0 mt-0.5" /> {company.address}
               </div>
             )}
@@ -348,11 +348,11 @@ function DetailPanel({
                 + Lead
               </Button>
             </div>
-            <p className="text-sm font-semibold text-white">{company.ownerName}</p>
+            <p className="text-sm font-semibold text-foreground">{company.ownerName}</p>
             {company.ownerNameAr && <p className="text-xs text-muted-foreground" dir="rtl">{company.ownerNameAr}</p>}
             {company.ownerTitle && <p className="text-xs text-muted-foreground">{company.ownerTitle}</p>}
-            {company.ownerPhone && <p className="text-xs text-white/60 mt-1">{company.ownerPhone}</p>}
-            {company.ownerEmail && <p className="text-xs text-white/60">{company.ownerEmail}</p>}
+            {company.ownerPhone && <p className="text-xs text-foreground/60 mt-1">{company.ownerPhone}</p>}
+            {company.ownerEmail && <p className="text-xs text-foreground/60">{company.ownerEmail}</p>}
           </div>
         )}
 
@@ -360,7 +360,7 @@ function DetailPanel({
         {company.description && (
           <div>
             <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Description</p>
-            <p className="text-xs text-white/70 leading-relaxed">{company.description}</p>
+            <p className="text-xs text-foreground/70 leading-relaxed">{company.description}</p>
           </div>
         )}
 
@@ -372,7 +372,7 @@ function DetailPanel({
               {executives.slice(0, 6).map((exec: Record<string, unknown>, i: number) => (
                 <div key={i} className="bg-primary/5 border border-primary/10 rounded-lg p-2 flex items-center justify-between gap-2">
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-medium text-white truncate">{String(exec?.name || "")}</p>
+                    <p className="text-xs font-medium text-foreground truncate">{String(exec?.name || "")}</p>
                     <p className="text-[10px] text-muted-foreground">{String(exec?.title || exec?.role || "")}</p>
                   </div>
                   <Button
@@ -396,7 +396,7 @@ function DetailPanel({
             <div className="space-y-1">
               {shareholders.slice(0, 5).map((sh: Record<string, unknown>, i: number) => (
                 <div key={i} className="flex items-center justify-between gap-2 text-xs bg-white/3 rounded-lg px-2 py-1.5">
-                  <span className="text-white flex-1 min-w-0 truncate">{String(sh?.name || "")}</span>
+                  <span className="text-foreground flex-1 min-w-0 truncate">{String(sh?.name || "")}</span>
                   {sh?.percentage != null && <span className="text-muted-foreground shrink-0">{String(sh.percentage)}%</span>}
                   <Button
                     size="sm"
@@ -416,7 +416,7 @@ function DetailPanel({
         {company.marketPositioning && (
           <div>
             <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">Market Position</p>
-            <p className="text-xs text-white/70 leading-relaxed">{company.marketPositioning}</p>
+            <p className="text-xs text-foreground/70 leading-relaxed">{company.marketPositioning}</p>
           </div>
         )}
 
@@ -427,7 +427,7 @@ function DetailPanel({
               <Brain className="w-3 h-3" /> AI Analysis Complete
             </p>
             {(enrichData.profileSummary as string) && (
-              <p className="text-xs text-white/80 leading-relaxed">{String(enrichData.profileSummary)}</p>
+              <p className="text-xs text-foreground/80 leading-relaxed">{String(enrichData.profileSummary)}</p>
             )}
             <div className="grid grid-cols-2 gap-2">
               {Object.entries(enrichData)
@@ -438,7 +438,7 @@ function DetailPanel({
                     <p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground mb-0.5">
                       {k.replace(/([A-Z])/g, " $1").trim()}
                     </p>
-                    <p className="text-[11px] text-white">{String(v)}</p>
+                    <p className="text-[11px] text-foreground">{String(v)}</p>
                   </div>
                 ))}
             </div>
@@ -451,7 +451,7 @@ function DetailPanel({
                     .filter(Boolean).slice(0, 6).map((exec, i) => (
                       <div key={i} className="bg-primary/5 border border-primary/10 rounded-lg p-2 flex items-center justify-between gap-2">
                         <div className="min-w-0 flex-1">
-                          <p className="text-xs font-medium text-white truncate">{String(exec?.name || "")}</p>
+                          <p className="text-xs font-medium text-foreground truncate">{String(exec?.name || "")}</p>
                           <p className="text-[10px] text-muted-foreground">{String(exec?.title || exec?.role || "")}</p>
                         </div>
                         <Button
@@ -476,7 +476,7 @@ function DetailPanel({
                     .filter(Boolean).slice(0, 5).map((sh, i) => (
                       <div key={i} className="bg-white/3 border border-white/8 rounded-lg px-2 py-1.5 flex items-center justify-between gap-2">
                         <div className="min-w-0 flex-1">
-                          <p className="text-xs text-white truncate">{String(sh?.name || "")}</p>
+                          <p className="text-xs text-foreground truncate">{String(sh?.name || "")}</p>
                           {sh?.percentage != null && <p className="text-[10px] text-muted-foreground">{String(sh.percentage)}%</p>}
                         </div>
                         <Button
@@ -494,12 +494,12 @@ function DetailPanel({
             )}
             {/* Chat with report */}
             {chatReportId && (
-              <div className="pt-2 border-t border-white/10">
+              <div className="pt-2 border-t border-border/40">
                 <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">Ask a follow-up</p>
                 <div className="space-y-1.5 max-h-32 overflow-y-auto mb-2">
                   {chatHistory.map((m, i) => (
                     <div key={i} className={cn("rounded-lg p-2 text-xs",
-                      m.role === "user" ? "bg-primary/10 text-primary" : "bg-white/5 text-white/80")}>
+                      m.role === "user" ? "bg-primary/10 text-primary" : "bg-muted/40 text-foreground/80")}>
                       {m.content}
                     </div>
                   ))}
@@ -664,13 +664,13 @@ export default function BuilderResults() {
       {/* Header */}
       <div>
         <div className="flex items-center gap-3 mb-1">
-          <Link href="/database-builder" className="text-muted-foreground hover:text-white transition-colors">
+          <Link href="/database-builder" className="text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <div className="w-9 h-9 bg-emerald-500/15 rounded-xl border border-emerald-500/20 flex items-center justify-center">
             <Database className="w-5 h-5 text-emerald-400" />
           </div>
-          <h1 className="text-3xl font-display font-bold text-white">Builder Results</h1>
+          <h1 className="text-3xl font-display font-bold text-foreground">Builder Results</h1>
         </div>
         <p className="text-muted-foreground text-sm ml-16">Companies harvested by the AI Builder — click any row to view details & run AI analysis</p>
       </div>
@@ -683,7 +683,7 @@ export default function BuilderResults() {
           { label: "Pending Enrichment", value: pendingCount.toString(), color: "text-amber-400", icon: AlertCircle },
           { label: "Duplicates Found", value: dupCount.toString(), color: "text-rose-400", icon: Layers },
         ].map(s => (
-          <Card key={s.label} className="bg-card/50 border-white/8">
+          <Card key={s.label} className="bg-card/75 border-white/8">
             <CardContent className="py-3 px-4 flex items-center gap-3">
               <s.icon className={cn("w-5 h-5 shrink-0", s.color)} />
               <div>
@@ -709,7 +709,7 @@ export default function BuilderResults() {
             "h-9 px-3 rounded-md border text-xs font-medium flex items-center gap-1.5 transition-all",
             hideDuplicates
               ? "border-primary/30 text-primary bg-primary/10"
-              : "border-white/10 text-muted-foreground hover:text-white"
+              : "border-border/40 text-muted-foreground hover:text-foreground"
           )}>
           <Layers className="w-3.5 h-3.5" />
           {hideDuplicates ? "Unique Only" : "Show All"}
@@ -768,7 +768,7 @@ export default function BuilderResults() {
           {seedAllMutation.isSuccess ? "Seeded!" : "Seed All to OrcBase"}
         </Button>
         <Button size="sm" variant="outline" onClick={() => { resultsQ.refetch(); statsQ.refetch(); }}
-          disabled={resultsQ.isFetching} className="h-9 border-white/10">
+          disabled={resultsQ.isFetching} className="h-9 border-border/40">
           <RefreshCw className={cn("w-3.5 h-3.5", resultsQ.isFetching && "animate-spin")} />
         </Button>
       </div>
@@ -800,8 +800,8 @@ export default function BuilderResults() {
               <div
                 key={co.id}
                 className={cn(
-                  "flex items-start gap-3 bg-card/40 border rounded-xl p-4 transition-all hover:border-white/15",
-                  isSelected ? "border-primary/40 bg-primary/5" : isRowSelected ? "border-sky-500/30 bg-sky-500/5" : "border-white/6 hover:bg-card/60"
+                  "flex items-start gap-3 bg-card/65 border rounded-xl p-4 transition-all hover:border-white/15",
+                  isSelected ? "border-primary/40 bg-primary/5" : isRowSelected ? "border-sky-500/30 bg-sky-500/5" : "border-white/6 hover:bg-card/70"
                 )}
               >
                 <div className="pt-0.5 shrink-0" onClick={e => e.stopPropagation()}>
@@ -818,7 +818,7 @@ export default function BuilderResults() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <p className="font-semibold text-white text-sm">{name}</p>
+                      <p className="font-semibold text-foreground text-sm">{name}</p>
                       {co.isDuplicate && (
                         <Badge variant="outline" className="text-[9px] border-rose-500/20 text-rose-400 bg-rose-500/10">duplicate</Badge>
                       )}
@@ -860,17 +860,17 @@ export default function BuilderResults() {
 
       {/* Pagination */}
       {total > 20 && (
-        <div className="flex items-center justify-between pt-4 shrink-0 border-t border-white/5">
+        <div className="flex items-center justify-between pt-4 shrink-0 border-t border-border/30">
           <p className="text-xs text-muted-foreground">
             {total.toLocaleString()} harvested companies · page {page} of {totalPages}
           </p>
           <div className="flex gap-2">
             <Button size="sm" variant="outline" onClick={() => setPage(p => Math.max(1, p - 1))}
-              disabled={page === 1} className="h-8 border-white/10">
+              disabled={page === 1} className="h-8 border-border/40">
               <ChevronLeft className="w-3.5 h-3.5" />
             </Button>
             <Button size="sm" variant="outline" onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-              disabled={page >= totalPages} className="h-8 border-white/10">
+              disabled={page >= totalPages} className="h-8 border-border/40">
               <ChevronRight className="w-3.5 h-3.5" />
             </Button>
           </div>

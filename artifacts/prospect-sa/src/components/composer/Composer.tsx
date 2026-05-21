@@ -162,7 +162,7 @@ export function Composer({ onRun, running }: Props) {
           >
             <span className={`w-4 h-4 rounded-full inline-flex items-center justify-center text-[10px] ${
               layer === n ? "bg-primary text-primary-foreground"
-              : layer > n ? "bg-emerald-500 text-white"
+              : layer > n ? "bg-emerald-500 text-foreground"
               : "bg-muted text-muted-foreground"}`}>{n}</span>
             {["Pick", "Scope", "Tools", "Ask"][i]}
           </button>
@@ -313,7 +313,7 @@ export function Composer({ onRun, running }: Props) {
 // ── tiny presentational helpers ───────────────────────────────────────────────
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="border border-border rounded-xl bg-card/60 backdrop-blur p-4">
+    <div className="border border-border rounded-xl bg-card/70 backdrop-blur p-4">
       <div className="text-sm font-bold mb-3">{title}</div>
       <div className="space-y-3">{children}</div>
     </div>

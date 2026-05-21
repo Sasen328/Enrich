@@ -164,7 +164,7 @@ function toggle<T>(arr: T[], val: T): T[] {
 function Chip({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
   return (
     <button onClick={onClick} className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all duration-150 cursor-pointer ${
-      active ? "bg-primary/20 text-primary border-primary/40" : "bg-white/5 text-muted-foreground border-white/10 hover:border-white/20 hover:text-white"
+      active ? "bg-primary/20 text-primary border-primary/40" : "bg-muted/40 text-muted-foreground border-border/40 hover:border-white/20 hover:text-foreground"
     }`}>
       {active && <CheckCircle2 className="w-3 h-3 mr-1 inline" />}{label}
     </button>
@@ -208,16 +208,16 @@ function WizardModal({ open, onClose }: { open: boolean; onClose: () => void }) 
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl bg-card border-white/10 text-foreground p-0 overflow-hidden max-h-[92vh] flex flex-col">
+      <DialogContent className="max-w-2xl bg-card border-border/40 text-foreground p-0 overflow-hidden max-h-[92vh] flex flex-col">
         {/* Header */}
-        <div className="bg-gradient-to-r from-primary/20 to-violet-500/10 px-6 pt-5 pb-4 border-b border-white/10 shrink-0">
+        <div className="bg-gradient-to-r from-primary/20 to-violet-500/10 px-6 pt-5 pb-4 border-b border-border/40 shrink-0">
           <DialogHeader>
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
                 <Sparkles className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <DialogTitle className="text-xl font-display font-bold text-white">AI Lead Hunt</DialogTitle>
+                <DialogTitle className="text-xl font-display font-bold text-foreground">AI Lead Hunt</DialogTitle>
                 <p className="text-sm text-muted-foreground">Find decision-makers, owners & shareholders across Saudi Arabia</p>
               </div>
             </div>
@@ -226,7 +226,7 @@ function WizardModal({ open, onClose }: { open: boolean; onClose: () => void }) 
                 <div key={i} className={`h-1 rounded-full flex-1 transition-all duration-300 ${i + 1 < step ? "bg-primary" : i + 1 === step ? "bg-primary/60" : "bg-white/10"}`} />
               ))}
             </div>
-            <p className="text-xs text-muted-foreground mt-1.5">Step {step} of {TOTAL_STEPS}: <span className="text-white/70">{STEP_TITLES[step - 1]}</span></p>
+            <p className="text-xs text-muted-foreground mt-1.5">Step {step} of {TOTAL_STEPS}: <span className="text-foreground/70">{STEP_TITLES[step - 1]}</span></p>
           </DialogHeader>
         </div>
 
@@ -240,7 +240,7 @@ function WizardModal({ open, onClose }: { open: boolean; onClose: () => void }) 
               <Input autoFocus placeholder="e.g. Riyadh Tech Founders Q2 2026"
                 value={criteria.name}
                 onChange={e => setCriteria(c => ({ ...c, name: e.target.value }))}
-                className="bg-white/5 border-white/10 text-white placeholder:text-muted-foreground text-base h-12"
+                className="bg-muted/40 border-border/40 text-foreground placeholder:text-muted-foreground text-base h-12"
                 onKeyDown={e => { if (e.key === "Enter" && canNext) setStep(2); }} />
             </div>
           )}
@@ -252,11 +252,11 @@ function WizardModal({ open, onClose }: { open: boolean; onClose: () => void }) 
               <div className="flex items-center gap-2 mb-1">
                 <button
                   onClick={() => setCriteria(c => ({ ...c, industries: c.industries.length === INDUSTRIES.length ? [] : [...INDUSTRIES] }))}
-                  className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all cursor-pointer ${criteria.industries.length === INDUSTRIES.length ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40" : "bg-white/5 text-white/60 border-white/15 hover:border-white/30"}`}>
+                  className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all cursor-pointer ${criteria.industries.length === INDUSTRIES.length ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40" : "bg-muted/40 text-foreground/60 border-white/15 hover:border-white/30"}`}>
                   {criteria.industries.length === INDUSTRIES.length ? "✓ All Industries" : "Select All"}
                 </button>
                 {criteria.industries.length > 0 && criteria.industries.length < INDUSTRIES.length && (
-                  <button onClick={() => setCriteria(c => ({ ...c, industries: [] }))} className="text-xs text-muted-foreground hover:text-white underline">Clear</button>
+                  <button onClick={() => setCriteria(c => ({ ...c, industries: [] }))} className="text-xs text-muted-foreground hover:text-foreground underline">Clear</button>
                 )}
               </div>
               <div className="flex flex-wrap gap-2">{INDUSTRIES.map(ind => (
@@ -274,11 +274,11 @@ function WizardModal({ open, onClose }: { open: boolean; onClose: () => void }) 
               <div className="flex items-center gap-2 mb-1">
                 <button
                   onClick={() => setCriteria(c => ({ ...c, cities: c.cities.length === CITIES.length ? [] : [...CITIES] }))}
-                  className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all cursor-pointer ${criteria.cities.length === CITIES.length ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40" : "bg-white/5 text-white/60 border-white/15 hover:border-white/30"}`}>
+                  className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all cursor-pointer ${criteria.cities.length === CITIES.length ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40" : "bg-muted/40 text-foreground/60 border-white/15 hover:border-white/30"}`}>
                   {criteria.cities.length === CITIES.length ? "✓ All Cities" : "Select All Cities"}
                 </button>
                 {criteria.cities.length > 0 && criteria.cities.length < CITIES.length && (
-                  <button onClick={() => setCriteria(c => ({ ...c, cities: [] }))} className="text-xs text-muted-foreground hover:text-white underline">Clear</button>
+                  <button onClick={() => setCriteria(c => ({ ...c, cities: [] }))} className="text-xs text-muted-foreground hover:text-foreground underline">Clear</button>
                 )}
               </div>
               <div className="flex flex-wrap gap-2">{CITIES.map(city => (
@@ -296,9 +296,9 @@ function WizardModal({ open, onClose }: { open: boolean; onClose: () => void }) 
               <div className="grid grid-cols-1 gap-2">
                 {REVENUE_RANGES.map(r => (
                   <button key={r.id} onClick={() => setCriteria(c => ({ ...c, revenueRange: r.id as LeadCriteria["revenueRange"] }))}
-                    className={`flex items-center justify-between p-3.5 rounded-xl border transition-all text-left ${criteria.revenueRange === r.id ? "border-primary/50 bg-primary/10" : "border-white/10 bg-white/5 hover:border-white/20"}`}>
+                    className={`flex items-center justify-between p-3.5 rounded-xl border transition-all text-left ${criteria.revenueRange === r.id ? "border-primary/50 bg-primary/10" : "border-border/40 bg-muted/40 hover:border-white/20"}`}>
                     <div>
-                      <span className="text-sm font-semibold text-white">{r.label}</span>
+                      <span className="text-sm font-semibold text-foreground">{r.label}</span>
                       <p className="text-xs text-muted-foreground">{r.desc}</p>
                     </div>
                     {criteria.revenueRange === r.id && <CheckCircle2 className="w-5 h-5 text-primary shrink-0" />}
@@ -316,7 +316,7 @@ function WizardModal({ open, onClose }: { open: boolean; onClose: () => void }) 
                 <div>
                   <div className="flex justify-between text-xs text-muted-foreground mb-2">
                     <span>Minimum employees</span>
-                    <span className="text-white font-semibold">{criteria.employeeMin === 0 ? "Any" : criteria.employeeMin.toLocaleString()}</span>
+                    <span className="text-foreground font-semibold">{criteria.employeeMin === 0 ? "Any" : criteria.employeeMin.toLocaleString()}</span>
                   </div>
                   <Slider min={0} max={5000} step={10}
                     value={[criteria.employeeMin]}
@@ -325,7 +325,7 @@ function WizardModal({ open, onClose }: { open: boolean; onClose: () => void }) 
                 <div>
                   <div className="flex justify-between text-xs text-muted-foreground mb-2">
                     <span>Maximum employees</span>
-                    <span className="text-white font-semibold">{criteria.employeeMax >= 99999 ? "Unlimited" : criteria.employeeMax.toLocaleString()}</span>
+                    <span className="text-foreground font-semibold">{criteria.employeeMax >= 99999 ? "Unlimited" : criteria.employeeMax.toLocaleString()}</span>
                   </div>
                   <Slider min={10} max={99999} step={10}
                     value={[criteria.employeeMax]}
@@ -335,7 +335,7 @@ function WizardModal({ open, onClose }: { open: boolean; onClose: () => void }) 
               <div className="flex gap-2 flex-wrap">
                 {[{l:"Any",min:0,max:99999},{l:"Startup <10",min:0,max:9},{l:"Small 10-50",min:10,max:50},{l:"Medium 50-500",min:50,max:500},{l:"Large 500+",min:500,max:99999}].map(p => (
                   <button key={p.l} onClick={() => setCriteria(c => ({ ...c, employeeMin: p.min, employeeMax: p.max }))}
-                    className={`px-3 py-1.5 text-xs rounded-full border transition-all ${criteria.employeeMin === p.min && criteria.employeeMax === p.max ? "bg-primary/20 text-primary border-primary/40" : "bg-white/5 text-muted-foreground border-white/10 hover:border-white/20"}`}>
+                    className={`px-3 py-1.5 text-xs rounded-full border transition-all ${criteria.employeeMin === p.min && criteria.employeeMax === p.max ? "bg-primary/20 text-primary border-primary/40" : "bg-muted/40 text-muted-foreground border-border/40 hover:border-white/20"}`}>
                     {p.l}
                   </button>
                 ))}
@@ -350,10 +350,10 @@ function WizardModal({ open, onClose }: { open: boolean; onClose: () => void }) 
               <div className="space-y-2">
                 {PERSON_TYPES.map(({ id, label, desc, icon: Icon }) => (
                   <button key={id} onClick={() => setCriteria(c => ({ ...c, personTypes: toggle(c.personTypes, id) }))}
-                    className={`w-full flex items-center gap-3 p-3.5 rounded-xl border transition-all text-left ${criteria.personTypes.includes(id) ? "border-primary/50 bg-primary/10" : "border-white/10 bg-white/5 hover:border-white/20"}`}>
+                    className={`w-full flex items-center gap-3 p-3.5 rounded-xl border transition-all text-left ${criteria.personTypes.includes(id) ? "border-primary/50 bg-primary/10" : "border-border/40 bg-muted/40 hover:border-white/20"}`}>
                     <Icon className={`w-5 h-5 shrink-0 ${criteria.personTypes.includes(id) ? "text-primary" : "text-muted-foreground"}`} />
                     <div className="flex-1">
-                      <span className="text-sm font-medium text-white">{label}</span>
+                      <span className="text-sm font-medium text-foreground">{label}</span>
                       <p className="text-xs text-muted-foreground">{desc}</p>
                     </div>
                     {criteria.personTypes.includes(id) && <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />}
@@ -370,11 +370,11 @@ function WizardModal({ open, onClose }: { open: boolean; onClose: () => void }) 
               <div className="grid grid-cols-1 gap-2">
                 {COMPENSATION_RANGES.map(r => (
                   <button key={r.id} onClick={() => setCriteria(c => ({ ...c, compensationRange: r.id as LeadCriteria["compensationRange"] }))}
-                    className={`flex items-center justify-between p-3.5 rounded-xl border transition-all text-left ${criteria.compensationRange === r.id ? "border-primary/50 bg-primary/10" : "border-white/10 bg-white/5 hover:border-white/20"}`}>
+                    className={`flex items-center justify-between p-3.5 rounded-xl border transition-all text-left ${criteria.compensationRange === r.id ? "border-primary/50 bg-primary/10" : "border-border/40 bg-muted/40 hover:border-white/20"}`}>
                     <div>
                       <div className="flex items-center gap-2">
                         <DollarSign className={`w-4 h-4 ${criteria.compensationRange === r.id ? "text-primary" : "text-muted-foreground"}`} />
-                        <span className="text-sm font-semibold text-white">{r.label}</span>
+                        <span className="text-sm font-semibold text-foreground">{r.label}</span>
                       </div>
                       <p className="text-xs text-muted-foreground ml-6">{r.desc}</p>
                     </div>
@@ -389,27 +389,27 @@ function WizardModal({ open, onClose }: { open: boolean; onClose: () => void }) 
           {step === 8 && (
             <div className="space-y-4">
               <div>
-                <p className="text-sm font-medium text-white mb-1">Person must have at least one of:</p>
+                <p className="text-sm font-medium text-foreground mb-1">Person must have at least one of:</p>
                 <p className="text-xs text-amber-400/80 mb-2">Selecting multiple means OR — any one is enough to qualify.</p>
                 <div className="space-y-2">
                   {[{id:"phone",label:"Direct phone number",icon:Phone},{id:"email",label:"Email address",icon:Mail},{id:"linkedin",label:"LinkedIn profile",icon:Linkedin}].map(({id,label,icon:Icon}) => (
                     <button key={id} onClick={() => setCriteria(c => ({ ...c, requiredPersonFields: toggle(c.requiredPersonFields, id) }))}
-                      className={`w-full flex items-center gap-3 p-3 rounded-xl border transition-all text-left ${criteria.requiredPersonFields.includes(id) ? "border-primary/50 bg-primary/10" : "border-white/10 bg-white/5 hover:border-white/20"}`}>
+                      className={`w-full flex items-center gap-3 p-3 rounded-xl border transition-all text-left ${criteria.requiredPersonFields.includes(id) ? "border-primary/50 bg-primary/10" : "border-border/40 bg-muted/40 hover:border-white/20"}`}>
                       <Icon className={`w-4 h-4 ${criteria.requiredPersonFields.includes(id) ? "text-primary" : "text-muted-foreground"}`} />
-                      <span className="text-sm text-white">{label}</span>
+                      <span className="text-sm text-foreground">{label}</span>
                       {criteria.requiredPersonFields.includes(id) && <CheckCircle2 className="w-4 h-4 text-primary ml-auto" />}
                     </button>
                   ))}
                 </div>
               </div>
               <div>
-                <p className="text-sm font-medium text-white mb-1">Required company data (each selected is mandatory):</p>
+                <p className="text-sm font-medium text-foreground mb-1">Required company data (each selected is mandatory):</p>
                 <div className="space-y-2">
                   {[{id:"revenue",label:"Company revenue data available"},{id:"employees",label:"Employee count available"},{id:"crNumber",label:"CR registration number"}].map(({id,label}) => (
                     <button key={id} onClick={() => setCriteria(c => ({ ...c, requiredCompanyFields: toggle(c.requiredCompanyFields, id) }))}
-                      className={`w-full flex items-center gap-3 p-3 rounded-xl border transition-all text-left ${criteria.requiredCompanyFields.includes(id) ? "border-primary/50 bg-primary/10" : "border-white/10 bg-white/5 hover:border-white/20"}`}>
+                      className={`w-full flex items-center gap-3 p-3 rounded-xl border transition-all text-left ${criteria.requiredCompanyFields.includes(id) ? "border-primary/50 bg-primary/10" : "border-border/40 bg-muted/40 hover:border-white/20"}`}>
                       <Building2 className={`w-4 h-4 ${criteria.requiredCompanyFields.includes(id) ? "text-primary" : "text-muted-foreground"}`} />
-                      <span className="text-sm text-white">{label}</span>
+                      <span className="text-sm text-foreground">{label}</span>
                       {criteria.requiredCompanyFields.includes(id) && <CheckCircle2 className="w-4 h-4 text-primary ml-auto" />}
                     </button>
                   ))}
@@ -426,9 +426,9 @@ function WizardModal({ open, onClose }: { open: boolean; onClose: () => void }) 
               <div className="space-y-2">
                 {SOURCES.map(src => (
                   <button key={src.id} onClick={() => setCriteria(c => ({ ...c, sources: toggle(c.sources, src.id) }))}
-                    className={`w-full flex items-center gap-3 p-3.5 rounded-xl border transition-all text-left ${criteria.sources.includes(src.id) ? "border-primary/50 bg-primary/10" : "border-white/10 bg-white/5 hover:border-white/20"}`}>
+                    className={`w-full flex items-center gap-3 p-3.5 rounded-xl border transition-all text-left ${criteria.sources.includes(src.id) ? "border-primary/50 bg-primary/10" : "border-border/40 bg-muted/40 hover:border-white/20"}`}>
                     <div className="flex-1">
-                      <span className="text-sm font-medium text-white">{src.label}</span>
+                      <span className="text-sm font-medium text-foreground">{src.label}</span>
                       <p className="text-xs text-muted-foreground">{src.desc}</p>
                     </div>
                     {criteria.sources.includes(src.id) && <CheckCircle2 className="w-4 h-4 text-primary" />}
@@ -446,7 +446,7 @@ function WizardModal({ open, onClose }: { open: boolean; onClose: () => void }) 
                 <Slider min={10} max={500} step={10} value={[criteria.maxLeads]}
                   onValueChange={([v]) => setCriteria(c => ({ ...c, maxLeads: v }))} />
                 <div className="flex justify-between text-xs text-muted-foreground mt-2">
-                  <span>10</span><span className="text-xl font-display font-bold text-white">{criteria.maxLeads} leads</span><span>500</span>
+                  <span>10</span><span className="text-xl font-display font-bold text-foreground">{criteria.maxLeads} leads</span><span>500</span>
                 </div>
               </div>
               <div>
@@ -454,10 +454,10 @@ function WizardModal({ open, onClose }: { open: boolean; onClose: () => void }) 
                 <Textarea placeholder="e.g. Must be Saudi nationals, companies founded after 2010, listed on Tadawul..."
                   value={criteria.freeText}
                   onChange={e => setCriteria(c => ({ ...c, freeText: e.target.value }))}
-                  className="bg-white/5 border-white/10 text-white placeholder:text-muted-foreground min-h-[80px] resize-none" />
+                  className="bg-muted/40 border-border/40 text-foreground placeholder:text-muted-foreground min-h-[80px] resize-none" />
               </div>
-              <div className="bg-white/5 rounded-xl p-4 border border-white/10 space-y-1.5">
-                <p className="text-xs font-semibold text-white uppercase tracking-wider mb-2">Hunt Summary</p>
+              <div className="bg-muted/40 rounded-xl p-4 border border-border/40 space-y-1.5">
+                <p className="text-xs font-semibold text-foreground uppercase tracking-wider mb-2">Hunt Summary</p>
                 {[
                   ["Industries", criteria.industries.length > 0 ? criteria.industries.slice(0,3).join(", ")+(criteria.industries.length>3?"…":"") : "All"],
                   ["Cities", criteria.cities.length > 0 ? criteria.cities.slice(0,3).join(", ")+(criteria.cities.length>3?"…":"") : "All Saudi Arabia"],
@@ -470,7 +470,7 @@ function WizardModal({ open, onClose }: { open: boolean; onClose: () => void }) 
                 ].map(([k,v]) => (
                   <div key={k} className="grid grid-cols-2 gap-2 text-xs">
                     <span className="text-muted-foreground">{k}:</span>
-                    <span className="text-white">{v}</span>
+                    <span className="text-foreground">{v}</span>
                   </div>
                 ))}
               </div>
@@ -482,8 +482,8 @@ function WizardModal({ open, onClose }: { open: boolean; onClose: () => void }) 
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-white/10 flex justify-between items-center shrink-0">
-          <Button variant="ghost" onClick={() => step === 1 ? handleClose() : setStep(s => s - 1)} className="text-muted-foreground hover:text-white">
+        <div className="px-6 py-4 border-t border-border/40 flex justify-between items-center shrink-0">
+          <Button variant="ghost" onClick={() => step === 1 ? handleClose() : setStep(s => s - 1)} className="text-muted-foreground hover:text-foreground">
             {step === 1 ? <><X className="w-4 h-4 mr-1.5" />Cancel</> : <><ChevronLeft className="w-4 h-4 mr-1.5" />Back</>}
           </Button>
           {step < TOTAL_STEPS ? (
@@ -519,14 +519,14 @@ function LeadProfileDialog({ item, listId, open, onClose, onDeleted }: {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-lg bg-card border-white/10 text-foreground max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-lg bg-card border-border/40 text-foreground max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-primary/15 border border-primary/25 flex items-center justify-center shrink-0">
               <span className="text-sm font-bold text-primary">{item.personName ? initials(item.personName) : "?"}</span>
             </div>
             <div>
-              <p className="text-lg font-display font-bold text-white leading-tight">{item.personName}</p>
+              <p className="text-lg font-display font-bold text-foreground leading-tight">{item.personName}</p>
               {item.personNameAr && <p className="text-sm text-muted-foreground" dir="rtl">{item.personNameAr}</p>}
             </div>
           </DialogTitle>
@@ -534,21 +534,21 @@ function LeadProfileDialog({ item, listId, open, onClose, onDeleted }: {
 
         <div className="space-y-4 mt-2">
           {/* Role & Company */}
-          <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-1">
-            <p className="text-sm font-semibold text-white">{item.personTitle}</p>
+          <div className="p-4 rounded-xl bg-muted/40 border border-border/40 space-y-1">
+            <p className="text-sm font-semibold text-foreground">{item.personTitle}</p>
             {item.companyName && <p className="text-sm text-muted-foreground flex items-center gap-1.5"><Building2 className="w-3.5 h-3.5" />{item.companyName}{item.companyNameAr && ` · ${item.companyNameAr}`}</p>}
             {item.seniority && <p className="text-xs text-muted-foreground capitalize">{item.seniority} · {item.department || ""}</p>}
           </div>
 
           {/* Company details */}
           <div className="grid grid-cols-2 gap-2">
-            {item.industry && <div className="p-2.5 rounded-lg bg-white/5 border border-white/8"><p className="text-xs text-muted-foreground mb-0.5">Industry</p><p className="text-xs text-white font-medium">{item.industry}</p></div>}
-            {item.city && <div className="p-2.5 rounded-lg bg-white/5 border border-white/8"><p className="text-xs text-muted-foreground mb-0.5">City</p><p className="text-xs text-white font-medium">{item.city}</p></div>}
-            {item.companyRevenue && <div className="p-2.5 rounded-lg bg-white/5 border border-white/8"><p className="text-xs text-muted-foreground mb-0.5">Revenue</p><p className="text-xs text-white font-medium">{item.companyRevenue}</p></div>}
-            {item.companyEmployees && <div className="p-2.5 rounded-lg bg-white/5 border border-white/8"><p className="text-xs text-muted-foreground mb-0.5">Employees</p><p className="text-xs text-white font-medium">{item.companyEmployees}</p></div>}
-            {item.crNumber && <div className="p-2.5 rounded-lg bg-white/5 border border-white/8"><p className="text-xs text-muted-foreground mb-0.5">CR Number</p><p className="text-xs text-white font-medium">{item.crNumber}</p></div>}
-            {item.ownershipPct && <div className="p-2.5 rounded-lg bg-white/5 border border-white/8"><p className="text-xs text-muted-foreground mb-0.5">Ownership</p><p className="text-xs text-white font-medium">{item.ownershipPct}%</p></div>}
-            {item.nationality && <div className="p-2.5 rounded-lg bg-white/5 border border-white/8"><p className="text-xs text-muted-foreground mb-0.5">Nationality</p><p className="text-xs text-white font-medium">{item.nationality}</p></div>}
+            {item.industry && <div className="p-2.5 rounded-lg bg-muted/40 border border-white/8"><p className="text-xs text-muted-foreground mb-0.5">Industry</p><p className="text-xs text-foreground font-medium">{item.industry}</p></div>}
+            {item.city && <div className="p-2.5 rounded-lg bg-muted/40 border border-white/8"><p className="text-xs text-muted-foreground mb-0.5">City</p><p className="text-xs text-foreground font-medium">{item.city}</p></div>}
+            {item.companyRevenue && <div className="p-2.5 rounded-lg bg-muted/40 border border-white/8"><p className="text-xs text-muted-foreground mb-0.5">Revenue</p><p className="text-xs text-foreground font-medium">{item.companyRevenue}</p></div>}
+            {item.companyEmployees && <div className="p-2.5 rounded-lg bg-muted/40 border border-white/8"><p className="text-xs text-muted-foreground mb-0.5">Employees</p><p className="text-xs text-foreground font-medium">{item.companyEmployees}</p></div>}
+            {item.crNumber && <div className="p-2.5 rounded-lg bg-muted/40 border border-white/8"><p className="text-xs text-muted-foreground mb-0.5">CR Number</p><p className="text-xs text-foreground font-medium">{item.crNumber}</p></div>}
+            {item.ownershipPct && <div className="p-2.5 rounded-lg bg-muted/40 border border-white/8"><p className="text-xs text-muted-foreground mb-0.5">Ownership</p><p className="text-xs text-foreground font-medium">{item.ownershipPct}%</p></div>}
+            {item.nationality && <div className="p-2.5 rounded-lg bg-muted/40 border border-white/8"><p className="text-xs text-muted-foreground mb-0.5">Nationality</p><p className="text-xs text-foreground font-medium">{item.nationality}</p></div>}
             {item.estimatedSalary && <div className="p-2.5 rounded-lg bg-amber-500/8 border border-amber-500/15"><p className="text-xs text-amber-400/80 mb-0.5">Est. Salary</p><p className="text-xs text-amber-300 font-medium">${item.estimatedSalary.toLocaleString()}/yr</p></div>}
           </div>
 
@@ -562,9 +562,9 @@ function LeadProfileDialog({ item, listId, open, onClose, onDeleted }: {
 
           {/* Biography */}
           {item.biography && (
-            <div className="p-3 rounded-xl bg-white/5 border border-white/8">
+            <div className="p-3 rounded-xl bg-muted/40 border border-white/8">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Biography</p>
-              <p className="text-xs text-white/80 leading-relaxed">{item.biography}</p>
+              <p className="text-xs text-foreground/80 leading-relaxed">{item.biography}</p>
             </div>
           )}
 
@@ -572,7 +572,7 @@ function LeadProfileDialog({ item, listId, open, onClose, onDeleted }: {
           {item.aiReasoning && (
             <div className="p-3 rounded-xl bg-primary/5 border border-primary/15">
               <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-2 flex items-center gap-1"><Sparkles className="w-3 h-3" />AI Reasoning</p>
-              <p className="text-xs text-white/80 leading-relaxed">{item.aiReasoning}</p>
+              <p className="text-xs text-foreground/80 leading-relaxed">{item.aiReasoning}</p>
             </div>
           )}
 
@@ -594,7 +594,7 @@ function LeadProfileDialog({ item, listId, open, onClose, onDeleted }: {
           </div>
 
           {/* Actions */}
-          <div className="flex gap-2 pt-2 border-t border-white/10">
+          <div className="flex gap-2 pt-2 border-t border-border/40">
             <Button size="sm" className="flex-1 bg-primary/20 hover:bg-primary/30 text-primary border border-primary/30 gap-1.5"
               onClick={() => { onClose(); navigate(`/prospecting/person?name=${encodeURIComponent(item.personName || "")}&company=${encodeURIComponent(item.companyName || "")}`); }}>
               <Brain className="w-3.5 h-3.5" />Generate Intel Profile
@@ -624,7 +624,7 @@ function LeadCard({ item, listId, onDeleted }: { item: LeadListItem; listId: num
   return (
     <>
       <Card
-        className="bg-card/40 border-white/10 hover:border-white/25 transition-all duration-150 cursor-pointer group"
+        className="bg-card/65 border-border/40 hover:border-white/25 transition-all duration-150 cursor-pointer group"
         onClick={() => setShowProfile(true)}>
         <CardContent className="py-4 px-5">
           <div className="flex items-start gap-4">
@@ -636,12 +636,12 @@ function LeadCard({ item, listId, onDeleted }: { item: LeadListItem; listId: num
             {/* Main info */}
             <div className="flex-1 min-w-0">
               <div className="flex items-start gap-2 flex-wrap">
-                <p className="font-semibold text-white group-hover:text-primary transition-colors">{item.personName}</p>
+                <p className="font-semibold text-foreground group-hover:text-primary transition-colors">{item.personName}</p>
                 {item.personNameAr && <p className="text-sm text-muted-foreground" dir="rtl">{item.personNameAr}</p>}
               </div>
               <div className="flex items-center gap-1.5 flex-wrap mt-0.5">
                 <span className="text-sm text-primary/90">{item.personTitle}</span>
-                {item.companyName && <><span className="text-muted-foreground text-sm">at</span><span className="text-sm text-white/80">{item.companyName}</span></>}
+                {item.companyName && <><span className="text-muted-foreground text-sm">at</span><span className="text-sm text-foreground/80">{item.companyName}</span></>}
               </div>
 
               {/* Company meta */}
@@ -687,7 +687,7 @@ function LeadCard({ item, listId, onDeleted }: { item: LeadListItem; listId: num
                     </div>
                   </TooltipTrigger>
                   {item.aiReasoning && (
-                    <TooltipContent side="left" className="max-w-xs bg-card border-white/10 text-xs text-white">
+                    <TooltipContent side="left" className="max-w-xs bg-card border-border/40 text-xs text-foreground">
                       <p className="font-semibold mb-1 text-primary">AI reasoning:</p>
                       <p>{item.aiReasoning}</p>
                     </TooltipContent>
@@ -777,11 +777,11 @@ function ListDetailView({ list, onBack }: { list: LeadList; onBack: () => void }
   return (
     <div className="space-y-5 animate-in slide-in-from-right-4 duration-300">
       <div className="flex items-center gap-3">
-        <Button variant="ghost" onClick={onBack} className="text-muted-foreground hover:text-white px-2">
+        <Button variant="ghost" onClick={onBack} className="text-muted-foreground hover:text-foreground px-2">
           <ChevronLeft className="w-4 h-4 mr-1" />Back
         </Button>
         <div className="flex-1 min-w-0">
-          <h2 className="text-xl font-display font-bold text-white truncate">{list.name}</h2>
+          <h2 className="text-xl font-display font-bold text-foreground truncate">{list.name}</h2>
           <p className="text-sm text-muted-foreground">{new Date(list.createdAt).toLocaleDateString("en-US", { year:"numeric", month:"long", day:"numeric" })}</p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -797,7 +797,7 @@ function ListDetailView({ list, onBack }: { list: LeadList; onBack: () => void }
                 <Download className="w-4 h-4 mr-1.5" />Export
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="bg-card border-white/10">
+            <DropdownMenuContent align="end" className="bg-card border-border/40">
               <DropdownMenuItem onClick={() => downloadExport("csv")} className="gap-2 cursor-pointer"><FileText className="w-4 h-4 text-emerald-400" />CSV</DropdownMenuItem>
               <DropdownMenuItem onClick={() => downloadExport("excel")} className="gap-2 cursor-pointer"><FileSpreadsheet className="w-4 h-4 text-green-400" />Excel (.xlsx)</DropdownMenuItem>
               <DropdownMenuItem onClick={() => downloadExport("json")} className="gap-2 cursor-pointer"><Braces className="w-4 h-4 text-blue-400" />JSON</DropdownMenuItem>
@@ -807,7 +807,7 @@ function ListDetailView({ list, onBack }: { list: LeadList; onBack: () => void }
       </div>
 
       {/* Criteria badges */}
-      <Card className="bg-card/40 border-white/10">
+      <Card className="bg-card/65 border-border/40">
         <CardContent className="pt-3 pb-3">
           <div className="flex flex-wrap gap-1.5">
             {criteria.personTypes?.map(t => PERSON_TYPES.find(p=>p.id===t)?.label).filter(Boolean).map(l => (
@@ -817,8 +817,8 @@ function ListDetailView({ list, onBack }: { list: LeadList; onBack: () => void }
             {criteria.cities?.slice(0,3).map(c => <Badge key={c} className="bg-blue-500/15 text-blue-300 border-blue-500/20 border text-xs"><MapPin className="w-2.5 h-2.5 mr-0.5 inline" />{c}</Badge>)}
             {criteria.revenueRange && criteria.revenueRange !== "any" && <Badge className="bg-emerald-500/15 text-emerald-300 border-emerald-500/20 border text-xs">{REVENUE_RANGES.find(r=>r.id===criteria.revenueRange)?.label}</Badge>}
             {criteria.compensationRange && criteria.compensationRange !== "any" && <Badge className="bg-amber-500/15 text-amber-300 border-amber-500/20 border text-xs">{COMPENSATION_RANGES.find(r=>r.id===criteria.compensationRange)?.label}</Badge>}
-            <Badge className="bg-white/5 text-muted-foreground border-white/10 border text-xs">Max {criteria.maxLeads ?? "?"} leads</Badge>
-            <Badge className="bg-white/5 text-muted-foreground border-white/10 border text-xs">{currentList.totalFound ?? 0} found</Badge>
+            <Badge className="bg-muted/40 text-muted-foreground border-border/40 border text-xs">Max {criteria.maxLeads ?? "?"} leads</Badge>
+            <Badge className="bg-muted/40 text-muted-foreground border-border/40 border text-xs">{currentList.totalFound ?? 0} found</Badge>
           </div>
         </CardContent>
       </Card>
@@ -830,7 +830,7 @@ function ListDetailView({ list, onBack }: { list: LeadList; onBack: () => void }
               <Sparkles className="w-5 h-5 text-amber-400" />
             </div>
             <div className="flex-1">
-              <p className="font-semibold text-white">AI is hunting leads…</p>
+              <p className="font-semibold text-foreground">AI is hunting leads…</p>
               <p className="text-sm text-muted-foreground">Scanning executives, owners, shareholders & board members — scoring with AI</p>
             </div>
           </CardContent>
@@ -849,10 +849,10 @@ function ListDetailView({ list, onBack }: { list: LeadList; onBack: () => void }
         </Card>
       )}
       {currentList.status === "done" && items.length === 0 && (
-        <Card className="bg-card/30 border-white/10">
+        <Card className="bg-card/30 border-border/40">
           <CardContent className="py-12 text-center">
             <UserCircle className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-40" />
-            <p className="text-white font-medium">No matching people found</p>
+            <p className="text-foreground font-medium">No matching people found</p>
             <p className="text-sm text-muted-foreground mt-1">Try broadening your criteria — fewer required fields or more person types.</p>
           </CardContent>
         </Card>
@@ -864,28 +864,28 @@ function ListDetailView({ list, onBack }: { list: LeadList; onBack: () => void }
             <div className="relative flex-1 min-w-48">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input placeholder="Search by name, title, company…" value={search}
-                onChange={e => setSearch(e.target.value)} className="pl-9 bg-white/5 border-white/10 text-white" />
+                onChange={e => setSearch(e.target.value)} className="pl-9 bg-muted/40 border-border/40 text-foreground" />
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="border-white/10 text-muted-foreground hover:text-white gap-2 shrink-0">
+                <Button variant="outline" size="sm" className="border-border/40 text-muted-foreground hover:text-foreground gap-2 shrink-0">
                   <Filter className="w-3.5 h-3.5" />
                   {typeFilter ? (PERSON_TYPE_BADGE[typeFilter]?.label ?? typeFilter) : "All Types"}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="bg-card border-white/10">
+              <DropdownMenuContent className="bg-card border-border/40">
                 <DropdownMenuItem onClick={() => setTypeFilter(null)} className="cursor-pointer">All Types</DropdownMenuItem>
                 {PERSON_TYPES.map(p => <DropdownMenuItem key={p.id} onClick={() => setTypeFilter(p.id)} className="cursor-pointer">{p.label}</DropdownMenuItem>)}
               </DropdownMenuContent>
             </DropdownMenu>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="border-white/10 text-muted-foreground hover:text-white gap-2 shrink-0">
+                <Button variant="outline" size="sm" className="border-border/40 text-muted-foreground hover:text-foreground gap-2 shrink-0">
                   <Filter className="w-3.5 h-3.5" />
                   {sourceFilter ? (SOURCE_BADGE[sourceFilter]?.label ?? sourceFilter) : "All Sources"}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="bg-card border-white/10">
+              <DropdownMenuContent className="bg-card border-border/40">
                 <DropdownMenuItem onClick={() => setSourceFilter(null)} className="cursor-pointer">All Sources</DropdownMenuItem>
                 {SOURCES.map(s => <DropdownMenuItem key={s.id} onClick={() => setSourceFilter(s.id)} className="cursor-pointer">{s.label}</DropdownMenuItem>)}
               </DropdownMenuContent>
@@ -903,7 +903,7 @@ function ListDetailView({ list, onBack }: { list: LeadList; onBack: () => void }
         </>
       )}
 
-      {isLoading && <div className="space-y-2">{Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-28 bg-white/5 rounded-xl animate-pulse" />)}</div>}
+      {isLoading && <div className="space-y-2">{Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-28 bg-muted/40 rounded-xl animate-pulse" />)}</div>}
     </div>
   );
 }
@@ -942,18 +942,18 @@ function ProsEngineTab() {
 
   if (isLoading) return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-      {Array.from({ length: 3 }).map((_, i) => <div key={i} className="h-40 bg-white/5 rounded-2xl animate-pulse" />)}
+      {Array.from({ length: 3 }).map((_, i) => <div key={i} className="h-40 bg-muted/40 rounded-2xl animate-pulse" />)}
     </div>
   );
 
   if (items.length === 0) return (
-    <Card className="bg-card/30 border-white/10 border-dashed">
+    <Card className="bg-card/30 border-border/40 border-dashed">
       <CardContent className="py-16 text-center">
         <Brain className="w-12 h-12 text-violet-400/30 mx-auto mb-4" />
-        <p className="text-white font-semibold mb-1">No intelligence profiles yet</p>
+        <p className="text-foreground font-semibold mb-1">No intelligence profiles yet</p>
         <p className="text-muted-foreground text-sm mb-4">Generate a Person Intelligence profile and save it to see it here.</p>
         <Button onClick={() => navigate("/prospecting/person")}
-          className="bg-violet-600 hover:bg-violet-700 text-white">
+          className="bg-violet-600 hover:bg-violet-700 text-foreground">
           <Brain className="w-4 h-4 mr-2" />Open Person Intelligence
         </Button>
       </CardContent>
@@ -972,14 +972,14 @@ function ProsEngineTab() {
         const isOpen = expanded === item.id;
 
         return (
-          <Card key={item.id} className="bg-card/50 border-white/8 overflow-hidden">
+          <Card key={item.id} className="bg-card/75 border-white/8 overflow-hidden">
             <div className="p-5 flex items-start gap-4 cursor-pointer" onClick={() => setExpanded(isOpen ? null : item.id)}>
               <div className="w-10 h-10 rounded-xl bg-violet-500/15 border border-violet-500/25 flex items-center justify-center shrink-0">
                 <User className="w-5 h-5 text-violet-400" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-start gap-2 flex-wrap">
-                  <p className="text-base font-display font-semibold text-white">{item.personName}</p>
+                  <p className="text-base font-display font-semibold text-foreground">{item.personName}</p>
                   {confidence && (
                     <Badge className={`border text-xs ${confidenceColor(confidence)}`}>
                       <Shield className="w-3 h-3 mr-1" />{confidence}
@@ -1015,17 +1015,17 @@ function ProsEngineTab() {
                 {report?.approach_strategy?.recommended_approach && (
                   <div>
                     <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-2 flex items-center gap-1"><Target className="w-3 h-3" />Approach Strategy</p>
-                    <p className="text-sm text-white/85 leading-relaxed bg-primary/5 border border-primary/15 rounded-xl p-4">{report.approach_strategy.recommended_approach}</p>
+                    <p className="text-sm text-foreground/85 leading-relaxed bg-primary/5 border border-primary/15 rounded-xl p-4">{report.approach_strategy.recommended_approach}</p>
                     {(report.approach_strategy.best_channel || report.approach_strategy.best_timing) && (
                       <div className="grid grid-cols-2 gap-2 mt-2">
-                        {report.approach_strategy.best_channel && <div className="p-2.5 rounded-lg bg-white/5 border border-white/8"><p className="text-xs text-muted-foreground mb-0.5">Best Channel</p><p className="text-xs font-medium text-white">{report.approach_strategy.best_channel}</p></div>}
-                        {report.approach_strategy.best_timing && <div className="p-2.5 rounded-lg bg-white/5 border border-white/8"><p className="text-xs text-muted-foreground mb-0.5">Best Timing</p><p className="text-xs font-medium text-white">{report.approach_strategy.best_timing}</p></div>}
+                        {report.approach_strategy.best_channel && <div className="p-2.5 rounded-lg bg-muted/40 border border-white/8"><p className="text-xs text-muted-foreground mb-0.5">Best Channel</p><p className="text-xs font-medium text-foreground">{report.approach_strategy.best_channel}</p></div>}
+                        {report.approach_strategy.best_timing && <div className="p-2.5 rounded-lg bg-muted/40 border border-white/8"><p className="text-xs text-muted-foreground mb-0.5">Best Timing</p><p className="text-xs font-medium text-foreground">{report.approach_strategy.best_timing}</p></div>}
                       </div>
                     )}
-                    {report.approach_strategy.opening_angle && <div className="mt-2 p-2.5 rounded-lg bg-white/5 border border-white/8"><p className="text-xs text-muted-foreground mb-0.5">Opening Angle</p><p className="text-xs text-white/80">{report.approach_strategy.opening_angle}</p></div>}
-                    {report.approach_strategy.value_proposition && <div className="mt-2 p-2.5 rounded-lg bg-white/5 border border-white/8"><p className="text-xs text-muted-foreground mb-0.5">Value Proposition</p><p className="text-xs text-white/80">{report.approach_strategy.value_proposition}</p></div>}
-                    {report.approach_strategy.cultural_notes && <div className="mt-2 p-2.5 rounded-lg bg-amber-500/8 border border-amber-500/15"><p className="text-xs text-amber-400 mb-0.5">Cultural Notes</p><p className="text-xs text-white/80">{report.approach_strategy.cultural_notes}</p></div>}
-                    {report.approach_strategy.conversation_starters?.length > 0 && <div className="mt-2"><p className="text-xs text-muted-foreground mb-1.5">Conversation Starters</p><div className="flex flex-wrap gap-1.5">{report.approach_strategy.conversation_starters.map((s: string, i: number) => <span key={i} className="text-xs px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-white/80">{s}</span>)}</div></div>}
+                    {report.approach_strategy.opening_angle && <div className="mt-2 p-2.5 rounded-lg bg-muted/40 border border-white/8"><p className="text-xs text-muted-foreground mb-0.5">Opening Angle</p><p className="text-xs text-foreground/80">{report.approach_strategy.opening_angle}</p></div>}
+                    {report.approach_strategy.value_proposition && <div className="mt-2 p-2.5 rounded-lg bg-muted/40 border border-white/8"><p className="text-xs text-muted-foreground mb-0.5">Value Proposition</p><p className="text-xs text-foreground/80">{report.approach_strategy.value_proposition}</p></div>}
+                    {report.approach_strategy.cultural_notes && <div className="mt-2 p-2.5 rounded-lg bg-amber-500/8 border border-amber-500/15"><p className="text-xs text-amber-400 mb-0.5">Cultural Notes</p><p className="text-xs text-foreground/80">{report.approach_strategy.cultural_notes}</p></div>}
+                    {report.approach_strategy.conversation_starters?.length > 0 && <div className="mt-2"><p className="text-xs text-muted-foreground mb-1.5">Conversation Starters</p><div className="flex flex-wrap gap-1.5">{report.approach_strategy.conversation_starters.map((s: string, i: number) => <span key={i} className="text-xs px-2.5 py-1 rounded-lg bg-muted/40 border border-border/40 text-foreground/80">{s}</span>)}</div></div>}
                   </div>
                 )}
 
@@ -1035,11 +1035,11 @@ function ProsEngineTab() {
                     <p className="text-xs font-semibold text-emerald-400 uppercase tracking-wider mb-2 flex items-center gap-1"><DollarSign className="w-3 h-3" />Wealth & Financial Profile</p>
                     <div className="grid grid-cols-2 gap-2">
                       {report.wealth_profile.estimated_net_worth && <div className="p-2.5 rounded-lg bg-emerald-500/8 border border-emerald-500/15"><p className="text-xs text-emerald-400/70 mb-0.5">Net Worth</p><p className="text-sm font-bold text-emerald-300">{report.wealth_profile.estimated_net_worth}</p></div>}
-                      {report.wealth_profile.income_estimate && <div className="p-2.5 rounded-lg bg-white/5 border border-white/8"><p className="text-xs text-muted-foreground mb-0.5">Annual Income</p><p className="text-sm font-bold text-white">{report.wealth_profile.income_estimate}</p></div>}
+                      {report.wealth_profile.income_estimate && <div className="p-2.5 rounded-lg bg-muted/40 border border-white/8"><p className="text-xs text-muted-foreground mb-0.5">Annual Income</p><p className="text-sm font-bold text-foreground">{report.wealth_profile.income_estimate}</p></div>}
                     </div>
                     {report.wealth_profile.wealth_sources?.length > 0 && <div className="mt-2 flex flex-wrap gap-1.5">{report.wealth_profile.wealth_sources.map((s: string, i: number) => <span key={i} className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-300">{s}</span>)}</div>}
-                    {report.wealth_profile.assets && <p className="text-xs text-white/70 mt-2 p-2.5 bg-white/5 rounded-lg border border-white/8"><span className="text-muted-foreground">Assets: </span>{report.wealth_profile.assets}</p>}
-                    {report.wealth_profile.investments && <p className="text-xs text-white/70 mt-1.5 p-2.5 bg-white/5 rounded-lg border border-white/8"><span className="text-muted-foreground">Investments: </span>{report.wealth_profile.investments}</p>}
+                    {report.wealth_profile.assets && <p className="text-xs text-foreground/70 mt-2 p-2.5 bg-muted/40 rounded-lg border border-white/8"><span className="text-muted-foreground">Assets: </span>{report.wealth_profile.assets}</p>}
+                    {report.wealth_profile.investments && <p className="text-xs text-foreground/70 mt-1.5 p-2.5 bg-muted/40 rounded-lg border border-white/8"><span className="text-muted-foreground">Investments: </span>{report.wealth_profile.investments}</p>}
                   </div>
                 )}
 
@@ -1049,13 +1049,13 @@ function ProsEngineTab() {
                     <p className="text-xs font-semibold text-orange-400 uppercase tracking-wider mb-2 flex items-center gap-1"><Briefcase className="w-3 h-3" />Career History</p>
                     <div className="space-y-2">
                       {report.career.slice(0, 4).map((job: { title: string; company: string; period: string; description?: string }, i: number) => (
-                        <div key={i} className="p-2.5 rounded-lg bg-white/5 border border-white/8">
+                        <div key={i} className="p-2.5 rounded-lg bg-muted/40 border border-white/8">
                           <div className="flex items-start justify-between gap-2">
-                            <p className="text-xs font-semibold text-white">{job.title}</p>
+                            <p className="text-xs font-semibold text-foreground">{job.title}</p>
                             <span className="text-xs text-muted-foreground shrink-0">{job.period}</span>
                           </div>
                           <p className="text-xs text-orange-400">{job.company}</p>
-                          {job.description && <p className="text-xs text-white/60 mt-1">{job.description}</p>}
+                          {job.description && <p className="text-xs text-foreground/60 mt-1">{job.description}</p>}
                         </div>
                       ))}
                     </div>
@@ -1067,13 +1067,13 @@ function ProsEngineTab() {
                   <div>
                     <p className="text-xs font-semibold text-blue-400 uppercase tracking-wider mb-2 flex items-center gap-1"><Building2 className="w-3 h-3" />Company Analysis</p>
                     <div className="space-y-2">
-                      {company.performance && <div className="p-2.5 rounded-lg bg-blue-500/8 border border-blue-500/15"><p className="text-xs font-medium text-blue-300 mb-0.5">{company.name || item.company}</p><p className="text-xs text-white/70">{company.performance}</p></div>}
+                      {company.performance && <div className="p-2.5 rounded-lg bg-blue-500/8 border border-blue-500/15"><p className="text-xs font-medium text-blue-300 mb-0.5">{company.name || item.company}</p><p className="text-xs text-foreground/70">{company.performance}</p></div>}
                       <div className="grid grid-cols-2 gap-2">
-                        {company.revenue_estimate && <div className="p-2.5 rounded-lg bg-white/5 border border-white/8"><p className="text-xs text-muted-foreground mb-0.5">Revenue</p><p className="text-xs font-medium text-white">{company.revenue_estimate}</p></div>}
-                        {company.employees && <div className="p-2.5 rounded-lg bg-white/5 border border-white/8"><p className="text-xs text-muted-foreground mb-0.5">Employees</p><p className="text-xs font-medium text-white">{company.employees}</p></div>}
+                        {company.revenue_estimate && <div className="p-2.5 rounded-lg bg-muted/40 border border-white/8"><p className="text-xs text-muted-foreground mb-0.5">Revenue</p><p className="text-xs font-medium text-foreground">{company.revenue_estimate}</p></div>}
+                        {company.employees && <div className="p-2.5 rounded-lg bg-muted/40 border border-white/8"><p className="text-xs text-muted-foreground mb-0.5">Employees</p><p className="text-xs font-medium text-foreground">{company.employees}</p></div>}
                       </div>
-                      {company.market_position && <p className="text-xs text-white/70 p-2.5 bg-white/5 rounded-lg border border-white/8"><span className="text-muted-foreground">Market: </span>{company.market_position}</p>}
-                      {company.recent_developments && <p className="text-xs text-white/70 p-2.5 bg-white/5 rounded-lg border border-white/8"><span className="text-muted-foreground">Recent: </span>{company.recent_developments}</p>}
+                      {company.market_position && <p className="text-xs text-foreground/70 p-2.5 bg-muted/40 rounded-lg border border-white/8"><span className="text-muted-foreground">Market: </span>{company.market_position}</p>}
+                      {company.recent_developments && <p className="text-xs text-foreground/70 p-2.5 bg-muted/40 rounded-lg border border-white/8"><span className="text-muted-foreground">Recent: </span>{company.recent_developments}</p>}
                     </div>
                   </div>
                 )}
@@ -1083,8 +1083,8 @@ function ProsEngineTab() {
                   <div>
                     <p className="text-xs font-semibold text-pink-400 uppercase tracking-wider mb-2 flex items-center gap-1"><Heart className="w-3 h-3" />Personal Profile</p>
                     {report.personal_profile.interests?.length > 0 && <div className="mb-2"><p className="text-xs text-muted-foreground mb-1.5">Interests</p><div className="flex flex-wrap gap-1.5">{report.personal_profile.interests.map((i: string, idx: number) => <span key={idx} className="text-xs px-2 py-0.5 rounded-lg bg-pink-500/10 border border-pink-500/20 text-pink-300">{i}</span>)}</div></div>}
-                    {report.personal_profile.personality_traits?.length > 0 && <div className="mb-2"><p className="text-xs text-muted-foreground mb-1.5">Traits</p><div className="flex flex-wrap gap-1.5">{report.personal_profile.personality_traits.map((t: string, idx: number) => <span key={idx} className="text-xs px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-white/80">{t}</span>)}</div></div>}
-                    {report.personal_profile.board_memberships?.length > 0 && <div><p className="text-xs text-muted-foreground mb-1">Board Memberships</p><ul className="space-y-0.5">{report.personal_profile.board_memberships.map((b: string, i: number) => <li key={i} className="text-xs text-white/70">• {b}</li>)}</ul></div>}
+                    {report.personal_profile.personality_traits?.length > 0 && <div className="mb-2"><p className="text-xs text-muted-foreground mb-1.5">Traits</p><div className="flex flex-wrap gap-1.5">{report.personal_profile.personality_traits.map((t: string, idx: number) => <span key={idx} className="text-xs px-2 py-0.5 rounded-full bg-muted/40 border border-border/40 text-foreground/80">{t}</span>)}</div></div>}
+                    {report.personal_profile.board_memberships?.length > 0 && <div><p className="text-xs text-muted-foreground mb-1">Board Memberships</p><ul className="space-y-0.5">{report.personal_profile.board_memberships.map((b: string, i: number) => <li key={i} className="text-xs text-foreground/70">• {b}</li>)}</ul></div>}
                   </div>
                 )}
 
@@ -1097,7 +1097,7 @@ function ProsEngineTab() {
                 )}
 
                 <div className="flex gap-2 pt-1">
-                  <Button size="sm" variant="outline" className="border-white/10 text-white hover:bg-white/5 text-xs gap-1.5"
+                  <Button size="sm" variant="outline" className="border-border/40 text-foreground hover:bg-muted/40 text-xs gap-1.5"
                     onClick={() => navigate("/prospecting/person")}>
                     <Brain className="w-3.5 h-3.5" />New Profile
                   </Button>
@@ -1159,7 +1159,7 @@ export default function LeadsPage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl md:text-4xl font-display font-bold text-white tracking-tight">AI Leads Engine</h1>
+          <h1 className="text-3xl md:text-4xl font-display font-bold text-foreground tracking-tight">AI Leads Engine</h1>
           <p className="text-muted-foreground mt-1">Executives, owners, shareholders & board members — AI-scored from all Saudi data sources</p>
         </div>
         {tab === "hunts" && (
@@ -1175,13 +1175,13 @@ export default function LeadsPage() {
       </div>
 
       {/* Tab switcher */}
-      <div className="flex gap-1 p-1 bg-white/5 rounded-xl border border-white/8 w-fit">
+      <div className="flex gap-1 p-1 bg-muted/40 rounded-xl border border-white/8 w-fit">
         <button onClick={() => setTab("hunts")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === "hunts" ? "bg-primary/20 text-white border border-primary/30" : "text-muted-foreground hover:text-white"}`}>
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === "hunts" ? "bg-primary/20 text-foreground border border-primary/30" : "text-muted-foreground hover:text-foreground"}`}>
           <Target className="w-4 h-4" />AI Lead Hunts
         </button>
         <button onClick={() => setTab("prosengine")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === "prosengine" ? "bg-violet-500/20 text-white border border-violet-500/30" : "text-muted-foreground hover:text-white"}`}>
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === "prosengine" ? "bg-violet-500/20 text-foreground border border-violet-500/30" : "text-muted-foreground hover:text-foreground"}`}>
           <Brain className="w-4 h-4" />ProsEngine Research
         </button>
       </div>
@@ -1194,7 +1194,7 @@ export default function LeadsPage() {
           <CardContent className="py-4 flex items-center gap-4">
             <Loader2 className="w-5 h-5 text-amber-400 animate-spin shrink-0" />
             <div className="flex-1">
-              <p className="text-sm font-semibold text-white">Hunt in progress: <span className="text-amber-300">{runningList.name}</span></p>
+              <p className="text-sm font-semibold text-foreground">Hunt in progress: <span className="text-amber-300">{runningList.name}</span></p>
               <p className="text-xs text-muted-foreground">Finding people + running AI scoring — auto-refreshing</p>
             </div>
             <Button variant="ghost" size="sm" onClick={() => refetch()} className="text-muted-foreground shrink-0"><RefreshCw className="w-3.5 h-3.5" /></Button>
@@ -1205,16 +1205,16 @@ export default function LeadsPage() {
       {tab === "hunts" && (
         isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {Array.from({ length: 3 }).map((_, i) => <div key={i} className="h-52 bg-white/5 rounded-2xl animate-pulse" />)}
+          {Array.from({ length: 3 }).map((_, i) => <div key={i} className="h-52 bg-muted/40 rounded-2xl animate-pulse" />)}
         </div>
         ) : lists.length === 0 ? (
-        <Card className="bg-card/30 border-white/10 border-dashed">
+        <Card className="bg-card/30 border-border/40 border-dashed">
           <CardContent className="py-20 flex flex-col items-center gap-4 text-center">
             <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
               <UserCircle className="w-8 h-8 text-primary" />
             </div>
             <div>
-              <p className="text-xl font-display font-bold text-white">No lead hunts yet</p>
+              <p className="text-xl font-display font-bold text-foreground">No lead hunts yet</p>
               <p className="text-muted-foreground mt-1 max-w-sm">Launch an AI Lead Hunt to find executives, owners, shareholders & board members matching your exact criteria.</p>
             </div>
             <Button onClick={() => setShowWizard(true)} className="bg-primary hover:bg-primary/90 mt-2">
@@ -1228,11 +1228,11 @@ export default function LeadsPage() {
             const criteria = (() => { try { return JSON.parse(list.criteria || "{}") as LeadCriteria; } catch { return {} as Partial<LeadCriteria>; } })();
             return (
               <Card key={list.id}
-                className="bg-card/40 border-white/10 hover:border-white/25 transition-all duration-200 cursor-pointer group hover:-translate-y-0.5"
+                className="bg-card/65 border-border/40 hover:border-white/25 transition-all duration-200 cursor-pointer group hover:-translate-y-0.5"
                 onClick={() => setSelectedList(list)}>
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between gap-2">
-                    <CardTitle className="text-base font-display font-semibold text-white group-hover:text-primary transition-colors line-clamp-2">{list.name}</CardTitle>
+                    <CardTitle className="text-base font-display font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2">{list.name}</CardTitle>
                     {statusBadge(list.status)}
                   </div>
                   <CardDescription className="text-xs">{new Date(list.createdAt).toLocaleDateString("en-US", { year:"numeric", month:"short", day:"numeric" })}</CardDescription>
@@ -1240,7 +1240,7 @@ export default function LeadsPage() {
                 <CardContent className="pt-0 space-y-3">
                   <div className="flex items-center gap-2">
                     <UserCircle className="w-5 h-5 text-primary shrink-0" />
-                    <span className="text-2xl font-display font-bold text-white">{(list.totalFound ?? 0).toLocaleString()}</span>
+                    <span className="text-2xl font-display font-bold text-foreground">{(list.totalFound ?? 0).toLocaleString()}</span>
                     <span className="text-sm text-muted-foreground">leads found</span>
                   </div>
                   <div className="flex flex-wrap gap-1.5 min-h-6">
@@ -1249,7 +1249,7 @@ export default function LeadsPage() {
                     ))}
                     {(criteria.industries ?? []).slice(0,2).map(i => <Badge key={i} className="bg-violet-500/10 text-violet-300 border-violet-500/20 border text-xs">{i}</Badge>)}
                   </div>
-                  <div className="flex items-center justify-between pt-1 border-t border-white/5">
+                  <div className="flex items-center justify-between pt-1 border-t border-border/30">
                     <div className="flex flex-wrap gap-1">
                       {(criteria.sources ?? []).map(s => SOURCE_BADGE[s] && (
                         <span key={s} className={`text-xs px-1.5 py-0.5 rounded border ${SOURCE_BADGE[s].color}`}>{SOURCE_BADGE[s].label}</span>

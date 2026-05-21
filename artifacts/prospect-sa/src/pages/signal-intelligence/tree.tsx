@@ -254,7 +254,7 @@ function SidePanel({
 
         {/* Mutation result previews */}
         {companyIntel.data && (
-          <Card className="mt-3 bg-card/40 border-border/40">
+          <Card className="mt-3 bg-card/65 border-border/40">
             <CardContent className="p-3 text-xs space-y-1">
               <div className="font-semibold text-primary">Company Intel result</div>
               <pre className="text-[10px] overflow-x-auto max-h-32 text-muted-foreground">
@@ -264,7 +264,7 @@ function SidePanel({
           </Card>
         )}
         {personIntel.data && (
-          <Card className="mt-3 bg-card/40 border-border/40">
+          <Card className="mt-3 bg-card/65 border-border/40">
             <CardContent className="p-3 text-xs space-y-1">
               <div className="font-semibold text-primary">Person Intel result</div>
               <pre className="text-[10px] overflow-x-auto max-h-32 text-muted-foreground">
@@ -338,7 +338,7 @@ function CompanyRow({
   return (
     <div className="border-b border-border/20">
       <div
-        className="flex items-center gap-2 px-3 py-2 hover:bg-card/60 cursor-pointer transition-colors"
+        className="flex items-center gap-2 px-3 py-2 hover:bg-card/70 cursor-pointer transition-colors"
         onClick={onToggle}
       >
         {expanded ? <ChevronDown className="w-4 h-4 shrink-0" /> : <ChevronRight className="w-4 h-4 shrink-0" />}
@@ -482,7 +482,7 @@ export default function SignalsTreePage() {
       </div>
 
       {/* Tree */}
-      <Card className="bg-card/40 border-border/40">
+      <Card className="bg-card/65 border-border/40">
         <CardContent className="p-0">
           {isLoading && (
             <div className="flex items-center justify-center py-12 text-muted-foreground">

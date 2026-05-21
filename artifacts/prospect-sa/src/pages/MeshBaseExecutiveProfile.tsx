@@ -79,7 +79,7 @@ export default function MeshBaseExecutiveProfile() {
       </Button>
 
       {/* Profile Header */}
-      <Card className="border-border/50 bg-card/60">
+      <Card className="border-border/50 bg-card/70">
         <CardContent className="p-6">
           <div className="flex items-start gap-5">
             {executive.photoUrl ? (
@@ -193,7 +193,7 @@ export default function MeshBaseExecutiveProfile() {
         <div className="lg:col-span-2 space-y-5">
           {/* Biography */}
           {executive.biography && (
-            <Card className="border-border/50 bg-card/60">
+            <Card className="border-border/50 bg-card/70">
               <CardHeader className="pb-2 pt-4 px-5">
                 <CardTitle className="text-sm font-semibold flex items-center gap-2">
                   <BookOpen className="w-4 h-4 text-blue-400" />Biography
@@ -207,7 +207,7 @@ export default function MeshBaseExecutiveProfile() {
 
           {/* Skills */}
           {executive.skills && executive.skills.length > 0 && (
-            <Card className="border-border/50 bg-card/60">
+            <Card className="border-border/50 bg-card/70">
               <CardHeader className="pb-2 pt-4 px-5">
                 <CardTitle className="text-sm font-semibold flex items-center gap-2">
                   <Star className="w-4 h-4 text-amber-400" />Skills
@@ -225,7 +225,7 @@ export default function MeshBaseExecutiveProfile() {
 
           {/* Achievements */}
           {executive.achievements && executive.achievements.length > 0 && (
-            <Card className="border-border/50 bg-card/60">
+            <Card className="border-border/50 bg-card/70">
               <CardHeader className="pb-2 pt-4 px-5">
                 <CardTitle className="text-sm font-semibold flex items-center gap-2">
                   <Award className="w-4 h-4 text-violet-400" />Achievements
@@ -246,7 +246,7 @@ export default function MeshBaseExecutiveProfile() {
 
           {/* Previous Companies */}
           {executive.previousCompanies && executive.previousCompanies.length > 0 && (
-            <Card className="border-border/50 bg-card/60">
+            <Card className="border-border/50 bg-card/70">
               <CardHeader className="pb-2 pt-4 px-5">
                 <CardTitle className="text-sm font-semibold flex items-center gap-2">
                   <Building2 className="w-4 h-4 text-muted-foreground" />Previous Companies
@@ -269,7 +269,7 @@ export default function MeshBaseExecutiveProfile() {
         {/* Right sidebar */}
         <div className="space-y-5">
           {executive.education && (
-            <Card className="border-border/50 bg-card/60">
+            <Card className="border-border/50 bg-card/70">
               <CardHeader className="pb-2 pt-4 px-5">
                 <CardTitle className="text-sm font-semibold flex items-center gap-2">
                   <GraduationCap className="w-4 h-4 text-emerald-400" />Education
@@ -281,7 +281,7 @@ export default function MeshBaseExecutiveProfile() {
             </Card>
           )}
 
-          <Card className="border-border/50 bg-card/60">
+          <Card className="border-border/50 bg-card/70">
             <CardHeader className="pb-2 pt-4 px-5">
               <CardTitle className="text-sm font-semibold">Profile Details</CardTitle>
             </CardHeader>
@@ -318,7 +318,7 @@ export default function MeshBaseExecutiveProfile() {
           {/* Company link */}
           {executive.companyId && (
             <Card
-              className="border-border/50 bg-card/60 hover:bg-card/80 transition-colors cursor-pointer"
+              className="border-border/50 bg-card/70 hover:bg-card/80 transition-colors cursor-pointer"
               onClick={() => navigate(`/meshbase/companies/${executive.companyId}`)}
             >
               <CardContent className="p-4 flex items-center gap-3">

@@ -105,11 +105,11 @@ function Section({ title, icon: Icon, color = "text-primary", badge, children, d
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <Card className="bg-card/60 border-white/8">
+    <Card className="bg-card/70 border-white/8">
       <button className="w-full px-5 py-4 flex items-center gap-3" onClick={() => setOpen(!open)}>
         <Icon className={`w-4 h-4 ${color}`} />
-        <span className="text-sm font-semibold text-white">{title}</span>
-        {badge && <Badge className="bg-white/5 text-white/60 border-white/10 border text-xs ml-1">{badge}</Badge>}
+        <span className="text-sm font-semibold text-foreground">{title}</span>
+        {badge && <Badge className="bg-muted/40 text-foreground/60 border-border/40 border text-xs ml-1">{badge}</Badge>}
         <div className="ml-auto">{open ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}</div>
       </button>
       {open && <CardContent className="px-5 pb-5 pt-0">{children}</CardContent>}
@@ -120,7 +120,7 @@ function Section({ title, icon: Icon, color = "text-primary", badge, children, d
 function CopyBtn({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
   return (
-    <Button variant="ghost" size="sm" className="h-7 px-2 text-muted-foreground hover:text-white shrink-0"
+    <Button variant="ghost" size="sm" className="h-7 px-2 text-muted-foreground hover:text-foreground shrink-0"
       onClick={() => { navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 1500); }}>
       {copied ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" />}
     </Button>
@@ -130,9 +130,9 @@ function CopyBtn({ text }: { text: string }) {
 function InfoRow({ label, value, copyable }: { label: string; value?: string | null; copyable?: boolean }) {
   if (!value || value === "null" || value === "Not found" || value === "Unknown") return null;
   return (
-    <div className="flex items-start gap-2 py-1.5 border-b border-white/5 last:border-0">
+    <div className="flex items-start gap-2 py-1.5 border-b border-border/30 last:border-0">
       <span className="text-xs text-muted-foreground w-32 shrink-0">{label}</span>
-      <span className="text-xs text-white flex-1">{value}</span>
+      <span className="text-xs text-foreground flex-1">{value}</span>
       {copyable && <CopyBtn text={value} />}
     </div>
   );
@@ -153,10 +153,10 @@ function StepBar({ current }: { current: number }) {
         return (
           <div key={label} className="flex items-center gap-1.5 flex-1">
             <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-all
-              ${done ? "bg-primary text-white" : active ? "bg-primary/20 text-primary border border-primary/50" : "bg-white/5 text-muted-foreground border border-white/10"}`}>
+              ${done ? "bg-primary text-foreground" : active ? "bg-primary/20 text-primary border border-primary/50" : "bg-muted/40 text-muted-foreground border border-border/40"}`}>
               {done ? <CheckCircle2 className="w-3.5 h-3.5" /> : idx}
             </div>
-            <span className={`text-xs hidden sm:block ${active ? "text-white font-medium" : "text-muted-foreground"}`}>{label}</span>
+            <span className={`text-xs hidden sm:block ${active ? "text-foreground font-medium" : "text-muted-foreground"}`}>{label}</span>
             {i < STEP_LABELS.length - 1 && <div className={`flex-1 h-px ${done ? "bg-primary/40" : "bg-white/10"}`} />}
           </div>
         );
@@ -236,13 +236,13 @@ export default function CompanyIntelPage() {
           <Building2 className="w-8 h-8 text-primary animate-pulse" />
         </div>
         <div className="text-center">
-          <h2 className="text-2xl font-display font-bold text-white mb-2">Building Intelligence Dossier</h2>
+          <h2 className="text-2xl font-display font-bold text-foreground mb-2">Building Intelligence Dossier</h2>
           <p className="text-muted-foreground text-sm mb-6">Running {wizard.goals.length} parallel research streams on {wizard.companyName}</p>
         </div>
         <div className="w-full max-w-md">
-          <div className="bg-card/60 border border-white/10 rounded-xl p-4 flex items-center gap-3">
+          <div className="bg-card/70 border border-border/40 rounded-xl p-4 flex items-center gap-3">
             <Loader2 className="w-4 h-4 text-primary animate-spin shrink-0" />
-            <p className="text-sm text-white/80 transition-all">{LOADING_MSGS[loadingMsgIdx]}</p>
+            <p className="text-sm text-foreground/80 transition-all">{LOADING_MSGS[loadingMsgIdx]}</p>
           </div>
           <div className="mt-3 flex flex-wrap gap-1.5 justify-center">
             {wizard.goals.map(g => {
@@ -284,11 +284,11 @@ export default function CompanyIntelPage() {
         {/* Header */}
         <div className="flex items-start gap-4 mb-6">
           <Button variant="ghost" size="sm" onClick={() => { setStep(1); setReport(null); setWizard(DEFAULT_WIZARD); }}
-            className="text-muted-foreground hover:text-white shrink-0">
+            className="text-muted-foreground hover:text-foreground shrink-0">
             <ArrowLeft className="w-4 h-4 mr-1" /> New
           </Button>
           <div className="flex-1">
-            <h1 className="text-2xl font-display font-bold text-white">{p.nameEn || wizard.companyName}</h1>
+            <h1 className="text-2xl font-display font-bold text-foreground">{p.nameEn || wizard.companyName}</h1>
             {p.nameAr && <p className="text-sm text-muted-foreground mt-0.5 font-arabic">{p.nameAr}</p>}
             <div className="flex flex-wrap gap-2 mt-2">
               {p.legalForm && <Tag text={p.legalForm} />}
@@ -299,7 +299,7 @@ export default function CompanyIntelPage() {
             </div>
           </div>
           <div className="flex gap-2 shrink-0">
-            <Button size="sm" variant="outline" className="border-white/10 text-white/70 hover:text-white"
+            <Button size="sm" variant="outline" className="border-border/40 text-foreground/70 hover:text-foreground"
               onClick={() => { setStep(1); setReport(null); }}>
               <RefreshCw className="w-3.5 h-3.5 mr-1" /> Redo
             </Button>
@@ -318,12 +318,12 @@ export default function CompanyIntelPage() {
             <CardContent className="p-5">
               <div className="flex items-center gap-2 mb-3">
                 <Sparkles className="w-4 h-4 text-primary" />
-                <span className="text-sm font-semibold text-white">Executive Summary</span>
+                <span className="text-sm font-semibold text-foreground">Executive Summary</span>
                 {intel.confidenceScore != null && (
                   <span className={`ml-auto text-xs font-bold ${confidenceColor}`}>Confidence: {intel.confidenceScore}%</span>
                 )}
               </div>
-              <p className="text-sm text-white/85 leading-relaxed">{report.executiveSummary}</p>
+              <p className="text-sm text-foreground/85 leading-relaxed">{report.executiveSummary}</p>
             </CardContent>
           </Card>
         )}
@@ -342,9 +342,9 @@ export default function CompanyIntelPage() {
             <InfoRow label="النشاط الرئيسي" value={p.mainActivityAr} />
           </div>
           <div className="mt-4 flex flex-wrap gap-2">
-            {p.website && <a href={p.website} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs text-white/80 hover:text-white hover:bg-white/10 transition-colors"><Globe className="w-3.5 h-3.5" /> {p.website}</a>}
-            {p.phone && <a href={`tel:${p.phone}`} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs text-white/80 hover:text-white transition-colors"><Phone className="w-3.5 h-3.5" /> {p.phone}</a>}
-            {p.email && <a href={`mailto:${p.email}`} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs text-white/80 hover:text-white transition-colors"><Mail className="w-3.5 h-3.5" /> {p.email}</a>}
+            {p.website && <a href={p.website} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted/40 border border-border/40 text-xs text-foreground/80 hover:text-foreground hover:bg-white/10 transition-colors"><Globe className="w-3.5 h-3.5" /> {p.website}</a>}
+            {p.phone && <a href={`tel:${p.phone}`} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted/40 border border-border/40 text-xs text-foreground/80 hover:text-foreground transition-colors"><Phone className="w-3.5 h-3.5" /> {p.phone}</a>}
+            {p.email && <a href={`mailto:${p.email}`} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted/40 border border-border/40 text-xs text-foreground/80 hover:text-foreground transition-colors"><Mail className="w-3.5 h-3.5" /> {p.email}</a>}
           </div>
         </Section>
 
@@ -359,8 +359,8 @@ export default function CompanyIntelPage() {
             </div>
             {f.revenueRationale && <p className="text-xs text-muted-foreground italic mb-3">{f.revenueRationale}</p>}
             {f.growthSignals && f.growthSignals.length > 0 && (
-              <div><p className="text-xs font-semibold text-white mb-2">Growth Signals</p>
-                <div className="space-y-1">{f.growthSignals.map((s, i) => <div key={i} className="flex items-start gap-2 text-xs text-white/80"><TrendingUp className="w-3 h-3 text-emerald-400 shrink-0 mt-0.5" />{s}</div>)}</div>
+              <div><p className="text-xs font-semibold text-foreground mb-2">Growth Signals</p>
+                <div className="space-y-1">{f.growthSignals.map((s, i) => <div key={i} className="flex items-start gap-2 text-xs text-foreground/80"><TrendingUp className="w-3 h-3 text-emerald-400 shrink-0 mt-0.5" />{s}</div>)}</div>
               </div>
             )}
           </Section>
@@ -369,7 +369,7 @@ export default function CompanyIntelPage() {
         {/* Ownership */}
         {wizard.goals.includes("ownership") && (
           <Section title="Ownership & Shareholders" icon={Network} color="text-violet-400">
-            {o.structure && <p className="text-xs text-muted-foreground mb-3">Structure: <span className="text-white">{o.structure}</span></p>}
+            {o.structure && <p className="text-xs text-muted-foreground mb-3">Structure: <span className="text-foreground">{o.structure}</span></p>}
             {o.isPubliclyListed && <div className="flex gap-3 mb-3">
               {o.stockExchange && <Tag text={`Listed: ${o.stockExchange}`} color="bg-green-500/10 text-green-300 border-green-500/20" />}
               {o.ticker && <Tag text={`Ticker: ${o.ticker}`} color="bg-green-500/10 text-green-300 border-green-500/20" />}
@@ -380,12 +380,12 @@ export default function CompanyIntelPage() {
                   <div key={i} className="flex items-center gap-3 bg-white/3 border border-white/8 rounded-lg px-3 py-2">
                     <div className="w-8 h-8 rounded-full bg-violet-500/10 border border-violet-500/20 flex items-center justify-center text-xs font-bold text-violet-400">{sh.ownershipPct?.replace("%", "") || "?"}</div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-white">{sh.nameEn || "Unknown"}</p>
+                      <p className="text-xs font-medium text-foreground">{sh.nameEn || "Unknown"}</p>
                       {sh.nameAr && <p className="text-[10px] text-muted-foreground font-arabic">{sh.nameAr}</p>}
                     </div>
                     <div className="flex gap-1.5 shrink-0">
                       {sh.ownershipPct && <Tag text={sh.ownershipPct} color="bg-violet-500/10 text-violet-300 border-violet-500/20" />}
-                      {sh.nationality && <Tag text={sh.nationality} color="bg-white/5 text-white/50 border-white/10" />}
+                      {sh.nationality && <Tag text={sh.nationality} color="bg-muted/40 text-foreground/50 border-border/40" />}
                     </div>
                   </div>
                 ))}
@@ -400,26 +400,26 @@ export default function CompanyIntelPage() {
             {l.ceo && (l.ceo.nameEn || l.ceo.nameAr) && (
               <div className="mb-3 bg-amber-500/5 border border-amber-500/15 rounded-lg p-3">
                 <div className="flex items-center gap-2 mb-1"><Award className="w-3.5 h-3.5 text-amber-400" /><span className="text-xs font-bold text-amber-400">{l.ceo.title || "CEO"}</span></div>
-                <p className="text-sm font-semibold text-white">{l.ceo.nameEn}</p>
+                <p className="text-sm font-semibold text-foreground">{l.ceo.nameEn}</p>
                 {l.ceo.nameAr && <p className="text-xs text-muted-foreground font-arabic">{l.ceo.nameAr}</p>}
               </div>
             )}
             {l.boardChairman && (l.boardChairman.nameEn || l.boardChairman.nameAr) && (
               <div className="mb-3 bg-primary/5 border border-primary/15 rounded-lg p-3">
                 <div className="flex items-center gap-2 mb-1"><Crown className="w-3.5 h-3.5 text-primary" /><span className="text-xs font-bold text-primary">Board Chairman</span></div>
-                <p className="text-sm font-semibold text-white">{l.boardChairman.nameEn}</p>
+                <p className="text-sm font-semibold text-foreground">{l.boardChairman.nameEn}</p>
                 {l.boardChairman.nameAr && <p className="text-xs text-muted-foreground font-arabic">{l.boardChairman.nameAr}</p>}
               </div>
             )}
             {l.executives && l.executives.length > 0 && (
               <div className="mb-3">
-                <p className="text-xs font-semibold text-white mb-2">Key Executives</p>
+                <p className="text-xs font-semibold text-foreground mb-2">Key Executives</p>
                 <div className="space-y-1.5">
                   {l.executives.map((ex, i) => (
                     <div key={i} className="flex items-center gap-2 bg-white/3 border border-white/8 rounded-lg px-3 py-2">
                       <UserCheck className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-                      <div className="flex-1 min-w-0"><p className="text-xs font-medium text-white">{ex.nameEn}</p>{ex.nameAr && <p className="text-[10px] text-muted-foreground font-arabic">{ex.nameAr}</p>}</div>
-                      {ex.title && <Tag text={ex.title} color="bg-white/5 text-white/60 border-white/10" />}
+                      <div className="flex-1 min-w-0"><p className="text-xs font-medium text-foreground">{ex.nameEn}</p>{ex.nameAr && <p className="text-[10px] text-muted-foreground font-arabic">{ex.nameAr}</p>}</div>
+                      {ex.title && <Tag text={ex.title} color="bg-muted/40 text-foreground/60 border-border/40" />}
                       <Button size="sm" variant="outline" className="h-6 text-[10px] px-2 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 shrink-0"
                         onClick={() => navigate(`/prospecting/person?name=${encodeURIComponent(ex.nameEn || "")}&company=${encodeURIComponent(wizard.companyName)}&title=${encodeURIComponent(ex.title || "")}&source=company-intel`)}>
                         Profile
@@ -431,13 +431,13 @@ export default function CompanyIntelPage() {
             )}
             {l.boardMembers && l.boardMembers.length > 0 && (
               <div>
-                <p className="text-xs font-semibold text-white mb-2">Board Members</p>
+                <p className="text-xs font-semibold text-foreground mb-2">Board Members</p>
                 <div className="space-y-1.5">
                   {l.boardMembers.map((bm, i) => (
                     <div key={i} className="flex items-center gap-2 bg-white/3 border border-white/8 rounded-lg px-3 py-2">
                       <Shield className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-                      <div className="flex-1 min-w-0"><p className="text-xs font-medium text-white">{bm.nameEn}</p>{bm.nameAr && <p className="text-[10px] text-muted-foreground font-arabic">{bm.nameAr}</p>}</div>
-                      {bm.role && <Tag text={bm.role} color="bg-white/5 text-white/50 border-white/10" />}
+                      <div className="flex-1 min-w-0"><p className="text-xs font-medium text-foreground">{bm.nameEn}</p>{bm.nameAr && <p className="text-[10px] text-muted-foreground font-arabic">{bm.nameAr}</p>}</div>
+                      {bm.role && <Tag text={bm.role} color="bg-muted/40 text-foreground/50 border-border/40" />}
                     </div>
                   ))}
                 </div>
@@ -449,22 +449,22 @@ export default function CompanyIntelPage() {
         {/* Operations */}
         {(ops.activities?.length || ops.products?.length || ops.keyCients?.length || ops.subsidiaries?.length) ? (
           <Section title="Business Operations" icon={Briefcase} color="text-blue-400" defaultOpen={false}>
-            {ops.activities && ops.activities.length > 0 && <div className="mb-3"><p className="text-xs font-semibold text-white mb-2">Activities</p><div className="flex flex-wrap gap-1.5">{ops.activities.map((a, i) => <Tag key={i} text={a} color="bg-blue-500/10 text-blue-300 border-blue-500/20" />)}</div></div>}
-            {ops.products && ops.products.length > 0 && <div className="mb-3"><p className="text-xs font-semibold text-white mb-2">Products & Services</p><div className="flex flex-wrap gap-1.5">{ops.products.map((p, i) => <Tag key={i} text={p} />)}</div></div>}
-            {ops.keyCients && ops.keyCients.length > 0 && <div className="mb-3"><p className="text-xs font-semibold text-white mb-2">Notable Clients</p><div className="flex flex-wrap gap-1.5">{ops.keyCients.map((c, i) => <Tag key={i} text={c} color="bg-cyan-500/10 text-cyan-300 border-cyan-500/20" />)}</div></div>}
-            {ops.subsidiaries && ops.subsidiaries.length > 0 && <div><p className="text-xs font-semibold text-white mb-2">Subsidiaries & Affiliates</p><div className="flex flex-wrap gap-1.5">{ops.subsidiaries.map((s, i) => <Tag key={i} text={s} color="bg-purple-500/10 text-purple-300 border-purple-500/20" />)}</div></div>}
+            {ops.activities && ops.activities.length > 0 && <div className="mb-3"><p className="text-xs font-semibold text-foreground mb-2">Activities</p><div className="flex flex-wrap gap-1.5">{ops.activities.map((a, i) => <Tag key={i} text={a} color="bg-blue-500/10 text-blue-300 border-blue-500/20" />)}</div></div>}
+            {ops.products && ops.products.length > 0 && <div className="mb-3"><p className="text-xs font-semibold text-foreground mb-2">Products & Services</p><div className="flex flex-wrap gap-1.5">{ops.products.map((p, i) => <Tag key={i} text={p} />)}</div></div>}
+            {ops.keyCients && ops.keyCients.length > 0 && <div className="mb-3"><p className="text-xs font-semibold text-foreground mb-2">Notable Clients</p><div className="flex flex-wrap gap-1.5">{ops.keyCients.map((c, i) => <Tag key={i} text={c} color="bg-cyan-500/10 text-cyan-300 border-cyan-500/20" />)}</div></div>}
+            {ops.subsidiaries && ops.subsidiaries.length > 0 && <div><p className="text-xs font-semibold text-foreground mb-2">Subsidiaries & Affiliates</p><div className="flex flex-wrap gap-1.5">{ops.subsidiaries.map((s, i) => <Tag key={i} text={s} color="bg-purple-500/10 text-purple-300 border-purple-500/20" />)}</div></div>}
           </Section>
         ) : null}
 
         {/* Market Intelligence */}
         {wizard.goals.includes("market") && (
           <Section title="Market Intelligence" icon={BarChart3} color="text-cyan-400" defaultOpen={false}>
-            {m.marketPosition && <p className="text-sm text-white/85 mb-4 leading-relaxed">{m.marketPosition}</p>}
-            {m.marketShare && <div className="mb-3"><span className="text-xs text-muted-foreground">Estimated Market Share: </span><span className="text-xs font-bold text-white">{m.marketShare}</span></div>}
+            {m.marketPosition && <p className="text-sm text-foreground/85 mb-4 leading-relaxed">{m.marketPosition}</p>}
+            {m.marketShare && <div className="mb-3"><span className="text-xs text-muted-foreground">Estimated Market Share: </span><span className="text-xs font-bold text-foreground">{m.marketShare}</span></div>}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              {m.competitors && m.competitors.length > 0 && <div className="bg-white/3 border border-white/8 rounded-lg p-3"><p className="text-xs font-semibold text-white mb-2">Competitors</p><div className="space-y-1">{m.competitors.map((c, i) => <p key={i} className="text-xs text-muted-foreground">• {c}</p>)}</div></div>}
-              {m.strengths && m.strengths.length > 0 && <div className="bg-emerald-500/5 border border-emerald-500/15 rounded-lg p-3"><p className="text-xs font-semibold text-emerald-400 mb-2">Strengths</p><div className="space-y-1">{m.strengths.map((s, i) => <p key={i} className="text-xs text-white/80">✓ {s}</p>)}</div></div>}
-              {m.opportunities && m.opportunities.length > 0 && <div className="bg-blue-500/5 border border-blue-500/15 rounded-lg p-3"><p className="text-xs font-semibold text-blue-400 mb-2">Opportunities</p><div className="space-y-1">{m.opportunities.map((o, i) => <p key={i} className="text-xs text-white/80">→ {o}</p>)}</div></div>}
+              {m.competitors && m.competitors.length > 0 && <div className="bg-white/3 border border-white/8 rounded-lg p-3"><p className="text-xs font-semibold text-foreground mb-2">Competitors</p><div className="space-y-1">{m.competitors.map((c, i) => <p key={i} className="text-xs text-muted-foreground">• {c}</p>)}</div></div>}
+              {m.strengths && m.strengths.length > 0 && <div className="bg-emerald-500/5 border border-emerald-500/15 rounded-lg p-3"><p className="text-xs font-semibold text-emerald-400 mb-2">Strengths</p><div className="space-y-1">{m.strengths.map((s, i) => <p key={i} className="text-xs text-foreground/80">✓ {s}</p>)}</div></div>}
+              {m.opportunities && m.opportunities.length > 0 && <div className="bg-blue-500/5 border border-blue-500/15 rounded-lg p-3"><p className="text-xs font-semibold text-blue-400 mb-2">Opportunities</p><div className="space-y-1">{m.opportunities.map((o, i) => <p key={i} className="text-xs text-foreground/80">→ {o}</p>)}</div></div>}
             </div>
           </Section>
         )}
@@ -474,18 +474,18 @@ export default function CompanyIntelPage() {
           <Section title="B2B Approach Strategy" icon={Target} color="text-primary" defaultOpen={false}>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-4">
               {a.bestChannel && <div className="bg-primary/5 border border-primary/15 rounded-lg p-3"><p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Best Channel</p><p className="text-xs font-bold text-primary">{a.bestChannel}</p></div>}
-              {a.bestTiming && <div className="bg-white/3 border border-white/8 rounded-lg p-3"><p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Best Timing</p><p className="text-xs text-white">{a.bestTiming}</p></div>}
+              {a.bestTiming && <div className="bg-white/3 border border-white/8 rounded-lg p-3"><p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Best Timing</p><p className="text-xs text-foreground">{a.bestTiming}</p></div>}
               {a.entryPoint && <div className="bg-amber-500/5 border border-amber-500/15 rounded-lg p-3"><p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Entry Point</p><p className="text-xs font-bold text-amber-400">{a.entryPoint}</p></div>}
             </div>
-            {a.valueProp && <div className="mb-3 bg-white/3 border border-white/8 rounded-lg p-3"><p className="text-xs font-semibold text-white mb-1">Value Proposition</p><p className="text-xs text-white/80">{a.valueProp}</p></div>}
-            {a.openingAngle && <div className="mb-3 bg-white/3 border border-white/8 rounded-lg p-3"><p className="text-xs font-semibold text-white mb-1">Opening Angle</p><p className="text-xs text-white/80">{a.openingAngle}</p></div>}
+            {a.valueProp && <div className="mb-3 bg-white/3 border border-white/8 rounded-lg p-3"><p className="text-xs font-semibold text-foreground mb-1">Value Proposition</p><p className="text-xs text-foreground/80">{a.valueProp}</p></div>}
+            {a.openingAngle && <div className="mb-3 bg-white/3 border border-white/8 rounded-lg p-3"><p className="text-xs font-semibold text-foreground mb-1">Opening Angle</p><p className="text-xs text-foreground/80">{a.openingAngle}</p></div>}
             {a.sampleMessage && (
               <div className="bg-primary/8 border border-primary/20 rounded-lg p-3">
                 <div className="flex items-center justify-between mb-2"><p className="text-xs font-semibold text-primary">Sample Opening Message</p><CopyBtn text={a.sampleMessage} /></div>
-                <p className="text-xs text-white/85 italic">"{a.sampleMessage}"</p>
+                <p className="text-xs text-foreground/85 italic">"{a.sampleMessage}"</p>
               </div>
             )}
-            {a.culturalNotes && <div className="mt-3 text-xs text-muted-foreground"><span className="font-semibold text-white">Cultural Notes: </span>{a.culturalNotes}</div>}
+            {a.culturalNotes && <div className="mt-3 text-xs text-muted-foreground"><span className="font-semibold text-foreground">Cultural Notes: </span>{a.culturalNotes}</div>}
           </Section>
         )}
 
@@ -496,7 +496,7 @@ export default function CompanyIntelPage() {
               {report.news.map((n, i) => (
                 <div key={i} className="bg-white/3 border border-white/8 rounded-lg p-3">
                   <div className="flex items-start justify-between gap-2 mb-1">
-                    <p className="text-xs font-medium text-white">{n.title}</p>
+                    <p className="text-xs font-medium text-foreground">{n.title}</p>
                     {n.date && <span className="text-[10px] text-muted-foreground shrink-0">{n.date}</span>}
                   </div>
                   {n.summary && <p className="text-xs text-muted-foreground">{n.summary}</p>}
@@ -511,8 +511,8 @@ export default function CompanyIntelPage() {
         {(intel.verifiedFacts?.length || intel.estimatedFacts?.length || intel.caveats) && (
           <Section title="Intelligence Quality" icon={Shield} color="text-muted-foreground" defaultOpen={false}>
             {intel.caveats && <p className="text-xs text-amber-400 mb-3">{intel.caveats}</p>}
-            {intel.verifiedFacts && intel.verifiedFacts.length > 0 && <div className="mb-3"><p className="text-xs font-semibold text-white mb-2">Verified Facts</p><div className="space-y-1">{intel.verifiedFacts.map((f, i) => <p key={i} className="text-xs text-white/80">✓ {f}</p>)}</div></div>}
-            {intel.estimatedFacts && intel.estimatedFacts.length > 0 && <div><p className="text-xs font-semibold text-white mb-2">Estimated Facts</p><div className="space-y-1">{intel.estimatedFacts.map((f, i) => <p key={i} className="text-xs text-muted-foreground">~ {f}</p>)}</div></div>}
+            {intel.verifiedFacts && intel.verifiedFacts.length > 0 && <div className="mb-3"><p className="text-xs font-semibold text-foreground mb-2">Verified Facts</p><div className="space-y-1">{intel.verifiedFacts.map((f, i) => <p key={i} className="text-xs text-foreground/80">✓ {f}</p>)}</div></div>}
+            {intel.estimatedFacts && intel.estimatedFacts.length > 0 && <div><p className="text-xs font-semibold text-foreground mb-2">Estimated Facts</p><div className="space-y-1">{intel.estimatedFacts.map((f, i) => <p key={i} className="text-xs text-muted-foreground">~ {f}</p>)}</div></div>}
           </Section>
         )}
       </div>
@@ -524,11 +524,11 @@ export default function CompanyIntelPage() {
     <div className="p-6 max-w-2xl mx-auto">
       <div className="flex items-center gap-3 mb-6">
         <Button variant="ghost" size="sm" onClick={() => step > 1 ? setStep(s => s - 1) : navigate("/prospecting")}
-          className="text-muted-foreground hover:text-white">
+          className="text-muted-foreground hover:text-foreground">
           <ArrowLeft className="w-4 h-4 mr-1" /> {step > 1 ? "Back" : "Hub"}
         </Button>
         <div>
-          <h1 className="text-xl font-display font-bold text-white">Company Intelligence</h1>
+          <h1 className="text-xl font-display font-bold text-foreground">Company Intelligence</h1>
           <p className="text-xs text-muted-foreground">Enter a company name — no website required</p>
         </div>
       </div>
@@ -537,38 +537,38 @@ export default function CompanyIntelPage() {
 
       {/* Step 1: Company Identity */}
       {step === 1 && (
-        <Card className="bg-card/60 border-white/8">
+        <Card className="bg-card/70 border-white/8">
           <CardContent className="p-6 space-y-4">
             <div>
-              <label className="text-xs font-semibold text-white mb-1.5 block">Company Name *</label>
+              <label className="text-xs font-semibold text-foreground mb-1.5 block">Company Name *</label>
               <Input placeholder="e.g. Almarai, Saudi Aramco, Al Rajhi Bank…"
                 value={wizard.companyName}
                 onChange={e => wiz("companyName", e.target.value)}
-                className="bg-white/5 border-white/10 text-white placeholder:text-muted-foreground"
+                className="bg-muted/40 border-border/40 text-foreground placeholder:text-muted-foreground"
                 onKeyDown={e => e.key === "Enter" && wizard.companyName.trim() && setStep(2)} />
               <p className="text-xs text-muted-foreground mt-1">Arabic or English name — the AI will find it</p>
             </div>
             <div>
-              <label className="text-xs font-semibold text-white mb-1.5 block">Website URL <span className="text-muted-foreground font-normal">(optional)</span></label>
+              <label className="text-xs font-semibold text-foreground mb-1.5 block">Website URL <span className="text-muted-foreground font-normal">(optional)</span></label>
               <Input placeholder="https://www.example.com.sa"
                 value={wizard.website}
                 onChange={e => wiz("website", e.target.value)}
-                className="bg-white/5 border-white/10 text-white placeholder:text-muted-foreground" />
+                className="bg-muted/40 border-border/40 text-foreground placeholder:text-muted-foreground" />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-xs font-semibold text-white mb-1.5 block">CR Number <span className="text-muted-foreground font-normal">(optional)</span></label>
+                <label className="text-xs font-semibold text-foreground mb-1.5 block">CR Number <span className="text-muted-foreground font-normal">(optional)</span></label>
                 <Input placeholder="10-digit CR"
                   value={wizard.crNumber}
                   onChange={e => wiz("crNumber", e.target.value)}
-                  className="bg-white/5 border-white/10 text-white placeholder:text-muted-foreground" />
+                  className="bg-muted/40 border-border/40 text-foreground placeholder:text-muted-foreground" />
               </div>
               <div>
-                <label className="text-xs font-semibold text-white mb-1.5 block">City <span className="text-muted-foreground font-normal">(optional)</span></label>
+                <label className="text-xs font-semibold text-foreground mb-1.5 block">City <span className="text-muted-foreground font-normal">(optional)</span></label>
                 <Input placeholder="Riyadh / Jeddah…"
                   value={wizard.city}
                   onChange={e => wiz("city", e.target.value)}
-                  className="bg-white/5 border-white/10 text-white placeholder:text-muted-foreground" />
+                  className="bg-muted/40 border-border/40 text-foreground placeholder:text-muted-foreground" />
               </div>
             </div>
             <Button className="w-full" onClick={() => setStep(2)} disabled={!wizard.companyName.trim()}>
@@ -580,36 +580,36 @@ export default function CompanyIntelPage() {
 
       {/* Step 2: Seller Context */}
       {step === 2 && (
-        <Card className="bg-card/60 border-white/8">
+        <Card className="bg-card/70 border-white/8">
           <CardContent className="p-6 space-y-4">
-            <p className="text-sm text-muted-foreground">Help AI tailor the approach strategy to your business <span className="text-white/50">(all optional)</span></p>
+            <p className="text-sm text-muted-foreground">Help AI tailor the approach strategy to your business <span className="text-foreground/50">(all optional)</span></p>
             <div>
-              <label className="text-xs font-semibold text-white mb-1.5 block">Your Company</label>
+              <label className="text-xs font-semibold text-foreground mb-1.5 block">Your Company</label>
               <Input placeholder="Your company name"
                 value={wizard.sellerContext.companyName}
                 onChange={e => wiz("sellerContext", { ...wizard.sellerContext, companyName: e.target.value })}
-                className="bg-white/5 border-white/10 text-white placeholder:text-muted-foreground" />
+                className="bg-muted/40 border-border/40 text-foreground placeholder:text-muted-foreground" />
             </div>
             <div>
-              <label className="text-xs font-semibold text-white mb-1.5 block">Product / Service</label>
+              <label className="text-xs font-semibold text-foreground mb-1.5 block">Product / Service</label>
               <Input placeholder="What are you selling or proposing?"
                 value={wizard.sellerContext.product}
                 onChange={e => wiz("sellerContext", { ...wizard.sellerContext, product: e.target.value })}
-                className="bg-white/5 border-white/10 text-white placeholder:text-muted-foreground" />
+                className="bg-muted/40 border-border/40 text-foreground placeholder:text-muted-foreground" />
             </div>
             <div>
-              <label className="text-xs font-semibold text-white mb-1.5 block">Objective</label>
+              <label className="text-xs font-semibold text-foreground mb-1.5 block">Objective</label>
               <div className="flex flex-wrap gap-2">
                 {OBJECTIVES.map(o => (
                   <button key={o} onClick={() => toggleObj(o)}
-                    className={`px-3 py-1 rounded-full text-xs border transition-all ${wizard.sellerContext.objectives.includes(o) ? "bg-primary/20 border-primary/50 text-primary" : "bg-white/5 border-white/10 text-muted-foreground hover:text-white"}`}>
+                    className={`px-3 py-1 rounded-full text-xs border transition-all ${wizard.sellerContext.objectives.includes(o) ? "bg-primary/20 border-primary/50 text-primary" : "bg-muted/40 border-border/40 text-muted-foreground hover:text-foreground"}`}>
                     {o}
                   </button>
                 ))}
               </div>
             </div>
             <div className="flex gap-3">
-              <Button variant="outline" className="flex-1 border-white/10 text-white/70" onClick={() => setStep(3)}>Skip</Button>
+              <Button variant="outline" className="flex-1 border-border/40 text-foreground/70" onClick={() => setStep(3)}>Skip</Button>
               <Button className="flex-1" onClick={() => setStep(3)}>Next</Button>
             </div>
           </CardContent>
@@ -618,20 +618,20 @@ export default function CompanyIntelPage() {
 
       {/* Step 3: Goals */}
       {step === 3 && (
-        <Card className="bg-card/60 border-white/8">
+        <Card className="bg-card/70 border-white/8">
           <CardContent className="p-6 space-y-4">
-            <p className="text-sm text-muted-foreground">Select what to research about <span className="text-white font-medium">{wizard.companyName}</span></p>
+            <p className="text-sm text-muted-foreground">Select what to research about <span className="text-foreground font-medium">{wizard.companyName}</span></p>
             <div className="space-y-2">
               {INTELLIGENCE_GOALS.map(goal => {
                 const Icon = goal.icon;
                 const selected = wizard.goals.includes(goal.id);
                 return (
                   <button key={goal.id} onClick={() => toggleGoal(goal.id)} className={`w-full flex items-center gap-3 p-3 rounded-xl border text-left transition-all ${selected ? "bg-primary/10 border-primary/30" : "bg-white/3 border-white/8 hover:border-white/15"}`}>
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${selected ? "bg-primary/20" : "bg-white/5"}`}>
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${selected ? "bg-primary/20" : "bg-muted/40"}`}>
                       <Icon className={`w-4 h-4 ${selected ? "text-primary" : "text-muted-foreground"}`} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className={`text-sm font-medium ${selected ? "text-white" : "text-white/70"}`}>{goal.label}</p>
+                      <p className={`text-sm font-medium ${selected ? "text-foreground" : "text-foreground/70"}`}>{goal.label}</p>
                       <p className="text-xs text-muted-foreground">{goal.desc}</p>
                     </div>
                     {selected && <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />}
@@ -648,14 +648,14 @@ export default function CompanyIntelPage() {
 
       {/* Step 4: Known Facts */}
       {step === 4 && (
-        <Card className="bg-card/60 border-white/8">
+        <Card className="bg-card/70 border-white/8">
           <CardContent className="p-6 space-y-4">
-            <p className="text-sm text-muted-foreground">Any facts you already know about <span className="text-white font-medium">{wizard.companyName}</span>? <span className="text-white/50">(optional)</span></p>
+            <p className="text-sm text-muted-foreground">Any facts you already know about <span className="text-foreground font-medium">{wizard.companyName}</span>? <span className="text-foreground/50">(optional)</span></p>
             <Textarea
               placeholder="e.g. Founded in 1985 by the Al-Othaim family. Main business is retail. We know the CEO is Khalid Al-Othaim…"
               value={wizard.knownFacts}
               onChange={e => wiz("knownFacts", e.target.value)}
-              className="bg-white/5 border-white/10 text-white placeholder:text-muted-foreground min-h-[120px]"
+              className="bg-muted/40 border-border/40 text-foreground placeholder:text-muted-foreground min-h-[120px]"
             />
             <div className="bg-primary/5 border border-primary/15 rounded-lg p-4">
               <p className="text-xs font-semibold text-primary mb-2">Ready to generate — {wizard.goals.length} intelligence modules</p>

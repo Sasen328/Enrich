@@ -28,7 +28,7 @@ export function IntelReport({ sections, hasRealData, researchThreads, discovered
       {/* Header strip */}
       <div className="flex flex-wrap items-center gap-2 mb-3 text-[11px] text-muted-foreground">
         {typeof researchThreads === "number" && (
-          <span className="px-2 py-0.5 rounded bg-card/40 border border-border/40">
+          <span className="px-2 py-0.5 rounded bg-card/65 border border-border/40">
             {researchThreads} research threads
           </span>
         )}
@@ -47,7 +47,7 @@ export function IntelReport({ sections, hasRealData, researchThreads, discovered
       {/* Sections */}
       <div className="space-y-3">
         {sections.map((s, i) => (
-          <Card key={i} className="bg-card/40 border-border/40">
+          <Card key={i} className="bg-card/65 border-border/40">
             <CardContent className="p-4 space-y-2">
               <h3 className="font-semibold text-sm text-primary">{s.title}</h3>
               <div className="text-sm whitespace-pre-wrap leading-relaxed text-foreground/90">

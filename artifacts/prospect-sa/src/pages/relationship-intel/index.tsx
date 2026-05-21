@@ -194,7 +194,7 @@ function OrgTree({ nodes }: { nodes: OrgNode[] }) {
             {ns[0]?.seniority || `Level ${tier}`} ({ns.length})
           </div>
         ))}
-        <div className="flex items-center gap-2 ml-3 pl-3 border-l border-white/10">
+        <div className="flex items-center gap-2 ml-3 pl-3 border-l border-border/40">
           <div className="flex items-center gap-1 text-[10px] text-muted-foreground"><div className="w-2 h-2 rounded-full bg-primary" />Email</div>
           <div className="flex items-center gap-1 text-[10px] text-muted-foreground"><div className="w-2 h-2 rounded-full" style={{background:"hsl(200,80%,60%)"}} />Phone</div>
           <div className="flex items-center gap-1 text-[10px] text-muted-foreground"><div className="w-2 h-2 rounded-full" style={{background:"hsl(240,60%,65%)"}} />LinkedIn</div>
@@ -213,7 +213,7 @@ function AgentCard({ agentNum, state }: { agentNum: number; state: AgentState })
   }, [state.log]);
 
   const statusColor = {
-    idle:     "border-border/30 bg-card/40",
+    idle:     "border-border/30 bg-card/65",
     running:  "border-primary/30 bg-primary/5",
     complete: "border-emerald-500/30 bg-emerald-500/5",
     error:    "border-red-500/30 bg-red-500/5",
@@ -232,7 +232,7 @@ function AgentCard({ agentNum, state }: { agentNum: number; state: AgentState })
         <div className={cn("w-7 h-7 rounded-lg flex items-center justify-center",
           state.status === "running" ? "bg-primary/20 text-primary" :
           state.status === "complete" ? "bg-emerald-500/20 text-emerald-400" :
-          "bg-white/5 text-muted-foreground")}>
+          "bg-muted/40 text-muted-foreground")}>
           {AGENT_ICONS[agentNum]}
         </div>
         <div className="flex-1 min-w-0">
@@ -292,9 +292,9 @@ function ContactCard({ contact }: { contact: OutreachContact }) {
             <div className="flex items-center gap-3 mt-1.5">
               {contact.email    && <Mail  className="w-3 h-3 text-primary" />}
               {contact.phone    && <Phone className="w-3 h-3 text-emerald-400" />}
-              {contact.outreachEmail    && <span className="text-[10px] text-muted-foreground bg-white/5 px-1.5 py-0.5 rounded">Email draft ready</span>}
-              {contact.outreachLinkedin && <span className="text-[10px] text-muted-foreground bg-white/5 px-1.5 py-0.5 rounded">LinkedIn draft ready</span>}
-              {contact.whatsappOpener   && <span className="text-[10px] text-muted-foreground bg-white/5 px-1.5 py-0.5 rounded">WhatsApp opener</span>}
+              {contact.outreachEmail    && <span className="text-[10px] text-muted-foreground bg-muted/40 px-1.5 py-0.5 rounded">Email draft ready</span>}
+              {contact.outreachLinkedin && <span className="text-[10px] text-muted-foreground bg-muted/40 px-1.5 py-0.5 rounded">LinkedIn draft ready</span>}
+              {contact.whatsappOpener   && <span className="text-[10px] text-muted-foreground bg-muted/40 px-1.5 py-0.5 rounded">WhatsApp opener</span>}
             </div>
           </div>
           {expanded ? <ChevronUp className="w-4 h-4 text-muted-foreground shrink-0" /> : <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />}
@@ -457,33 +457,33 @@ export default function RelationshipIntelPage() {
             placeholder="Target company name (e.g. Saudi Aramco)"
             value={brief.targetCompanyName}
             onChange={e => setBrief(b => ({ ...b, targetCompanyName: e.target.value }))}
-            className="bg-white/5 border-white/10 text-foreground placeholder:text-muted-foreground"
+            className="bg-muted/40 border-border/40 text-foreground placeholder:text-muted-foreground"
           />
           <Input
             placeholder="اسم الشركة بالعربي (اختياري)"
             value={brief.targetCompanyNameAr || ""}
             onChange={e => setBrief(b => ({ ...b, targetCompanyNameAr: e.target.value }))}
-            className="bg-white/5 border-white/10 text-foreground placeholder:text-muted-foreground font-arabic text-right"
+            className="bg-muted/40 border-border/40 text-foreground placeholder:text-muted-foreground font-arabic text-right"
             dir="rtl"
           />
           <Input
             placeholder="Website (optional)"
             value={brief.targetWebsite || ""}
             onChange={e => setBrief(b => ({ ...b, targetWebsite: e.target.value }))}
-            className="bg-white/5 border-white/10 text-foreground placeholder:text-muted-foreground"
+            className="bg-muted/40 border-border/40 text-foreground placeholder:text-muted-foreground"
           />
           <Input
             placeholder="CR Number (optional)"
             value={brief.targetCrNumber || ""}
             onChange={e => setBrief(b => ({ ...b, targetCrNumber: e.target.value }))}
-            className="bg-white/5 border-white/10 text-foreground placeholder:text-muted-foreground"
+            className="bg-muted/40 border-border/40 text-foreground placeholder:text-muted-foreground"
           />
         </div>
         <Textarea
           placeholder="Context — what are you selling? What's the goal? E.g. 'We offer Treasury Management Software and want to connect with CFO or Head of Finance.'"
           value={brief.context || ""}
           onChange={e => setBrief(b => ({ ...b, context: e.target.value }))}
-          className="bg-white/5 border-white/10 text-foreground placeholder:text-muted-foreground resize-none h-20 text-sm"
+          className="bg-muted/40 border-border/40 text-foreground placeholder:text-muted-foreground resize-none h-20 text-sm"
         />
         <div className="flex items-center justify-between">
           <div className="flex gap-2">
@@ -549,7 +549,7 @@ export default function RelationshipIntelPage() {
                       <div className={cn("w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0",
                         seniorityTier(node) === 0 ? "bg-primary/20 text-primary border border-primary/30" :
                         seniorityTier(node) === 1 ? "bg-violet-500/20 text-violet-400 border border-violet-500/30" :
-                        "bg-white/5 text-muted-foreground border border-white/10")}>
+                        "bg-muted/40 text-muted-foreground border border-border/40")}>
                         {node.nameEn?.slice(0, 2).toUpperCase()}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -559,7 +559,7 @@ export default function RelationshipIntelPage() {
                         </div>
                         <div className="flex items-center gap-2 mt-0.5">
                           {node.title && <span className="text-xs text-muted-foreground">{node.title}</span>}
-                          {node.seniority && <span className="text-[10px] bg-white/5 px-1.5 py-0.5 rounded text-muted-foreground">{node.seniority}</span>}
+                          {node.seniority && <span className="text-[10px] bg-muted/40 px-1.5 py-0.5 rounded text-muted-foreground">{node.seniority}</span>}
                         </div>
                       </div>
                       <div className="flex gap-2">
