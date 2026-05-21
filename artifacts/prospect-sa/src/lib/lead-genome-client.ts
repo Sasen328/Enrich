@@ -76,6 +76,30 @@ export async function personSuggest(q: string) {
   return r.json() as Promise<{ suggestions: any[] }>;
 }
 
+// REAL RESEARCH — calls Lead Factory's research engine (Perplexity / Tavily /
+// web scrape) and auto-saves results into Lead Genome on completion.
+export interface ResearchBrief {
+  icpDescription: string;
+  titles?: string[];
+  seniority?: string[];
+  departments?: string[];
+  industries?: string[];
+  location?: string;
+  languages?: string[];
+  limit?: number;
+  source?: "lead-factory" | "prosengine" | "ai-chat" | "manual";
+}
+
+export async function researchLeadGenome(brief: ResearchBrief) {
+  const r = await fetch(`${BASE}/api/lead-genome/research`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(brief),
+  });
+  if (!r.ok) throw new Error(`research failed: ${r.status}`);
+  return r.json() as Promise<{ ok: boolean; jobId: string; message: string }>;
+}
+
 export async function companySuggest(q: string) {
   if (q.trim().length < 2) return { suggestions: [] };
   const r = await fetch(`${BASE}/api/lead-factory/company-suggest?q=${encodeURIComponent(q)}`);

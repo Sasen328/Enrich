@@ -110,4 +110,79 @@ router.get("/lead-genome/stats", async (_req: Request, res: Response) => {
   }
 });
 
+// ── REAL RESEARCH (external APIs, not just DB filter) ─────────────────────
+// POST /lead-genome/research
+//   Body: { icpDescription, titles?, seniority?, departments?, location?,
+//           languages?, industries?, source? }
+//   Calls Lead Factory's research engine (Perplexity / Tavily / web scrape),
+//   then auto-saves every found lead into leadsTable with the right source tag.
+//   Returns the jobId so the caller can stream via /api/lead-factory/stream/:jobId
+//   and then later GET /api/lead-genome/hunt?source=<tag> to retrieve.
+
+const researchSchema = z.object({
+  icpDescription: z.string().min(3),
+  titles:      z.array(z.string()).optional(),
+  seniority:   z.array(z.string()).optional(),
+  departments: z.array(z.string()).optional(),
+  industries:  z.array(z.string()).optional(),
+  location:    z.string().optional(),
+  languages:   z.array(z.string()).optional(),
+  limit:       z.number().int().min(1).max(200).default(50),
+  source:      z.enum(["lead-factory","prosengine","ai-chat","manual"]).default("lead-factory"),
+});
+
+router.post("/lead-genome/research", async (req: Request, res: Response) => {
+  const parsed = researchSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ error: "validation_failed", issues: parsed.error.issues });
+  }
+  const f = parsed.data;
+  try {
+    // Lazy import to avoid circular module load at boot.
+    const { runLeadFactoryPipeline, createLeadFactoryJob } = await import("../lib/lead-factory-engine.js");
+    const jobId = createLeadFactoryJob();
+    const brief = {
+      mode: "person" as const,
+      icpDescription: f.icpDescription,
+      titles: f.titles ?? [],
+      seniority: f.seniority ?? [],
+      departments: f.departments ?? [],
+      industries: f.industries ?? [],
+      location: f.location ?? "Saudi Arabia",
+      languages: f.languages ?? [],
+      targetCount: f.limit,
+    } as any;
+    // Fire-and-forget the research pipeline; auto-save results into Lead Genome
+    // when the pipeline finishes by listening for the 'done' event.
+    runLeadFactoryPipeline(jobId, brief)
+      .then(async () => {
+        const { leadFactoryResultsTable } = await import("@workspace/db/schema");
+        const numericJobId = parseInt(jobId.split("-")[1] || "0", 10);
+        const rows = await db.select().from(leadFactoryResultsTable)
+          .where(eq(leadFactoryResultsTable.jobId, numericJobId));
+        for (const r of rows) {
+          try {
+            await db.insert(leadsTable).values({
+              firstName: (r as any).personName?.split(" ")[0] ?? null,
+              lastName:  (r as any).personName?.split(" ").slice(1).join(" ") ?? null,
+              title:     (r as any).personTitle ?? null,
+              email:     (r as any).email ?? null,
+              phone:     (r as any).phone ?? null,
+              linkedinUrl: (r as any).linkedinUrl ?? null,
+              department: (r as any).department ?? null,
+              seniority: (r as any).seniority ?? null,
+              notes:     `[from:${f.source}] auto-saved from research job ${jobId}`,
+              status:    "new",
+            });
+          } catch (e) { /* skip dup */ }
+        }
+      })
+      .catch((err) => console.error("[lead-genome] research crashed:", err));
+
+    return res.json({ ok: true, jobId, message: "Research started. Poll /api/lead-factory/jobs/:jobId or stream /api/lead-factory/stream/:jobId. Results auto-save into Lead Genome on completion." });
+  } catch (err: any) {
+    return res.status(500).json({ error: "research_failed", message: err?.message });
+  }
+});
+
 export default router;
