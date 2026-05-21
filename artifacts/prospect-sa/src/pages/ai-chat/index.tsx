@@ -112,9 +112,9 @@ export default function AIChatPage() {
   }
 
   return (
-    <div className="flex flex-col h-screen max-h-screen">
+    <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="border-b border-border/40 px-4 py-3 bg-card/65 backdrop-blur">
+      <div className="border-b border-border/40 px-4 py-3 bar-bg sticky top-0 z-10">
         <h1 className="text-lg font-bold flex items-center gap-2">
           <Sparkles className="w-5 h-5 text-primary" />
           AI Chat Agent
