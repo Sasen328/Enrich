@@ -155,48 +155,50 @@
 }
 
 .dark {
-  /* Soft Lavender — dark variant: deep indigo ground, lavender accent stays, cream text */
-  --background:   245 24% 10%;
-  --foreground:    40 40% 94%;
-  --card:         245 22% 14%;
-  --card-foreground: 40 40% 94%;
-  --popover:      245 22% 14%;
-  --popover-foreground: 40 30% 88%;
-  --primary:      263 50% 72%;
-  --primary-foreground: 245 24% 10%;
-  --secondary:    254 40% 28%;
-  --secondary-foreground: 40 40% 94%;
-  --muted:        245 16% 18%;
-  --muted-foreground: 250 12% 68%;
-  --accent:       202 50% 38%;
-  --accent-foreground: 40 40% 94%;
-  --destructive:  0 55% 55%;
+  /* Soft Lavender — dark variant: lavender-tinted night, NOT pure black.
+   * Keeps the warm brand feel (cream→darker, lavender accent retained).
+   */
+  --background:   260 22% 18%;
+  --foreground:    40 36% 92%;
+  --card:         260 18% 22%;
+  --card-foreground: 40 36% 92%;
+  --popover:      260 18% 22%;
+  --popover-foreground: 40 30% 86%;
+  --primary:      263 60% 74%;
+  --primary-foreground: 260 22% 14%;
+  --secondary:    254 35% 32%;
+  --secondary-foreground: 40 36% 92%;
+  --muted:        260 14% 26%;
+  --muted-foreground: 250 14% 72%;
+  --accent:       202 45% 42%;
+  --accent-foreground: 40 36% 92%;
+  --destructive:  0 55% 58%;
   --destructive-foreground: 0 0% 100%;
-  --border:       250 16% 22%;
-  --input:        250 16% 22%;
-  --ring:         263 50% 72%;
+  --border:       260 14% 30%;
+  --input:        260 14% 30%;
+  --ring:         263 60% 74%;
 
-  --sidebar:      245 26% 8%;
+  --sidebar:      260 24% 16%;
   --sidebar-foreground: 40 30% 90%;
-  --sidebar-border: 250 16% 18%;
-  --sidebar-primary: 263 50% 72%;
-  --sidebar-primary-foreground: 245 24% 10%;
-  --sidebar-accent: 245 20% 16%;
+  --sidebar-border: 260 16% 26%;
+  --sidebar-primary: 263 60% 74%;
+  --sidebar-primary-foreground: 260 22% 16%;
+  --sidebar-accent: 260 18% 24%;
   --sidebar-accent-foreground: 40 30% 90%;
-  --sidebar-ring: 263 50% 72%;
+  --sidebar-ring: 263 60% 74%;
 
-  /* v2 semantic aliases — dark variant */
-  --ac:      263 50% 72%;
-  --btx:     40 40% 94%;
-  --tx:      40 40% 94%;
-  --tx-m:    40 28% 78%;
-  --tx-q:   250 14% 64%;
-  --surf:   245 22% 14%;
-  --bd:     250 16% 22%;
-  --sub-bg: 245 20% 16%;
-  --bar-bg: 245 26% 11%;
-  --glow:   263 70% 78%;
-  --qa-bg:  254 40% 28%;
+  /* v2 semantic aliases — lavender-tinted dark */
+  --ac:      263 60% 74%;
+  --btx:     40 36% 92%;
+  --tx:      40 36% 92%;
+  --tx-m:    40 26% 76%;
+  --tx-q:   250 14% 70%;
+  --surf:   260 18% 22%;
+  --bd:     260 14% 30%;
+  --sub-bg: 260 18% 26%;
+  --bar-bg: 260 22% 16%;
+  --glow:   263 75% 80%;
+  --qa-bg:  254 38% 30%;
 }
 
 @layer base {
@@ -246,7 +248,7 @@
   animation: meshDrift 60s ease-in-out infinite alternate;
   filter: saturate(108%);
 }
-.dark .mesh-gradient-bg::before { opacity: 0.55; }
+.dark .mesh-gradient-bg::before { opacity: 0.85; filter: saturate(120%) brightness(1.05); }
 
 @keyframes meshDrift {
   0%   { background-position:   0%   0%, 100%   0%,    0% 100%, 100% 100%, 50% 50%, 65% 35%, 35% 80%; transform: scale(1); }

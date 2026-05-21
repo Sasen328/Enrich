@@ -72,7 +72,7 @@ export function MeshCanvas() {
     <canvas
       ref={ref}
       aria-hidden
-      className="pointer-events-none fixed inset-0 -z-10 w-full h-full opacity-90"
+      className="pointer-events-none fixed inset-0 -z-10 w-full h-full opacity-90 dark:opacity-85"
     />
   );
 }
