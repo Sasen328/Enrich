@@ -224,7 +224,8 @@ Context: ${brief.context || "Saudi Arabia B2B"}`;
 
   // ── SaudiCEOs / SaudiBODs scrape via Perplexity ──────────────────────────────
   const PERPLEXITY_API_KEY = process.env.PERPLEXITY_API_KEY;
-  if (PERPLEXITY_API_KEY) {
+  const { canSpend, recordSpend } = await import("./paid-api-guard.js");
+  if (PERPLEXITY_API_KEY && canSpend("perplexity")) {
     try {
       const r = await axios.post("https://api.perplexity.ai/chat/completions", {
         model: "sonar",
@@ -235,6 +236,7 @@ Context: ${brief.context || "Saudi Arabia B2B"}`;
         max_tokens: 2000,
         temperature: 0.1,
       }, { headers: { Authorization: `Bearer ${PERPLEXITY_API_KEY}` }, timeout: 30000 });
+      recordSpend("perplexity");
       const content = r.data?.choices?.[0]?.message?.content || "";
       const parsed = await parseJsonFromGemini(content, []) as OrgNode[];
       if (Array.isArray(parsed)) {

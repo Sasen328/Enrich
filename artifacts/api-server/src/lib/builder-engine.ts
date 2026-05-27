@@ -293,10 +293,12 @@ export async function reEnrichCompany(companyId: number): Promise<{ success: boo
     enrichWithExplorium(companyName),
     (async () => {
       const PERPLEXITY_API_KEY = process.env.PERPLEXITY_API_KEY;
-      if (!PERPLEXITY_API_KEY) return null;
+      const { canSpend, recordSpend } = await import("./paid-api-guard.js");
+      if (!PERPLEXITY_API_KEY || !canSpend("perplexity")) return null;
       // Run 2 focused Perplexity queries: general + executive-specific
       const axios = (await import("axios")).default;
       const makeQuery = async (query: string) => {
+        if (!canSpend("perplexity")) return null;
         try {
           const r = await axios.post("https://api.perplexity.ai/chat/completions", {
             model: "sonar",
@@ -308,6 +310,7 @@ export async function reEnrichCompany(companyId: number): Promise<{ success: boo
             temperature: 0.1,
             return_citations: true,
           }, { headers: { Authorization: `Bearer ${PERPLEXITY_API_KEY}`, "Content-Type": "application/json" }, timeout: 30000 });
+          recordSpend("perplexity");
           return r.data?.choices?.[0]?.message?.content || null;
         } catch { return null; }
       };
