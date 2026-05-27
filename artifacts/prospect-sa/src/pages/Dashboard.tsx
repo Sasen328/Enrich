@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { useGetDashboardStats } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import {
@@ -12,6 +13,26 @@ import {
 } from "recharts";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+// §16 — subscribe to the live dashboard SSE stream.
+interface LiveSnapshot {
+  counts: { companies: number; leadGenome: number; leadLists: number; masaar: number; builder: number; harvestAi: number; seeded: number };
+  recent: { ico: string; text: string; ts: string }[];
+  ts: number;
+}
+function useDashboardLive(): LiveSnapshot | null {
+  const [snap, setSnap] = useState<LiveSnapshot | null>(null);
+  useEffect(() => {
+    let es: EventSource | null = null;
+    try {
+      es = new EventSource(`${BASE}/api/dashboard/stream`);
+      es.onmessage = (e) => { try { setSnap(JSON.parse(e.data)); } catch { /* skip */ } };
+      es.onerror = () => { es?.close(); };
+    } catch { /* SSE unsupported */ }
+    return () => es?.close();
+  }, []);
+  return snap;
+}
 
 interface CompanyStats {
   total: number;
@@ -99,6 +120,7 @@ export default function Dashboard() {
   const { data: srcStats, isLoading: srcLoading } = useAllSourceStats();
   const { data: harvestStats } = useHarvestAiStats();
   const { data: genomeStats } = useLeadGenomeStats();
+  const live = useDashboardLive();
 
   const isLoading = statsLoading || qualityLoading;
 
@@ -159,10 +181,32 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-500">
-      <div>
-        <h1 className="text-3xl md:text-4xl font-display font-bold text-foreground tracking-tight">Intelligence Dashboard</h1>
-        <p className="text-muted-foreground mt-1">Saudi B2B platform — real-time overview across all engines</p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-3xl md:text-4xl font-display font-bold text-foreground tracking-tight">Intelligence Dashboard</h1>
+          <p className="text-muted-foreground mt-1">Saudi B2B platform — real-time overview across all engines</p>
+        </div>
+        {live && (
+          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground border border-border/40 rounded-full px-3 py-1.5 bg-card/60 backdrop-blur">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            Live · {live.counts.leadGenome.toLocaleString()} leads · {live.counts.harvestAi.toLocaleString()} harvested
+          </div>
+        )}
       </div>
+
+      {live && live.recent.length > 0 && (
+        <Card className="bg-card/65 backdrop-blur border-border/40">
+          <CardHeader className="pb-2"><CardTitle className="text-sm font-display flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" /> Live Activity</CardTitle></CardHeader>
+          <CardContent className="pt-0 space-y-1.5">
+            {live.recent.slice(0, 5).map((r, i) => (
+              <div key={i} className="flex items-center gap-2.5 text-xs text-muted-foreground py-1">
+                <span className="w-6 h-6 rounded-md bg-secondary/40 flex items-center justify-center text-[11px]">{r.ico}</span>
+                <span className="flex-1 truncate text-foreground/80">{r.text}</span>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Top KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
