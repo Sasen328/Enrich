@@ -611,6 +611,27 @@ export async function scrapePage(url: string, options: ScrapeOptions = {}): Prom
     }
   }
 
+  // §6 Layer 3.5 — Camoufox engine-level stealth, only when enabled + installed.
+  // Last resort before giving up; returns null cleanly when unavailable.
+  try {
+    const { camoufoxAvailable, camoufoxFetch } = await import("./scrapers/camoufox-runner.js");
+    if (camoufoxAvailable()) {
+      const html = await camoufoxFetch(url);
+      if (html && html.length >= minLen) {
+        const { load } = await import("cheerio");
+        const $ = load(html);
+        const text = $("body").text().replace(/\s+/g, " ").trim();
+        return {
+          url, engine: "playwright-stealth" as ScrapingEngine, html, text,
+          title: $("title").text() || "",
+          emails: [], phones: [], links: [], meta: {},
+          loadTimeMs: 0, charCount: text.length, blocked: false,
+          hasArabic: /[؀-ۿ]/.test(text),
+        } as ScrapeResult;
+      }
+    }
+  } catch { /* camoufox unavailable — fall through */ }
+
   // All engines failed — return best effort from last attempt
   return await scrapeWithCheerio(url, options);
 }

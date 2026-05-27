@@ -46,6 +46,16 @@ router.post("/lead-factory/start", async (req: Request, res: Response) => {
   const brief: LeadFactoryBrief = parsed.data;
   const jobId = createLeadFactoryJob();
 
+  // §11A — honour per-engine source enforcement (read-only; attaches the
+  // resolved allow/deny list to the brief so the engine can scope harvesting).
+  try {
+    const { resolveEnginesSources } = await import("./sources.js");
+    const { required, excluded } = await resolveEnginesSources("lead-factory");
+    if (required.length || excluded.length) {
+      (brief as any).sourceEnforcement = { required, excluded };
+    }
+  } catch { /* registry optional */ }
+
   // Fire-and-forget the pipeline, but persist any unhandled throw to the
   // jobs table so callers polling /jobs/:jobId see the failure even when
   // the SSE stream was never opened.
