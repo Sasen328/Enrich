@@ -1,6 +1,7 @@
 import { Router, type Request, type Response } from "express";
 import { db, prosengineResearchTable, leadListsTable, leadListItemsTable } from "@workspace/db";
 import { desc, eq, sql } from "drizzle-orm";
+import { enterJob } from "../lib/paid-api-guard.js";
 import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
 import { synthesizeWithGemini, isGeminiConfigured, deepResearchWithGemini } from "../gemini-search.js";
@@ -134,6 +135,9 @@ router.post("/person-intel/profile", async (req: Request, res: Response): Promis
   };
 
   if (!name?.trim()) { res.status(400).json({ error: "Name is required" }); return; }
+
+  // Explicit user-initiated lookup → permit paid APIs within this request's budget.
+  enterJob(`person-intel:${name.trim()}`);
 
   try {
     const goalsList = intelligenceGoals && intelligenceGoals.length > 0

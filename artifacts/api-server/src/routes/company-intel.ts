@@ -1,6 +1,7 @@
 import { Router, type Request, type Response } from "express";
 import { db, companyIntelResearchTable } from "@workspace/db";
 import { desc, eq } from "drizzle-orm";
+import { enterJob } from "../lib/paid-api-guard.js";
 import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
 import { searchWithGemini, generateWithGemini, isGeminiConfigured, deepResearchWithGemini } from "../gemini-search.js";
@@ -65,6 +66,9 @@ router.post("/company-intel/profile", async (req: Request, res: Response): Promi
   };
 
   if (!companyName?.trim()) { res.status(400).json({ error: "companyName is required" }); return; }
+
+  // Explicit user-initiated lookup → permit paid APIs within this request's budget.
+  enterJob(`company-intel:${companyName.trim()}`);
 
   const crRef = crNumber ? ` (CR: ${crNumber})` : "";
   const cityRef = city ? `, ${city}` : "";
@@ -532,6 +536,9 @@ router.post("/company-intel/web-seed", async (req: Request, res: Response): Prom
 
   if (!rootUrl?.trim()) { res.status(400).json({ error: "rootUrl is required" }); return; }
   if (!enableSeeder) { res.json({ skipped: true, reason: "Seeder disabled (enableSeeder: false)" }); return; }
+
+  // Explicit user-initiated crawl → permit paid APIs within budget.
+  enterJob(`web-seed:${rootUrl.trim()}`);
 
   try {
     const result = await runWebSeeder(rootUrl.trim(), companyName, { maxPages, seedMode });

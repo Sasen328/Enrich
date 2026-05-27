@@ -4,6 +4,7 @@ import { eq, desc, and, sql, inArray, ilike, or } from "drizzle-orm";
 import * as XLSX from "xlsx";
 import PptxGenJS from "pptxgenjs";
 import { SAUDI_DATA_SOURCES } from "../lib/data-sources.js";
+import { runInJob } from "../lib/paid-api-guard.js";
 import {
   runHarvest,
   reEnrichCompany,
@@ -374,9 +375,7 @@ router.post("/builder/results/:id/enrich", async (req: Request, res: Response): 
   }
   res.json({ success: true, message: "Enrichment started" });
 
-  setImmediate(async () => {
-    await reEnrichCompany(id);
-  });
+  setImmediate(() => runInJob(`builder-enrich:${id}`, () => reEnrichCompany(id)).catch(console.error));
 });
 
 router.post("/builder/results/:id/save-enrichment", async (req: Request, res: Response): Promise<void> => {
@@ -424,7 +423,7 @@ router.post("/builder/bulk-enrich", async (req: Request, res: Response): Promise
 
   res.json({ success: true, message: `Bulk enrichment started for ${ids.length} companies` });
 
-  setImmediate(async () => {
+  setImmediate(() => runInJob(`builder-bulk-enrich:${Date.now()}`, async () => {
     for (const id of ids) {
       try {
         await reEnrichCompany(id);
@@ -433,7 +432,7 @@ router.post("/builder/bulk-enrich", async (req: Request, res: Response): Promise
       }
     }
     console.log(`[Builder] Bulk enrichment complete for ${ids.length} companies`);
-  });
+  }));
 });
 
 router.post("/builder/re-enrich/:id", async (req: Request, res: Response): Promise<void> => {
@@ -442,7 +441,7 @@ router.post("/builder/re-enrich/:id", async (req: Request, res: Response): Promi
     res.status(400).json({ error: "Invalid company ID" });
     return;
   }
-  const result = await reEnrichCompany(id);
+  const result = await runInJob(`builder-enrich:${id}`, () => reEnrichCompany(id));
   if (!result.success) {
     res.status(404).json({ error: result.message });
     return;
@@ -451,7 +450,7 @@ router.post("/builder/re-enrich/:id", async (req: Request, res: Response): Promi
 });
 
 router.post("/builder/re-enrich-all", async (_req: Request, res: Response): Promise<void> => {
-  const result = await reEnrichAll();
+  const result = await runInJob(`builder-enrich-all:${Date.now()}`, () => reEnrichAll());
   res.json(result);
 });
 

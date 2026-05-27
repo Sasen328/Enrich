@@ -1,4 +1,5 @@
 import axios from "axios";
+import { canSpend, recordSpend } from "./lib/paid-api-guard.js";
 
 interface PerplexityMessage {
   role: "system" | "user" | "assistant";
@@ -26,16 +27,21 @@ export class PerplexityService {
     }
   }
 
-  static isConfigured(): boolean {
-    if (_blocked) return false;
-    if (process.env.DISABLE_PERPLEXITY === "true") return false;
-    return !!process.env.PERPLEXITY_API_KEY;
-  }
-
   private getKey(): string | null {
     if (_blocked) return null;
     if (process.env.DISABLE_PERPLEXITY === "true") return null;
+    // Only spend Perplexity credit inside an explicitly-started job that is
+    // still under its per-job budget. Outside a job (background ticks,
+    // previews, speculative calls) this returns null and callers degrade.
+    if (!canSpend("perplexity")) return null;
     return process.env.PERPLEXITY_API_KEY || null;
+  }
+
+  static isConfigured(): boolean {
+    if (_blocked) return false;
+    if (process.env.DISABLE_PERPLEXITY === "true") return false;
+    if (!canSpend("perplexity")) return false;
+    return !!process.env.PERPLEXITY_API_KEY;
   }
 
   private handleError(err: unknown): void {
@@ -71,6 +77,7 @@ export class PerplexityService {
           timeout: 60000,
         },
       );
+      recordSpend("perplexity");
       return response.data.choices[0]?.message?.content || "";
     } catch (err) {
       this.handleError(err);
@@ -102,6 +109,7 @@ export class PerplexityService {
           timeout: 60000,
         },
       );
+      recordSpend("perplexity");
       return {
         answer: response.data.choices[0]?.message?.content || "",
         citations: response.data.citations,
@@ -132,6 +140,7 @@ export class PerplexityService {
           timeout: 60000,
         },
       );
+      recordSpend("perplexity");
       return response.data.choices[0]?.message?.content || "";
     } catch (err) {
       this.handleError(err);

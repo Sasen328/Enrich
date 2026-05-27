@@ -18,6 +18,7 @@
 
 import { Router, type IRouter, type Request, type Response } from "express";
 import { runAgentChat, type OrchestratorEvent } from "../lib/agents/orchestrator.js";
+import { enterJob } from "../lib/paid-api-guard.js";
 
 const router: IRouter = Router();
 
@@ -61,6 +62,8 @@ router.post("/ai-chat/stream", async (req: Request, res: Response): Promise<void
   req.on("close", () => { closed = true; });
 
   try {
+    // Explicit user-initiated chat → permit paid APIs within budget.
+    enterJob(`ai-chat:${Date.now()}`);
     await runAgentChat(
       message,
       (body.history || []).slice(-10), // keep last 10 turns
