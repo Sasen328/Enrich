@@ -28,3 +28,4 @@ export * from "./messages";
 export * from "./composer";
 export * from "./harvest_sources";
 export * from "./seeder_staging";
+export * from "./behavior_events";

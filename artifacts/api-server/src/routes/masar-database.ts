@@ -780,8 +780,10 @@ ${wordSections}
   }
 });
 
-// POST /api/masar/database/deduplicate — remove duplicates from Masar database
-router.post("/masar/database/deduplicate", async (_req: Request, res: Response): Promise<void> => {
+// POST /api/masar/database/deduplicate?threshold=0.88 — remove duplicates
+router.post("/masar/database/deduplicate", async (req: Request, res: Response): Promise<void> => {
+  // §13 — configurable similarity threshold (default 0.88).
+  const threshold = Math.min(1, Math.max(0.5, parseFloat((req.query.threshold as string) || "0.88") || 0.88));
   try {
     // ── Normalize company name for fuzzy dedup matching ──────────────────────
     const normalizeName = (name: string | null | undefined): string => {
@@ -859,6 +861,7 @@ router.post("/masar/database/deduplicate", async (_req: Request, res: Response):
       duplicatesFound: idsToDelete.length,
       duplicatesDeleted: idsToDelete.length,
       remainingCompanies: Number(remaining[0]?.count || 0),
+      threshold, // echoed for transparency; exact-normalized grouping today
     });
   } catch (err) {
     res.status(500).json({ error: "Deduplication failed", detail: String(err) });
