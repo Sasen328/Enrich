@@ -20,6 +20,7 @@ import signalsRouter from "./signals";
 import leadFactoryRouter from "./lead-factory.js";
 import leadGenomeRouter from "./lead-genome.js";
 import harvestAiRouter from "./harvest-ai.js";
+import sourcesRouter from "./sources.js";
 
 const router: IRouter = Router();
 
@@ -44,5 +45,6 @@ router.use(signalsRouter);
 router.use(leadFactoryRouter);
 router.use(leadGenomeRouter);
 router.use(harvestAiRouter);
+router.use(sourcesRouter);
 
 export default router;
