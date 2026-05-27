@@ -457,6 +457,26 @@ Return ONLY valid JSON in this exact structure:
       hasContacts: !!(executives?.length),
     }).catch(() => {});
 
+    // §6/§7 — attach source-credibility verdicts + humanized summary
+    try {
+      const { scoreFact } = await import("../lib/credibility/verdict.js");
+      const { humanizeReport } = await import("../lib/report/humanize.js");
+      const intel = (report as Record<string, unknown>).intelligence as Record<string, unknown> | undefined;
+      const verified = (intel?.verifiedFacts as string[]) ?? [];
+      const estimated = (intel?.estimatedFacts as string[]) ?? [];
+      const dataSources = (intel?.dataSources as string[]) ?? [];
+      const primarySrc = dataSources.slice(0, 2).map((p) => ({ provider: String(p), tier: "primary" as const }));
+      (report as Record<string, unknown>).verdicts = [
+        ...verified.map((f) => scoreFact("fact", f, primarySrc.length ? primarySrc : [{ provider: "research", tier: "secondary" as const }])),
+        ...estimated.map((f) => scoreFact("fact", f, [{ provider: "llm-inference", tier: "inferred" as const }])),
+      ];
+      const summary = (report as Record<string, unknown>).executiveSummary;
+      if (typeof summary === "string" && summary.length > 0) {
+        const h = await humanizeReport(summary, { removeArtifacts: true });
+        (report as Record<string, unknown>).humanizedSummary = h.humanized;
+      }
+    } catch (e) { console.warn("[CompanyIntel] verdict/humanize skipped:", (e as Error).message); }
+
     res.json(report);
   } catch (err) {
     console.error("[CompanyIntel] profile error:", err);

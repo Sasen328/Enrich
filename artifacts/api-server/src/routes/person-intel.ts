@@ -506,6 +506,26 @@ Return valid JSON only. No markdown. No explanatory text.`;
       hasContacts: !!(effectiveLinkedInUrl),
     }).catch(() => {});
 
+    // §6/§7 — verdicts + humanized summary
+    try {
+      const { scoreFact } = await import("../lib/credibility/verdict.js");
+      const { humanizeReport } = await import("../lib/report/humanize.js");
+      const pj = parsed as Record<string, unknown>;
+      const verified = (pj.verified_facts as string[]) ?? [];
+      const estimated = (pj.estimated_facts as string[]) ?? [];
+      const sources = (pj.data_sources as string[]) ?? [];
+      const primarySrc = sources.slice(0, 2).map((p) => ({ provider: String(p), tier: "primary" as const }));
+      pj.verdicts = [
+        ...verified.map((f) => scoreFact("fact", f, primarySrc.length ? primarySrc : [{ provider: "research", tier: "secondary" as const }])),
+        ...estimated.map((f) => scoreFact("fact", f, [{ provider: "llm-inference", tier: "inferred" as const }])),
+      ];
+      const prof = pj.profile;
+      if (typeof prof === "string" && prof.length > 0) {
+        const h = await humanizeReport(prof, { removeArtifacts: true });
+        pj.humanizedProfile = h.humanized;
+      }
+    } catch (e) { console.warn("[PersonIntel] verdict/humanize skipped:", (e as Error).message); }
+
     res.json(parsed);
   } catch (err) {
     console.error("[PersonIntel] profile error:", err);
