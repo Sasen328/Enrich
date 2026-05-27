@@ -23,6 +23,7 @@ import harvestAiRouter from "./harvest-ai.js";
 import sourcesRouter from "./sources.js";
 import seederRouter from "./seeder.js";
 import behaviorRouter from "./behavior.js";
+import dashboardRouter from "./dashboard.js";
 
 const router: IRouter = Router();
 
@@ -50,5 +51,6 @@ router.use(harvestAiRouter);
 router.use(sourcesRouter);
 router.use(seederRouter);
 router.use(behaviorRouter);
+router.use(dashboardRouter);
 
 export default router;
