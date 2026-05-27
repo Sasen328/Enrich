@@ -294,4 +294,28 @@ router.post("/composer/enhance", async (req: Request, res: Response): Promise<vo
   }
 });
 
+// §12 — Plugin toggles per session. The orchestrator reads these to decide
+// which of the 9 agent tools to register for a run.
+const ALL_PLUGINS = ["web_search", "url_crawl", "deep_scrape", "harvester_run", "sanctions_screen", "scout_osint", "lead_factory_run", "signal_monitor", "nexus_run"];
+const DEFAULT_ENABLED = ["web_search", "url_crawl", "harvester_run", "nexus_run"];
+const pluginState = new Map<string, string[]>();
+
+router.get("/composer/plugins", (req: Request, res: Response): void => {
+  const sessionId = (req.query.sessionId as string) || "default";
+  res.json({ all: ALL_PLUGINS, enabled: pluginState.get(sessionId) ?? DEFAULT_ENABLED });
+});
+
+router.post("/composer/plugins", (req: Request, res: Response): void => {
+  const { sessionId = "default", enabled } = req.body as { sessionId?: string; enabled?: string[] };
+  if (!Array.isArray(enabled)) { res.status(400).json({ error: "enabled[] required" }); return; }
+  const valid = enabled.filter((p) => ALL_PLUGINS.includes(p));
+  pluginState.set(sessionId, valid);
+  res.json({ ok: true, sessionId, enabled: valid });
+});
+
+/** Read enabled plugins for a session (used by the orchestrator). */
+export function getEnabledPlugins(sessionId = "default"): string[] {
+  return pluginState.get(sessionId) ?? DEFAULT_ENABLED;
+}
+
 export default router;
