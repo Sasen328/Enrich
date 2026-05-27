@@ -1,6 +1,7 @@
 import { Router, type Request, type Response } from "express";
 import { db, companyIntelResearchTable } from "@workspace/db";
 import { desc, eq } from "drizzle-orm";
+import { enterJob } from "../lib/paid-api-guard.js";
 import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
 import { searchWithGemini, generateWithGemini, isGeminiConfigured, deepResearchWithGemini } from "../gemini-search.js";
@@ -65,6 +66,9 @@ router.post("/company-intel/profile", async (req: Request, res: Response): Promi
   };
 
   if (!companyName?.trim()) { res.status(400).json({ error: "companyName is required" }); return; }
+
+  // Explicit user-initiated lookup → permit paid APIs within this request's budget.
+  enterJob(`company-intel:${companyName.trim()}`);
 
   const crRef = crNumber ? ` (CR: ${crNumber})` : "";
   const cityRef = city ? `, ${city}` : "";
@@ -453,6 +457,26 @@ Return ONLY valid JSON in this exact structure:
       hasContacts: !!(executives?.length),
     }).catch(() => {});
 
+    // §6/§7 — attach source-credibility verdicts + humanized summary
+    try {
+      const { scoreFact } = await import("../lib/credibility/verdict.js");
+      const { humanizeReport } = await import("../lib/report/humanize.js");
+      const intel = (report as Record<string, unknown>).intelligence as Record<string, unknown> | undefined;
+      const verified = (intel?.verifiedFacts as string[]) ?? [];
+      const estimated = (intel?.estimatedFacts as string[]) ?? [];
+      const dataSources = (intel?.dataSources as string[]) ?? [];
+      const primarySrc = dataSources.slice(0, 2).map((p) => ({ provider: String(p), tier: "primary" as const }));
+      (report as Record<string, unknown>).verdicts = [
+        ...verified.map((f) => scoreFact("fact", f, primarySrc.length ? primarySrc : [{ provider: "research", tier: "secondary" as const }])),
+        ...estimated.map((f) => scoreFact("fact", f, [{ provider: "llm-inference", tier: "inferred" as const }])),
+      ];
+      const summary = (report as Record<string, unknown>).executiveSummary;
+      if (typeof summary === "string" && summary.length > 0) {
+        const h = await humanizeReport(summary, { removeArtifacts: true });
+        (report as Record<string, unknown>).humanizedSummary = h.humanized;
+      }
+    } catch (e) { console.warn("[CompanyIntel] verdict/humanize skipped:", (e as Error).message); }
+
     res.json(report);
   } catch (err) {
     console.error("[CompanyIntel] profile error:", err);
@@ -532,6 +556,9 @@ router.post("/company-intel/web-seed", async (req: Request, res: Response): Prom
 
   if (!rootUrl?.trim()) { res.status(400).json({ error: "rootUrl is required" }); return; }
   if (!enableSeeder) { res.json({ skipped: true, reason: "Seeder disabled (enableSeeder: false)" }); return; }
+
+  // Explicit user-initiated crawl → permit paid APIs within budget.
+  enterJob(`web-seed:${rootUrl.trim()}`);
 
   try {
     const result = await runWebSeeder(rootUrl.trim(), companyName, { maxPages, seedMode });

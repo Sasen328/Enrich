@@ -4,10 +4,15 @@
  * Per v8 prototype: always-on, foldable, 10-event history.
  */
 
-import { useState } from "react";
-import { ChevronDown, ChevronUp, Bot, X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ChevronDown, ChevronUp, Bot, X, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { ComposerState } from "./Composer";
+
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+interface PlugAction { label: string; endpoint: string; body?: Record<string, unknown>; }
+interface BackendSuggestion { suggestion: string; oneLineHint: string; plugActions: PlugAction[]; }
 
 interface Props {
   events: Array<{ kind: string; msg: string; t: Date }>;
@@ -60,6 +65,7 @@ export function BehaviorAgent({ events, state, reportShape }: Props) {
 
 function Suggestion({ events, state, reportShape }: Props) {
   const last = events[0];
+  // Local deterministic fallback (instant).
   let msg = "Pick a template to lock the loadout in one click.";
   if (last) {
     if (last.kind === "compose") msg = "Loadout looks good. Toggle Enhance ON for AI to add missing constraints.";
@@ -67,10 +73,43 @@ function Suggestion({ events, state, reportShape }: Props) {
     else if (state?.target === "both") msg = "Both targets active — enrich runs both lead + company gates separately.";
     else if (reportShape === "exec") msg = "Executive shape suppresses tables. If you need rows, switch to Detailed.";
   }
+
+  // Backend enrichment: richer suggestion + ready-to-plug action chips.
+  const [backend, setBackend] = useState<BackendSuggestion | null>(null);
+  const [firing, setFiring] = useState<string | null>(null);
+  useEffect(() => {
+    const ctrl = new AbortController();
+    fetch(`${BASE}/api/behavior/suggest`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ state: { target: state?.target, reportShape }, history: events.slice(0, 5).map((e) => ({ kind: e.kind })) }),
+      signal: ctrl.signal,
+    }).then((r) => r.ok ? r.json() : null).then((d) => { if (d?.suggestion) setBackend(d); }).catch(() => {});
+    return () => ctrl.abort();
+  }, [events.length, state?.target, reportShape]);
+
+  const fire = async (a: PlugAction) => {
+    setFiring(a.label);
+    try { await fetch(`${a.endpoint.startsWith("/api") ? "" : BASE}${a.endpoint}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(a.body ?? {}) }); }
+    catch { /* ignore */ }
+    setTimeout(() => setFiring(null), 1200);
+  };
+
+  const text = backend?.suggestion || msg;
   return (
     <div className="bg-emerald-500/10 border border-emerald-500/30 rounded p-2.5">
       <div className="text-[9px] uppercase tracking-wider text-emerald-700 font-bold">💡 Live suggestion</div>
-      <div className="mt-1 text-emerald-900 dark:text-emerald-100">{msg}</div>
+      <div className="mt-1 text-emerald-900 dark:text-emerald-100">{text}</div>
+      {backend?.plugActions?.length ? (
+        <div className="flex flex-wrap gap-1.5 mt-2">
+          {backend.plugActions.map((a) => (
+            <button key={a.label} onClick={() => fire(a)} disabled={!!firing}
+              className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-full bg-primary/15 text-primary border border-primary/30 hover:bg-primary/25 disabled:opacity-60">
+              <Zap className="w-2.5 h-2.5" />{firing === a.label ? "Running…" : a.label}
+            </button>
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }

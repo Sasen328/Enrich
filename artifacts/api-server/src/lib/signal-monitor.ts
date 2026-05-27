@@ -258,7 +258,8 @@ export async function runSignalMonitor(jobId: string): Promise<void> {
   // ── Perplexity AI (real-time market intelligence) ─────────────────────────────
   async function scanPerplexity() {
     const PERPLEXITY_API_KEY = process.env.PERPLEXITY_API_KEY;
-    if (!PERPLEXITY_API_KEY) { log("Perplexity not configured — skipping AI signals"); return; }
+    const { canSpend, recordSpend } = await import("./paid-api-guard.js");
+    if (!PERPLEXITY_API_KEY || !canSpend("perplexity")) { log("Perplexity not configured/over budget — skipping AI signals"); return; }
     try {
       const res = await axios.post("https://api.perplexity.ai/chat/completions", {
         model: "sonar",
@@ -269,6 +270,7 @@ export async function runSignalMonitor(jobId: string): Promise<void> {
         max_tokens: 2500,
         temperature: 0.1,
       }, { headers: { Authorization: `Bearer ${PERPLEXITY_API_KEY}` }, timeout: 35000 });
+      recordSpend("perplexity");
       const content = res.data?.choices?.[0]?.message?.content || "";
       const parsed = await parseJsonFromGemini(content, []) as SignalAlert[];
       if (Array.isArray(parsed)) {

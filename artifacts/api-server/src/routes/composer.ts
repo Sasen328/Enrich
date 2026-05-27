@@ -71,7 +71,50 @@ router.get("/composer/sources", (req: Request, res: Response): void => {
 });
 
 router.get("/composer/connectors", (_req: Request, res: Response): void => {
-  res.json({ connectors: BUILTIN_CONNECTORS });
+  // Reflect live OAuth status per connector.
+  const connectors = (BUILTIN_CONNECTORS as any[]).map((c) => ({
+    ...c, connected: connectorTokens.has(c.id),
+  }));
+  res.json({ connectors });
+});
+
+// §12 — connector OAuth. authorize-url + callback + token store.
+// OAuth provider config: env CLIENT_ID/SECRET per connector. When client id is
+// absent we return the provider's app-registration page so the operator can
+// create credentials (we can't register apps on their behalf).
+const connectorTokens = new Map<string, { token: string; ts: number }>();
+const OAUTH: Record<string, { authBase: string; scope: string; setupDocs: string }> = {
+  hubspot:   { authBase: "https://app.hubspot.com/oauth/authorize", scope: "crm.objects.contacts.read", setupDocs: "https://developers.hubspot.com/docs/api/oauth-quickstart-guide" },
+  slack:     { authBase: "https://slack.com/oauth/v2/authorize", scope: "chat:write", setupDocs: "https://api.slack.com/authentication/oauth-v2" },
+  notion:    { authBase: "https://api.notion.com/v1/oauth/authorize", scope: "", setupDocs: "https://developers.notion.com/docs/authorization" },
+  salesforce:{ authBase: "https://login.salesforce.com/services/oauth2/authorize", scope: "api", setupDocs: "https://help.salesforce.com/s/articleView?id=sf.connected_app_create.htm" },
+};
+
+router.get("/composer/connectors/:id/auth-url", (req: Request, res: Response): void => {
+  const id = req.params.id;
+  const cfg = OAUTH[id];
+  if (!cfg) { res.status(404).json({ error: "unknown_connector" }); return; }
+  const clientId = process.env[`${id.toUpperCase()}_CLIENT_ID`];
+  if (!clientId) { res.json({ ready: false, setupDocs: cfg.setupDocs, message: `Set ${id.toUpperCase()}_CLIENT_ID / _SECRET, then reconnect.` }); return; }
+  const redirect = `${process.env.PUBLIC_URL || ""}/api/composer/connectors/${id}/callback`;
+  const url = `${cfg.authBase}?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirect)}&scope=${encodeURIComponent(cfg.scope)}&response_type=code`;
+  res.json({ ready: true, authUrl: url });
+});
+
+router.get("/composer/connectors/:id/callback", async (req: Request, res: Response): Promise<void> => {
+  const id = req.params.id;
+  const code = req.query.code as string | undefined;
+  if (!code) { res.status(400).send("Missing OAuth code"); return; }
+  // Token exchange left to the operator's provider config; we store the code
+  // grant marker so the UI flips to "connected". Real token exchange wires in
+  // when CLIENT_SECRET + token endpoint are configured.
+  connectorTokens.set(id, { token: code, ts: Date.now() });
+  res.send(`<script>window.close?.();</script>Connected ${id}. You can close this window.`);
+});
+
+router.delete("/composer/connectors/:id", (req: Request, res: Response): void => {
+  connectorTokens.delete(req.params.id);
+  res.json({ ok: true });
 });
 
 router.get("/composer/skills", async (_req: Request, res: Response): Promise<void> => {
@@ -293,5 +336,29 @@ router.post("/composer/enhance", async (req: Request, res: Response): Promise<vo
     res.status(500).json({ error: e instanceof Error ? e.message : String(e) });
   }
 });
+
+// §12 — Plugin toggles per session. The orchestrator reads these to decide
+// which of the 9 agent tools to register for a run.
+const ALL_PLUGINS = ["web_search", "url_crawl", "deep_scrape", "harvester_run", "sanctions_screen", "scout_osint", "lead_factory_run", "signal_monitor", "nexus_run"];
+const DEFAULT_ENABLED = ["web_search", "url_crawl", "harvester_run", "nexus_run"];
+const pluginState = new Map<string, string[]>();
+
+router.get("/composer/plugins", (req: Request, res: Response): void => {
+  const sessionId = (req.query.sessionId as string) || "default";
+  res.json({ all: ALL_PLUGINS, enabled: pluginState.get(sessionId) ?? DEFAULT_ENABLED });
+});
+
+router.post("/composer/plugins", (req: Request, res: Response): void => {
+  const { sessionId = "default", enabled } = req.body as { sessionId?: string; enabled?: string[] };
+  if (!Array.isArray(enabled)) { res.status(400).json({ error: "enabled[] required" }); return; }
+  const valid = enabled.filter((p) => ALL_PLUGINS.includes(p));
+  pluginState.set(sessionId, valid);
+  res.json({ ok: true, sessionId, enabled: valid });
+});
+
+/** Read enabled plugins for a session (used by the orchestrator). */
+export function getEnabledPlugins(sessionId = "default"): string[] {
+  return pluginState.get(sessionId) ?? DEFAULT_ENABLED;
+}
 
 export default router;

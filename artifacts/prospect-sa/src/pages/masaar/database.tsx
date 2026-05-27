@@ -429,7 +429,7 @@ function sourceBadge(source: string) {
   }
   // Unknown / legacy source value — show raw
   return (
-    <Badge className="bg-slate-500/15 text-slate-400 border border-slate-500/30 text-xs gap-1">
+    <Badge className="bg-slate-500/15 text-muted-foreground border border-slate-500/30 text-xs gap-1">
       <Globe className="w-3 h-3" />
       <span>{source || "Unknown"}</span>
     </Badge>

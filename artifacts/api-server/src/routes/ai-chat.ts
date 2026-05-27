@@ -18,6 +18,7 @@
 
 import { Router, type IRouter, type Request, type Response } from "express";
 import { runAgentChat, type OrchestratorEvent } from "../lib/agents/orchestrator.js";
+import { enterJob } from "../lib/paid-api-guard.js";
 
 const router: IRouter = Router();
 
@@ -46,21 +47,34 @@ router.post("/ai-chat/stream", async (req: Request, res: Response): Promise<void
     } catch { /* connection closed */ }
   };
 
-  // Fallback if no Anthropic key
+  let closed = false;
+  req.on("close", () => { closed = true; });
+
+  // ── Plan B: no Anthropic key → single-pass synthesis via Nexus (Kimi planner
+  //    → OpenRouter Claude → GPT-4o → Llama). No tool loop, but still answers. ──
   if (!process.env.ANTHROPIC_API_KEY) {
-    emit({
-      event: "error",
-      data: { message: "ANTHROPIC_API_KEY not configured — orchestrator unavailable. Set the key in .env and restart." },
-    });
-    emit({ event: "final", data: { text: "" } });
+    try {
+      enterJob(`ai-chat-planb:${Date.now()}`);
+      const { nexusRunRole } = await import("../lib/nexus/llm-router.js");
+      emit({ event: "agent_start", data: { agent: "🧠 Planner", description: "Anthropic key absent — using Nexus fallback (degraded mode)" } });
+      const result = await nexusRunRole("planner", message, {
+        systemPrompt: body.system || "You are a Saudi B2B research analyst. Answer directly and cite sources where possible.",
+        maxTokens: 2000,
+      });
+      emit({ event: "agent_done", data: { agent: "🧠 Planner", found: true, summary: `via ${result.provider}` } });
+      emit({ event: "token", data: { text: result.text } });
+      emit({ event: "final", data: { text: result.text, degraded_mode: result.provider } });
+    } catch (e) {
+      emit({ event: "error", data: { message: "No orchestrator available. Set ANTHROPIC_API_KEY or any Nexus provider key (OPENROUTER_API_KEY / MOONSHOT_API_KEY)." } });
+      emit({ event: "final", data: { text: "" } });
+    }
     res.end();
     return;
   }
 
-  let closed = false;
-  req.on("close", () => { closed = true; });
-
   try {
+    // Explicit user-initiated chat → permit paid APIs within budget.
+    enterJob(`ai-chat:${Date.now()}`);
     await runAgentChat(
       message,
       (body.history || []).slice(-10), // keep last 10 turns

@@ -1,6 +1,7 @@
 import { Router, type Request, type Response } from "express";
 import { db, prosengineResearchTable, leadListsTable, leadListItemsTable } from "@workspace/db";
 import { desc, eq, sql } from "drizzle-orm";
+import { enterJob } from "../lib/paid-api-guard.js";
 import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
 import { synthesizeWithGemini, isGeminiConfigured, deepResearchWithGemini } from "../gemini-search.js";
@@ -134,6 +135,9 @@ router.post("/person-intel/profile", async (req: Request, res: Response): Promis
   };
 
   if (!name?.trim()) { res.status(400).json({ error: "Name is required" }); return; }
+
+  // Explicit user-initiated lookup → permit paid APIs within this request's budget.
+  enterJob(`person-intel:${name.trim()}`);
 
   try {
     const goalsList = intelligenceGoals && intelligenceGoals.length > 0
@@ -501,6 +505,26 @@ Return valid JSON only. No markdown. No explanatory text.`;
       insightsGenerated: sections.length,
       hasContacts: !!(effectiveLinkedInUrl),
     }).catch(() => {});
+
+    // §6/§7 — verdicts + humanized summary
+    try {
+      const { scoreFact } = await import("../lib/credibility/verdict.js");
+      const { humanizeReport } = await import("../lib/report/humanize.js");
+      const pj = parsed as Record<string, unknown>;
+      const verified = (pj.verified_facts as string[]) ?? [];
+      const estimated = (pj.estimated_facts as string[]) ?? [];
+      const sources = (pj.data_sources as string[]) ?? [];
+      const primarySrc = sources.slice(0, 2).map((p) => ({ provider: String(p), tier: "primary" as const }));
+      pj.verdicts = [
+        ...verified.map((f) => scoreFact("fact", f, primarySrc.length ? primarySrc : [{ provider: "research", tier: "secondary" as const }])),
+        ...estimated.map((f) => scoreFact("fact", f, [{ provider: "llm-inference", tier: "inferred" as const }])),
+      ];
+      const prof = pj.profile;
+      if (typeof prof === "string" && prof.length > 0) {
+        const h = await humanizeReport(prof, { removeArtifacts: true });
+        pj.humanizedProfile = h.humanized;
+      }
+    } catch (e) { console.warn("[PersonIntel] verdict/humanize skipped:", (e as Error).message); }
 
     res.json(parsed);
   } catch (err) {

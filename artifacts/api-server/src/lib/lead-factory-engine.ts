@@ -782,7 +782,9 @@ async function agent2_harvestLeads(
       return;
     }
     const pQueries = searchQueries.filter(q => q.sourceId === "perplexity").slice(0, 5);
+    const { canSpend: _canSpendP, recordSpend: _recordP } = await import("./paid-api-guard.js");
     for (const { query } of pQueries) {
+      if (!_canSpendP("perplexity")) break;
       try {
         const r = await axios.post("https://api.perplexity.ai/chat/completions", {
           model: "sonar",
@@ -794,6 +796,7 @@ async function agent2_harvestLeads(
           temperature: 0.1,
           return_citations: false,
         }, { headers: { Authorization: `Bearer ${PERPLEXITY_API_KEY}` }, timeout: 35000 });
+        _recordP("perplexity");
         const content = r.data?.choices?.[0]?.message?.content || "";
         const parsed = await parseJsonFromGemini(content, []) as RawLead[];
         if (Array.isArray(parsed)) {
@@ -1071,7 +1074,8 @@ Return a JSON array only. Use real companies, not fictional ones. Focus on ${bri
     }
     // Perplexity fallback for MODON companies
     const PERPLEXITY_API_KEY = process.env.PERPLEXITY_API_KEY;
-    if (PERPLEXITY_API_KEY) {
+    const { canSpend: _canSpendM, recordSpend: _recordM } = await import("./paid-api-guard.js");
+    if (PERPLEXITY_API_KEY && _canSpendM("perplexity")) {
       const industryEn = (brief.industries || ["industrial"]).join(", ");
       try {
         const res = await axios.post("https://api.perplexity.ai/chat/completions", {
@@ -1082,6 +1086,7 @@ Return a JSON array only. Use real companies, not fictional ones. Focus on ${bri
           ],
           max_tokens: 2000, temperature: 0.1,
         }, { headers: { Authorization: `Bearer ${PERPLEXITY_API_KEY}` }, timeout: 25000 });
+        _recordM("perplexity");
         const content = res.data?.choices?.[0]?.message?.content || "";
         const parsed = await parseJsonFromGemini(content, []) as RawLead[];
         if (Array.isArray(parsed)) {

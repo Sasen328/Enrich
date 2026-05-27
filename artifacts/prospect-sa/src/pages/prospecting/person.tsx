@@ -8,6 +8,7 @@ import {
   Zap, RefreshCw, Save, Trash2, Copy, Check,
 } from "lucide-react";
 import ProsEngineChat from "@/components/ProsEngineChat";
+import { VerdictList } from "@/components/VerdictPill";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -34,6 +35,8 @@ interface PersonProfile {
   personal_profile: { interests?: string[]; personality_traits?: string[]; communication_style?: string; languages?: string[]; board_memberships?: string[]; publications?: string[]; awards?: string[]; social_presence?: string; };
   approach_strategy: { best_channel?: string; best_timing?: string; opening_angle?: string; value_proposition?: string; potential_objections?: string[]; conversation_starters?: string[]; cultural_notes?: string; recommended_approach?: string; sample_message?: string; };
   intelligence_notes: { confidence_level?: string; data_sources?: string[]; verified_facts?: string[]; estimated_facts?: string[]; caveats?: string; };
+  humanizedProfile?: string;
+  verdicts?: import("@/components/VerdictPill").Verdict[];
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -547,6 +550,7 @@ export default function PersonIntelPage() {
                       <Shield className="w-3 h-3 mr-1" />{profile.intelligence_notes.confidence_level} Confidence
                     </Badge>
                   )}
+                  {profile.verdicts?.length ? <VerdictList verdicts={profile.verdicts} /> : null}
                 </div>
                 <div className="flex flex-wrap gap-x-4 gap-y-1.5 mt-3">
                   {profile.profile?.title && <span className="flex items-center gap-1.5 text-sm text-muted-foreground"><Briefcase className="w-3.5 h-3.5" />{profile.profile.title}</span>}

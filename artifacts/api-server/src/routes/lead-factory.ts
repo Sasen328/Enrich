@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import { db } from "@workspace/db";
 import { pipeEmitterToSse } from "../lib/sse.js";
+import { runInJob } from "../lib/paid-api-guard.js";
 import { leadFactoryJobsTable, leadFactoryResultsTable, relationshipIntelJobsTable, companiesTable, builderCompaniesTable, masarCompaniesTable } from "@workspace/db/schema";
 import { eq, desc, ilike, or, sql } from "drizzle-orm";
 
@@ -45,10 +46,20 @@ router.post("/lead-factory/start", async (req: Request, res: Response) => {
   const brief: LeadFactoryBrief = parsed.data;
   const jobId = createLeadFactoryJob();
 
+  // §11A — honour per-engine source enforcement (read-only; attaches the
+  // resolved allow/deny list to the brief so the engine can scope harvesting).
+  try {
+    const { resolveEnginesSources } = await import("./sources.js");
+    const { required, excluded } = await resolveEnginesSources("lead-factory");
+    if (required.length || excluded.length) {
+      (brief as any).sourceEnforcement = { required, excluded };
+    }
+  } catch { /* registry optional */ }
+
   // Fire-and-forget the pipeline, but persist any unhandled throw to the
   // jobs table so callers polling /jobs/:jobId see the failure even when
   // the SSE stream was never opened.
-  runLeadFactoryPipeline(jobId, brief).catch(async (err) => {
+  runInJob(`lead-factory:${jobId}`, () => runLeadFactoryPipeline(jobId, brief)).catch(async (err) => {
     const msg = err instanceof Error ? err.message : String(err);
     console.error(`[lead-factory] pipeline crashed for ${jobId}:`, msg);
     try {

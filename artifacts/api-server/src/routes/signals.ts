@@ -266,4 +266,25 @@ router.post("/signals/regulatory", async (req: Request, res: Response) => {
   }
 });
 
+// §3A — convert a signal's company into a saved Lead Genome row (one click).
+router.post("/signals/:id/push-to-genome", async (req: Request, res: Response) => {
+  const id = parseInt(req.params.id, 10);
+  if (!id) { res.status(400).json({ error: "bad_id" }); return; }
+  try {
+    const [sig] = await db.select().from(companySignalsTable).where(eq(companySignalsTable.id, id));
+    if (!sig) { res.status(404).json({ error: "not_found" }); return; }
+    const { leadsTable } = await import("@workspace/db/schema");
+    const [row] = await db.insert(leadsTable).values({
+      firstName: null,
+      lastName: null,
+      title: null,
+      notes: `[from:signals] ${sig.companyName} — ${(sig as any).primaryEventType ?? "signal"}`,
+      status: "new",
+    } as any).returning();
+    res.json({ ok: true, lead: row, fromSignal: id });
+  } catch (err: any) {
+    res.status(500).json({ error: "push_failed", message: err?.message });
+  }
+});
+
 export default router;

@@ -14,6 +14,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import ProsEngineChat from "@/components/ProsEngineChat";
+import { VerdictList } from "@/components/VerdictPill";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -63,6 +64,8 @@ interface CompanyReport {
   approach?: CompanyApproach; news?: Array<{ title?: string; date?: string; summary?: string; source?: string }>;
   intelligence?: { confidenceScore?: number; dataQuality?: string; verifiedFacts?: string[]; estimatedFacts?: string[]; caveats?: string; dataSources?: string[] };
   executiveSummary?: string;
+  humanizedSummary?: string;
+  verdicts?: import("@/components/VerdictPill").Verdict[];
 }
 
 // ─── Constants ─────────────────────────────────────────────────────────────────
@@ -323,7 +326,8 @@ export default function CompanyIntelPage() {
                   <span className={`ml-auto text-xs font-bold ${confidenceColor}`}>Confidence: {intel.confidenceScore}%</span>
                 )}
               </div>
-              <p className="text-sm text-foreground/85 leading-relaxed">{report.executiveSummary}</p>
+              <p className="text-sm text-foreground/85 leading-relaxed">{report.humanizedSummary || report.executiveSummary}</p>
+              {report.verdicts?.length ? <VerdictList verdicts={report.verdicts} /> : null}
             </CardContent>
           </Card>
         )}

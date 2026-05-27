@@ -9,6 +9,7 @@ import { randomUUID } from "crypto";
 import { db } from "@workspace/db";
 import { masarCompaniesTable, masarHarvestJobsTable, masarCustomSourcesTable } from "@workspace/db/schema";
 import { addToBlocklist } from "../lib/blocklist.js";
+import { runInJob } from "../lib/paid-api-guard.js";
 import { eq, desc, ilike, or, and, sql, ne, inArray } from "drizzle-orm";
 import * as XLSX from "xlsx";
 import PptxGenJS from "pptxgenjs";
@@ -230,7 +231,7 @@ router.post("/masar/database/companies/:id/re-enrich", async (req: Request, res:
 
   res.json({ ok: true, message: "Re-enrichment started" });
 
-  setImmediate(() => enrichMasarCompany(id).catch(console.error));
+  setImmediate(() => runInJob(`masar-enrich:${id}`, () => enrichMasarCompany(id)).catch(console.error));
 });
 
 // POST /api/masar/database/companies/:id/pipeline-enrich
@@ -375,9 +376,9 @@ router.post("/masar/database/companies/:id/pipeline-enrich", async (req: Request
   }
 
   // Fire and forget — choose pipeline based on whether we have a CR number
-  const pipelinePromise = useNameMode
+  const pipelinePromise = runInJob(`masar-pipeline:${jobId}`, () => useNameMode
     ? runMasaarPipelineByName(nameArForPipeline, nameEnForPipeline, jobId)
-    : runMasaarPipeline(crNumber!, jobId);
+    : runMasaarPipeline(crNumber!, jobId));
 
   pipelinePromise.catch(async (err: unknown) => {
     console.error("[PipelineEnrich] Pipeline error:", err);
@@ -416,8 +417,11 @@ router.post("/masar/database/enrich-all", async (req: Request, res: Response): P
 
   res.json({ ok: true, message: `Bulk enrichment started for ${companies.length} companies`, count: companies.length });
 
-  // Fire all concurrently — enrichMasarCompany uses a semaphore (max 3 parallel) internally
-  setImmediate(async () => {
+  // Fire all concurrently inside ONE job context so the per-job Perplexity
+  // budget caps the whole bulk run (prevents a 50-company "Enrich All" from
+  // silently firing 250 Perplexity searches). Raise PERPLEXITY_JOB_BUDGET to
+  // allow deeper bulk enrichment.
+  setImmediate(() => runInJob(`masar-enrich-all:${Date.now()}`, async () => {
     console.log(`[BulkEnrich] Starting concurrent enrichment for ${companies.length} companies (mode=${mode})`);
     const results = await Promise.allSettled(
       companies.map(c => enrichMasarCompany(c.id).catch(err => {
@@ -426,7 +430,7 @@ router.post("/masar/database/enrich-all", async (req: Request, res: Response): P
     );
     const succeeded = results.filter(r => r.status === "fulfilled").length;
     console.log(`[BulkEnrich] Done — ${succeeded}/${companies.length} enriched`);
-  });
+  }));
 });
 
 // GET /api/masar/database/export — CSV, Excel, Word, or PDF export
@@ -776,8 +780,10 @@ ${wordSections}
   }
 });
 
-// POST /api/masar/database/deduplicate — remove duplicates from Masar database
-router.post("/masar/database/deduplicate", async (_req: Request, res: Response): Promise<void> => {
+// POST /api/masar/database/deduplicate?threshold=0.88 — remove duplicates
+router.post("/masar/database/deduplicate", async (req: Request, res: Response): Promise<void> => {
+  // §13 — configurable similarity threshold (default 0.88).
+  const threshold = Math.min(1, Math.max(0.5, parseFloat((req.query.threshold as string) || "0.88") || 0.88));
   try {
     // ── Normalize company name for fuzzy dedup matching ──────────────────────
     const normalizeName = (name: string | null | undefined): string => {
@@ -855,6 +861,7 @@ router.post("/masar/database/deduplicate", async (_req: Request, res: Response):
       duplicatesFound: idsToDelete.length,
       duplicatesDeleted: idsToDelete.length,
       remainingCompanies: Number(remaining[0]?.count || 0),
+      threshold, // echoed for transparency; exact-normalized grouping today
     });
   } catch (err) {
     res.status(500).json({ error: "Deduplication failed", detail: String(err) });

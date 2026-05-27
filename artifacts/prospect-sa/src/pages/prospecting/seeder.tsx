@@ -12,6 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useMutation } from "@tanstack/react-query";
 import ProsEngineChat from "@/components/ProsEngineChat";
+import { SeederWizard } from "@/components/SeederWizard";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -402,6 +403,9 @@ export default function DataSeederPage() {
           </div>
         </div>
       </div>
+
+      {/* §4A — real multi-page crawl→EVAL→harvest→enrich pipeline */}
+      <div className="mb-5"><SeederWizard /></div>
 
       <StepBar current={form.inputType === "url" ? urlStep : step} />
 

@@ -30,6 +30,8 @@ const openai = sharedOpenai;
 const PERPLEXITY_API_KEY = process.env.PERPLEXITY_API_KEY;
 async function perplexitySearch(query: string, maxTokens = 2000): Promise<string | null> {
   if (!PERPLEXITY_API_KEY) return null;
+  const { canSpend, recordSpend } = await import("./paid-api-guard.js");
+  if (!canSpend("perplexity")) return null;
   try {
     const r = await axios.post(
       "https://api.perplexity.ai/chat/completions",
@@ -52,6 +54,7 @@ async function perplexitySearch(query: string, maxTokens = 2000): Promise<string
         timeout: 35000,
       },
     );
+    recordSpend("perplexity");
     return r.data?.choices?.[0]?.message?.content || null;
   } catch { return null; }
 }

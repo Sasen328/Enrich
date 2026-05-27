@@ -18,6 +18,9 @@ async function callPerplexity(
   if (_perplexityBlocked) return null;
   const apiKey = process.env.PERPLEXITY_API_KEY;
   if (!apiKey) return null;
+  // Cost guard: only spend inside an explicit job + under budget.
+  const { canSpend, recordSpend } = await import("./paid-api-guard.js");
+  if (!canSpend("perplexity")) return null;
 
   try {
     const res = await axios.post(
@@ -40,6 +43,7 @@ async function callPerplexity(
         timeout: 30000,
       }
     );
+    recordSpend("perplexity");
     return res.data?.choices?.[0]?.message?.content || null;
   } catch (err) {
     if (axios.isAxiosError(err)) {

@@ -1,5 +1,6 @@
 import { Router, type IRouter, type Request, type Response } from "express";
 import { createJob, getJobEmitter, runMasaarPipeline, submitCaptcha, type AgentEvent } from "../lib/masaar-engine.js";
+import { runInJob } from "../lib/paid-api-guard.js";
 import { randomUUID } from "crypto";
 
 const p = (x: string | string[]): string => Array.isArray(x) ? x[0] : x;
@@ -27,7 +28,7 @@ router.post("/masaar/start", async (req: Request, res: Response): Promise<void> 
 
   const crNum = String(crNumber).trim();
   setImmediate(() => {
-    runMasaarPipeline(crNum, jobId).catch((err) => {
+    runInJob(`masaar:${jobId}`, () => runMasaarPipeline(crNum, jobId)).catch((err) => {
       const emitter = getJobEmitter(jobId);
       emitter?.emit("event", {
         type: "job_error",

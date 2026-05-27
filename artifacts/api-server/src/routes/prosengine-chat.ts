@@ -4,6 +4,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { crawl4ai } from "../crawl4ai-engine.js";
 import { StealthBrowser, HumanBehavior } from "../lib/stealth-browser.js";
 import { deepResearchWithGemini, synthesizeWithGemini, isGeminiConfigured } from "../gemini-search.js";
+import { canSpend, recordSpend, enterJob } from "../lib/paid-api-guard.js";
 import * as cheerio from "cheerio";
 import { nexusGenerate } from "../lib/nexus/index.js";
 
@@ -38,8 +39,8 @@ async function fullStackCrawl(url: string, label = "page"): Promise<{
 async function perplexitySearch(query: string, maxTokens = 2000): Promise<string> {
   const key = process.env.PERPLEXITY_API_KEY;
 
-  // ── Primary: Perplexity ──────────────────────────────────────────────────
-  if (key) {
+  // ── Primary: Perplexity (only inside a job + under budget) ────────────────
+  if (key && canSpend("perplexity")) {
     try {
       const resp = await fetch("https://api.perplexity.ai/chat/completions", {
         method: "POST",
@@ -52,6 +53,7 @@ async function perplexitySearch(query: string, maxTokens = 2000): Promise<string
         signal: AbortSignal.timeout(20000),
       });
       if (resp.ok) {
+        recordSpend("perplexity");
         const data = await resp.json() as { choices?: Array<{ message?: { content?: string } }> };
         const result = data.choices?.[0]?.message?.content || "";
         if (result.length > 50) return result;
@@ -155,6 +157,9 @@ router.post("/prosengine/chat", async (req: Request, res: Response): Promise<voi
     [];
 
   if (!msgHistory.length) { res.status(400).json({ error: "message or messages required" }); return; }
+
+  // Explicit user-initiated research chat → permit paid APIs within budget.
+  enterJob(`prosengine-chat:${Date.now()}`);
 
   const latestUserMsg = [...msgHistory].reverse().find(m => m.role === "user")?.content || "";
 
