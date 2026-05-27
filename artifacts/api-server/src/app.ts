@@ -6,6 +6,9 @@ import { registerOrcEngineRoutes } from "./orcengine/routes.js";
 import { registerProspectingRoutes } from "./prospecting/routes.js";
 import masarDatabaseRouter from "./routes/masar-database.js";
 import { authRequired } from "./lib/middleware/auth.js";
+import { envErrorHandler, assertProductionSafety } from "./lib/require-env.js";
+
+assertProductionSafety();
 import { env } from "./lib/config/env.js";
 
 // __dirname is injected by esbuild for CJS bundles — no import.meta needed
@@ -94,5 +97,8 @@ registerProspectingRoutes(app);
 app.get(/^(?!\/api).*$/, (_req, res) => {
   res.sendFile(path.join(FRONTEND_DIST, "index.html"));
 });
+
+// ── Error mapper — turns MissingEnvError into a clean 503 instead of a 500 ────
+app.use(envErrorHandler);
 
 export default app;

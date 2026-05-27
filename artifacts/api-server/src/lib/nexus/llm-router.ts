@@ -648,3 +648,75 @@ export async function nexusRunRole(role: AgentRole, task: string, opts: Partial<
     ...opts,
   });
 }
+
+// ── Fusion (ensemble cheap models, optionally arbitrate with a frontier model) ─
+
+export interface NexusFusionOptions extends Partial<NexusGenerateOptions> {
+  /** Cheap models to run in parallel (forceModel values). Default: deepseek + llama. */
+  models?: string[];
+  /** Arbitrator model when the ensemble disagrees. Default: anthropic synthesis tier. */
+  arbitrator?: "claude" | "gemini" | "openai" | null;
+}
+
+export interface NexusFusionResult extends NexusGenerateResult {
+  members: { model: string; provider: string; text: string }[];
+  agreement: "consensus" | "arbitrated" | "single";
+}
+
+/**
+ * Run N cheap models in parallel for the same prompt. If their outputs agree
+ * (normalised), return the consensus (cost ≈ N×cheap). If they diverge, hand
+ * both to the arbitrator to merge/choose. Falls back to first-valid when no
+ * arbitrator is set. Used for high-stakes extraction where one cheap model is
+ * risky but frontier is overkill.
+ */
+export async function nexusFusion(prompt: string, opts: NexusFusionOptions = {}): Promise<NexusFusionResult> {
+  const models = opts.models?.length ? opts.models : ["deepseek/deepseek-chat", "meta-llama/llama-3.3-70b-instruct"];
+  const base: Partial<NexusGenerateOptions> = {
+    tier: opts.tier ?? "extraction",
+    systemPrompt: opts.systemPrompt,
+    maxTokens: opts.maxTokens ?? 1500,
+    temperature: opts.temperature ?? 0,
+  };
+
+  const settled = await Promise.allSettled(
+    models.map((m) => nexusGenerate(prompt, { ...base, forceProvider: "openrouter", forceModel: m })),
+  );
+  const members = settled
+    .filter((s): s is PromiseFulfilledResult<NexusGenerateResult> => s.status === "fulfilled" && !!s.value?.text)
+    .map((s) => ({ model: s.value.model, provider: s.value.provider, text: s.value.text }));
+
+  if (members.length === 0) {
+    // All cheap models failed — fall straight to a normal tiered call.
+    const fallback = await nexusGenerate(prompt, base);
+    return { ...fallback, members: [], agreement: "single" };
+  }
+  if (members.length === 1) {
+    const only = members[0];
+    return { text: only.text, model: only.model, provider: only.provider, members, agreement: "single" };
+  }
+
+  const norm = (s: string) => s.replace(/\s+/g, " ").trim().toLowerCase();
+  const allAgree = members.every((m) => norm(m.text) === norm(members[0].text));
+  if (allAgree) {
+    return { text: members[0].text, model: members[0].model, provider: members[0].provider, members, agreement: "consensus" };
+  }
+
+  // Disagreement → arbitrate (or first-valid if no arbitrator).
+  if (opts.arbitrator === null) {
+    const first = members[0];
+    return { text: first.text, model: first.model, provider: first.provider, members, agreement: "single" };
+  }
+  const arbProvider = opts.arbitrator ?? "claude";
+  const candidates = members.map((m, i) => `CANDIDATE ${i + 1} (${m.model}):\n${m.text}`).join("\n\n");
+  const arb = await nexusGenerate(
+    `Multiple models answered the same task. Merge into ONE correct answer, preserving every fact present in any candidate. Output the final answer only.\n\nTASK:\n${prompt}\n\n${candidates}`,
+    {
+      tier: "synthesis",
+      forceProvider: arbProvider === "claude" ? "anthropic" : arbProvider === "gemini" ? "gemini" : "openai",
+      maxTokens: opts.maxTokens ?? 2000,
+      temperature: 0,
+    },
+  );
+  return { text: arb.text, model: arb.model, provider: arb.provider, members, agreement: "arbitrated" };
+}

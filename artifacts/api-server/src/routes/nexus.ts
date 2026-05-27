@@ -22,7 +22,9 @@ import {
   getCaptchaStatus,
   isCaptchaAvailable,
   nexusGenerate,
+  nexusFusion,
 } from "../lib/nexus/index.js";
+import { enterJob } from "../lib/paid-api-guard.js";
 
 const router = Router();
 
@@ -98,6 +100,29 @@ router.post("/nexus/llm/test", async (req: Request, res: Response): Promise<void
       model: result.model,
       provider: result.provider,
       usage: result.usage,
+    });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: String(err) });
+  }
+});
+
+// ── POST /api/nexus/fusion ─────────────────────────────────────────────────────
+// Ensemble two cheap models + optional arbitrator. Honours the per-job budget.
+router.post("/nexus/fusion", async (req: Request, res: Response): Promise<void> => {
+  const { prompt, role = "extractor", models, arbitrator = "claude", systemPrompt } = req.body as {
+    prompt?: string; role?: string; models?: string[]; arbitrator?: "claude" | "gemini" | "openai" | null; systemPrompt?: string;
+  };
+  if (!prompt) { res.status(400).json({ ok: false, error: "prompt required" }); return; }
+  enterJob(`nexus-fusion:${Date.now()}`);
+  try {
+    const result = await nexusFusion(prompt, { models, arbitrator, systemPrompt });
+    res.json({
+      ok: true,
+      result: result.text,
+      model: result.model,
+      provider: result.provider,
+      agreement: result.agreement,
+      members: result.members.map((m) => ({ model: m.model, provider: m.provider })),
     });
   } catch (err) {
     res.status(500).json({ ok: false, error: String(err) });
