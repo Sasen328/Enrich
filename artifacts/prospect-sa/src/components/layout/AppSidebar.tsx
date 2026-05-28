@@ -1,7 +1,7 @@
 import { Link, useLocation } from "wouter";
 import { useState } from "react";
 import {
-  LayoutDashboard, Radar, Database, Landmark, ChevronDown,
+  Boxes, Radar, Database, Landmark, ChevronDown,
   Settings, Building2, UserCircle, TrendingUp, Users, Zap,
   Network, Globe, User, Search, TableProperties, BarChart3,
   Target, BrainCircuit, Layers, Activity, GitFork, Sparkles,
@@ -16,8 +16,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 const coreNav = [
-  { title: "Dashboard",     url: "/",                      icon: LayoutDashboard },
   { title: "AI Chat",       url: "/ai-chat",               icon: Sparkles },
+  { title: "SwarmBoard",    url: "/swarm",                 icon: Boxes },
   { title: "Lead Genome",   url: "/lead-genome",           icon: Target },
   { title: "Lead Factory",  url: "/lead-factory/person",   icon: Zap },
 ];

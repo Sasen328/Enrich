@@ -150,23 +150,6 @@ See [DATABASEBUILDER_FEATURE_DOC.md](../DATABASEBUILDER_FEATURE_DOC.md) for the 
 | GET | `/masar/database/shareholders/:crNumber` | Drill-down |
 | GET | `/masar/database/management/:crNumber` | Drill-down |
 
-## SA Market (Tadawul / open data)
-**File:** `routes/sa-market.ts`
-
-| Method | Path | Purpose |
-|---|---|---|
-| GET | `/sa-market/shareholders` | Listed-company shareholders |
-| GET | `/sa-market/executives` | Listed-company board/management |
-| GET | `/sa-market/profile/:name` | Aggregated company profile |
-| POST | `/sa-market/profile/generate` | Generate AI profile from raw data |
-| GET | `/sa-market/sectors` | Sector list |
-| GET | `/sa-market/stats` | Counts by sector/region |
-| GET | `/sa-market/search` | Free-text search |
-| GET | `/sa-market/export` | CSV/XLSX |
-| GET | `/sa-market/shareholder/:nationalId` | Reverse lookup by national ID |
-| GET | `/sa-market/network/:name` | Shareholder network graph |
-| POST | `/sa-market/refresh` | Pull fresh data from Wikidata/CMA |
-
 ## Person Intel
 **File:** `routes/person-intel.ts`
 

@@ -71,7 +71,6 @@ Each engine is a router file (and sometimes a `lib/*-engine.ts` companion). They
 | Lead Factory | `routes/lead-factory.ts` | `lib/lead-factory-engine.ts` | `lead_factory_jobs`, `lead_factory_results` |
 | Company Intel | `routes/company-intel.ts` | – | `company_intel_research` |
 | Person Intel | `routes/person-intel.ts` | – | `prosengine_research` (shared) |
-| SA Market | `routes/sa-market.ts` | – | `sa_market_shareholders`, `sa_market_executives` |
 | Nexus | `routes/nexus.ts` | `lib/nexus/*` | – (in-memory model router + browser mesh) |
 | Smart Prospecting | `prospecting/routes.ts` | – | `prospecting_jobs`, `prospecting_sessions`, `prospecting_results`, `prospecting_exports` |
 | MeshBase | `routes/meshbase.ts` | – | `companies`, `executives` |

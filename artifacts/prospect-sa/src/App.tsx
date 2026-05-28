@@ -5,7 +5,6 @@ import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Layout } from "@/components/layout/Layout";
-import Dashboard from "@/pages/Dashboard";
 import CompaniesPage from "@/pages/companies";
 import ProspectingPage from "@/pages/prospecting";
 import WebsiteIntelPage from "@/pages/prospecting/website";
@@ -23,20 +22,18 @@ import MeshBaseExecutiveProfile from "@/pages/MeshBaseExecutiveProfile";
 import OrcEnginePage from "@/pages/orcengine";
 import MasaarPage from "@/pages/masaar";
 import MasaarDatabasePage from "@/pages/masaar/database";
-import SAMarketShareholdersPage from "@/pages/sa-market/shareholders";
-import SAMarketExecutivesPage from "@/pages/sa-market/executives";
 import NotFound from "@/pages/not-found";
 import LeadFactoryPage from "@/pages/lead-factory";
 import LeadFactoryPersonPage from "@/pages/lead-factory/person";
 import LeadFactoryCompanyPage from "@/pages/lead-factory/company";
 import LeadFactoryResultsPage from "@/pages/lead-factory/results";
 import AIChatPage from "@/pages/ai-chat";
+import SwarmBoardPage from "@/pages/swarm";
 import { Redirect } from "wouter";
 import RelationshipIntelTreePage from "@/pages/relationship-intel/tree";
 import SignalIntelligencePage from "@/pages/signal-intelligence";
 import SignalsTreePage from "@/pages/signal-intelligence/tree";
 import RelationshipIntelPage from "@/pages/relationship-intel";
-import { TrendingUp, Users } from "lucide-react";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -47,37 +44,11 @@ const queryClient = new QueryClient({
   },
 });
 
-function SAMarketLayout({ tab, children }: { tab: "shareholders" | "executives"; children: ReactNode }) {
-  const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
-  return (
-    <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-500">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-3xl md:text-4xl font-display font-bold text-white tracking-tight">SA Market Prospecting</h1>
-          <p className="text-muted-foreground mt-1">TASI & NOMU listed companies — shareholders, board members & executives with AI deep profiling</p>
-        </div>
-      </div>
-      <div className="flex gap-1 border-b border-white/10 pb-0">
-        {([
-          { id: "shareholders", label: "Shareholders", icon: TrendingUp, href: `${BASE}/sa-market/shareholders` },
-          { id: "executives",   label: "Executives",   icon: Users,     href: `${BASE}/sa-market/executives` },
-        ] as const).map(({ id, label, icon: Icon, href }) => (
-          <a key={id} href={href}
-            className={`flex items-center gap-2 px-5 py-2.5 text-sm font-medium border-b-2 transition-all -mb-px ${tab === id ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-white hover:border-white/20"}`}>
-            <Icon className="w-4 h-4" />{label}
-          </a>
-        ))}
-      </div>
-      {children}
-    </div>
-  );
-}
-
 function Router() {
   return (
     <Layout>
       <Switch>
-        <Route path="/" component={Dashboard} />
+        <Route path="/">{() => <Redirect to="/ai-chat" />}</Route>
         <Route path="/companies" component={CompaniesPage} />
         <Route path="/prospecting/website" component={WebsiteIntelPage} />
         <Route path="/prospecting/person" component={PersonIntelPage} />
@@ -126,6 +97,9 @@ function Router() {
         {/* ── AI Chat Agent (ProsEngine /chat/stream) ─────────────────── */}
         <Route path="/ai-chat" component={AIChatPage} />
 
+        {/* ── SwarmBoard — Kimi-coordinated agent swarm mission control ── */}
+        <Route path="/swarm" component={SwarmBoardPage} />
+
         {/* Old paths redirect into the Lead Factory namespace */}
         <Route path="/signal-intelligence/tree">{() => <Redirect to="/lead-factory/signals/tree" />}</Route>
         <Route path="/signal-intelligence">{() => <Redirect to="/lead-factory/signals" />}</Route>
@@ -134,9 +108,6 @@ function Router() {
         <Route path="/masaar" component={MasaarPage} />
         {/* Signal Intel + Relationship Intel moved under /lead-factory/*
             — top-level redirects above keep old URLs working. */}
-        <Route path="/sa-market/shareholders" component={() => <SAMarketLayout tab="shareholders"><SAMarketShareholdersPage /></SAMarketLayout>} />
-        <Route path="/sa-market/executives"   component={() => <SAMarketLayout tab="executives"><SAMarketExecutivesPage /></SAMarketLayout>} />
-        <Route path="/sa-market" component={() => <SAMarketLayout tab="shareholders"><SAMarketShareholdersPage /></SAMarketLayout>} />
         <Route component={NotFound} />
       </Switch>
     </Layout>

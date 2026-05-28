@@ -17,7 +17,6 @@ export * from "./masar_harvest_jobs";
 export * from "./masar_custom_sources";
 export * from "./builder_custom_sources";
 export * from "./lead_lists";
-export * from "./sa_market";
 export * from "./prosengine_research";
 export * from "./company_intel_research";
 export * from "./deleted_companies";

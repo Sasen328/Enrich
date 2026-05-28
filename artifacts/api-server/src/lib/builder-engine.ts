@@ -294,16 +294,24 @@ export async function reEnrichCompany(companyId: number): Promise<{ success: boo
     (async () => {
       const PERPLEXITY_API_KEY = process.env.PERPLEXITY_API_KEY;
       const { canSpend, recordSpend } = await import("./paid-api-guard.js");
-      if (!PERPLEXITY_API_KEY || !canSpend("perplexity")) return null;
-      // Run 2 focused Perplexity queries: general + executive-specific
+      const PPLX_SYS = "You are a Saudi Arabia B2B intelligence analyst. Provide precise, factual data with names in both English and Arabic.";
+      // NEXUS researcher-tier fallback keeps deep research running through the
+      // multi-LLM fabric when the direct Perplexity path is unavailable.
+      const nexusResearch = async (query: string): Promise<string | null> => {
+        try {
+          const { nexusRunRole } = await import("./nexus/llm-router.js");
+          const r = await nexusRunRole("researcher", query, { systemPrompt: PPLX_SYS, maxTokens: 2000 });
+          return r.text || null;
+        } catch { return null; }
+      };
       const axios = (await import("axios")).default;
-      const makeQuery = async (query: string) => {
-        if (!canSpend("perplexity")) return null;
+      const makeQuery = async (query: string): Promise<string | null> => {
+        if (!PERPLEXITY_API_KEY || !canSpend("perplexity")) return nexusResearch(query);
         try {
           const r = await axios.post("https://api.perplexity.ai/chat/completions", {
             model: "sonar",
             messages: [
-              { role: "system", content: "You are a Saudi Arabia B2B intelligence analyst. Provide precise, factual data with names in both English and Arabic." },
+              { role: "system", content: PPLX_SYS },
               { role: "user", content: query }
             ],
             max_tokens: 2000,
@@ -311,8 +319,8 @@ export async function reEnrichCompany(companyId: number): Promise<{ success: boo
             return_citations: true,
           }, { headers: { Authorization: `Bearer ${PERPLEXITY_API_KEY}`, "Content-Type": "application/json" }, timeout: 30000 });
           recordSpend("perplexity");
-          return r.data?.choices?.[0]?.message?.content || null;
-        } catch { return null; }
+          return r.data?.choices?.[0]?.message?.content || (await nexusResearch(query));
+        } catch { return nexusResearch(query); }
       };
       const [general, executives] = await Promise.all([
         makeQuery(`Research the Saudi company "${companyName}"${website ? ` (${website})` : ""}. Provide: CEO/chairman name (Arabic + English), key executives with titles, major shareholders with ownership percentages, company type, founding year, employee count, revenue in SAR, headquarters city, industry sector.`),

@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ProspectSA — SwarmBoard Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --primary:#7B5EA7; --deep:#4A3470; --ink:#1C1A2E; --muted:#5B5078;
+    --seafoam:#14B8A6; --amber:#D97706; --mist:#D2C3FC; --cream:#FAF6EE;
+    --surf:rgba(255,255,255,.65); --bd:rgba(123,94,167,.18);
+    --sky:#0EA5E9;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Geist,system-ui,sans-serif;color:var(--ink);
+    background:
+      radial-gradient(1100px 600px at 12% -8%, #E7DCFB 0,transparent 55%),
+      radial-gradient(900px 520px at 95% 0%, #D2C3FC55 0,transparent 50%),
+      var(--cream);
+    min-height:100vh}
+  .mono{font-family:"Geist Mono",monospace}
+  .display{font-family:"Playfair Display",serif}
+  .surf{background:var(--surf);backdrop-filter:blur(20px);border:1px solid var(--bd);border-radius:18px}
+  /* top bars */
+  .commandbar{display:flex;align-items:center;gap:10px;padding:10px 18px;background:rgba(255,255,255,.7);
+    backdrop-filter:blur(24px);border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:20}
+  .logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--primary),var(--deep));
+    display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px}
+  .search{flex:1;max-width:520px;padding:7px 12px;border-radius:10px;border:1px solid var(--bd);
+    background:rgba(255,255,255,.6);color:var(--muted);font-size:12px}
+  .pill-status{margin-left:auto;font-size:11px;color:var(--seafoam);display:flex;align-items:center;gap:6px}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--seafoam);display:inline-block}
+  .tabbar{display:flex;gap:4px;padding:8px 16px;background:rgba(255,255,255,.45);
+    border-bottom:1px solid var(--bd);overflow-x:auto}
+  .tab{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;font-size:12.5px;
+    font-weight:500;color:var(--muted);cursor:pointer;white-space:nowrap;border:1px solid transparent}
+  .tab.on{background:rgba(123,94,167,.12);color:var(--primary);border-color:rgba(123,94,167,.3)}
+  .tab .ic{width:13px;height:13px}
+  /* view tabs */
+  .wrap{max-width:1120px;margin:0 auto;padding:22px 18px 60px}
+  .viewtabs{display:flex;gap:6px;justify-content:flex-end;margin-bottom:18px}
+  .vtab{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;font-size:12px;
+    font-weight:600;cursor:pointer;color:var(--muted);border:1px solid transparent}
+  .vtab.on{background:rgba(123,94,167,.1);color:var(--primary);border-color:rgba(123,94,167,.3)}
+  /* about */
+  .hero{text-align:center;padding:18px 0 8px}
+  .hero .bigicon{width:62px;height:62px;border-radius:18px;background:linear-gradient(135deg,var(--primary),var(--deep));
+    display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:26px;margin-bottom:14px}
+  h1.title{font-size:30px;margin:6px 0;font-weight:700}
+  .sub{color:var(--muted);font-size:13.5px;max-width:640px;margin:0 auto}
+  .btnrow{display:flex;gap:12px;justify-content:center;margin-top:18px}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:12px;font-weight:600;
+    font-size:13px;cursor:pointer;border:1px solid var(--bd);background:transparent;color:var(--ink)}
+  .btn.primary{background:linear-gradient(135deg,var(--primary),var(--deep));color:#fff;border:none}
+  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:26px}
+  .phase{padding:16px}
+  .phase .n{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--deep));
+    color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+  .phase h4{margin:0 0 4px;font-size:13.5px}
+  .phase p{margin:0;font-size:11px;color:var(--muted)}
+  .section-h{font-size:13px;font-weight:700;margin:30px 0 12px;display:flex;align-items:center;gap:8px}
+  .principles{padding:18px}
+  .principles li{font-size:12px;color:var(--muted);margin-bottom:9px;list-style:none;
+    padding-left:22px;position:relative}
+  .principles li:before{content:"◆";color:var(--primary);position:absolute;left:0;top:0}
+  .principles ul{margin:0;padding:0}
+  /* agents */
+  .filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
+  .filters .lbl{font-weight:700;font-size:13px;margin-right:4px}
+  .chip{padding:5px 11px;border-radius:999px;font-size:11px;border:1px solid var(--bd);color:var(--muted);
+    cursor:pointer;background:transparent;text-transform:capitalize}
+  .chip.on{background:var(--primary);color:#fff;border-color:var(--primary)}
+  .agrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .acard{padding:15px;text-align:left;cursor:pointer;border:1px solid var(--bd);background:var(--surf);
+    border-radius:18px;backdrop-filter:blur(20px)}
+  .acard:hover{border-color:rgba(123,94,167,.45)}
+  .acard .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .badge{padding:2px 8px;border-radius:7px;font-size:10px;font-weight:700;color:#fff;font-family:"Geist Mono",monospace}
+  .acard .cat{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+  .acard .role{font-size:12.5px;font-weight:600}
+  .acard .desc{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5}
+  /* orbit (live) */
+  .live-grid{display:grid;grid-template-columns:1fr 320px;gap:16px}
+  .orbitbox{padding:18px}
+  .orbit{position:relative;width:340px;height:340px;margin:6px auto}
+  .core{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:78px;height:78px;border-radius:50%;
+    background:linear-gradient(135deg,var(--primary),var(--deep));color:#fff;font-size:10px;font-weight:700;
+    display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.2}
+  .node{position:absolute;transform:translate(-50%,-50%);width:42px;height:42px;border-radius:50%;color:#fff;
+    font-size:8px;font-weight:700;font-family:"Geist Mono",monospace;display:flex;align-items:center;justify-content:center;
+    border:2px solid #fff;box-shadow:0 4px 14px rgba(74,52,112,.25)}
+  .feed{padding:16px;max-height:380px;overflow:auto}
+  .feed h4{margin:0 0 10px;font-size:13px;font-weight:700}
+  .fitem{font-size:11px;margin-bottom:8px;display:flex;gap:6px;align-items:flex-start}
+  .fitem .t{color:var(--muted);font-family:"Geist Mono",monospace;font-size:9px;margin-top:1px}
+  .fitem .a{font-weight:600}
+  .fitem .m{color:var(--muted)}
+  .progress{height:8px;border-radius:99px;background:rgba(123,94,167,.15);margin-top:14px;overflow:hidden}
+  .progress>div{height:100%;width:72%;background:linear-gradient(90deg,var(--primary),var(--deep))}
+  /* wizard */
+  .qcard{padding:16px;margin-bottom:14px}
+  .qcard .q{font-size:13px;font-weight:600;margin-bottom:10px}
+  .opts{display:flex;flex-wrap:wrap;gap:8px}
+  .opt{padding:6px 13px;border-radius:999px;font-size:12px;border:1px solid var(--bd);color:var(--muted);cursor:pointer;background:transparent}
+  .opt.on{background:var(--primary);color:#fff;border-color:var(--primary)}
+  /* modal */
+  .ov{position:fixed;inset:0;background:rgba(28,26,46,.45);display:none;align-items:center;justify-content:center;z-index:50;padding:18px}
+  .ov.show{display:flex}
+  .modal{max-width:420px;width:100%;background:rgba(255,255,255,.92);backdrop-filter:blur(30px);
+    border:1px solid var(--bd);border-radius:20px;padding:22px}
+  .modal .x{float:right;cursor:pointer;color:var(--muted);font-size:18px;line-height:1}
+  .tool{display:inline-block;padding:3px 9px;border-radius:7px;font-size:10px;margin:3px 4px 0 0;
+    background:rgba(123,94,167,.1);color:var(--primary);border:1px solid rgba(123,94,167,.25)}
+  .hidden{display:none}
+  .note{font-size:10.5px;color:var(--muted);text-align:center;margin-top:26px}
+  @media(max-width:760px){.grid4{grid-template-columns:repeat(2,1fr)}.agrid{grid-template-columns:1fr}.live-grid{grid-template-columns:1fr}.orbit{width:300px;height:300px}}
+</style>
+</head>
+<body>
+  <div class="commandbar">
+    <div class="logo">P</div>
+    <input class="search" value="Search · run a swarm · ⌘K" readonly />
+    <div class="pill-status"><span class="dot"></span> System Operational</div>
+  </div>
+  <div class="tabbar" id="tabbar"></div>
+
+  <div class="wrap">
+    <div class="viewtabs" id="viewtabs"></div>
+    <div id="view-about"></div>
+    <div id="view-agents" class="hidden"></div>
+    <div id="view-live" class="hidden"></div>
+  </div>
+
+  <div class="ov" id="ov" onclick="if(event.target.id==='ov')closeModal()">
+    <div class="modal" id="modal"></div>
+  </div>
+
+<script>
+const TABS = ["AI Chat","SwarmBoard","Lead Genome","Lead Factory","ProsEngine","Harvest AI"];
+const CAT_COLOR = {Registry:"#D97706",Outreach:"#7B5EA7",Discovery:"#14B8A6",Intelligence:"#4A3470",Profile:"#0EA5E9"};
+const AGENTS = [
+ {n:"MASAAR",role:"Saudi CR Lookup",cat:"Registry",d:"Queries the Saudi Commercial Registry by CR number. Validates company existence, extracts license data, handles captcha.",tools:["CR Lookup","Validation","License Extraction","Captcha Solving"]},
+ {n:"MASAR",role:"Wathq Harvester",cat:"Registry",d:"Harvests Wathq-style CR registry data: shareholders, board members, capital, entity type.",tools:["Shareholder Extraction","Board Discovery","Capital Lookup","Entity Class."]},
+ {n:"PROSENGINE",role:"Conversational AI",cat:"Outreach",d:"Conversational AI for deep research. Exports findings as PowerPoint or PDF with structured narratives.",tools:["Conversational Research","PPT","PDF Export","Narratives"]},
+ {n:"BUILDER",role:"Database Builder",cat:"Discovery",d:"Harvests from 14+ sources into a unified company pool. Deduplication and merge orchestration.",tools:["Multi-Source Harvest","Wikidata","Apollo Sync","Dedup"]},
+ {n:"NEXUS",role:"LLM Router",cat:"Intelligence",d:"Routes LLM calls via a cost-capability waterfall. Manages the anti-detection browser mesh.",tools:["Model Routing","Cost Optimization","Browser Mesh","Proxy Rotation"]},
+ {n:"ORCENGINE",role:"Research Orchestrator",cat:"Intelligence",d:"Crawls websites, aggregates news, writes structured reports. Exports HTML/PDF/PPTX.",tools:["Site Crawling","News Aggregation","Report Writing","Export"]},
+ {n:"SCOUT",role:"OSINT Microservice",cat:"Discovery",d:"Python OSINT: site intelligence, contact discovery, subdomain enumeration, social footprint.",tools:["Site Intel","Contact Discovery","Subdomain Enum","OSINT"]},
+ {n:"SIGNALS",role:"Event Scorer",cat:"Outreach",d:"Monitors news, sanctions, regulatory events. Scores companies by risk and generates alerts.",tools:["News Monitoring","Sanctions","Risk Scoring","Alerts"]},
+ {n:"LEAD FACTORY",role:"Lead Discovery",cat:"Discovery",d:"7-agent pipeline: ICP mapping → harvesting → enrichment → validation → scoring → outreach → publishing.",tools:["ICP Mapping","Harvesting","AI Outreach","Publishing"]},
+ {n:"COMPANY INTEL",role:"Deep Profiler",cat:"Profile",d:"Builds 50-field deep company profiles: firmographics, financials, executives, ownership.",tools:["Profile Building","Field Enrichment","Firmographics","Ownership"]},
+ {n:"PERSON INTEL",role:"Executive Dossier",cat:"Profile",d:"Executive dossiers: work history, social profiles, seniority assessment, contact verification.",tools:["Dossier","Social Profiling","Seniority","Contact Verify"]},
+];
+
+// top tabs
+document.getElementById('tabbar').innerHTML = TABS.map((t,i)=>
+  `<div class="tab ${t==='SwarmBoard'?'on':''}"><span class="ic">${t==='SwarmBoard'?'◳':'▢'}</span>${t}</div>`).join('');
+
+// view tabs
+const VIEWS=[["about","About"],["agents","Agents"],["live","Swarm Live"]];
+function setView(v){
+  VIEWS.forEach(([id])=>{document.getElementById('view-'+id).classList.toggle('hidden',id!==v);});
+  document.querySelectorAll('.vtab').forEach(e=>e.classList.toggle('on',e.dataset.v===v));
+}
+document.getElementById('viewtabs').innerHTML = VIEWS.map(([id,l])=>
+  `<div class="vtab ${id==='about'?'on':''}" data-v="${id}" onclick="setView('${id}')">${l}</div>`).join('');
+
+// ABOUT
+const phases=[["1","Q&A Wizard","Answer four questions; we map your goal to the right engines."],
+ ["2","Evaluating","The coordinator analyses goals, maps engines, builds the pipeline."],
+ ["3","Live Orbit","Selected agents execute in parallel with a real-time activity feed."],
+ ["4","Visual Report","A fused, cited report plus per-agent results and next steps."]];
+const principles=[
+ "Kimi-coordinated planning — the coordinator decomposes your brief and fans out specialist agents in parallel.",
+ "Runs on the NEXUS multi-LLM fabric (OpenRouter → Groq → DeepSeek → Kimi → Gemini → Claude) — no single point of failure.",
+ "Only the agents your goal needs are activated — no wasted calls.",
+ "Every fact carries a source-credibility verdict before it reaches the report."];
+document.getElementById('view-about').innerHTML = `
+ <div class="hero">
+   <div class="bigicon">◳</div>
+   <h1 class="title display">A swarm of ${AGENTS.length} specialist agents</h1>
+   <p class="sub">SwarmBoard is mission control for ProspectSA's agent swarm. Describe what you need and a Kimi-coordinated swarm assembles the right engines, runs them in parallel, and returns one fused report.</p>
+   <div class="btnrow">
+     <div class="btn primary" onclick="setView('live')">🚀 Launch a swarm</div>
+     <div class="btn" onclick="setView('agents')">👥 Explore agents</div>
+   </div>
+ </div>
+ <div class="section-h">▤ The 4-phase flow</div>
+ <div class="grid4">${phases.map(p=>`<div class="surf phase"><div class="n">${p[0]}</div><h4>${p[1]}</h4><p>${p[2]}</p></div>`).join('')}</div>
+ <div class="section-h">How it works</div>
+ <div class="surf principles"><ul>${principles.map(p=>`<li>${p}</li>`).join('')}</ul></div>`;
+
+// AGENTS
+const cats=[...new Set(AGENTS.map(a=>a.cat))];
+let filter="all";
+function renderAgents(){
+  const shown = filter==="all"?AGENTS:AGENTS.filter(a=>a.cat===filter);
+  document.getElementById('view-agents').innerHTML = `
+   <div class="filters"><span class="lbl">Agent directory</span>
+     ${["all",...cats].map(c=>`<button class="chip ${c===filter?'on':''}" onclick="filter='${c}';renderAgents()">${c}</button>`).join('')}</div>
+   <div class="agrid">${shown.map((a)=>`
+     <div class="acard" onclick='openAgent(${JSON.stringify(a).replace(/'/g,"&#39;")})'>
+       <div class="top"><span class="badge" style="background:${CAT_COLOR[a.cat]}">${a.n}</span><span class="cat">${a.cat}</span></div>
+       <div class="role">${a.role}</div><div class="desc">${a.d}</div>
+     </div>`).join('')}</div>`;
+}
+renderAgents();
+function openAgent(a){
+  document.getElementById('modal').innerHTML = `
+   <span class="x" onclick="closeModal()">×</span>
+   <span class="badge" style="background:${CAT_COLOR[a.cat]}">${a.n}</span>
+   <div class="role" style="margin-top:10px;font-weight:600">${a.role}</div>
+   <div class="cat" style="font-size:10px;color:var(--muted);text-transform:uppercase;margin-bottom:10px">${a.cat}</div>
+   <p style="font-size:12px;color:var(--muted)">${a.d}</p>
+   <div style="font-size:11px;font-weight:700;margin:10px 0 4px">🔧 Tools</div>
+   <div>${a.tools.map(t=>`<span class="tool">${t}</span>`).join('')}</div>`;
+  document.getElementById('ov').classList.add('show');
+}
+function closeModal(){document.getElementById('ov').classList.remove('show');}
+
+// LIVE
+const liveAgents=["NEXUS","SCOUT","COMPANY INTEL","ORCENGINE","SIGNALS","MASAR","BUILDER","PERSON INTEL"];
+const stateOf=i=> i<5?"done":i<7?"active":"pending";
+function nodeHtml(name,i,total){
+  const ang=(i/total)*2*Math.PI - Math.PI/2, r=140, x=170+r*Math.cos(ang), y=170+r*Math.sin(ang);
+  const a=AGENTS.find(z=>z.n===name)||{cat:"Discovery"};
+  const st=stateOf(i); const op=st==="pending"?.45:1; const ring=st==="active"?"0 0 0 4px rgba(123,94,167,.25)":"none";
+  return `<div class="node" style="left:${x}px;top:${y}px;background:${CAT_COLOR[a.cat]};opacity:${op};box-shadow:${ring}">${name.split(' ')[0].slice(0,6)}</div>`;
+}
+const feed=[["10:42:01","🧠 Kimi Coordinator","decomposed brief → 8 agents"],
+ ["10:42:03","🔍 Researcher","12 results for 'Saudi fintech 2024'",1],
+ ["10:42:05","🛰️ MASAR","shareholders + board extracted",1],
+ ["10:42:07","🕵️ SCOUT","contact discovery on 6 domains"],
+ ["10:42:09","📊 COMPANY INTEL","50-field profile · 94% trust",1],
+ ["10:42:11","📝 Writer","fusing findings into report…"]];
+const wizard=[["What's your research goal?",["Discover companies","Enrich profiles","Find contacts","Deep research"],[0,3]],
+ ["Which data sources?",["Saudi government","Open web","Apollo","Deep crawl"],[0,1]],
+ ["What output?",["Profiles","Contacts","Risk reports","Export"],[0]],
+ ["What scale?",["Single","10–50","50–500","500+"],[2]]];
+document.getElementById('view-live').innerHTML = `
+ <div style="display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:18px">
+   ${wizard.map(w=>`<div class="surf qcard"><div class="q">${w[0]}</div><div class="opts">
+     ${w[1].map((o,i)=>`<div class="opt ${w[2].includes(i)?'on':''}">${o}</div>`).join('')}</div></div>`).join('')}
+ </div>
+ <div class="live-grid">
+   <div class="surf orbitbox">
+     <div style="font-size:13px;font-weight:700;margin-bottom:6px">⚡ Live Orbit · 6/8 complete</div>
+     <div class="orbit"><div class="core">SWARM<br>CORE</div>
+       ${liveAgents.map((n,i)=>nodeHtml(n,i,liveAgents.length)).join('')}</div>
+     <div class="progress"><div></div></div>
+     <div style="font-size:10px;color:var(--muted);text-align:center;margin-top:6px">72% · throughput ~42 rec/s</div>
+   </div>
+   <div class="surf feed"><h4>Activity feed</h4>
+     ${feed.map(f=>`<div class="fitem"><span class="t">${f[0]}</span><span class="a" style="color:${f[3]?'var(--primary)':'var(--ink)'}">${f[1]}</span><span class="m">· ${f[2]}</span></div>`).join('')}</div>
+ </div>
+ <div class="section-h" style="margin-top:30px">▦ Visual Report <span style="font-weight:400;color:var(--muted);font-size:11px">— phase 4, after the run</span></div>
+ <div class="grid4">
+   ${[["◳","Agents","8"],["▦","Records","1,284"],["◷","Time","12.4s"],["◆","Success","100%"]].map(s=>
+     `<div class="surf phase"><div style="color:var(--primary);font-size:16px">${s[0]}</div><div class="display" style="font-size:22px;font-weight:700;margin-top:4px">${s[2]}</div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px">${s[1]}</div></div>`).join('')}
+ </div>
+ <div class="surf" style="padding:16px;margin-top:12px">
+   <div style="font-size:13px;font-weight:700;margin-bottom:8px">Engaged agents</div>
+   <div>${liveAgents.map(n=>{const a=AGENTS.find(z=>z.n===n)||{cat:'Discovery'};return `<span class="badge" style="background:${CAT_COLOR[a.cat]};margin:0 5px 5px 0;display:inline-block">${n}</span>`;}).join('')}</div>
+ </div>
+ <div class="surf" style="padding:18px;margin-top:12px">
+   <div style="font-size:13px;font-weight:700;margin-bottom:10px">Fused report <span style="font-weight:400;color:var(--primary);font-size:10px">◆ 94 trust</span></div>
+   <div style="font-size:12.5px;line-height:1.65;color:#2A2740">
+     <p style="margin:0 0 10px"><b>Saudi fintech — 50–500 employee segment.</b> The swarm identified <b>1,284 companies</b> matching the brief across MASAR registry, Scout OSINT, and Company Intel, of which 312 are high-fit (ICP ≥ 0.7).</p>
+     <p style="margin:0 0 10px"><b>Market signal.</b> 41 targets showed funding or hiring signals in the last 90 days; 7 carried regulatory flags (SAMA sandbox graduations) and were prioritised. No sanctions matches.</p>
+     <p style="margin:0 0 10px"><b>Leadership coverage.</b> Person Intel + Sherlock resolved verified contacts for 268 executives (LinkedIn + domain email), each carrying a source-credibility verdict.</p>
+     <p style="margin:0"><b>Recommendation.</b> Push the top 50 to Lead Genome and open a Person Hunt on the 7 SAMA-graduated targets first.</p>
+   </div>
+ </div>
+ <div class="surf" style="padding:0;margin-top:12px;overflow:hidden">
+   <table style="width:100%;border-collapse:collapse;font-size:11.5px">
+     <thead><tr style="background:rgba(123,94,167,.08);text-align:left">
+       <th style="padding:9px 12px">Company</th><th style="padding:9px 12px">Sector</th><th style="padding:9px 12px">City</th><th style="padding:9px 12px">ICP</th><th style="padding:9px 12px">Signal</th></tr></thead>
+     <tbody>
+       ${[["Tamara","BNPL / Fintech","Riyadh","0.94","Series C"],
+          ["Lean Technologies","Open Banking","Riyadh","0.91","Hiring +38%"],
+          ["Mod5r","Payments","Jeddah","0.86","SAMA sandbox"],
+          ["Hakbah","Savings","Riyadh","0.81","Partnership"],
+          ["Foodics","SME SaaS","Riyadh","0.78","Expansion"]].map(r=>
+       `<tr style="border-top:1px solid var(--bd)"><td style="padding:8px 12px;font-weight:600">${r[0]}</td><td style="padding:8px 12px;color:var(--muted)">${r[1]}</td><td style="padding:8px 12px;color:var(--muted)">${r[2]}</td><td style="padding:8px 12px;color:var(--primary);font-weight:600">${r[3]}</td><td style="padding:8px 12px;color:var(--muted)">${r[4]}</td></tr>`).join('')}
+     </tbody>
+   </table>
+ </div>
+ <div class="grid4" style="margin-top:12px">
+   ${[["Push to Lead Genome","Save the top 50 high-fit targets as a tracked list."],
+      ["Open Person Hunt","Resolve decision-maker contacts for the 7 priority targets."],
+      ["Export","Download as XLSX / PDF / PPTX with the verdict column."],
+      ["Run new swarm","Refine the brief and re-launch the orbit."]].map(c=>
+     `<div class="surf phase"><h4>${c[0]}</h4><p>${c[1]}</p></div>`).join('')}
+ </div>`;
+
+document.getElementById('view-about').classList.remove('hidden');
+</script>
+<!-- Static prototype of the ProspectSA SwarmBoard. Mirrors the live React app at /swarm
+     (About / Agents / Swarm Live). Dashboard tab removed; tabs reflect the updated set. -->
+</body>
+</html>
