@@ -1,5 +1,6 @@
 import { type ReactNode } from "react";
 import { Switch, Route, Router as WouterRouter } from "wouter";
+import { useHashLocation } from "wouter/use-hash-location";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/toaster";
@@ -115,11 +116,17 @@ function Router() {
 }
 
 function App() {
+  // When opened as a static file (offline single-file export), path-based
+  // routing can't work, so fall back to hash routing. No effect when served.
+  const isFile = typeof window !== "undefined" && window.location.protocol === "file:";
+  const routerProps = isFile
+    ? { hook: useHashLocation }
+    : { base: import.meta.env.BASE_URL.replace(/\/$/, "") };
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} storageKey="prospectsa-theme">
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
-          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+          <WouterRouter {...routerProps}>
             <Router />
           </WouterRouter>
           <Toaster />
