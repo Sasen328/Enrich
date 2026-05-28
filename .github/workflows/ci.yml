@@ -70,5 +70,9 @@ jobs:
           file: ./Dockerfile
           push: false
           tags: prospectsa:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # GHA cache is backed by Azure blob storage whose SAS tokens expire
+          # on a ~10-min window. A mid-build expiry returns a 403 on cache
+          # import that fails the whole job (cache-from has no ignore-error).
+          # For a validation-only build (push:false) the read cache buys little,
+          # so we skip the import and only populate the cache best-effort.
+          cache-to: type=gha,mode=max,ignore-error=true
