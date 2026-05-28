@@ -19,12 +19,10 @@
 
 import axios from "axios";
 import * as cheerio from "cheerio";
-import Anthropic from "@anthropic-ai/sdk";
+import { lazyAnthropic } from "./llm-clients.js";
 import { crawlSite, scrapePage, classifyPageType, type CrawlPage } from "./power-scraper.js";
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || "dummy",
-});
+const anthropic = lazyAnthropic("Web seeder");
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 

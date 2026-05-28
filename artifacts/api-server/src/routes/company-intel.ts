@@ -3,7 +3,7 @@ import { db, companyIntelResearchTable } from "@workspace/db";
 import { desc, eq } from "drizzle-orm";
 import { enterJob } from "../lib/paid-api-guard.js";
 import OpenAI from "openai";
-import Anthropic from "@anthropic-ai/sdk";
+import { lazyAnthropic } from "../lib/llm-clients.js";
 import { searchWithGemini, generateWithGemini, isGeminiConfigured, deepResearchWithGemini } from "../gemini-search.js";
 import { runWebSeeder, type WebSeederResult } from "../lib/web-seeder.js";
 import { nexusGenerate, getLLMStatus } from "../lib/nexus/index.js";
@@ -14,9 +14,7 @@ const router = Router();
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || "dummy",
-});
+const anthropic = lazyAnthropic("Company Intel");
 
 // ── Web search with Perplexity → Gemini fallback ─────────────────────────────
 async function webSearch(query: string): Promise<string> {

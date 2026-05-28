@@ -2,12 +2,10 @@ import { PerplexityService } from "../perplexity-service";
 import { openai } from "../openai-client";
 import { getPageContent } from "../browser-helper";
 import { searchWithGemini, searchMultipleWithGemini, isGeminiConfigured, deepResearchWithGemini, synthesizeWithGemini } from "../gemini-search";
-import Anthropic from "@anthropic-ai/sdk";
+import { lazyAnthropic } from "../lib/llm-clients.js";
 import { nexusGenerate, nexusSynthesize } from "../lib/nexus/index.js";
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || "dummy",
-});
+const anthropic = lazyAnthropic("OrcEngine AI orchestrator");
 
 const APOLLO_API_KEY = process.env.APOLLO_API_KEY;
 

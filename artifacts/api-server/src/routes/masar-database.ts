@@ -22,7 +22,7 @@ import {
   type HarvestEvent,
 } from "../lib/masar-harvester.js";
 import { createJob, getJobEmitter, runMasaarPipeline, runMasaarPipelineByName, type MasaarReport } from "../lib/masaar-engine.js";
-import Anthropic from "@anthropic-ai/sdk";
+import { lazyAnthropic } from "../lib/llm-clients.js";
 
 const p = (x: string | string[]): string => Array.isArray(x) ? x[0] : x;
 
@@ -250,9 +250,7 @@ router.post("/masar/database/companies/:id/pipeline-enrich", async (req: Request
   // If no CR number, try to find it via Claude
   if (!crNumber && companyName) {
     try {
-      const anthropicCl = new Anthropic({
-        apiKey: process.env.ANTHROPIC_API_KEY || "dummy",
-      });
+      const anthropicCl = lazyAnthropic("Masaar database CR lookup");
       const msg = await anthropicCl.messages.create({
         model: "claude-sonnet-4-6",
         max_tokens: 200,
@@ -956,9 +954,7 @@ router.post("/masar/database/analyze-source", async (req: Request, res: Response
   const { url } = req.body as { url: string };
   if (!url?.startsWith("http")) { res.status(400).json({ error: "Valid URL required" }); return; }
 
-  const anthropic = new Anthropic({
-    apiKey: process.env.ANTHROPIC_API_KEY || "dummy",
-  });
+  const anthropic = lazyAnthropic("Masaar database URL extract");
 
   // Fetch the URL with a test keyword
   const testUrl = url.replace(/\{[^}]+\}/g, "Saudi Arabia companies");

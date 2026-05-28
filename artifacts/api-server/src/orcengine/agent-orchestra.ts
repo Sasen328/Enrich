@@ -4,7 +4,7 @@ import { searchWithGemini, researchCompanyWithGemini, isGeminiConfigured, deepRe
 import { crawl4ai, crawl4aiBatch } from "../crawl4ai-engine";
 import { PerplexityService } from "../perplexity-service";
 import { openai } from "../openai-client";
-import Anthropic from "@anthropic-ai/sdk";
+import { lazyAnthropic } from "../lib/llm-clients.js";
 // Apify stubs — replace with @apify/client if APIFY_API_KEY configured
 async function runActor(actorId: string, input: unknown, opts?: unknown): Promise<any> {
   throw new Error("Apify not configured");
@@ -14,9 +14,7 @@ async function getDatasetItems(datasetId: string): Promise<any[]> {
 }
 
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || "dummy",
-});
+const anthropic = lazyAnthropic("OrcEngine agent orchestra");
 
 const APOLLO_API_KEY = process.env.APOLLO_API_KEY;
 const EXPLORIUM_API_KEY = process.env.EXPLORIUM_API_KEY;

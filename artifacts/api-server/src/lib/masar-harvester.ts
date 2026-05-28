@@ -15,7 +15,7 @@ import { EventEmitter } from "events";
 import { randomUUID } from "crypto";
 import axios from "axios";
 import * as cheerio from "cheerio";
-import Anthropic from "@anthropic-ai/sdk";
+import { lazyAnthropic } from "./llm-clients.js";
 import { openai as sharedOpenai } from "./openai.js";
 import { db } from "@workspace/db";
 import { masarCompaniesTable, masarHarvestJobsTable } from "@workspace/db/schema";
@@ -72,9 +72,7 @@ interface CompanyData {
   analysisData?: Record<string, unknown>;
 }
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || "dummy",
-});
+const anthropic = lazyAnthropic("Masar harvester");
 const openai = sharedOpenai;
 
 // ─── Job Registry ──────────────────────────────────────────────────────────

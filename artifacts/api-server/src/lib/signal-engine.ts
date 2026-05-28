@@ -16,7 +16,7 @@
 
 import { db, companySignalsTable } from "@workspace/db";
 import { eq, desc, and, gte } from "drizzle-orm";
-import { nexusGenerate } from "./nexus/index.js";
+import { nexusRunRole } from "./nexus/llm-router.js";
 import { googleNewsForCompany } from "./google-news-scraper.js";
 import { fetchSaudiNewsForCompany } from "./saudi-news-rss.js";
 import { screenSanctions } from "./sanctions-screen.js";
@@ -110,7 +110,11 @@ Write ONE sentence (max 20 words) explaining the sales significance:
 Reply with ONLY the single sentence, no quotes, no extra text.`;
 
   try {
-    const result = await nexusGenerate(prompt, { tier: "extraction", maxTokens: 60, temperature: 0.1 });
+    const result = await nexusRunRole("signal", prompt, {
+      systemPrompt: "You write one-sentence sales-significance summaries for B2B buying/risk signals. Reply with only the sentence — no quotes, no JSON, no extra text.",
+      maxTokens: 60,
+      temperature: 0.1,
+    });
     return result.text.trim().replace(/^["']|["']$/g, "");
   } catch {
     return `${category === "positive" ? "Buying opportunity" : "Risk signal"}: ${eventTypes[0] || "event"} detected.`;

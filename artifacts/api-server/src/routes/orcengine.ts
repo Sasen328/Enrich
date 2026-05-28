@@ -22,7 +22,7 @@
 import { Router, type Request, type Response } from "express";
 import { db, scrapeSessionsTable, builderCompaniesTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
-import Anthropic from "@anthropic-ai/sdk";
+import { lazyAnthropic } from "../lib/llm-clients.js";
 import OpenAI from "openai";
 import { crawl4ai } from "../crawl4ai-engine.js";
 import { StealthBrowser, HumanBehavior } from "../lib/stealth-browser.js";
@@ -38,9 +38,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || "dummy",
-});
+const anthropic = lazyAnthropic("OrcEngine");
 
 // ── Perplexity web search ─────────────────────────────────────────────────────
 async function perplexitySearch(query: string, maxTokens = 2000): Promise<string> {

@@ -10,7 +10,7 @@
 
 import axios from "axios";
 import * as cheerio from "cheerio";
-import Anthropic from "@anthropic-ai/sdk";
+import { lazyAnthropic } from "./llm-clients.js";
 import { EventEmitter } from "events";
 import { StealthBrowser, autoSolveCaptcha, HumanBehavior } from "./stealth-browser.js";
 import { openai as sharedOpenai } from "./openai.js";
@@ -20,9 +20,7 @@ import { scoutSignalsRegulatory, scoutSiteIntel } from "./scout-client.js";
 import { onMasaarComplete } from "./activepieces-client.js";
 import { scrapePage } from "./power-scraper.js";
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || "dummy",
-});
+const anthropic = lazyAnthropic("Masaar engine");
 const openai = sharedOpenai;
 
 // ─── Perplexity Helper ────────────────────────────────────────────────────────

@@ -8,20 +8,14 @@ import {
 } from "@workspace/db";
 import { eq, ilike, and, or, sql, isNull } from "drizzle-orm";
 import * as XLSX from "xlsx";
-import OpenAI from "openai";
-import Anthropic from "@anthropic-ai/sdk";
+import { lazyAnthropic, lazyOpenAI } from "../lib/llm-clients.js";
 
 const p = (x: string | string[]): string => Array.isArray(x) ? x[0] : x;
 
 const router: IRouter = Router();
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || "dummy",
-});
-
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || "dummy",
-});
+const openai = lazyOpenAI("Lead lists");
+const anthropic = lazyAnthropic("Lead lists");
 
 // ─── Criteria ─────────────────────────────────────────────────────────────────
 interface LeadCriteria {
