@@ -26,3 +26,7 @@ crawl4ai>=0.4.0
 # every Selenium use case and is faster + more stable. Use Selenium only when
 # integrating an existing Selenium-based test suite or legacy code.
 selenium>=4.20.0
+
+# feedparser: required by src/signals/news_monitor.py (RSS signal monitoring).
+# Was missing — caused Scout to crash on boot ("No module named 'feedparser'").
+feedparser>=6.0.0
