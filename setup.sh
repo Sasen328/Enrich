@@ -12,7 +12,6 @@
 #    --skip-seed     Skip seeding (already seeded)
 #    --skip-python   Skip Python Scout microservice
 #    --prod          Production mode (no dev watchers)
-#    --docker        Print Docker Compose instructions instead
 # ============================================================
 
 set -euo pipefail
@@ -29,14 +28,13 @@ step() { echo -e "\n${BOLD}${BLUE}▶ $*${NC}"; }
 die()  { err "$*"; exit 1; }
 
 # ── Flags ─────────────────────────────────────────────────────────────────────
-SKIP_DB=false; SKIP_SEED=false; SKIP_PYTHON=false; PROD=false; DOCKER_MODE=false
+SKIP_DB=false; SKIP_SEED=false; SKIP_PYTHON=false; PROD=false
 for arg in "$@"; do
   case $arg in
     --skip-db)     SKIP_DB=true ;;
     --skip-seed)   SKIP_SEED=true ;;
     --skip-python) SKIP_PYTHON=true ;;
     --prod)        PROD=true ;;
-    --docker)      DOCKER_MODE=true ;;
   esac
 done
 
@@ -56,23 +54,6 @@ echo ""
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
-
-# ── Docker shortcut ───────────────────────────────────────────────────────────
-if $DOCKER_MODE; then
-  echo -e "${BOLD}Docker Compose setup:${NC}"
-  echo ""
-  echo "  1. Make sure Docker Desktop is running"
-  echo "  2. Copy your API keys into .env (or export them)"
-  echo "  3. Run:"
-  echo ""
-  echo "     docker compose up -d"
-  echo ""
-  echo "  The compose file mounts seed_data.sql into postgres"
-  echo "  and auto-seeds on first boot."
-  echo ""
-  echo "  Access the app at http://localhost:3000"
-  exit 0
-fi
 
 # ═════════════════════════════════════════════════════════════════════════════
 # STEP 1 — Check system requirements
@@ -114,8 +95,7 @@ if check_cmd psql; then
 else
   warn "psql not found. You need PostgreSQL to be installed."
   warn "macOS: brew install postgresql@16"
-  warn "Ubuntu: sudo apt install postgresql-client-16"
-  warn "Docker: use ./setup.sh --docker instead"
+  warn "Ubuntu: sudo apt install postgresql-16 postgresql-client-16"
 fi
 
 # Python (optional, for Scout)
@@ -158,29 +138,14 @@ if [ -z "${DATABASE_URL:-}" ] || echo "$DATABASE_URL" | grep -q "user:password";
   echo "  Format:  postgresql://USER:PASSWORD@HOST:PORT/DATABASE"
   echo "  Example: postgresql://postgres:mypassword@localhost:5432/prospectsaudi"
   echo ""
-  printf "  Enter your DATABASE_URL (or press Enter to use Docker): "
+  echo "  Provision a persistent PostgreSQL 16 first (data lives in its PGDATA"
+  echo "  directory and survives restarts). Local quick-start:"
+  echo "    createdb prospectsaudi"
+  echo ""
+  printf "  Enter your DATABASE_URL: "
   read -r DB_INPUT
-  if [ -z "$DB_INPUT" ]; then
-    info "Starting PostgreSQL via Docker..."
-    if command -v docker &>/dev/null; then
-      docker run -d \
-        --name prospectsa-postgres \
-        -e POSTGRES_DB=prospectsaudi \
-        -e POSTGRES_USER=postgres \
-        -e POSTGRES_PASSWORD=prospectsaudi123 \
-        -p 5432:5432 \
-        --restart unless-stopped \
-        postgres:16 2>/dev/null || \
-        docker start prospectsa-postgres 2>/dev/null || true
-      sleep 3
-      DATABASE_URL="postgresql://postgres:prospectsaudi123@localhost:5432/prospectsaudi"
-      ok "Docker PostgreSQL started"
-    else
-      die "Docker not found. Install Docker or provide a DATABASE_URL."
-    fi
-  else
-    DATABASE_URL="$DB_INPUT"
-  fi
+  [ -z "$DB_INPUT" ] && die "A DATABASE_URL is required. Provision PostgreSQL and re-run."
+  DATABASE_URL="$DB_INPUT"
   # Update .env
   if grep -q "^DATABASE_URL=" .env; then
     sed -i.bak "s|^DATABASE_URL=.*|DATABASE_URL=${DATABASE_URL}|" .env && rm -f .env.bak

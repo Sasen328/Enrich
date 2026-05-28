@@ -9,6 +9,7 @@ import {
   builderCompaniesTable, behaviorEventsTable, seederRowsTable,
 } from "@workspace/db/schema";
 import { sql, desc } from "drizzle-orm";
+import { subscribeEvents, recentEvents } from "../lib/event-bus.js";
 
 const router = Router();
 
@@ -35,6 +36,11 @@ async function liveSnapshot() {
     const be = await db.select().from(behaviorEventsTable).orderBy(desc(behaviorEventsTable.createdAt)).limit(3);
     for (const e of be) recent.push({ ico: "🤖", text: `User action: ${e.kind}`, ts: String(e.createdAt) });
   } catch { /* ignore */ }
+  // Merge in live bus events (job starts, enrichments) so the feed reflects
+  // in-flight activity, not just persisted rows.
+  for (const e of recentEvents(8)) {
+    recent.push({ ico: e.ico || "•", text: e.text, ts: new Date(e.ts || Date.now()).toISOString() });
+  }
   recent.sort((a, b) => (a.ts < b.ts ? 1 : -1));
 
   return {
@@ -58,7 +64,17 @@ router.get("/dashboard/stream", async (req: Request, res: Response) => {
     Connection: "keep-alive",
   });
   let closed = false;
-  req.on("close", () => { closed = true; });
+
+  // Push live bus events the instant they happen (event-driven, not polled).
+  const unsubscribe = subscribeEvents((evt) => {
+    if (closed) return;
+    try { res.write(`event: activity\ndata: ${JSON.stringify(evt)}\n\n`); }
+    catch { /* connection closed */ }
+  });
+
+  req.on("close", () => { closed = true; unsubscribe(); });
+
+  // Periodic snapshot acts as a heartbeat + reconciles counts.
   const tick = async () => {
     if (closed) return;
     try {

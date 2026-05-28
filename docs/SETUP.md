@@ -80,7 +80,7 @@ pnpm run build       # builds all workspaces with esbuild
 - **Empty company pool** — run the seed script, or let the server auto-seed MeshBase on first boot.
 - **Scout endpoints 502** — Python service isn't running, or `SCOUT_URL` is wrong.
 - **Captcha endpoints hanging** — set one of `CAPMONSTER_API_KEY` / `AZCAPTCHA_API_KEY` / `NOPECHA_API_KEY`.
-- **Playwright errors (Chromium not found)** — point `CHROMIUM_EXECUTABLE_PATH` at the installed Chromium binary, or rely on the Dockerfile which installs the right system libs.
+- **Playwright errors (Chromium not found)** — point `CHROMIUM_EXECUTABLE_PATH` at the installed Chromium binary, or run `pnpm exec playwright install --with-deps chromium` to install Chromium and its system libraries.
 
 ---
 

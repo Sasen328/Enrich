@@ -723,15 +723,9 @@ const token = await nexus.solveCaptcha({ type: "recaptcha-v2", pageUrl, siteKey 
 ```
 
 ### Step 7: Optional — Add Activepieces for post-pipeline automation
-```bash
-# Docker (self-hosted)
-docker run -d \
-  -p 8080:80 \
-  -e AP_ENCRYPTION_KEY=your-key \
-  activepieces/activepieces:latest
-
-# Then configure webhooks in your Express routes to POST to Activepieces flows
-```
+Run Activepieces (or any webhook automation platform) as a separate service per
+its own install docs, then configure webhooks in your Express routes to POST to
+its flows after a pipeline completes.
 
 ---
 

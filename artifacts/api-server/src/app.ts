@@ -4,7 +4,6 @@ import path from "path";
 import router from "./routes";
 import { registerOrcEngineRoutes } from "./orcengine/routes.js";
 import { registerProspectingRoutes } from "./prospecting/routes.js";
-import masarDatabaseRouter from "./routes/masar-database.js";
 import { authRequired } from "./lib/middleware/auth.js";
 import { envErrorHandler, assertProductionSafety } from "./lib/require-env.js";
 
@@ -87,7 +86,6 @@ app.use("/api", authRequired);
 
 // ── API Routers ──────────────────────────────────────────────────────────────
 app.use("/api", router);
-app.use("/api", masarDatabaseRouter);
 registerOrcEngineRoutes(app);
 registerProspectingRoutes(app);
 

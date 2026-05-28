@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ============================================================
-#  ProspectSA — Docker Container Start Script
+#  ProspectSA — Runtime Start Script
 #  Sequence:
 #    1. Resolve Puppeteer → shared Playwright Chromium
 #    2. Run Drizzle DB push (schema sync / migrations)
@@ -85,7 +85,7 @@ for tbl in companies executives masar_companies lead_factory_jobs lead_lists lea
 done
 if [ ${#MISSING_TABLES[@]} -gt 0 ]; then
     err "Required tables missing after migration: ${MISSING_TABLES[*]}"
-    err "The database is in an unrecoverable state. Run: docker compose down -v && docker compose up -d --build"
+    err "Migrations did not create the required tables. Check DATABASE_URL and re-run: pnpm --filter @workspace/db push --force"
     exit 1
 fi
 ok "All critical tables present"

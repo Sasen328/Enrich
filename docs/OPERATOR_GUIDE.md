@@ -378,7 +378,7 @@ Before deploying past local dev:
 | Masaar captcha endpoints hang | No captcha solver key set | Add one of `CAPMONSTER_API_KEY`/`AZCAPTCHA_API_KEY`/`NOPECHA_API_KEY`. |
 | Lead Factory job never completes | Perplexity rate limit or Apollo key invalid | Watch SSE stream; agent logs say which sub-call failed. |
 | `companies` table empty after seed | JSON fixtures missing | Confirm `scripts/attached_assets/companies_*.json` exists. |
-| Playwright errors (Chromium not found) | Wrong path / missing system libs | Set `CHROMIUM_EXECUTABLE_PATH` to the installed binary; on Debian/Bookworm the Dockerfile installs the right libs. |
+| Playwright errors (Chromium not found) | Wrong path / missing system libs | Set `CHROMIUM_EXECUTABLE_PATH` to the installed binary, or run `pnpm exec playwright install --with-deps chromium`. |
 | `pnpm install` fails with "use pnpm" | A different package manager was tried | The `preinstall` hook enforces pnpm. Run `corepack enable && corepack prepare pnpm@latest --activate`. |
 | Auto-downstream seeding never fires | `autoEnrichDownstream` not set | Pass `"autoEnrichDownstream": true` in the start body, or call `POST /api/lead-factory/results/:jobId/publish` after the fact. |
 

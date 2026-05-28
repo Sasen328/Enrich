@@ -53,26 +53,3 @@ jobs:
 
       - name: Build all packages
         run: pnpm run build
-
-  docker-build:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build Docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./Dockerfile
-          push: false
-          tags: prospectsa:latest
-          # GHA cache is backed by Azure blob storage whose SAS tokens expire
-          # on a ~10-min window. A mid-build expiry returns a 403 on cache
-          # import that fails the whole job (cache-from has no ignore-error).
-          # For a validation-only build (push:false) the read cache buys little,
-          # so we skip the import and only populate the cache best-effort.
-          cache-to: type=gha,mode=max,ignore-error=true

@@ -140,6 +140,7 @@ export type TaskTier =
   | "extraction"    // parse fields from raw text, classify, normalise
   | "arabic"        // bilingual Arabic+English tasks
   | "synthesis"     // write final dossier, complex reasoning
+  | "planning"      // decompose tasks / coordinate agents — Kimi-pinned
   | "bulk"          // large volume, cost-sensitive, can be slow
   | "realtime";     // speed-critical, must respond in < 2s
 
@@ -367,6 +368,19 @@ function buildAttemptChain(tier: TaskTier): Attempt[] {
         ...(hasDeepSeek ? [{ provider: "deepseek" as const, model: "deepseek-chat" }] : []),
         ...(hasOR    ? [{ provider: "openrouter" as const, model: "deepseek/deepseek-chat-v3-5" }]   : []),
         ...(hasGroq   ? [{ provider: "groq" as const,       model: "llama-3.1-8b-instant" }]         : []),
+      ];
+
+    case "planning":
+      // Kimi is pinned as the default planner/coordinator (strong multi-step
+      // reasoning). Falls back through the synthesis chain when Kimi is absent.
+      return [
+        ...(hasKimi ? [{ provider: "kimi" as const, model: "kimi-k2-0905-preview" }] : []),
+        ...(hasOR && process.env.OPENROUTER_API_KEY ? [{ provider: "openrouter" as const, model: "moonshotai/kimi-k2" }] : []),
+        ...freeHead(["deepseek/deepseek-r1:free"]),
+        ...(hasAnthropic ? [{ provider: "anthropic" as const,  model: "anthropic/claude-sonnet-4-5" }]: []),
+        ...(hasGemini    ? [{ provider: "gemini" as const,     model: "gemini-2.5-flash" }]           : []),
+        ...(hasOpenAI    ? [{ provider: "openai" as const,     model: "gpt-4o" }]                     : []),
+        ...(hasOR        ? [{ provider: "openrouter" as const, model: "deepseek/deepseek-chat-v3-5" }]: []),
       ];
 
     case "synthesis":
