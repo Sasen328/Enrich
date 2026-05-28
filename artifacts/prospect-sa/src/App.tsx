@@ -5,7 +5,6 @@ import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Layout } from "@/components/layout/Layout";
-import Dashboard from "@/pages/Dashboard";
 import CompaniesPage from "@/pages/companies";
 import ProspectingPage from "@/pages/prospecting";
 import WebsiteIntelPage from "@/pages/prospecting/website";
@@ -49,7 +48,7 @@ function Router() {
   return (
     <Layout>
       <Switch>
-        <Route path="/" component={Dashboard} />
+        <Route path="/">{() => <Redirect to="/ai-chat" />}</Route>
         <Route path="/companies" component={CompaniesPage} />
         <Route path="/prospecting/website" component={WebsiteIntelPage} />
         <Route path="/prospecting/person" component={PersonIntelPage} />

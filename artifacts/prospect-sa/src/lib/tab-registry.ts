@@ -5,7 +5,7 @@
 //   - Merged: Masaar (CR engine + DB) + AI Database Builder → "Harvest AI"
 
 import {
-  LayoutDashboard, Sparkles, Target, Zap, Building2, User, Globe,
+  Sparkles, Target, Zap, Building2, User, Globe,
   Layers, Search, TableProperties, FileBarChart, Activity, GitFork,
   Database, Sprout, FolderHeart, Boxes,
 } from "lucide-react";
@@ -20,7 +20,6 @@ export interface TabItem {
 }
 
 export const TAB_NAMES: TabItem[] = [
-  { id: "dashboard",    label: "Dashboard",    url: "/",                       icon: LayoutDashboard },
   { id: "ai-chat",      label: "AI Chat",      url: "/ai-chat",                icon: Sparkles },
   { id: "swarm",        label: "SwarmBoard",   url: "/swarm",                  icon: Boxes },
   { id: "lead-genome",  label: "Lead Genome",  url: "/lead-genome",            icon: FolderHeart },
