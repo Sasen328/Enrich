@@ -37,6 +37,7 @@ import SignalIntelligencePage from "@/pages/signal-intelligence";
 import SignalsTreePage from "@/pages/signal-intelligence/tree";
 import RelationshipIntelPage from "@/pages/relationship-intel";
 import { TrendingUp, Users } from "lucide-react";
+import SwarmPage from "@/pages/swarm";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -125,6 +126,7 @@ function Router() {
 
         {/* ── AI Chat Agent (ProsEngine /chat/stream) ─────────────────── */}
         <Route path="/ai-chat" component={AIChatPage} />
+        <Route path="/swarm" component={SwarmPage} />
 
         {/* Old paths redirect into the Lead Factory namespace */}
         <Route path="/signal-intelligence/tree">{() => <Redirect to="/lead-factory/signals/tree" />}</Route>

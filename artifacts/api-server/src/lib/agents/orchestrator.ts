@@ -12,6 +12,7 @@
 
 import Anthropic from "@anthropic-ai/sdk";
 import { AGENT_TOOLS, toAnthropicTools, getToolByName } from "./tools.js";
+import { createRun, publishEvent } from "./swarm-bus.js";
 
 export type OrchestratorEvent =
   | { event: "agent_start"; data: { agent: string; description: string } }
@@ -67,6 +68,14 @@ export async function runAgentChat(
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new Error("ANTHROPIC_API_KEY not configured");
 
+  // ── Swarm tracking ───────────────────────────────────────────────────────
+  const runId = `run-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+  createRun(runId, { type: "chat", userQuery: userMessage });
+  const swarmEmit = (e: OrchestratorEvent) => {
+    publishEvent(runId, e);
+    onEvent(e);
+  };
+
   const client = new Anthropic({ apiKey });
   // Default to Sonnet 4.6 for orchestration quality. Set
   // AI_CHAT_ORCHESTRATOR_MODEL=claude-haiku-4-5 to optimise for cost.
@@ -95,7 +104,7 @@ export async function runAgentChat(
         messages: messages as Anthropic.Messages.MessageParam[],
       });
     } catch (e) {
-      onEvent({ event: "error", data: { message: e instanceof Error ? e.message : String(e) } });
+      swarmEmit({ event: "error", data: { message: e instanceof Error ? e.message : String(e) } });
       throw e;
     }
 
@@ -112,7 +121,7 @@ export async function runAgentChat(
 
     // Stream the text portion as tokens
     if (turnText) {
-      for (const chunk of chunked(turnText, 50)) onEvent({ event: "token", data: chunk });
+      for (const chunk of chunked(turnText, 50)) swarmEmit({ event: "token", data: chunk });
       finalText += turnText;
     }
 
@@ -128,28 +137,28 @@ export async function runAgentChat(
     const toolResults: Array<{ type: "tool_result"; tool_use_id: string; content: string }> = [];
     for (const tu of toolUses) {
       const friendly = FRIENDLY_LABELS[tu.name] || tu.name;
-      onEvent({ event: "agent_start", data: { agent: friendly, description: describeCall(tu.name, tu.input) } });
+      swarmEmit({ event: "agent_start", data: { agent: friendly, description: describeCall(tu.name, tu.input) } });
       const tool = getToolByName(tu.name);
       if (!tool) {
         toolResults.push({ type: "tool_result", tool_use_id: tu.id, content: `error: unknown tool ${tu.name}` });
-        onEvent({ event: "agent_done", data: { agent: friendly, found: false, summary: "unknown tool" } });
+        swarmEmit({ event: "agent_done", data: { agent: friendly, found: false, summary: "unknown tool" } });
         continue;
       }
       try {
         const res = await tool.handler(tu.input);
         toolResults.push({ type: "tool_result", tool_use_id: tu.id, content: JSON.stringify(res.result).slice(0, 12000) });
-        onEvent({ event: "agent_done", data: { agent: friendly, found: true, summary: res.summary } });
+        swarmEmit({ event: "agent_done", data: { agent: friendly, found: true, summary: res.summary } });
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
         toolResults.push({ type: "tool_result", tool_use_id: tu.id, content: "error: " + msg });
-        onEvent({ event: "agent_done", data: { agent: friendly, found: false, summary: msg } });
+        swarmEmit({ event: "agent_done", data: { agent: friendly, found: false, summary: msg } });
       }
     }
 
     messages.push({ role: "user", content: toolResults });
   }
 
-  onEvent({ event: "final", data: { text: finalText } });
+  swarmEmit({ event: "final", data: { text: finalText } });
   return finalText;
 }
 

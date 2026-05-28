@@ -18,6 +18,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 const coreNav = [
   { title: "Dashboard",     url: "/",                      icon: LayoutDashboard },
   { title: "AI Chat",       url: "/ai-chat",               icon: Sparkles },
+  { title: "Swarm",         url: "/swarm",                 icon: Network },
   { title: "Lead Genome",   url: "/lead-genome",           icon: Target },
   { title: "Lead Factory",  url: "/lead-factory/person",   icon: Zap },
 ];

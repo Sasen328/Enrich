@@ -25,6 +25,10 @@ import seederRouter from "./seeder.js";
 import behaviorRouter from "./behavior.js";
 import dashboardRouter from "./dashboard.js";
 
+import swarmRouter from "./swarm";
+
+import swarmRouter from "./swarm";
+
 const router: IRouter = Router();
 
 router.use(healthRouter);
@@ -52,5 +56,6 @@ router.use(sourcesRouter);
 router.use(seederRouter);
 router.use(behaviorRouter);
 router.use(dashboardRouter);
+router.use(swarmRouter);
 
 export default router;
