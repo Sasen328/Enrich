@@ -6,12 +6,14 @@
  * or returns insufficient content):
  *
  *   Layer 1 │ Cheerio          Fast static HTML parser. No browser overhead.
- *   Layer 2 │ Playwright       Full Chromium browser. Executes JS, waits for
- *            │                 dynamic content, handles SPAs.
- *   Layer 3 │ Playwright+Stealth  Playwright + puppeteer-extra-plugin-stealth.
- *            │                 Evades bot detection: hides webdriver, spoofs
- *            │                 fingerprint, randomises timing + mouse movement.
- *   Layer 4 │ BeautifulSoup    Python subprocess (bs4 + lxml). Superior Arabic
+ *   Layer 2 │ Playwright+Stealth  Full Chromium browser + puppeteer-extra
+ *            │                 stealth. Executes JS, evades bot detection,
+ *            │                 spoofs fingerprint, randomises timing.
+ *   Layer 3 │ Camoufox         Engine-level stealth browser (optional dep;
+ *            │                 CAMOUFOX_ENABLED=true). Hardest anti-bot pages.
+ *   Layer 4 │ ScrapeGraphAI    LLM natural-language schema extraction (opt-in
+ *            │                 via `schemaPrompt`; via Scout + Nexus backend).
+ *   Layer 5 │ BeautifulSoup    Python subprocess (bs4 + lxml). Superior Arabic
  *            │                 RTL text extraction, handles malformed HTML.
  *
  * Additional capabilities:
@@ -97,7 +99,7 @@ function randomDelay(min = 800, max = 2500): Promise<void> {
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-export type ScrapingEngine = "cheerio" | "playwright" | "playwright-stealth" | "beautifulsoup";
+export type ScrapingEngine = "cheerio" | "playwright" | "playwright-stealth" | "camoufox" | "scrapegraph" | "beautifulsoup";
 
 export interface ScrapeResult {
   url: string;
@@ -115,6 +117,8 @@ export interface ScrapeResult {
   charCount: number;
   blocked: boolean;
   error?: string;
+  /** §6 Layer 4 — structured data from ScrapeGraphAI when `schemaPrompt` set. */
+  structured?: Record<string, unknown>;
 }
 
 export interface ScrapeOptions {
@@ -132,6 +136,9 @@ export interface ScrapeOptions {
   scrollToBottom?: boolean;
   /** Force a specific engine, skip escalation */
   forceEngine?: ScrapingEngine;
+  /** §6 Layer 4 — when set, run ScrapeGraphAI to extract structured data
+   *  matching this natural-language schema into `result.structured`. */
+  schemaPrompt?: string;
 }
 
 export interface CrawlOptions {
@@ -573,6 +580,22 @@ async function enhanceWithBS4(result: ScrapeResult, baseUrl: string): Promise<Sc
 // ── Main: scrapePage — auto-escalating engine selection ──────────────────────
 
 export async function scrapePage(url: string, options: ScrapeOptions = {}): Promise<ScrapeResult> {
+  const result = await scrapePageInternal(url, options);
+
+  // §6 Layer 4 — ScrapeGraphAI structured extraction (opt-in via schemaPrompt).
+  // Runs the natural-language schema against the page via Scout + Nexus.
+  // Degrades silently when Scout is unreachable.
+  if (options.schemaPrompt) {
+    try {
+      const { scrapeGraphExtract } = await import("./scrapers/scrapegraph-client.js");
+      const sg = await scrapeGraphExtract(url, options.schemaPrompt);
+      if (sg.available && sg.data) result.structured = sg.data;
+    } catch { /* optional layer */ }
+  }
+  return result;
+}
+
+async function scrapePageInternal(url: string, options: ScrapeOptions = {}): Promise<ScrapeResult> {
   const minLen = options.minContentLength ?? 400;
   const engines = options.forceEngine
     ? [options.forceEngine]
@@ -611,7 +634,7 @@ export async function scrapePage(url: string, options: ScrapeOptions = {}): Prom
     }
   }
 
-  // §6 Layer 3.5 — Camoufox engine-level stealth, only when enabled + installed.
+  // §6 Layer 3 — Camoufox engine-level stealth, only when enabled + installed.
   // Last resort before giving up; returns null cleanly when unavailable.
   try {
     const { camoufoxAvailable, camoufoxFetch } = await import("./scrapers/camoufox-runner.js");
@@ -622,7 +645,7 @@ export async function scrapePage(url: string, options: ScrapeOptions = {}): Prom
         const $ = load(html);
         const text = $("body").text().replace(/\s+/g, " ").trim();
         return {
-          url, engine: "playwright-stealth" as ScrapingEngine, html, text,
+          url, engine: "camoufox" as ScrapingEngine, html, text,
           title: $("title").text() || "",
           emails: [], phones: [], links: [], meta: {},
           loadTimeMs: 0, charCount: text.length, blocked: false,
@@ -648,6 +671,37 @@ export async function crawlSite(rootUrl: string, options: CrawlOptions = {}): Pr
     timeoutMs = 20000,
     scrapeOptions = {},
   } = options;
+
+  // §6 — Crawlee opt-in fast path (off by default; CRAWLEE_ENABLED=true).
+  // Queue-based crawl with auto-retry/concurrency; falls through to the
+  // built-in BFS on failure or when Crawlee isn't installed.
+  try {
+    const { crawleeAvailable, crawleeCrawl } = await import("./scrapers/crawlee-runner.js");
+    if (crawleeAvailable()) {
+      const t0 = Date.now();
+      const cpages = await crawleeCrawl(rootUrl, { maxPages, timeoutMs });
+      if (cpages && cpages.length) {
+        const mapped: CrawlPage[] = cpages.map((p) => ({
+          url: p.url, depth: 0, pageType: classifyPageType(p.url, p.title),
+          title: p.title, text: p.text, html: "",
+          emails: extractEmails(p.text), phones: extractPhones(p.text), links: [],
+          meta: {}, engine: "cheerio" as ScrapingEngine, paginatedUrls: [],
+          hasArabic: hasArabicText(p.text),
+        }));
+        return {
+          rootUrl, pages: mapped,
+          allEmails: [...new Set(mapped.flatMap((p) => p.emails))],
+          allPhones: [...new Set(mapped.flatMap((p) => p.phones))],
+          allLinks: [],
+          pagesAnalyzed: mapped.length,
+          engineUsage: { cheerio: mapped.length },
+          paginationFollowed: 0,
+          durationMs: Date.now() - t0,
+          errors: [],
+        };
+      }
+    }
+  } catch { /* fall through to built-in BFS */ }
 
   const start = Date.now();
   const visited = new Set<string>();
