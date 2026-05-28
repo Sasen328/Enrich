@@ -11,12 +11,16 @@ echo "================================"
 echo "→ Enabling corepack / pnpm..."
 corepack enable && corepack prepare pnpm@9.15.9 --activate || true
 
-# 2. Install Node dependencies
+# 2. Install Node dependencies.
+# Never let a frozen-lockfile mismatch or transient network error abort the
+# whole postCreate (which would drop the Codespace into recovery mode with no
+# usable terminal). Fall back to a non-frozen install, then to a no-op so the
+# container always comes up — deps can be re-installed manually if needed.
 echo "→ Installing Node dependencies (pnpm)..."
 if [ -f pnpm-lock.yaml ]; then
-    pnpm install --frozen-lockfile
+    pnpm install --frozen-lockfile || pnpm install || echo "⚠ pnpm install failed — run 'pnpm install' manually"
 else
-    pnpm install
+    pnpm install || echo "⚠ pnpm install failed — run 'pnpm install' manually"
 fi
 
 # 3. Install Playwright Chromium for scraping features
