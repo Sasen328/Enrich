@@ -3,7 +3,7 @@
 // Q&A → agent-selection logic (see swarmQuestions.ts).
 
 export type AgentCategory =
-  | "Registry" | "Outreach" | "Discovery" | "Intelligence" | "Profile" | "Market";
+  | "Registry" | "Outreach" | "Discovery" | "Intelligence" | "Profile";
 
 export interface SwarmAgent {
   id: string;
@@ -20,7 +20,6 @@ export const CATEGORY_COLOR: Record<AgentCategory, string> = {
   Discovery:    "#14B8A6", // seafoam
   Intelligence: "#4A3470", // deep lavender
   Profile:      "#0EA5E9", // sky
-  Market:       "#0891B2", // cyan
 };
 
 export const SWARM_AGENTS: SwarmAgent[] = [
@@ -57,9 +56,6 @@ export const SWARM_AGENTS: SwarmAgent[] = [
   { id: "person-intel", name: "PERSON INTEL", role: "Executive Dossier", category: "Profile",
     description: "Creates executive dossiers: work history, social profiles, seniority assessment, contact verification.",
     tools: ["Dossier Creation", "Social Profiling", "Seniority Scoring", "Contact Verification"] },
-  { id: "sa-market", name: "SA MARKET", role: "Tadawul Tracker", category: "Market",
-    description: "Tracks Tadawul & NOMU listed companies. Extracts shareholders, board members, sector classifications.",
-    tools: ["Tadawul Tracking", "Shareholder Extraction", "Sector Analysis", "NOMU Coverage"] },
 ];
 
 export const AGENT_BY_ID: Record<string, SwarmAgent> =

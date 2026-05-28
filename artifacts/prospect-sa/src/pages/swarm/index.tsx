@@ -2,19 +2,66 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Boxes, Rocket, Loader2, CheckCircle2, Circle, Activity, RotateCcw,
-  Clock, Database, Gauge, X,
+  Clock, Database, Gauge, X, Info, Users, ListChecks, Wrench,
 } from "lucide-react";
-import { SWARM_AGENTS, AGENT_BY_ID, CATEGORY_COLOR, type SwarmAgent } from "@/data/swarmAgents";
+import {
+  SWARM_AGENTS, AGENT_BY_ID, CATEGORY_COLOR, type SwarmAgent, type AgentCategory,
+} from "@/data/swarmAgents";
 import { SWARM_QUESTIONS, EVAL_STEPS, evaluateSwarm } from "@/data/swarmQuestions";
 import { cn } from "@/lib/utils";
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 type Phase = "wizard" | "evaluating" | "execute" | "report";
+type View = "about" | "agents" | "live";
 interface FeedItem { ts: string; agent: string; text: string; done?: boolean }
 type NodeState = "pending" | "active" | "done";
 
+const VIEW_TABS: { id: View; label: string; icon: typeof Info }[] = [
+  { id: "about",  label: "About",      icon: Info },
+  { id: "agents", label: "Agents",     icon: Users },
+  { id: "live",   label: "Swarm Live", icon: Activity },
+];
+
 export default function SwarmBoardPage() {
+  const [view, setView] = useState<View>("about");
+  return (
+    <div className="flex flex-col h-full overflow-y-auto">
+      <header className="border-b border-border/40 px-5 py-3 bar-bg sticky top-0 z-10 flex items-center gap-3">
+        <span className="w-8 h-8 rounded-xl brand-gradient flex items-center justify-center text-foreground">
+          <Boxes className="w-4 h-4" />
+        </span>
+        <div>
+          <h1 className="text-lg font-display font-bold leading-tight">SwarmBoard</h1>
+          <p className="text-[10px] text-muted-foreground">Mission Control · Kimi-coordinated agent swarm</p>
+        </div>
+        <nav className="ml-auto flex items-center gap-1">
+          {VIEW_TABS.map((t) => {
+            const Icon = t.icon;
+            return (
+              <button key={t.id} onClick={() => setView(t.id)}
+                className={cn("inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors",
+                  view === t.id ? "bg-primary/10 text-primary border border-primary/30" : "text-muted-foreground hover:text-foreground")}>
+                <Icon className="w-3.5 h-3.5" /> {t.label}
+              </button>
+            );
+          })}
+        </nav>
+      </header>
+
+      <div className="flex-1 p-5">
+        <AnimatePresence mode="wait">
+          {view === "about"  && <AboutView key="about" onLaunch={() => setView("live")} onExplore={() => setView("agents")} />}
+          {view === "agents" && <AgentsView key="agents" />}
+          {view === "live"   && <SwarmLive key="live" />}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+}
+
+// ── Swarm Live: the 4-phase run ───────────────────────────────────────────────
+function SwarmLive() {
   const [phase, setPhase] = useState<Phase>("wizard");
   const [answers, setAnswers] = useState<Record<string, string[]>>({});
   const [agentIds, setAgentIds] = useState<string[]>([]);
@@ -22,9 +69,7 @@ export default function SwarmBoardPage() {
   function toggle(qid: string, oid: string, multi: boolean) {
     setAnswers((prev) => {
       const cur = prev[qid] || [];
-      if (multi) {
-        return { ...prev, [qid]: cur.includes(oid) ? cur.filter((x) => x !== oid) : [...cur, oid] };
-      }
+      if (multi) return { ...prev, [qid]: cur.includes(oid) ? cur.filter((x) => x !== oid) : [...cur, oid] };
       return { ...prev, [qid]: cur.includes(oid) ? [] : [oid] };
     });
   }
@@ -37,52 +82,145 @@ export default function SwarmBoardPage() {
     setAgentIds(ids.length ? ids : SWARM_AGENTS.slice(0, 5).map((a) => a.id));
     setPhase("evaluating");
   }
-
-  function reset() {
-    setAnswers({});
-    setAgentIds([]);
-    setPhase("wizard");
-  }
+  function reset() { setAnswers({}); setAgentIds([]); setPhase("wizard"); }
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto">
-      <header className="border-b border-border/40 px-5 py-3 bar-bg sticky top-0 z-10 flex items-center gap-2">
-        <span className="w-8 h-8 rounded-xl brand-gradient flex items-center justify-center text-foreground">
-          <Boxes className="w-4 h-4" />
-        </span>
-        <div>
-          <h1 className="text-lg font-display font-bold leading-tight">SwarmBoard</h1>
-          <p className="text-[10px] text-muted-foreground">Mission Control · Kimi-coordinated agent swarm</p>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+      <AnimatePresence mode="wait">
+        {phase === "wizard" && (
+          <Wizard key="wizard" answers={answers} toggle={toggle} previewAgents={previewAgents}
+            canLaunch={canLaunch} onLaunch={launch} />
+        )}
+        {phase === "evaluating" && <Evaluating key="eval" count={agentIds.length} onDone={() => setPhase("execute")} />}
+        {phase === "execute" && <Execute key="exec" agentIds={agentIds} answers={answers} onDone={() => setPhase("report")} />}
+        {phase === "report" && <Report key="report" agentIds={agentIds} onReset={reset} />}
+      </AnimatePresence>
+    </motion.div>
+  );
+}
+
+// ── About: home / explainer ───────────────────────────────────────────────────
+function AboutView({ onLaunch, onExplore }: { onLaunch: () => void; onExplore: () => void }) {
+  const phases = [
+    { n: 1, t: "Q&A Wizard", d: "Answer four questions; we map your goal to the right engines." },
+    { n: 2, t: "Evaluating", d: "The coordinator analyses goals, maps engines, and builds the pipeline." },
+    { n: 3, t: "Live Orbit", d: "Selected agents execute in parallel with a real-time activity feed." },
+    { n: 4, t: "Visual Report", d: "A fused, cited report plus per-agent results and next steps." },
+  ];
+  const principles = [
+    "Kimi-coordinated planning — the coordinator decomposes your brief and fans out specialist agents in parallel.",
+    "Runs on the NEXUS multi-LLM fabric (OpenRouter → Groq → DeepSeek → Kimi → Gemini → Claude) — no single point of failure.",
+    "Only the agents your goal needs are activated — no wasted calls.",
+    "Every fact carries a source-credibility verdict before it reaches the report.",
+  ];
+  return (
+    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+      className="max-w-4xl mx-auto space-y-8">
+      <div className="text-center pt-4">
+        <div className="inline-flex w-16 h-16 rounded-2xl brand-gradient items-center justify-center text-foreground mb-4">
+          <Boxes className="w-8 h-8" />
         </div>
-        <div className="ml-auto flex items-center gap-1.5 text-[10px] text-muted-foreground">
-          {(["wizard", "evaluating", "execute", "report"] as Phase[]).map((p, i) => (
-            <span key={p} className={cn("px-2 py-0.5 rounded-full border",
-              phase === p ? "border-primary text-primary bg-primary/10" : "border-border/40")}>
-              {i + 1}
-            </span>
+        <h2 className="text-3xl font-display font-bold">A swarm of {SWARM_AGENTS.length} specialist agents</h2>
+        <p className="text-sm text-muted-foreground mt-2 max-w-2xl mx-auto">
+          SwarmBoard is mission control for ProspectSA's agent swarm. Describe what you need and a
+          Kimi-coordinated swarm assembles the right engines, runs them in parallel, and returns one fused report.
+        </p>
+        <div className="flex items-center justify-center gap-3 mt-5">
+          <button onClick={onLaunch} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold brand-gradient text-foreground hover:opacity-90">
+            <Rocket className="w-4 h-4" /> Launch a swarm
+          </button>
+          <button onClick={onExplore} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold border border-border/50 hover:border-primary/40">
+            <Users className="w-4 h-4" /> Explore agents
+          </button>
+        </div>
+      </div>
+
+      <div>
+        <h3 className="text-sm font-semibold mb-3 flex items-center gap-1.5"><ListChecks className="w-4 h-4 text-primary" /> The 4-phase flow</h3>
+        <div className="grid sm:grid-cols-4 gap-3">
+          {phases.map((p) => (
+            <div key={p.n} className="surf rounded-2xl p-4">
+              <div className="w-7 h-7 rounded-full brand-gradient text-foreground text-xs font-bold flex items-center justify-center mb-2">{p.n}</div>
+              <div className="text-sm font-semibold">{p.t}</div>
+              <div className="text-[11px] text-muted-foreground mt-1">{p.d}</div>
+            </div>
           ))}
         </div>
-      </header>
-
-      <div className="flex-1 p-5">
-        <AnimatePresence mode="wait">
-          {phase === "wizard" && (
-            <Wizard key="wizard" answers={answers} toggle={toggle} previewAgents={previewAgents}
-              canLaunch={canLaunch} onLaunch={launch} />
-          )}
-          {phase === "evaluating" && (
-            <Evaluating key="eval" count={agentIds.length} onDone={() => setPhase("execute")} />
-          )}
-          {phase === "execute" && (
-            <Execute key="exec" agentIds={agentIds} answers={answers}
-              onDone={() => setPhase("report")} />
-          )}
-          {phase === "report" && (
-            <Report key="report" agentIds={agentIds} onReset={reset} />
-          )}
-        </AnimatePresence>
       </div>
-    </div>
+
+      <div className="surf rounded-2xl p-5">
+        <h3 className="text-sm font-semibold mb-3">How it works</h3>
+        <ul className="space-y-2">
+          {principles.map((p, i) => (
+            <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground">
+              <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 shrink-0" /><span>{p}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </motion.div>
+  );
+}
+
+// ── Agents: directory + per-agent profile ─────────────────────────────────────
+function AgentsView() {
+  const cats = useMemo(() => Array.from(new Set(SWARM_AGENTS.map((a) => a.category))), []);
+  const [filter, setFilter] = useState<AgentCategory | "all">("all");
+  const [selected, setSelected] = useState<SwarmAgent | null>(null);
+  const shown = filter === "all" ? SWARM_AGENTS : SWARM_AGENTS.filter((a) => a.category === filter);
+  return (
+    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+      className="max-w-5xl mx-auto space-y-4">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-sm font-semibold mr-1">Agent directory</span>
+        {(["all", ...cats] as (AgentCategory | "all")[]).map((c) => (
+          <button key={c} onClick={() => setFilter(c)}
+            className={cn("px-2.5 py-1 rounded-full text-[11px] border transition-colors capitalize",
+              filter === c ? "bg-primary text-primary-foreground border-primary" : "border-border/50 text-muted-foreground hover:border-primary/40")}>
+            {c}
+          </button>
+        ))}
+      </div>
+
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {shown.map((a) => (
+          <button key={a.id} onClick={() => setSelected(a)}
+            className="surf rounded-2xl p-4 text-left hover:border-primary/40 transition-colors">
+            <div className="flex items-center justify-between mb-2">
+              <span className="px-2 py-0.5 rounded-md text-[10px] font-mono font-bold text-white" style={{ background: CATEGORY_COLOR[a.category] }}>{a.name}</span>
+              <span className="text-[9px] text-muted-foreground uppercase tracking-wide">{a.category}</span>
+            </div>
+            <div className="text-xs font-semibold">{a.role}</div>
+            <div className="text-[11px] text-muted-foreground mt-1 line-clamp-3">{a.description}</div>
+          </button>
+        ))}
+      </div>
+
+      <AnimatePresence>
+        {selected && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => setSelected(null)}>
+            <motion.div initial={{ scale: 0.95, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95 }}
+              onClick={(e) => e.stopPropagation()}
+              className="surf-strong rounded-2xl p-6 max-w-md w-full">
+              <div className="flex items-center justify-between mb-3">
+                <span className="px-2.5 py-1 rounded-md text-xs font-mono font-bold text-white" style={{ background: CATEGORY_COLOR[selected.category] }}>{selected.name}</span>
+                <button onClick={() => setSelected(null)} className="text-muted-foreground hover:text-foreground"><X className="w-4 h-4" /></button>
+              </div>
+              <div className="text-sm font-semibold">{selected.role}</div>
+              <div className="text-[10px] text-muted-foreground uppercase tracking-wide mb-3">{selected.category}</div>
+              <p className="text-xs text-muted-foreground mb-4">{selected.description}</p>
+              <div className="text-[11px] font-semibold mb-1.5 flex items-center gap-1.5"><Wrench className="w-3.5 h-3.5 text-primary" /> Tools</div>
+              <div className="flex flex-wrap gap-1.5">
+                {selected.tools.map((t) => (
+                  <span key={t} className="px-2 py-0.5 rounded-md text-[10px] bg-primary/10 text-primary border border-primary/20">{t}</span>
+                ))}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 }
 

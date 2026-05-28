@@ -4,7 +4,7 @@ A multi-engine Saudi-market B2B intelligence platform. Discovers, enriches, and 
 
 ## What's inside
 
-A pnpm monorepo combining a TypeScript/Express API server, a React/Vite frontend, and a Python Scout microservice. Twelve domain "engines" share one PostgreSQL pool of ~3,744 companies and ~7,591 executives.
+A pnpm monorepo combining a TypeScript/Express API server, a React/Vite frontend, and a Python Scout microservice. Eleven domain "engines" share one PostgreSQL pool, orchestrated by a Kimi-coordinated agent swarm.
 
 | Engine | What it does |
 |---|---|
@@ -19,7 +19,8 @@ A pnpm monorepo combining a TypeScript/Express API server, a React/Vite frontend
 | **Lead Factory** | 7-agent automated lead discovery + enrichment pipeline |
 | **Company Intel** | 50-field deep company profiles |
 | **Person Intel** | Executive dossiers (work history, social, seniority) |
-| **SA Market** | Tadawul + open-data: listed companies, shareholders, sectors |
+
+**SwarmBoard** (`/swarm`) is the mission-control UI over these engines: a Q&A wizard assembles a Kimi-coordinated swarm, runs the selected agents in parallel (`POST /api/swarm/start`), and returns one fused report. It has three views — About, an Agents directory with per-agent profiles, and the live 4-phase run.
 
 ## Quick start
 
@@ -44,7 +45,7 @@ pnpm --filter @workspace/api-server run dev  # or run the API directly
 - [STATUS.md](docs/STATUS.md) — current status / gaps
 
 **Engines** (`docs/engines/`)
-- [lead-factory.md](docs/engines/lead-factory.md), [orcengine.md](docs/engines/orcengine.md), [scout.md](docs/engines/scout.md), [signals.md](docs/engines/signals.md), [company-intel.md](docs/engines/company-intel.md), [person-intel.md](docs/engines/person-intel.md), [sa-market.md](docs/engines/sa-market.md), [prosengine.md](docs/engines/prosengine.md)
+- [lead-factory.md](docs/engines/lead-factory.md), [orcengine.md](docs/engines/orcengine.md), [scout.md](docs/engines/scout.md), [signals.md](docs/engines/signals.md), [company-intel.md](docs/engines/company-intel.md), [person-intel.md](docs/engines/person-intel.md), [prosengine.md](docs/engines/prosengine.md)
 
 **Replication guides** (`docs/replication/`)
 - [01-masaar-engine-replication.md](docs/replication/01-masaar-engine-replication.md)

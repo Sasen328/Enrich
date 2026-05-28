@@ -115,7 +115,6 @@ const SOURCES = [
   { id: "orcbase",    label: "OrcBase",              desc: "6,000+ executives database" },
   { id: "masaar",     label: "Masaar",               desc: "CR shareholders & board" },
   { id: "builder",    label: "AI Database Builder",  desc: "Harvested owners & execs" },
-  { id: "sa_market",  label: "SA Market (TASI/NOMU)", desc: "2,877 shareholders · 2,921 executives from listed companies" },
 ];
 
 const PERSON_TYPE_BADGE: Record<string, { color: string; label: string }> = {
@@ -130,7 +129,6 @@ const SOURCE_BADGE: Record<string, { color: string; label: string }> = {
   orcbase:   { color: "bg-blue-500/15 text-primary border-primary/20",      label: "OrcBase" },
   masaar:    { color: "bg-amber-500/15 text-amber-300 border-amber-500/20",   label: "Masaar" },
   builder:   { color: "bg-violet-500/15 text-violet-300 border-violet-500/20", label: "Builder" },
-  sa_market: { color: "bg-emerald-500/15 text-emerald-300 border-emerald-500/20", label: "SA Market" },
 };
 
 const DEFAULT_CRITERIA: LeadCriteria = {
@@ -139,7 +137,7 @@ const DEFAULT_CRITERIA: LeadCriteria = {
   personTypes: ["executive", "owner"],
   compensationRange: "any",
   requiredPersonFields: [], requiredCompanyFields: [],
-  sources: ["orcbase", "masaar", "builder", "sa_market"],
+  sources: ["orcbase", "masaar", "builder"],
   maxLeads: 100, freeText: "",
 };
 

@@ -3,7 +3,6 @@ import {
   db, leadListsTable, leadListItemsTable,
   companiesTable, executivesTable,
   masarCompaniesTable, builderCompaniesTable, prospectingResultsTable,
-  saMarketShareholdersTable, saMarketExecutivesTable,
   prosengineResearchTable,
 } from "@workspace/db";
 import { eq, ilike, and, or, sql, isNull } from "drizzle-orm";
@@ -556,86 +555,6 @@ async function fetchPeople(criteria: LeadCriteria): Promise<LeadCandidate[]> {
         }
       }
     } catch (e) { console.warn("[LeadLists] Builder people error:", e); }
-  }
-
-  // ── SA Market Shareholders ────────────────────────────────────────────────
-  if (criteria.sources.includes("sa_market") && wantsShareholder) {
-    try {
-      const shConditions: any[] = [];
-      const indFilter = industryFilter(saMarketShareholdersTable.sector);
-      if (indFilter) shConditions.push(indFilter);
-      const ctFilter = cityFilter(saMarketShareholdersTable.city);
-      if (ctFilter) shConditions.push(ctFilter);
-
-      const shRows = await db.select().from(saMarketShareholdersTable)
-        .where(shConditions.length > 0 ? and(...(shConditions as any)) : undefined)
-        .orderBy(sql`${saMarketShareholdersTable.ownershipPercent} DESC NULLS LAST`)
-        .limit(3000);
-
-      for (const sh of shRows) {
-        if (!sh.shareholderName) continue;
-        const candidate: LeadCandidate = {
-          personName: sh.shareholderName!,
-          personNameAr: sh.shareholderNameAr,
-          personTitle: `Shareholder${sh.ownershipPercent ? ` (${sh.ownershipPercent.toFixed(2)}%)` : ""}`,
-          personType: "shareholder",
-          ownershipPct: sh.ownershipPercent ? String(sh.ownershipPercent) : null,
-          companyName: sh.companyName || "",
-          companyNameAr: sh.companyNameAr,
-          industry: sh.sector,
-          city: sh.city,
-          source: "sa_market",
-          sourceId: `sh_${sh.id}`,
-          matchScore: 0,
-        };
-        candidate.matchScore = preScore(candidate, criteria, candidate.source === "orcbase" ? "structured" : "cr");
-        if (candidate.matchScore > 0) results.push(candidate);
-      }
-    } catch (e) { console.warn("[LeadLists] SA Market shareholders error:", e); }
-  }
-
-  // ── SA Market Executives ──────────────────────────────────────────────────
-  if (criteria.sources.includes("sa_market") && (wantsExec || wantsBoard || wantsManagement)) {
-    try {
-      const exConditions: any[] = [];
-      const indFilter = industryFilter(saMarketExecutivesTable.sector);
-      if (indFilter) exConditions.push(indFilter);
-      const ctFilter = cityFilter(saMarketExecutivesTable.city);
-      if (ctFilter) exConditions.push(ctFilter);
-
-      const exRows = await db.select().from(saMarketExecutivesTable)
-        .where(exConditions.length > 0 ? and(...(exConditions as any)) : undefined)
-        .orderBy(saMarketExecutivesTable.companyName, saMarketExecutivesTable.position)
-        .limit(5000);
-
-      for (const ex of exRows) {
-        if (!ex.executiveName) continue;
-        const pos = (ex.position || "").toLowerCase();
-        const isBoard = pos.includes("board") || pos.includes("chairman") || pos.includes("director");
-        const isMgmt = pos.includes("ceo") || pos.includes("managing") || pos.includes("manager");
-
-        if (!wantsExec && !wantsBoard && !wantsManagement) continue;
-        if (isBoard && !wantsBoard && !wantsExec) continue;
-        if (isMgmt && !wantsManagement && !wantsExec) continue;
-
-        const personType = isBoard ? "board_member" : isMgmt ? "management" : "executive";
-
-        const candidate: LeadCandidate = {
-          personName: ex.executiveName!,
-          personTitle: ex.position || "Executive",
-          personType,
-          companyName: ex.companyName || "",
-          companyNameAr: ex.companyNameAr,
-          industry: ex.sector,
-          city: ex.city,
-          source: "sa_market",
-          sourceId: `ex_${ex.id}`,
-          matchScore: 0,
-        };
-        candidate.matchScore = preScore(candidate, criteria, candidate.source === "orcbase" ? "structured" : "cr");
-        if (candidate.matchScore > 0) results.push(candidate);
-      }
-    } catch (e) { console.warn("[LeadLists] SA Market executives error:", e); }
   }
 
   // ── ProsEngine Research (saved watchlist leads) ───────────────────────────

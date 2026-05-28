@@ -34,7 +34,7 @@ export const SWARM_QUESTIONS: SwarmQuestion[] = [
     multi: true,
     options: [
       { id: "gov",      label: "Saudi government", agents: ["masaar", "masar"] },
-      { id: "tadawul",  label: "Tadawul",          agents: ["sa-market"] },
+      { id: "tadawul",  label: "Tadawul",          agents: ["masar", "company-intel"] },
       { id: "web",      label: "Open web",         agents: ["orcengine", "scout", "signals"] },
       { id: "apollo",   label: "Apollo",           agents: ["builder", "lead-factory", "person-intel"] },
       { id: "wikidata", label: "Wikidata",         agents: ["builder", "company-intel"] },
@@ -49,7 +49,7 @@ export const SWARM_QUESTIONS: SwarmQuestion[] = [
       { id: "profiles", label: "Profiles",     agents: ["company-intel", "masaar", "masar"] },
       { id: "contacts", label: "Contacts",     agents: ["person-intel", "scout"] },
       { id: "risk",     label: "Risk reports", agents: ["signals", "orcengine"] },
-      { id: "orgchart", label: "Org charts",   agents: ["sa-market", "masar"] },
+      { id: "orgchart", label: "Org charts",   agents: ["masar", "company-intel"] },
       { id: "outreach", label: "Outreach",     agents: ["prosengine", "lead-factory"] },
       { id: "export",   label: "Export",       agents: ["orcengine", "prosengine"] },
     ],
@@ -62,7 +62,7 @@ export const SWARM_QUESTIONS: SwarmQuestion[] = [
       { id: "single", label: "Single company", agents: ["orcengine", "company-intel", "person-intel", "prosengine"] },
       { id: "small",  label: "10–50",          agents: ["lead-factory", "scout", "company-intel"] },
       { id: "medium", label: "50–500",         agents: ["builder", "lead-factory", "signals", "scout"] },
-      { id: "large",  label: "500+",           agents: ["builder", "lead-factory", "nexus", "scout", "sa-market"] },
+      { id: "large",  label: "500+",           agents: ["builder", "lead-factory", "nexus", "scout"] },
     ],
   },
 ];
