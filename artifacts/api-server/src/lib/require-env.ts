@@ -41,17 +41,22 @@ export function envErrorHandler(err: unknown, _req: unknown, res: any, next: (e?
 }
 
 /**
- * Production startup guard — call in app bootstrap. Refuses to boot in
- * production with auth/CORS wide open.
+ * Production startup guard — warns loudly when auth/CORS are wide open in
+ * production. Only HARD-EXITS when STRICT_STARTUP=true, so a missing token
+ * never silently bricks an otherwise-working deployment.
  */
 export function assertProductionSafety(): void {
   if (process.env.NODE_ENV !== "production") return;
   const problems: string[] = [];
-  if (!hasEnv("API_TOKEN")) problems.push("API_TOKEN is unset — auth would accept every request");
-  if (!hasEnv("FRONTEND_ORIGIN")) problems.push("FRONTEND_ORIGIN is unset — CORS would allow every origin");
-  if (problems.length) {
-    console.error("[startup] REFUSING TO BOOT in production:\n  - " + problems.join("\n  - "));
-    console.error("[startup] Set these env vars, or run with NODE_ENV != production for local dev.");
+  if (!hasEnv("API_TOKEN")) problems.push("API_TOKEN is unset — auth accepts every request");
+  if (!hasEnv("FRONTEND_ORIGIN")) problems.push("FRONTEND_ORIGIN is unset — CORS allows every origin");
+  if (problems.length === 0) return;
+
+  const banner = "[startup] ⚠ PRODUCTION SECURITY WARNING:\n  - " + problems.join("\n  - ")
+    + "\n[startup] Set these env vars to lock the app down. (Set STRICT_STARTUP=true to refuse boot until fixed.)";
+  if (process.env.STRICT_STARTUP === "true") {
+    console.error(banner.replace("WARNING", "REFUSING TO BOOT"));
     process.exit(1);
   }
+  console.warn(banner);
 }
