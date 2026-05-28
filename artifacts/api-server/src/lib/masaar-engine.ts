@@ -26,21 +26,32 @@ const openai = sharedOpenai;
 // ─── Perplexity Helper ────────────────────────────────────────────────────────
 
 const PERPLEXITY_API_KEY = process.env.PERPLEXITY_API_KEY;
+const PERPLEXITY_SYS =
+  "You are a Saudi Arabia B2B intelligence analyst specializing in corporate data mining. Provide precise, factual verified data. Include full names in both Arabic and English.";
+
+/** NEXUS researcher-tier fallback so deep research still runs when the direct
+ *  Perplexity path is unavailable (no key / budget) — routes through the live
+ *  fabric (Perplexity → Groq → OpenRouter → Gemini). */
+async function nexusResearchFallback(query: string, maxTokens: number): Promise<string | null> {
+  try {
+    const { nexusRunRole } = await import("./nexus/llm-router.js");
+    const r = await nexusRunRole("researcher", query, { systemPrompt: PERPLEXITY_SYS, maxTokens });
+    return r.text || null;
+  } catch { return null; }
+}
+
 async function perplexitySearch(query: string, maxTokens = 2000): Promise<string | null> {
-  if (!PERPLEXITY_API_KEY) return null;
   const { canSpend, recordSpend } = await import("./paid-api-guard.js");
-  if (!canSpend("perplexity")) return null;
+  // Direct Perplexity when configured + within budget; otherwise fall through
+  // to the NEXUS researcher tier instead of dropping the research entirely.
+  if (!PERPLEXITY_API_KEY || !canSpend("perplexity")) return nexusResearchFallback(query, maxTokens);
   try {
     const r = await axios.post(
       "https://api.perplexity.ai/chat/completions",
       {
         model: "sonar",
         messages: [
-          {
-            role: "system",
-            content:
-              "You are a Saudi Arabia B2B intelligence analyst specializing in corporate data mining. Provide precise, factual verified data. Include full names in both Arabic and English.",
-          },
+          { role: "system", content: PERPLEXITY_SYS },
           { role: "user", content: query },
         ],
         max_tokens: maxTokens,
@@ -53,8 +64,8 @@ async function perplexitySearch(query: string, maxTokens = 2000): Promise<string
       },
     );
     recordSpend("perplexity");
-    return r.data?.choices?.[0]?.message?.content || null;
-  } catch { return null; }
+    return r.data?.choices?.[0]?.message?.content || (await nexusResearchFallback(query, maxTokens));
+  } catch { return nexusResearchFallback(query, maxTokens); }
 }
 
 // ─── OpenRouter Stub ──────────────────────────────────────────────────────────
