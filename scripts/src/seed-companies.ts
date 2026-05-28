@@ -500,7 +500,12 @@ async function seed() {
 
   for (const company of saudiCompanies) {
     try {
-      await db.insert(companiesTable).values(company);
+      // employeeCount column is text; seed data carries it as number → coerce.
+      const c = company as Record<string, unknown>;
+      await db.insert(companiesTable).values({
+        ...c,
+        employeeCount: c.employeeCount != null ? String(c.employeeCount) : null,
+      } as typeof companiesTable.$inferInsert);
       console.log(`✅ Inserted: ${company.nameEn}`);
       inserted++;
     } catch (err: unknown) {

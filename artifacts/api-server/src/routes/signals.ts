@@ -268,7 +268,7 @@ router.post("/signals/regulatory", async (req: Request, res: Response) => {
 
 // §3A — convert a signal's company into a saved Lead Genome row (one click).
 router.post("/signals/:id/push-to-genome", async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt(p(req.params.id), 10);
   if (!id) { res.status(400).json({ error: "bad_id" }); return; }
   try {
     const [sig] = await db.select().from(companySignalsTable).where(eq(companySignalsTable.id, id));

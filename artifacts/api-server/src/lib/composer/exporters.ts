@@ -129,7 +129,7 @@ export async function exportReport(blocks: ReportBlock[], format: ExportFormat, 
         });
       } else if (b.type === "table") {
         if (b.title) slide.addText(b.title, { x: 0.5, y: 0.3, w: 9, h: 0.5, fontSize: 18, bold: true });
-        slide.addTable([b.headers, ...b.rows.slice(0, 12).map((r) => r.map(String))], { x: 0.5, y: 0.9, w: 9, fontSize: 9 });
+        slide.addTable([b.headers, ...b.rows.slice(0, 12).map((r) => r.map(String))] as any, { x: 0.5, y: 0.9, w: 9, fontSize: 9 });
       } else if (b.type === "list") {
         if (b.title) slide.addText(b.title, { x: 0.5, y: 0.3, w: 9, h: 0.5, fontSize: 18, bold: true });
         slide.addText(b.items.map((i) => "• " + i).join("\n"), { x: 0.5, y: 0.9, w: 9, h: 5, fontSize: 12 });

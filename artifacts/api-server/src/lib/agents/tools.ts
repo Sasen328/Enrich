@@ -158,7 +158,7 @@ const deep_scrape: ToolDef = {
     try {
       const mod = await import("../power-scraper.js").catch(() => null);
       if (mod && typeof (mod as { scrapeWithPlaywright?: (u: string) => Promise<{ text?: string }> }).scrapeWithPlaywright === "function") {
-        const out = await (mod as { scrapeWithPlaywright: (u: string) => Promise<{ text?: string }> }).scrapeWithPlaywright(url);
+        const out = await (mod as unknown as { scrapeWithPlaywright: (u: string) => Promise<{ text?: string }> }).scrapeWithPlaywright(url);
         const text = (out.text || "").slice(0, 12000);
         return { result: { url, text }, summary: `deep_scrape: ${text.length} chars from ${new URL(url).hostname}` };
       }

@@ -62,8 +62,9 @@ router.post("/ai-chat/stream", async (req: Request, res: Response): Promise<void
         maxTokens: 2000,
       });
       emit({ event: "agent_done", data: { agent: "🧠 Planner", found: true, summary: `via ${result.provider}` } });
-      emit({ event: "token", data: { text: result.text } });
-      emit({ event: "final", data: { text: result.text, degraded_mode: result.provider } });
+      emit({ event: "intent", data: { plan: `degraded_mode: ${result.provider}` } });
+      emit({ event: "token", data: result.text });
+      emit({ event: "final", data: { text: result.text } });
     } catch (e) {
       emit({ event: "error", data: { message: "No orchestrator available. Set ANTHROPIC_API_KEY or any Nexus provider key (OPENROUTER_API_KEY / MOONSHOT_API_KEY)." } });
       emit({ event: "final", data: { text: "" } });

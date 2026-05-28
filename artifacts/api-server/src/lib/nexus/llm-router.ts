@@ -635,6 +635,7 @@ export async function nexusStream(prompt: string, options: NexusStreamOptions): 
 // ── Role dispatcher (sugar over nexusGenerate with role defaults) ─────────────
 
 import { ROLE_TO_TIER, ROLE_DEFAULTS, type AgentRole } from "./roles.js";
+export type { AgentRole } from "./roles.js";
 
 /** Dispatch a role-specific call via NEXUS. Sugar over nexusGenerate. */
 export async function nexusRunRole(role: AgentRole, task: string, opts: Partial<NexusGenerateOptions> = {}): Promise<NexusGenerateResult> {
