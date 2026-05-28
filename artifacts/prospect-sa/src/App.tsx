@@ -31,6 +31,7 @@ import LeadFactoryPersonPage from "@/pages/lead-factory/person";
 import LeadFactoryCompanyPage from "@/pages/lead-factory/company";
 import LeadFactoryResultsPage from "@/pages/lead-factory/results";
 import AIChatPage from "@/pages/ai-chat";
+import SwarmBoardPage from "@/pages/swarm";
 import { Redirect } from "wouter";
 import RelationshipIntelTreePage from "@/pages/relationship-intel/tree";
 import SignalIntelligencePage from "@/pages/signal-intelligence";
@@ -125,6 +126,9 @@ function Router() {
 
         {/* ── AI Chat Agent (ProsEngine /chat/stream) ─────────────────── */}
         <Route path="/ai-chat" component={AIChatPage} />
+
+        {/* ── SwarmBoard — Kimi-coordinated agent swarm mission control ── */}
+        <Route path="/swarm" component={SwarmBoardPage} />
 
         {/* Old paths redirect into the Lead Factory namespace */}
         <Route path="/signal-intelligence/tree">{() => <Redirect to="/lead-factory/signals/tree" />}</Route>
