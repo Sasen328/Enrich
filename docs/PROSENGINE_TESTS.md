@@ -68,7 +68,7 @@ curl -s "$BASE/api/prosengine/research-url" \
 
 **Expected:** `{ "profile": { ... 30+ fields ... }, "url": "..." }`
 
-⚠️ Slow — typically 30–60 seconds. Watch `docker compose logs -f app | grep prosengine` for progress.
+⚠️ Slow — typically 30–60 seconds. Watch the API server logs (filter for `prosengine`) for progress.
 
 ---
 
@@ -150,7 +150,8 @@ curl -s "$BASE/api/prosengine/seed" -H "Content-Type: application/json" \
 If any returns `null`, `false`, or HTTP error → grab the log lines:
 
 ```bash
-docker compose logs --tail 100 app | grep -i prosengine
+# tail the API server output and filter for prosengine
+grep -i prosengine <api-server-log>
 ```
 
 …and paste them back.

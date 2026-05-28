@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Send, Loader2, Sparkles, User, Settings2 } from "lucide-react";
+import { Send, Loader2, Sparkles, User, Settings2, Boxes } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -31,6 +31,7 @@ export default function AIChatPage() {
   const [streaming, setStreaming] = useState(false);
   const [showComposer, setShowComposer] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [swarmMode, setSwarmMode] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -49,10 +50,14 @@ export default function AIChatPage() {
 
     try {
       const history = messages.map((m) => ({ role: m.role, content: m.content }));
-      const res = await fetch(`${BASE}/api/ai-chat/stream`, {
+      const endpoint = swarmMode ? "/api/swarm/start" : "/api/ai-chat/stream";
+      const payload = swarmMode
+        ? { brief: content, useKimi: true }
+        : { message: content, history };
+      const res = await fetch(`${BASE}${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: content, history }),
+        body: JSON.stringify(payload),
       });
 
       if (!res.body) throw new Error("No response body");
@@ -120,9 +125,19 @@ export default function AIChatPage() {
           AI Chat Agent
           <span className="text-[10px] font-normal text-muted-foreground ml-1">· Composer + multi-agent</span>
           <Button
-            variant="ghost"
+            variant={swarmMode ? "default" : "ghost"}
             size="sm"
             className="ml-auto gap-1.5"
+            onClick={() => setSwarmMode((v) => !v)}
+            title="Toggle Kimi-coordinated agent swarm (parallel multi-agent)"
+          >
+            <Boxes className="w-3.5 h-3.5" />
+            {swarmMode ? "Swarm: on" : "Swarm"}
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="gap-1.5"
             onClick={() => setShowComposer((v) => !v)}
             title="Toggle composer"
           >

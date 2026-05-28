@@ -25,31 +25,23 @@ A pnpm monorepo combining a TypeScript/Express API server, a React/Vite frontend
 
 ```bash
 pnpm install
-# set DATABASE_URL and at least one LLM key (see docs/ENV.md)
-pnpm --filter @workspace/api-server run dev
+# Provision a persistent PostgreSQL 16, then set DATABASE_URL and at least
+# one LLM key (see docs/ENV.md). Data lives in Postgres' PGDATA and persists
+# across restarts.
+./setup.sh                                   # installs deps, migrates, seeds
+pnpm --filter @workspace/api-server run dev  # or run the API directly
 ```
-
-Full guides:
-
-| Goal | Read |
-|---|---|
-| Deploy with Docker (recommended) | [`DEPLOY.md`](DEPLOY.md) |
-| Local development | [`SETUP.md`](SETUP.md) |
-| Operator manual | [`docs/OPERATOR_GUIDE.md`](docs/OPERATOR_GUIDE.md) |
-| Architecture overview | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) |
-| Environment variables | [`docs/ENV.md`](docs/ENV.md) |
-| API surface | [`docs/API.md`](docs/API.md) |
-| Database schema | [`docs/DATABASE.md`](docs/DATABASE.md) |
-| Current status / gaps | [`docs/STATUS.md`](docs/STATUS.md) |
 
 ## Documentation
 
 **Start here**
 - [SETUP.md](docs/SETUP.md) — install, run, seed
 - [ARCHITECTURE.md](docs/ARCHITECTURE.md) — system overview, monorepo layout
+- [OPERATOR_GUIDE.md](docs/OPERATOR_GUIDE.md) — operator manual
 - [ENV.md](docs/ENV.md) — every environment variable
-- [API.md](docs/API.md) — all 18 routers and ~150 endpoints
+- [API.md](docs/API.md) — all routers and endpoints
 - [DATABASE.md](docs/DATABASE.md) — Drizzle schema reference
+- [STATUS.md](docs/STATUS.md) — current status / gaps
 
 **Engines** (`docs/engines/`)
 - [lead-factory.md](docs/engines/lead-factory.md), [orcengine.md](docs/engines/orcengine.md), [scout.md](docs/engines/scout.md), [signals.md](docs/engines/signals.md), [company-intel.md](docs/engines/company-intel.md), [person-intel.md](docs/engines/person-intel.md), [sa-market.md](docs/engines/sa-market.md), [prosengine.md](docs/engines/prosengine.md)
