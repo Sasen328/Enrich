@@ -64,13 +64,14 @@ export async function enhancePrompt(input: EnhanceInput): Promise<EnhancedPrompt
 
   // Compose AI prompt
   const ctx = {
+    ...input,
+    // Explicit resolved fields override the raw input spread above.
     template: input.templateId ? findTemplate(input.templateId) : null,
     modes: input.modes.map((m) => findMode(m)).filter(Boolean),
     skills: (input.skills || []).map((s) => findSkill(s)).filter(Boolean),
     sources: (input.sources && input.sources.length
       ? input.sources.map(findSource).filter(Boolean)
       : recommendSources({ industry: input.industry, countries: input.countries, listing: input.listing, target: input.target })),
-    ...input,
   };
 
   const promptForAI = `USER COMPOSER STATE:\n${JSON.stringify(ctx, null, 2).slice(0, 6000)}\n\nProduce the EnhancedPrompt JSON.`;

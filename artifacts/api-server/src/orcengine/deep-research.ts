@@ -96,11 +96,10 @@ async function extractLearnings(query: string, hits: FreeSearchHit[]): Promise<{
 
 async function synthesizeReport(originalQuery: string, learnings: string[], urls: string[]): Promise<string> {
   const res = await nexusSynthesize(
-    `Write a comprehensive research report answering: "${originalQuery}"\n\n` +
-      `Use only the following learnings. Cite source URLs inline as [n] with the corresponding URL listed ` +
-      `in a Sources section at the end. Markdown output.\n\n` +
-      `Learnings:\n${learnings.map((l, i) => `${i + 1}. ${l}`).join("\n")}\n\n` +
+    `Learnings:\n${learnings.map((l, i) => `${i + 1}. ${l}`).join("\n")}\n\n` +
       `Sources:\n${urls.map((u, i) => `[${i + 1}] ${u}`).join("\n")}`,
+    `Write a comprehensive research report answering: "${originalQuery}". ` +
+      `Use only the learnings above. Cite source URLs inline as [n] with a Sources section at the end. Markdown output.`,
     { maxTokens: 4000, temperature: 0.3 },
   );
   return res.text;

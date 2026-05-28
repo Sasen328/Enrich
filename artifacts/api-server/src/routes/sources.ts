@@ -10,6 +10,7 @@ import { eq, and, sql } from "drizzle-orm";
 import { z } from "zod/v4";
 
 const router = Router();
+const p = (x: string | string[]): string => Array.isArray(x) ? x[0] : x;
 
 // GET /api/sources?category=&engine=
 router.get("/sources", async (req: Request, res: Response) => {
@@ -50,7 +51,7 @@ router.post("/sources", async (req: Request, res: Response) => {
 });
 
 router.patch("/sources/:id", async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt(p(req.params.id), 10);
   if (!id) return res.status(400).json({ error: "bad_id" });
   try {
     const [row] = await db.update(harvestSourcesTable)
@@ -62,7 +63,7 @@ router.patch("/sources/:id", async (req: Request, res: Response) => {
 });
 
 router.delete("/sources/:id", async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt(p(req.params.id), 10);
   if (!id) return res.status(400).json({ error: "bad_id" });
   try {
     // Only user-added rows are deletable.
@@ -76,7 +77,7 @@ router.delete("/sources/:id", async (req: Request, res: Response) => {
 
 // POST /api/sources/:id/test — live reachability probe
 router.post("/sources/:id/test", async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt(p(req.params.id), 10);
   if (!id) return res.status(400).json({ error: "bad_id" });
   try {
     const [src] = await db.select().from(harvestSourcesTable).where(eq(harvestSourcesTable.id, id));

@@ -43,7 +43,7 @@ router.post("/lead-factory/start", async (req: Request, res: Response) => {
       issues: parsed.error.issues,
     });
   }
-  const brief: LeadFactoryBrief = parsed.data;
+  const brief = parsed.data as unknown as LeadFactoryBrief;
   const jobId = createLeadFactoryJob();
 
   // §11A — honour per-engine source enforcement (read-only; attaches the
@@ -542,14 +542,16 @@ router.get("/lead-factory/person-suggest", async (req: Request, res: Response) =
         ilike(leadsTable.lastName,  `%${q}%`),
         ilike(leadsTable.email,     `%${q}%`),
       )).limit(6);
-    const execRows = await db.select({
-      firstName: executivesTable.firstName, lastName: executivesTable.lastName,
-      title: executivesTable.title, email: executivesTable.email,
+    // executives table uses name/position (not firstName/lastName/title).
+    const execRowsRaw = await db.select({
+      name: executivesTable.name, position: executivesTable.position, email: executivesTable.email,
     }).from(executivesTable)
-      .where(or(
-        ilike(executivesTable.firstName, `%${q}%`),
-        ilike(executivesTable.lastName,  `%${q}%`),
-      )).limit(6);
+      .where(ilike(executivesTable.name, `%${q}%`)).limit(6);
+    const execRows = execRowsRaw.map((e) => ({
+      firstName: (e.name || "").split(" ")[0] || null,
+      lastName: (e.name || "").split(" ").slice(1).join(" ") || null,
+      title: e.position ?? null, email: e.email ?? null,
+    }));
     const seen = new Set<string>();
     const merged: { firstName: string | null; lastName: string | null; title: string | null; email: string | null }[] = [];
     for (const r of [...leadRows, ...execRows]) {

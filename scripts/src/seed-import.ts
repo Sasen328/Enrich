@@ -450,7 +450,7 @@ async function importCompanies(): Promise<Map<string, number>> {
         website: data.website,
         phone: data.phone,
         email: data.contactEmail,
-        employeeCount: parseEmployeeCount(data.employeeCount),
+        employeeCount: ((v) => (v != null ? String(v) : null))(parseEmployeeCount(data.employeeCount)),
         foundingYear: data.yearEstablished,
         revenue: data.revenue,
         enrichmentStatus: "seed-imported",

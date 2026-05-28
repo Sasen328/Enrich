@@ -1504,7 +1504,7 @@ async function agent5_validateAndDeduplicate(
         if (signals.appearsDummy) {
           validation.status = "reject";
           validation.reasons.push("DUMMY_DETECTED");
-          rejectCount++; passCount = Math.max(0, passCount - (validation.status === "pass" ? 1 : 0));
+          rejectCount++; passCount = Math.max(0, passCount - ((validation.status as string) === "pass" ? 1 : 0));
         } else if (signals.confidence < 35) {
           // Low confidence → downgrade to warn
           if (validation.status === "pass") { validation.status = "warn"; passCount--; warnCount++; }

@@ -23,6 +23,7 @@ import { parseToBlocks, type ReportBlock, type ReportShape } from "../lib/compos
 import { exportReport, type ExportFormat } from "../lib/composer/exporters.js";
 
 const router: IRouter = Router();
+const p = (x: string | string[]): string => Array.isArray(x) ? x[0] : x;
 
 router.get("/composer/templates", async (_req: Request, res: Response): Promise<void> => {
   // Merge built-in + user-saved
@@ -91,7 +92,7 @@ const OAUTH: Record<string, { authBase: string; scope: string; setupDocs: string
 };
 
 router.get("/composer/connectors/:id/auth-url", (req: Request, res: Response): void => {
-  const id = req.params.id;
+  const id = p(req.params.id);
   const cfg = OAUTH[id];
   if (!cfg) { res.status(404).json({ error: "unknown_connector" }); return; }
   const clientId = process.env[`${id.toUpperCase()}_CLIENT_ID`];
@@ -102,7 +103,7 @@ router.get("/composer/connectors/:id/auth-url", (req: Request, res: Response): v
 });
 
 router.get("/composer/connectors/:id/callback", async (req: Request, res: Response): Promise<void> => {
-  const id = req.params.id;
+  const id = p(req.params.id);
   const code = req.query.code as string | undefined;
   if (!code) { res.status(400).send("Missing OAuth code"); return; }
   // Token exchange left to the operator's provider config; we store the code
@@ -113,7 +114,7 @@ router.get("/composer/connectors/:id/callback", async (req: Request, res: Respon
 });
 
 router.delete("/composer/connectors/:id", (req: Request, res: Response): void => {
-  connectorTokens.delete(req.params.id);
+  connectorTokens.delete(p(req.params.id));
   res.json({ ok: true });
 });
 
@@ -155,7 +156,7 @@ router.post("/composer/skills", async (req: Request, res: Response): Promise<voi
 });
 
 router.patch("/composer/skills/:id", async (req: Request, res: Response): Promise<void> => {
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt(p(req.params.id), 10);
   const b = req.body as Record<string, unknown>;
   const patch: Record<string, unknown> = {};
   for (const k of ["name", "description", "systemPrompt", "toolWhitelist", "reportSchema", "modelTier", "visibility", "enabled"]) {
@@ -167,7 +168,7 @@ router.patch("/composer/skills/:id", async (req: Request, res: Response): Promis
 });
 
 router.delete("/composer/skills/:id", async (req: Request, res: Response): Promise<void> => {
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt(p(req.params.id), 10);
   await db.delete(composerSkillsTable).where(eq(composerSkillsTable.id, id));
   res.json({ ok: true });
 });
@@ -193,7 +194,7 @@ router.post("/composer/templates", async (req: Request, res: Response): Promise<
 });
 
 router.patch("/composer/templates/:id", async (req: Request, res: Response): Promise<void> => {
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt(p(req.params.id), 10);
   const b = req.body as Record<string, unknown>;
   const [row] = await db.update(composerTemplatesTable).set(b).where(eq(composerTemplatesTable.id, id)).returning();
   if (!row) { res.status(404).json({ error: "Not found" }); return; }
@@ -201,7 +202,7 @@ router.patch("/composer/templates/:id", async (req: Request, res: Response): Pro
 });
 
 router.delete("/composer/templates/:id", async (req: Request, res: Response): Promise<void> => {
-  await db.delete(composerTemplatesTable).where(eq(composerTemplatesTable.id, parseInt(req.params.id, 10)));
+  await db.delete(composerTemplatesTable).where(eq(composerTemplatesTable.id, parseInt(p(req.params.id), 10)));
   res.json({ ok: true });
 });
 
@@ -227,7 +228,7 @@ router.get("/composer/user-sources", async (_req: Request, res: Response): Promi
 });
 
 router.delete("/composer/user-sources/:id", async (req: Request, res: Response): Promise<void> => {
-  await db.delete(composerUserSourcesTable).where(eq(composerUserSourcesTable.id, parseInt(req.params.id, 10)));
+  await db.delete(composerUserSourcesTable).where(eq(composerUserSourcesTable.id, parseInt(p(req.params.id), 10)));
   res.json({ ok: true });
 });
 
@@ -246,7 +247,7 @@ router.post("/composer/runs", async (req: Request, res: Response): Promise<void>
 });
 
 router.patch("/composer/runs/:id", async (req: Request, res: Response): Promise<void> => {
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt(p(req.params.id), 10);
   const b = req.body as Record<string, unknown>;
   const patch: Record<string, unknown> = {};
   for (const k of ["state", "enhancedPrompt", "reportShape", "rawText", "blocks", "status", "errorMessage"]) {
@@ -265,7 +266,7 @@ router.get("/composer/runs", async (req: Request, res: Response): Promise<void> 
 });
 
 router.get("/composer/runs/:id", async (req: Request, res: Response): Promise<void> => {
-  const [row] = await db.select().from(composerRunsTable).where(eq(composerRunsTable.id, parseInt(req.params.id, 10)));
+  const [row] = await db.select().from(composerRunsTable).where(eq(composerRunsTable.id, parseInt(p(req.params.id), 10)));
   if (!row) { res.status(404).json({ error: "Not found" }); return; }
   res.json(row);
 });
@@ -278,7 +279,7 @@ router.post("/composer/render-blocks", (req: Request, res: Response): void => {
 
 // ── Export a run to xlsx / pdf / pptx / csv / html / jsx / json ───────────────
 router.get("/composer/runs/:id/export", async (req: Request, res: Response): Promise<void> => {
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt(p(req.params.id), 10);
   const format = String(req.query.format || "xlsx") as ExportFormat;
   const [row] = await db.select().from(composerRunsTable).where(eq(composerRunsTable.id, id));
   if (!row) { res.status(404).json({ error: "Not found" }); return; }

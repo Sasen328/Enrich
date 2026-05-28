@@ -11,7 +11,7 @@ import { db } from "@workspace/db";
 import { seederPlansTable, seederRowsTable } from "@workspace/db/schema";
 import { eq, inArray } from "drizzle-orm";
 import { z } from "zod/v4";
-import { enterJob } from "../lib/paid-api-guard.js";
+import { enterJob, runInJob } from "../lib/paid-api-guard.js";
 
 const router = Router();
 
@@ -74,7 +74,7 @@ router.post("/prosengine/seed/harvest", async (req: Request, res: Response) => {
     if (!plan) { res.status(404).json({ error: "not_found" }); return; }
     res.json({ ok: true, planId, message: "Harvest started — poll /api/prosengine/seed/rows?planId=" });
 
-    setImmediate(() => enterJob(`seed-harvest:${planId}`, async () => {
+    setImmediate(() => runInJob(`seed-harvest:${planId}`, async () => {
       await db.update(seederPlansTable).set({ status: "harvesting" } as any).where(eq(seederPlansTable.id, planId));
       const { scrapeGraphExtract } = await import("../lib/scrapers/scrapegraph-client.js");
       const schema = (plan.approvedFields as string[] ?? []).join(", ") || "company name, website, city, contact";
@@ -104,7 +104,7 @@ router.post("/prosengine/seed/enrich", async (req: Request, res: Response) => {
   const { stagingIds } = req.body as { stagingIds?: number[] };
   if (!stagingIds?.length) { res.status(400).json({ error: "stagingIds required" }); return; }
   res.json({ ok: true, message: `Enrichment queued for ${stagingIds.length} rows` });
-  setImmediate(() => enterJob(`seed-enrich:${Date.now()}`, async () => {
+  setImmediate(() => runInJob(`seed-enrich:${Date.now()}`, async () => {
     const rows = await db.select().from(seederRowsTable).where(inArray(seederRowsTable.id, stagingIds));
     for (const row of rows) {
       try {

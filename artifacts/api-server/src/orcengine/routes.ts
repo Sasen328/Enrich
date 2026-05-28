@@ -576,7 +576,7 @@ Return ONLY the enhanced query text, no explanations.`
         website: primaryUrl || undefined,
         email: emails[0] || undefined,
         phone: phones[0] || undefined,
-        description,
+        description: description ?? undefined,
         country: "Saudi Arabia",
       }, { enrichmentStatus: "partial", enrichmentScore: 20, dataSource: "orcengine:scrape" });
 

@@ -23,6 +23,7 @@ import { and, or, ilike, eq, sql, inArray } from "drizzle-orm";
 import { z } from "zod/v4";
 
 const router = Router();
+const p = (x: string | string[]): string => Array.isArray(x) ? x[0] : x;
 
 // ── SAVE ─────────────────────────────────────────────────────────────────
 const saveSchema = z.object({
@@ -144,7 +145,7 @@ router.get("/lead-genome/lists", async (_req: Request, res: Response) => {
 });
 
 router.get("/lead-genome/lists/:id", async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt(p(req.params.id), 10);
   if (!id) return res.status(400).json({ error: "bad_id" });
   try {
     const [list] = await db.select().from(leadListsTable).where(eq(leadListsTable.id, id));
@@ -161,7 +162,7 @@ const addItemsSchema = z.object({
 });
 
 router.post("/lead-genome/lists/:id/items", async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt(p(req.params.id), 10);
   if (!id) return res.status(400).json({ error: "bad_id" });
   const parsed = addItemsSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: "validation_failed", issues: parsed.error.issues });
@@ -197,7 +198,7 @@ router.post("/lead-genome/lists/:id/items", async (req: Request, res: Response) 
 // Pipes the lead's name/title/company through Lead Factory's research
 // pipeline as a targeted single-person enrichment, then updates the lead.
 router.post("/lead-genome/enrich/:leadId", async (req: Request, res: Response) => {
-  const leadId = parseInt(req.params.leadId, 10);
+  const leadId = parseInt(p(req.params.leadId), 10);
   if (!leadId) return res.status(400).json({ error: "bad_id" });
   try {
     const [lead] = await db.select().from(leadsTable).where(eq(leadsTable.id, leadId));

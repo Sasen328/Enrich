@@ -13,7 +13,7 @@ export async function camoufoxFetch(url: string, _opts: { timeoutMs?: number } =
   if (!camoufoxAvailable()) return null;
   try {
     // Lazy import so the bundle doesn't hard-depend on camoufox.
-    const mod: any = await import("camoufox-js").catch(() => null);
+    const mod: any = await import("camoufox-js" as any).catch(() => null);
     if (!mod?.launch) return null;
     const browser = await mod.launch({ headless: true });
     const page = await browser.newPage();

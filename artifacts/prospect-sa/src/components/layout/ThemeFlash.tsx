@@ -14,6 +14,7 @@ export function ThemeFlash() {
       return () => clearTimeout(t);
     }
     setLast(resolvedTheme);
+    return undefined;
   }, [resolvedTheme, last]);
 
   if (!flash) return null;
