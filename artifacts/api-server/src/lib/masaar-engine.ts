@@ -1687,8 +1687,25 @@ Return the report as plain markdown text. Start with: ## Company Intelligence Re
     if (text.length > 200) reportEn = text;
   }
 
+  // NEXUS synthesis fallback — when both Claude and GPT-4o are down/unconfigured,
+  // route through the multi-LLM fabric (Gemini → DeepSeek → OpenRouter → …) so
+  // the report still compiles instead of failing hard.
   if (!reportEn) {
-    log(emitter, agentNum, agentName, "⚠ Both Claude and GPT-4o failed to compile English report");
+    try {
+      const nexusEn = await nexusSynthesize(
+        enPrompt,
+        "You are a Saudi business intelligence analyst. Write comprehensive English intelligence reports in markdown.",
+        { maxTokens: 6000 },
+      );
+      if (nexusEn.text.length > 200) {
+        reportEn = nexusEn.text;
+        log(emitter, agentNum, agentName, `ℹ English report via NEXUS ${nexusEn.provider}/${nexusEn.model}`);
+      }
+    } catch { /* fall through to hard failure */ }
+  }
+
+  if (!reportEn) {
+    log(emitter, agentNum, agentName, "⚠ Claude, GPT-4o, and NEXUS all failed to compile English report");
     emit(emitter, { type: "agent_complete", agentNum, agentName, data: {} });
     return {
       reportEn: "Report compilation failed — please try again.",
