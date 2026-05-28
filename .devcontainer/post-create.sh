@@ -40,8 +40,8 @@ if [ ! -f .env ]; then
     cat > .env << 'EOF'
 NODE_ENV=development
 PORT=3000
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/prospectsa
-POSTGRES_PASSWORD=postgres
+DATABASE_URL=postgresql://prospectsa:prospectsa_secret@db:5432/prospectsa
+POSTGRES_PASSWORD=prospectsa_secret
 API_TOKEN=dev-token-codespace
 FRONTEND_ORIGIN=http://localhost:5173
 SCOUT_URL=http://localhost:8099
