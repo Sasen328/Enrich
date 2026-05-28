@@ -84,10 +84,10 @@ function initials(name: string) {
 }
 
 function ownershipColor(pct: number | null) {
-  if (!pct) return "text-zinc-400";
+  if (!pct) return "text-muted-foreground";
   if (pct >= 20) return "text-emerald-400";
   if (pct >= 5)  return "text-amber-400";
-  return "text-zinc-400";
+  return "text-muted-foreground";
 }
 
 function ownershipBarColor(pct: number | null) {
@@ -98,14 +98,14 @@ function ownershipBarColor(pct: number | null) {
 }
 
 const RISK_COLORS: Record<string, string> = {
-  Conservative: "bg-blue-500/15 text-blue-300 border-blue-500/20",
+  Conservative: "bg-blue-500/15 text-primary border-primary/20",
   Balanced:     "bg-emerald-500/15 text-emerald-300 border-emerald-500/20",
   Growth:       "bg-amber-500/15 text-amber-300 border-amber-500/20",
   Speculative:  "bg-red-500/15 text-red-300 border-red-500/20",
 };
 
 const APPETITE_COLORS: Record<string, string> = {
-  Conservative:  "bg-blue-500/15 text-blue-300 border-blue-500/20",
+  Conservative:  "bg-blue-500/15 text-primary border-primary/20",
   Moderate:      "bg-teal-500/15 text-teal-300 border-teal-500/20",
   Aggressive:    "bg-orange-500/15 text-orange-300 border-orange-500/20",
   Opportunistic: "bg-violet-500/15 text-violet-300 border-violet-500/20",
@@ -153,7 +153,7 @@ function AIProfileDrawer({
   if (open && !hasLoaded && !generateMutation.isPending) { checkCached(); }
 
   const score = profile?.profileScore ?? 0;
-  const scoreColor = score >= 75 ? "text-emerald-400" : score >= 50 ? "text-amber-400" : "text-zinc-400";
+  const scoreColor = score >= 75 ? "text-emerald-400" : score >= 50 ? "text-amber-400" : "text-muted-foreground";
   const scoreBar = score >= 75 ? "bg-emerald-500" : score >= 50 ? "bg-amber-500" : "bg-zinc-500";
 
   return (
@@ -259,13 +259,13 @@ function AIProfileDrawer({
                     {profile.investmentAppetite && (
                       <div className="p-3 bg-muted/40 rounded-xl border border-border/40">
                         <p className="text-xs text-muted-foreground mb-1">Investment Appetite</p>
-                        <Badge className={`text-xs border ${APPETITE_COLORS[profile.investmentAppetite] ?? "bg-zinc-500/15 text-zinc-300"}`}>{profile.investmentAppetite}</Badge>
+                        <Badge className={`text-xs border ${APPETITE_COLORS[profile.investmentAppetite] ?? "bg-zinc-500/15 text-muted-foreground"}`}>{profile.investmentAppetite}</Badge>
                       </div>
                     )}
                     {profile.riskProfile && (
                       <div className="p-3 bg-muted/40 rounded-xl border border-border/40">
                         <p className="text-xs text-muted-foreground mb-1">Risk Profile</p>
-                        <Badge className={`text-xs border ${RISK_COLORS[profile.riskProfile] ?? "bg-zinc-500/15 text-zinc-300"}`}>{profile.riskProfile}</Badge>
+                        <Badge className={`text-xs border ${RISK_COLORS[profile.riskProfile] ?? "bg-zinc-500/15 text-muted-foreground"}`}>{profile.riskProfile}</Badge>
                       </div>
                     )}
                   </div>
@@ -374,7 +374,7 @@ function AIProfileDrawer({
                   <div className="flex flex-wrap gap-2">
                     {(profile.publicProfiles ?? []).map((url, i) => (
                       <a key={i} href={url} target="_blank" rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 text-xs text-blue-400 hover:text-blue-300 bg-blue-500/10 border border-blue-500/20 px-2.5 py-1.5 rounded-lg">
+                        className="flex items-center gap-1.5 text-xs text-primary hover:text-primary bg-blue-500/10 border border-primary/20 px-2.5 py-1.5 rounded-lg">
                         <ExternalLink className="w-3 h-3" />{url.replace(/^https?:\/\//, "").split("/")[0]}
                       </a>
                     ))}
@@ -439,7 +439,7 @@ function CompanyGroupCard({
 }) {
   const indexBg = company.stockIndex === "TASI"
     ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/20"
-    : "bg-blue-500/15 text-blue-300 border-blue-500/20";
+    : "bg-blue-500/15 text-primary border-primary/20";
 
   return (
     <Card className="bg-card/65 border-border/40 hover:border-white/20 transition-all duration-150 overflow-hidden">
@@ -453,7 +453,7 @@ function CompanyGroupCard({
               <div className="flex items-center gap-2 flex-wrap">
                 <h3 className="font-display font-semibold text-foreground text-sm leading-tight">{company.companyName}</h3>
                 <Badge className={`text-xs border ${indexBg}`}>{company.stockIndex}</Badge>
-                {company.stockCode && <Badge className="bg-muted/40 text-zinc-400 border-border/40 border text-xs">{company.stockCode}</Badge>}
+                {company.stockCode && <Badge className="bg-muted/40 text-muted-foreground border-border/40 border text-xs">{company.stockCode}</Badge>}
               </div>
               {company.sector && <p className="text-xs text-muted-foreground mt-0.5"><BarChart3 className="w-3 h-3 inline mr-0.5" />{company.sector}</p>}
               {company.city && <p className="text-xs text-muted-foreground"><MapPin className="w-3 h-3 inline mr-0.5" />{company.city}</p>}

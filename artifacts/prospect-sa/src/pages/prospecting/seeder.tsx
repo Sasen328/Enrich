@@ -135,7 +135,7 @@ function RecordCard({ record, idx }: { record: Record<string, string>; idx: numb
           <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-0.5">
             {sub && <span className="text-xs text-muted-foreground">{sub}</span>}
             {city && <span className="text-xs text-muted-foreground flex items-center gap-1"><MapPin className="w-2.5 h-2.5" />{city}</span>}
-            {email && <span className="text-xs text-blue-400 flex items-center gap-1"><Mail className="w-2.5 h-2.5" />{email}</span>}
+            {email && <span className="text-xs text-primary flex items-center gap-1"><Mail className="w-2.5 h-2.5" />{email}</span>}
           </div>
         </div>
         {open ? <ChevronUp className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" /> : <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />}

@@ -205,7 +205,7 @@ const ICON_MAP: Record<string, typeof Phone> = {
 
 const ICON_COLORS: Record<string, string> = {
   phone: "text-emerald-400",
-  email: "text-blue-400",
+  email: "text-primary",
   website: "text-cyan-400",
   address: "text-orange-400",
   city: "text-orange-400",
@@ -274,7 +274,7 @@ function RecordCard({ data, enrichmentStatus }: { data: CompanyData; enrichmentS
         </div>
         <div className="flex items-center gap-1 shrink-0">
           {data.phone && <Phone className="w-3 h-3 text-emerald-400" />}
-          {data.email && <Mail className="w-3 h-3 text-blue-400" />}
+          {data.email && <Mail className="w-3 h-3 text-primary" />}
           {data.website && <Globe className="w-3 h-3 text-cyan-400" />}
         </div>
         <Badge
@@ -318,7 +318,7 @@ function RecordCard({ data, enrichmentStatus }: { data: CompanyData; enrichmentS
                   <User className="w-3 h-3 text-purple-400 shrink-0" />
                   <span className="text-foreground/80">{ex.name}</span>
                   {ex.title && <span className="text-foreground/40">— {ex.title}</span>}
-                  {ex.email && <a href={`mailto:${ex.email}`} className="text-blue-400/60 hover:underline ml-1">{ex.email}</a>}
+                  {ex.email && <a href={`mailto:${ex.email}`} className="text-primary/60 hover:underline ml-1">{ex.email}</a>}
                   {ex.phone && <a href={`tel:${ex.phone}`} className="text-emerald-400/60 hover:underline ml-1">{ex.phone}</a>}
                 </div>
               ))}
@@ -1115,7 +1115,7 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
                   { icon: Users, label: "Employees", val: str(p.employees), color: "text-teal-400" },
                   { icon: DollarSign, label: "Revenue", val: str(p.revenue), color: "text-emerald-400" },
                   { icon: Phone, label: "Phone", val: str(p.phone), color: "text-emerald-400", href: str(p.phone) ? `tel:${str(p.phone)}` : undefined },
-                  { icon: Mail, label: "Email", val: str(p.email), color: "text-blue-400", href: str(p.email) ? `mailto:${str(p.email)}` : undefined },
+                  { icon: Mail, label: "Email", val: str(p.email), color: "text-primary", href: str(p.email) ? `mailto:${str(p.email)}` : undefined },
                   { icon: MapPin, label: "Address", val: str(p.address), color: "text-orange-400" },
                   { icon: Shield, label: "Regulator", val: str(p.regulator), color: "text-cyan-400" },
                   { icon: Globe, label: "Region", val: str(p.region), color: "text-emerald-400" },
@@ -1158,7 +1158,7 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
               {[
                 { label: "Management", items: management, icon: Users, color: "text-violet-400", bgColor: "bg-violet-500/10", borderColor: "border-violet-500/20" },
                 { label: "Shareholders", items: shareholders, icon: Building2, color: "text-amber-400", bgColor: "bg-amber-500/10", borderColor: "border-amber-500/20" },
-                { label: "Board of Directors", items: board, icon: Shield, color: "text-blue-400", bgColor: "bg-blue-500/10", borderColor: "border-blue-500/20" },
+                { label: "Board of Directors", items: board, icon: Shield, color: "text-primary", bgColor: "bg-blue-500/10", borderColor: "border-primary/20" },
               ].filter(section => section.items.length > 0).map(({ label, items, icon: Icon, color, bgColor, borderColor }) => (
                 <Card key={label} className="bg-white/3 border-white/6">
                   <CardContent className="py-4 px-5">
@@ -1251,9 +1251,9 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
 
               {/* Recent News */}
               {str(p.recentNews) && (
-                <Card className="bg-blue-500/5 border-blue-500/15">
+                <Card className="bg-blue-500/5 border-primary/15">
                   <CardContent className="py-4 px-5">
-                    <p className="text-xs font-semibold text-blue-400/80 uppercase tracking-wider mb-2">Recent News</p>
+                    <p className="text-xs font-semibold text-primary/80 uppercase tracking-wider mb-2">Recent News</p>
                     <p className="text-sm text-muted-foreground leading-relaxed">{str(p.recentNews)}</p>
                   </CardContent>
                 </Card>
@@ -1702,7 +1702,7 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
                       <p className="text-[10px] text-muted-foreground">Enriched</p>
                     </div>
                     <div>
-                      <p className="text-2xl font-bold text-blue-400">{job.pagesScanned || 0}</p>
+                      <p className="text-2xl font-bold text-primary">{job.pagesScanned || 0}</p>
                       <p className="text-[10px] text-muted-foreground">Pages</p>
                     </div>
                   </div>
@@ -1896,7 +1896,7 @@ ${chatMessages.filter(m => m.role === "assistant").length > 0 ? `<h2>AI Analysis
                       j.status === "completed" ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" :
                       j.status === "failed" ? "bg-rose-500/20 text-rose-400 border-rose-500/30" :
                       (j.status === "scanning" || j.status === "extracting" || j.status === "enriching")
-                        ? "bg-blue-500/20 text-blue-400 border-blue-500/30" :
+                        ? "bg-blue-500/20 text-primary border-primary/30" :
                       "bg-white/10 text-foreground/50 border-border/40",
                     )}
                   >

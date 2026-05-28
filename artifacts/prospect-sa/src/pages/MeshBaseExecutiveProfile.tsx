@@ -26,7 +26,7 @@ function initials(name?: string | null) {
 const seniorityColors: Record<string, string> = {
   "C-Suite": "text-amber-400 bg-amber-500/10 border-amber-500/30",
   "VP": "text-violet-400 bg-violet-500/10 border-violet-500/30",
-  "Director": "text-blue-400 bg-blue-500/10 border-blue-500/30",
+  "Director": "text-primary bg-blue-500/10 border-primary/30",
   "Senior": "text-emerald-400 bg-emerald-500/10 border-emerald-500/30",
   "Mid": "text-sky-400 bg-sky-500/10 border-sky-500/30",
 };
@@ -161,10 +161,10 @@ export default function MeshBaseExecutiveProfile() {
       {/* Stats row */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         {executive.yearsOfExperience != null && (
-          <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-4 space-y-1">
+          <div className="rounded-xl border border-primary/20 bg-blue-500/5 p-4 space-y-1">
             <div className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground">Years Experience</span>
-              <Briefcase className="w-4 h-4 text-blue-400" />
+              <Briefcase className="w-4 h-4 text-primary" />
             </div>
             <div className="text-2xl font-bold text-foreground">{executive.yearsOfExperience}</div>
           </div>
@@ -196,7 +196,7 @@ export default function MeshBaseExecutiveProfile() {
             <Card className="border-border/50 bg-card/70">
               <CardHeader className="pb-2 pt-4 px-5">
                 <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                  <BookOpen className="w-4 h-4 text-blue-400" />Biography
+                  <BookOpen className="w-4 h-4 text-primary" />Biography
                 </CardTitle>
               </CardHeader>
               <CardContent className="px-5 pb-4">
@@ -322,8 +322,8 @@ export default function MeshBaseExecutiveProfile() {
               onClick={() => navigate(`/meshbase/companies/${executive.companyId}`)}
             >
               <CardContent className="p-4 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0">
-                  <Building2 className="w-5 h-5 text-blue-400" />
+                <div className="w-10 h-10 rounded-lg bg-blue-500/10 border border-primary/20 flex items-center justify-center shrink-0">
+                  <Building2 className="w-5 h-5 text-primary" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="text-xs text-muted-foreground">Works at</div>

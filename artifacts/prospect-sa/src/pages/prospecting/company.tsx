@@ -357,7 +357,7 @@ export default function CompanyIntelPage() {
           <Section title="Financial Intelligence" icon={DollarSign} color="text-emerald-400">
             <div className="grid grid-cols-2 gap-3 mb-4">
               {f.revenueEstimate && <div className="bg-emerald-500/5 border border-emerald-500/15 rounded-lg p-3"><p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Revenue Estimate</p><p className="text-sm font-bold text-emerald-400">{f.revenueEstimate}</p></div>}
-              {f.employeeCount && <div className="bg-blue-500/5 border border-blue-500/15 rounded-lg p-3"><p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Employees</p><p className="text-sm font-bold text-blue-400">{f.employeeCount}</p></div>}
+              {f.employeeCount && <div className="bg-blue-500/5 border border-primary/15 rounded-lg p-3"><p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Employees</p><p className="text-sm font-bold text-primary">{f.employeeCount}</p></div>}
               {f.paidUpCapital && <div className="bg-purple-500/5 border border-purple-500/15 rounded-lg p-3"><p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Paid-up Capital</p><p className="text-sm font-bold text-purple-400">{f.paidUpCapital}</p></div>}
               {f.profitabilityIndicator && f.profitabilityIndicator !== "Unknown" && <div className="bg-amber-500/5 border border-amber-500/15 rounded-lg p-3"><p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Profitability</p><p className="text-sm font-bold text-amber-400">{f.profitabilityIndicator}</p></div>}
             </div>
@@ -452,8 +452,8 @@ export default function CompanyIntelPage() {
 
         {/* Operations */}
         {(ops.activities?.length || ops.products?.length || ops.keyCients?.length || ops.subsidiaries?.length) ? (
-          <Section title="Business Operations" icon={Briefcase} color="text-blue-400" defaultOpen={false}>
-            {ops.activities && ops.activities.length > 0 && <div className="mb-3"><p className="text-xs font-semibold text-foreground mb-2">Activities</p><div className="flex flex-wrap gap-1.5">{ops.activities.map((a, i) => <Tag key={i} text={a} color="bg-blue-500/10 text-blue-300 border-blue-500/20" />)}</div></div>}
+          <Section title="Business Operations" icon={Briefcase} color="text-primary" defaultOpen={false}>
+            {ops.activities && ops.activities.length > 0 && <div className="mb-3"><p className="text-xs font-semibold text-foreground mb-2">Activities</p><div className="flex flex-wrap gap-1.5">{ops.activities.map((a, i) => <Tag key={i} text={a} color="bg-blue-500/10 text-primary border-primary/20" />)}</div></div>}
             {ops.products && ops.products.length > 0 && <div className="mb-3"><p className="text-xs font-semibold text-foreground mb-2">Products & Services</p><div className="flex flex-wrap gap-1.5">{ops.products.map((p, i) => <Tag key={i} text={p} />)}</div></div>}
             {ops.keyCients && ops.keyCients.length > 0 && <div className="mb-3"><p className="text-xs font-semibold text-foreground mb-2">Notable Clients</p><div className="flex flex-wrap gap-1.5">{ops.keyCients.map((c, i) => <Tag key={i} text={c} color="bg-cyan-500/10 text-cyan-300 border-cyan-500/20" />)}</div></div>}
             {ops.subsidiaries && ops.subsidiaries.length > 0 && <div><p className="text-xs font-semibold text-foreground mb-2">Subsidiaries & Affiliates</p><div className="flex flex-wrap gap-1.5">{ops.subsidiaries.map((s, i) => <Tag key={i} text={s} color="bg-purple-500/10 text-purple-300 border-purple-500/20" />)}</div></div>}
@@ -468,7 +468,7 @@ export default function CompanyIntelPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               {m.competitors && m.competitors.length > 0 && <div className="bg-white/3 border border-white/8 rounded-lg p-3"><p className="text-xs font-semibold text-foreground mb-2">Competitors</p><div className="space-y-1">{m.competitors.map((c, i) => <p key={i} className="text-xs text-muted-foreground">• {c}</p>)}</div></div>}
               {m.strengths && m.strengths.length > 0 && <div className="bg-emerald-500/5 border border-emerald-500/15 rounded-lg p-3"><p className="text-xs font-semibold text-emerald-400 mb-2">Strengths</p><div className="space-y-1">{m.strengths.map((s, i) => <p key={i} className="text-xs text-foreground/80">✓ {s}</p>)}</div></div>}
-              {m.opportunities && m.opportunities.length > 0 && <div className="bg-blue-500/5 border border-blue-500/15 rounded-lg p-3"><p className="text-xs font-semibold text-blue-400 mb-2">Opportunities</p><div className="space-y-1">{m.opportunities.map((o, i) => <p key={i} className="text-xs text-foreground/80">→ {o}</p>)}</div></div>}
+              {m.opportunities && m.opportunities.length > 0 && <div className="bg-blue-500/5 border border-primary/15 rounded-lg p-3"><p className="text-xs font-semibold text-primary mb-2">Opportunities</p><div className="space-y-1">{m.opportunities.map((o, i) => <p key={i} className="text-xs text-foreground/80">→ {o}</p>)}</div></div>}
             </div>
           </Section>
         )}
