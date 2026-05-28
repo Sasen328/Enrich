@@ -71,7 +71,7 @@ const SOURCES: SourceDef[] = [
     label: "Wikipedia + Gemini Search",
     description: "Wikipedia Saudi company articles enriched with Google Gemini web intelligence",
     icon: "🌐",
-    color: "border-blue-500/40 bg-blue-500/5 text-blue-300",
+    color: "border-primary/40 bg-blue-500/5 text-primary",
     category: "General",
   },
   {
@@ -179,7 +179,7 @@ const SOURCES: SourceDef[] = [
     label: "OpenCorporates (SA)",
     description: "openCorporates.com — 200M+ global companies. Saudi Arabia jurisdiction filter via free REST API",
     icon: "🌍",
-    color: "border-blue-400/40 bg-blue-400/5 text-blue-200",
+    color: "border-primary/40 bg-blue-400/5 text-primary",
     category: "Open Registries",
   },
   {
@@ -220,7 +220,7 @@ const SOURCES: SourceDef[] = [
     label: "AmCham Saudi Arabia",
     description: "amcham.org.sa — American Chamber of Commerce Saudi Arabia member companies",
     icon: "🇺🇸",
-    color: "border-blue-300/40 bg-blue-300/5 text-blue-200",
+    color: "border-primary/40 bg-blue-300/5 text-primary",
     category: "Professional Directories",
   },
   {
@@ -244,7 +244,7 @@ const SOURCES: SourceDef[] = [
     label: "French Chamber KSA",
     description: "fcc.org.sa — French Chamber of Commerce Saudi Arabia member firms",
     icon: "🇫🇷",
-    color: "border-blue-500/30 bg-blue-500/5 text-blue-200",
+    color: "border-primary/30 bg-blue-500/5 text-primary",
     category: "Professional Directories",
   },
   {
@@ -409,7 +409,7 @@ function enrichmentBadge(status: string | null) {
     case "enriched":
       return <Badge className="bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 gap-1"><CheckCircle2 className="w-3 h-3" />Enriched</Badge>;
     case "enriching":
-      return <Badge className="bg-blue-500/15 text-blue-400 border border-blue-500/30 gap-1"><Loader2 className="w-3 h-3 animate-spin" />Enriching</Badge>;
+      return <Badge className="bg-blue-500/15 text-primary border border-primary/30 gap-1"><Loader2 className="w-3 h-3 animate-spin" />Enriching</Badge>;
     case "failed":
       return <Badge className="bg-red-500/15 text-red-400 border border-red-500/30 gap-1"><AlertCircle className="w-3 h-3" />Failed</Badge>;
     default:
@@ -429,7 +429,7 @@ function sourceBadge(source: string) {
   }
   // Unknown / legacy source value — show raw
   return (
-    <Badge className="bg-slate-500/15 text-muted-foreground border border-slate-500/30 text-xs gap-1">
+    <Badge className="bg-slate-500/15 text-muted-foreground border border-border/30 text-xs gap-1">
       <Globe className="w-3 h-3" />
       <span>{source || "Unknown"}</span>
     </Badge>
@@ -457,7 +457,7 @@ function LogEntry({ event }: { event: HarvestEvent }) {
   }
   if (event.type === "progress") {
     return (
-      <div className="text-xs text-blue-400 py-0.5">
+      <div className="text-xs text-primary py-0.5">
         🔬 Enriching {event.count}/{event.total}...
       </div>
     );
@@ -803,7 +803,7 @@ function CompanyDrawer({
             {visibleBoard.length > 0 && (
               <section>
                 <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
-                  <Users className="w-4 h-4 text-blue-400" />Board of Directors
+                  <Users className="w-4 h-4 text-primary" />Board of Directors
                 </h3>
                 <div className="space-y-2">
                   {visibleBoard.map((m, i) => (

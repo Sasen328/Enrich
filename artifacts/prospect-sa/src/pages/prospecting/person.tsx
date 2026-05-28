@@ -558,7 +558,7 @@ export default function PersonIntelPage() {
                   {profile.profile?.location && <span className="flex items-center gap-1.5 text-sm text-muted-foreground"><MapPin className="w-3.5 h-3.5" />{profile.profile.location}</span>}
                   {profile.profile?.nationality && <span className="flex items-center gap-1.5 text-sm text-muted-foreground"><Globe className="w-3.5 h-3.5" />{profile.profile.nationality}</span>}
                   {profile.profile?.age && <span className="flex items-center gap-1.5 text-sm text-muted-foreground"><Calendar className="w-3.5 h-3.5" />Age ~{profile.profile.age}</span>}
-                  {wizard.linkedin && <a href={wizard.linkedin} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-sm text-blue-400 hover:text-blue-300"><Linkedin className="w-3.5 h-3.5" />LinkedIn</a>}
+                  {wizard.linkedin && <a href={wizard.linkedin} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-sm text-primary hover:text-primary"><Linkedin className="w-3.5 h-3.5" />LinkedIn</a>}
                 </div>
               </div>
             </div>
@@ -663,7 +663,7 @@ export default function PersonIntelPage() {
 
         {/* Company */}
         {profile.company_analysis && (wizard.goals.length === 0 || wizard.goals.includes("company") || wizard.goals.includes("competitive")) && (
-          <Section title="Company Analysis" icon={TrendingUp} color="text-blue-400" defaultOpen={false}>
+          <Section title="Company Analysis" icon={TrendingUp} color="text-primary" defaultOpen={false}>
             <div className="space-y-3">
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {[
@@ -680,7 +680,7 @@ export default function PersonIntelPage() {
                   </div>
                 ))}
               </div>
-              {profile.company_analysis.performance && <div className="p-3 rounded-lg bg-blue-500/8 border border-blue-500/20"><p className="text-xs font-semibold text-blue-400 mb-1">Performance Summary</p><p className="text-sm text-foreground/80">{profile.company_analysis.performance}</p></div>}
+              {profile.company_analysis.performance && <div className="p-3 rounded-lg bg-blue-500/8 border border-primary/20"><p className="text-xs font-semibold text-primary mb-1">Performance Summary</p><p className="text-sm text-foreground/80">{profile.company_analysis.performance}</p></div>}
               {profile.company_analysis.recent_developments && <div className="p-3 rounded-lg bg-muted/40 border border-white/8"><p className="text-xs text-muted-foreground mb-1">Recent Developments</p><p className="text-sm text-foreground/80">{profile.company_analysis.recent_developments}</p></div>}
               {profile.company_analysis.pain_points && profile.company_analysis.pain_points.length > 0 && (
                 <div>

@@ -156,9 +156,9 @@ const AGENT_LABELS: Record<number, string> = {
 function TierBadge({ tier }: { tier?: string }) {
   const colors: Record<string, string> = {
     A: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
-    B: "bg-blue-500/20 text-primary border-blue-500/30",
+    B: "bg-blue-500/20 text-primary border-primary/30",
     C: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
-    D: "bg-slate-500/20 text-muted-foreground border-slate-500/30",
+    D: "bg-slate-500/20 text-muted-foreground border-border/30",
   };
   return (
     <span className={cn("inline-flex items-center px-1.5 py-0.5 text-[10px] font-bold rounded border", colors[tier || "D"] || colors.D)}>
@@ -214,7 +214,7 @@ function AgentCard({ agentNum, state }: { agentNum: number; state: AgentState })
   return (
     <div className={cn(
       "border rounded-lg p-3 transition-all duration-300",
-      state.status === "running" ? "border-blue-500/50 bg-blue-500/5" :
+      state.status === "running" ? "border-primary/50 bg-blue-500/5" :
       state.status === "complete" ? "border-emerald-500/30 bg-emerald-500/5" :
       state.status === "error" ? "border-red-500/30 bg-red-500/5" :
       "border-border/30/50 bg-background/40",
@@ -229,7 +229,7 @@ function AgentCard({ agentNum, state }: { agentNum: number; state: AgentState })
         )}>
           {agentNum}
         </div>
-        <span className="text-xs font-semibold text-slate-300 flex-1 truncate">{state.label}</span>
+        <span className="text-xs font-semibold text-muted-foreground flex-1 truncate">{state.label}</span>
         <div className="flex items-center gap-1.5">
           {statusIcon}
           {state.count !== undefined && state.status === "complete" && (
@@ -325,14 +325,14 @@ function CopyModal({ lead, onClose }: { lead: LeadResult; onClose: () => void })
           {(["email", "linkedin", "whatsapp"] as const).map(t => (
             <button key={t} onClick={() => setTab(t)}
               className={cn("px-3 py-2 text-xs font-medium capitalize border-b-2 transition-colors",
-                tab === t ? "border-blue-500 text-primary" : "border-transparent text-muted-foreground hover:text-foreground")}>
+                tab === t ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground")}>
               {t === "linkedin" ? "LinkedIn" : t === "whatsapp" ? "WhatsApp" : "Email"}
             </button>
           ))}
         </div>
 
         <div className="flex-1 overflow-y-auto p-4 space-y-3">
-          <pre className="whitespace-pre-wrap text-[11px] text-slate-300 font-mono bg-card rounded-lg p-3 leading-relaxed">
+          <pre className="whitespace-pre-wrap text-[11px] text-muted-foreground font-mono bg-card rounded-lg p-3 leading-relaxed">
             {tab === "email" ? lead.outreachEmail :
              tab === "linkedin" ? lead.outreachLinkedin :
              lead.outreachWhatsapp || "—"}
@@ -345,9 +345,9 @@ function CopyModal({ lead, onClose }: { lead: LeadResult; onClose: () => void })
             </div>
           )}
           {lead.conversationHook && (
-            <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
+            <div className="bg-blue-500/10 border border-primary/20 rounded-lg p-3">
               <p className="text-[10px] text-primary font-semibold mb-1">Conversation Hook</p>
-              <p className="text-[11px] text-blue-300/80">{lead.conversationHook}</p>
+              <p className="text-[11px] text-primary/80">{lead.conversationHook}</p>
             </div>
           )}
         </div>
@@ -435,7 +435,7 @@ function CompanyAutocomplete({ onAdd }: { onAdd: (name: string) => void }) {
         {loading && <Loader2 className="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground animate-spin" />}
         <Input value={q} onChange={e => onInput(e.target.value)}
           placeholder="Type company name to search…"
-          className="pl-8 pr-8 h-8 text-xs bg-background border-border/30 text-slate-200"
+          className="pl-8 pr-8 h-8 text-xs bg-background border-border/30 text-muted-foreground"
           onKeyDown={e => { if (e.key === "Enter" && q.trim()) { onAdd(q.trim()); setQ(""); setOpen(false); } }}
           onBlur={() => setTimeout(() => setOpen(false), 180)}
           onFocus={() => suggestions.length > 0 && setOpen(true)} />
@@ -520,7 +520,7 @@ function ICPWizard({ onSubmit, isRunning }: { onSubmit: (brief: LeadFactoryBrief
   function StepSignals() {
     return (
       <div className="space-y-2">
-        <p className="text-xs font-semibold text-slate-300">Which buying signals should we prioritise?</p>
+        <p className="text-xs font-semibold text-muted-foreground">Which buying signals should we prioritise?</p>
         <p className="text-[10px] text-muted-foreground">Leave blank to include all signals</p>
         <div className="space-y-1.5">
           {BUYING_SIGNALS.map(sig => (
@@ -544,7 +544,7 @@ function ICPWizard({ onSubmit, isRunning }: { onSubmit: (brief: LeadFactoryBrief
           </div>
           <input type="range" min={10} max={200} step={10} value={targetCount}
             onChange={e => setTargetCount(+e.target.value)} className="w-full accent-blue-500" />
-          <div className="flex justify-between text-[10px] text-slate-600"><span>10</span><span>200</span></div>
+          <div className="flex justify-between text-[10px] text-foreground"><span>10</span><span>200</span></div>
         </div>
         <div>
           <p className="text-xs text-muted-foreground mb-2">Enrichment depth</p>
@@ -552,14 +552,14 @@ function ICPWizard({ onSubmit, isRunning }: { onSubmit: (brief: LeadFactoryBrief
             {([["basic", "Fast (2min)"], ["standard", "Balanced (5min)"], ["deep", "Deep (10min+)"]] as const).map(([d, label]) => (
               <button key={d} onClick={() => setDepth(d)}
                 className={cn("flex-1 py-2 text-[10px] rounded-lg border transition-colors text-center",
-                  depth === d ? "bg-blue-600/20 border-blue-500/50 text-primary" : "border-border/30/60 text-muted-foreground hover:border-border/50 bg-background/40")}>
+                  depth === d ? "bg-blue-600/20 border-primary/50 text-primary" : "border-border/30/60 text-muted-foreground hover:border-border/50 bg-background/40")}>
                 {label}
               </button>
             ))}
           </div>
         </div>
         <div className="bg-card/70 rounded-lg p-3 text-[11px] text-muted-foreground space-y-0.5">
-          <div className="font-semibold text-slate-300 mb-1.5">Run summary</div>
+          <div className="font-semibold text-muted-foreground mb-1.5">Run summary</div>
           {summaryLines.map((l, i) => <div key={i}>{l}</div>)}
           <div>Target: {targetCount} leads · {depth} enrichment</div>
         </div>
@@ -572,14 +572,14 @@ function ICPWizard({ onSubmit, isRunning }: { onSubmit: (brief: LeadFactoryBrief
     return (
       <div className="space-y-3">
         <div>
-          <p className="text-xs font-semibold text-slate-300 mb-0.5">Who are you looking for?</p>
+          <p className="text-xs font-semibold text-muted-foreground mb-0.5">Who are you looking for?</p>
           <p className="text-[10px] text-muted-foreground mb-2">Select job titles or type your own</p>
           {/* Custom title input */}
           <div className="flex gap-1.5 mb-2">
             <Input value={customTitle} onChange={e => setCustomTitle(e.target.value)}
               onKeyDown={e => { if (e.key === "Enter") addCustomTitle(); }}
               placeholder="Type a title and press Enter…"
-              className="flex-1 h-7 text-xs bg-background border-border/30 text-slate-200" />
+              className="flex-1 h-7 text-xs bg-background border-border/30 text-muted-foreground" />
             <Button size="sm" variant="ghost" onClick={addCustomTitle}
               className="h-7 px-2 text-xs text-muted-foreground border border-border/30">Add</Button>
           </div>
@@ -619,20 +619,20 @@ function ICPWizard({ onSubmit, isRunning }: { onSubmit: (brief: LeadFactoryBrief
     return (
       <div className="space-y-3">
         <div>
-          <p className="text-xs font-semibold text-slate-300 mb-0.5">What function / department?</p>
+          <p className="text-xs font-semibold text-muted-foreground mb-0.5">What function / department?</p>
           <p className="text-[10px] text-muted-foreground mb-2">Helps the AI focus search on the right team</p>
           <div className="grid grid-cols-2 gap-1.5">
             {FUNCTIONS.map(f => (
               <button key={f} onClick={() => toggle(functions, f, setFunctions)}
                 className={cn("text-left px-2.5 py-2 text-[11px] rounded-lg border transition-colors",
-                  functions.includes(f) ? "bg-blue-600/20 border-blue-500/50 text-blue-300" : "border-border/30/60 text-muted-foreground hover:border-border/50 bg-background/40")}>
+                  functions.includes(f) ? "bg-blue-600/20 border-primary/50 text-primary" : "border-border/30/60 text-muted-foreground hover:border-border/50 bg-background/40")}>
                 {f}
               </button>
             ))}
           </div>
         </div>
         <div>
-          <p className="text-xs font-semibold text-slate-300 mb-2">Seniority level</p>
+          <p className="text-xs font-semibold text-muted-foreground mb-2">Seniority level</p>
           <div className="space-y-1.5">
             {SENIORITY_LEVELS.map(s => (
               <button key={s} onClick={() => toggle(seniority, s, setSeniority)}
@@ -651,13 +651,13 @@ function ICPWizard({ onSubmit, isRunning }: { onSubmit: (brief: LeadFactoryBrief
     return (
       <div className="space-y-3">
         <div>
-          <p className="text-xs font-semibold text-slate-300 mb-0.5">What type of company should they work at?</p>
+          <p className="text-xs font-semibold text-muted-foreground mb-0.5">What type of company should they work at?</p>
           <p className="text-[10px] text-muted-foreground mb-2">Industry (multi-select)</p>
           <div className="grid grid-cols-2 gap-1.5 max-h-40 overflow-y-auto pr-1">
             {SAUDI_INDUSTRIES.map(ind => (
               <button key={ind} onClick={() => toggle(industries, ind, setIndustries)}
                 className={cn("text-left px-2.5 py-1.5 text-[11px] rounded-lg border transition-colors",
-                  industries.includes(ind) ? "bg-blue-600/20 border-blue-500/50 text-blue-300" : "border-border/30/60 text-muted-foreground hover:border-border/50 bg-background/40")}>
+                  industries.includes(ind) ? "bg-blue-600/20 border-primary/50 text-primary" : "border-border/30/60 text-muted-foreground hover:border-border/50 bg-background/40")}>
                 {ind}
               </button>
             ))}
@@ -669,7 +669,7 @@ function ICPWizard({ onSubmit, isRunning }: { onSubmit: (brief: LeadFactoryBrief
             {SAUDI_CITIES.map(city => (
               <button key={city} onClick={() => toggle(cities, city, setCities)}
                 className={cn("px-2 py-1 text-[10px] rounded-lg border transition-colors",
-                  cities.includes(city) ? "bg-blue-600/20 border-blue-500/50 text-blue-300" : "border-border/30/60 text-muted-foreground hover:border-border/50 bg-background/40")}>
+                  cities.includes(city) ? "bg-blue-600/20 border-primary/50 text-primary" : "border-border/30/60 text-muted-foreground hover:border-border/50 bg-background/40")}>
                 {city}
               </button>
             ))}
@@ -681,7 +681,7 @@ function ICPWizard({ onSubmit, isRunning }: { onSubmit: (brief: LeadFactoryBrief
             {COMPANY_SIZES.map(s => (
               <button key={s} onClick={() => toggle(sizes, s, setSizes)}
                 className={cn("flex-1 py-1.5 text-[10px] rounded-lg border transition-colors",
-                  sizes.includes(s) ? "bg-blue-600/20 border-blue-500/50 text-blue-300" : "border-border/30/60 text-muted-foreground hover:border-border/50 bg-background/40")}>
+                  sizes.includes(s) ? "bg-blue-600/20 border-primary/50 text-primary" : "border-border/30/60 text-muted-foreground hover:border-border/50 bg-background/40")}>
                 {s}
               </button>
             ))}
@@ -696,12 +696,12 @@ function ICPWizard({ onSubmit, isRunning }: { onSubmit: (brief: LeadFactoryBrief
     return (
       <div className="space-y-3">
         <div>
-          <p className="text-xs font-semibold text-slate-300 mb-0.5">What industries are you targeting?</p>
+          <p className="text-xs font-semibold text-muted-foreground mb-0.5">What industries are you targeting?</p>
           <div className="grid grid-cols-2 gap-1.5 max-h-52 overflow-y-auto pr-1">
             {SAUDI_INDUSTRIES.map(ind => (
               <button key={ind} onClick={() => toggle(industries, ind, setIndustries)}
                 className={cn("text-left px-2.5 py-1.5 text-[11px] rounded-lg border transition-colors",
-                  industries.includes(ind) ? "bg-blue-600/20 border-blue-500/50 text-blue-300" : "border-border/30/60 text-muted-foreground hover:border-border/50 bg-background/40")}>
+                  industries.includes(ind) ? "bg-blue-600/20 border-primary/50 text-primary" : "border-border/30/60 text-muted-foreground hover:border-border/50 bg-background/40")}>
                 {ind}
               </button>
             ))}
@@ -721,7 +721,7 @@ function ICPWizard({ onSubmit, isRunning }: { onSubmit: (brief: LeadFactoryBrief
         </div>
         <Textarea placeholder="Describe your ideal company in your own words (optional)…&#10;e.g. 'Fast-growing Saudi logistics company that recently won government contracts'"
           value={icpDesc} onChange={e => setIcpDesc(e.target.value)}
-          className="h-16 text-xs bg-background border-border/30 text-slate-200 resize-none" />
+          className="h-16 text-xs bg-background border-border/30 text-muted-foreground resize-none" />
       </div>
     );
   }
@@ -729,22 +729,22 @@ function ICPWizard({ onSubmit, isRunning }: { onSubmit: (brief: LeadFactoryBrief
   function CompaniesStep1() {
     return (
       <div className="space-y-3">
-        <p className="text-xs font-semibold text-slate-300">Where are your target companies located?</p>
+        <p className="text-xs font-semibold text-muted-foreground">Where are your target companies located?</p>
         <div className="grid grid-cols-3 gap-1.5">
           {SAUDI_CITIES.map(city => (
             <button key={city} onClick={() => toggle(cities, city, setCities)}
               className={cn("px-2 py-1.5 text-[11px] rounded-lg border transition-colors",
-                cities.includes(city) ? "bg-blue-600/20 border-blue-500/50 text-blue-300" : "border-border/30/60 text-muted-foreground hover:border-border/50 bg-background/40")}>
+                cities.includes(city) ? "bg-blue-600/20 border-primary/50 text-primary" : "border-border/30/60 text-muted-foreground hover:border-border/50 bg-background/40")}>
               {city}
             </button>
           ))}
         </div>
-        <p className="text-xs font-semibold text-slate-300 pt-1">Company size</p>
+        <p className="text-xs font-semibold text-muted-foreground pt-1">Company size</p>
         <div className="flex gap-2">
           {COMPANY_SIZES.map(s => (
             <button key={s} onClick={() => toggle(sizes, s, setSizes)}
               className={cn("flex-1 py-1.5 text-[11px] rounded-lg border transition-colors",
-                sizes.includes(s) ? "bg-blue-600/20 border-blue-500/50 text-blue-300" : "border-border/30/60 text-muted-foreground hover:border-border/50 bg-background/40")}>
+                sizes.includes(s) ? "bg-blue-600/20 border-primary/50 text-primary" : "border-border/30/60 text-muted-foreground hover:border-border/50 bg-background/40")}>
               {s}
             </button>
           ))}
@@ -758,7 +758,7 @@ function ICPWizard({ onSubmit, isRunning }: { onSubmit: (brief: LeadFactoryBrief
     return (
       <div className="space-y-3">
         <div>
-          <p className="text-xs font-semibold text-slate-300 mb-1">Search by company name</p>
+          <p className="text-xs font-semibold text-muted-foreground mb-1">Search by company name</p>
           <p className="text-[10px] text-muted-foreground mb-2">Start typing to autocomplete from our Saudi database</p>
           <CompanyAutocomplete onAdd={name => setCompanyList(prev => prev.includes(name) ? prev : [...prev, name])} />
         </div>
@@ -769,7 +769,7 @@ function ICPWizard({ onSubmit, isRunning }: { onSubmit: (brief: LeadFactoryBrief
             <p className="text-[10px] text-muted-foreground mb-1.5">{companyList.length} companies added</p>
             <div className="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto">
               {companyList.map(c => (
-                <span key={c} className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-600/15 border border-blue-500/30 text-blue-300 text-[10px] rounded-full">
+                <span key={c} className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-600/15 border border-primary/30 text-primary text-[10px] rounded-full">
                   {c}<button onClick={() => setCompanyList(prev => prev.filter(x => x !== c))}><X className="w-2.5 h-2.5" /></button>
                 </span>
               ))}
@@ -787,7 +787,7 @@ function ICPWizard({ onSubmit, isRunning }: { onSubmit: (brief: LeadFactoryBrief
         <Textarea
           placeholder={"Paste company names, URLs, or CR numbers (one per line):\n\nAramco\narabia-tech.com\n1234567890\nhttps://example.sa"}
           value={pasteInput} onChange={e => setPasteInput(e.target.value)}
-          className="h-28 text-xs font-mono bg-background border-border/30 text-slate-200 resize-none"
+          className="h-28 text-xs font-mono bg-background border-border/30 text-muted-foreground resize-none"
         />
         {pasteInput.trim() && (
           <p className="text-[10px] text-muted-foreground">
@@ -800,7 +800,7 @@ function ICPWizard({ onSubmit, isRunning }: { onSubmit: (brief: LeadFactoryBrief
           {(["basic", "standard", "deep"] as const).map(d => (
             <button key={d} onClick={() => setDepth(d)}
               className={cn("px-2 py-1 text-[10px] rounded border capitalize transition-colors",
-                depth === d ? "bg-blue-600/20 border-blue-500/50 text-primary" : "border-border/30 text-muted-foreground hover:border-border/50")}>
+                depth === d ? "bg-blue-600/20 border-primary/50 text-primary" : "border-border/30 text-muted-foreground hover:border-border/50")}>
               {d}
             </button>
           ))}
@@ -818,7 +818,7 @@ function ICPWizard({ onSubmit, isRunning }: { onSubmit: (brief: LeadFactoryBrief
   const activeColor = modeConfig[sourcing].color;
   const colorMap: Record<string, string> = {
     violet: "bg-violet-600 border-violet-500 text-foreground",
-    blue:   "bg-blue-600 border-blue-500 text-foreground",
+    blue:   "bg-blue-600 border-primary text-foreground",
     cyan:   "bg-cyan-600 border-cyan-500 text-foreground",
   };
 
@@ -874,7 +874,7 @@ function ICPWizard({ onSubmit, isRunning }: { onSubmit: (brief: LeadFactoryBrief
                 active ? colorMap[cfg.color] : "border-border/30 text-muted-foreground hover:border-border/50 bg-background/40")}>
               <Icon className={cn("w-4 h-4", active ? "text-foreground" : "text-muted-foreground")} />
               <span className="text-[10px] font-semibold leading-tight">{cfg.label}</span>
-              <span className={cn("text-[9px] leading-tight", active ? "text-foreground/70" : "text-slate-600")}>{cfg.desc}</span>
+              <span className={cn("text-[9px] leading-tight", active ? "text-foreground/70" : "text-foreground")}>{cfg.desc}</span>
             </button>
           );
         })}
@@ -1059,12 +1059,12 @@ function HistoryPanel({ onLoadJob }: { onLoadJob: (jobId: number) => void }) {
     <div className="space-y-2">
       <div className="flex items-center gap-2 mb-3">
         <History className="w-4 h-4 text-muted-foreground" />
-        <span className="text-sm font-semibold text-slate-300">Pipeline History</span>
+        <span className="text-sm font-semibold text-muted-foreground">Pipeline History</span>
         <span className="text-[10px] text-muted-foreground ml-auto">{jobs.length} runs</span>
       </div>
       {isLoading && <div className="flex justify-center py-4"><Loader2 className="w-4 h-4 text-muted-foreground animate-spin" /></div>}
       {!isLoading && jobs.length === 0 && (
-        <div className="text-center py-8 text-xs text-slate-600">No pipeline runs yet</div>
+        <div className="text-center py-8 text-xs text-foreground">No pipeline runs yet</div>
       )}
       <div className="space-y-2 max-h-[calc(100vh-180px)] overflow-y-auto pr-1">
         {jobs.map(job => {
@@ -1146,7 +1146,7 @@ function SignalPanel({ onClose }: { onClose: () => void }) {
   }
 
   const signalTypeColor: Record<string, string> = {
-    news: "text-primary bg-blue-500/10 border-blue-500/30",
+    news: "text-primary bg-blue-500/10 border-primary/30",
     tender: "text-amber-400 bg-amber-500/10 border-amber-500/30",
     contract: "text-emerald-400 bg-emerald-500/10 border-emerald-500/30",
     hiring: "text-violet-400 bg-violet-500/10 border-violet-500/30",
@@ -1186,7 +1186,7 @@ function SignalPanel({ onClose }: { onClose: () => void }) {
                   <span className="text-[10px] text-muted-foreground">{s.source}</span>
                   {s.company && <span className="text-[10px] text-primary ml-auto truncate max-w-[140px]">{s.company}</span>}
                 </div>
-                <p className="text-xs text-slate-200 leading-snug mb-1">{s.headline}</p>
+                <p className="text-xs text-muted-foreground leading-snug mb-1">{s.headline}</p>
                 {s.summary && s.summary !== s.headline && (
                   <p className="text-[10px] text-muted-foreground leading-snug">{s.summary}</p>
                 )}
@@ -1198,7 +1198,7 @@ function SignalPanel({ onClose }: { onClose: () => void }) {
           <div className="w-52 border-l border-border/40 p-3 overflow-y-auto shrink-0">
             <p className="text-[9px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Source Log</p>
             {logs.map((log, i) => (
-              <p key={i} className="text-[9px] text-slate-600 leading-relaxed mb-0.5">{log}</p>
+              <p key={i} className="text-[9px] text-foreground leading-relaxed mb-0.5">{log}</p>
             ))}
           </div>
         </div>
@@ -1298,13 +1298,13 @@ function RelationshipIntelPanel() {
         </div>
         <Textarea placeholder="Context (what are you selling, what's the goal?)"
           value={brief.context || ""} onChange={e => setBrief(b => ({ ...b, context: e.target.value }))}
-          className="h-16 text-xs bg-card border-border/30 text-slate-200 resize-none" />
+          className="h-16 text-xs bg-card border-border/30 text-muted-foreground resize-none" />
         <div className="flex items-center justify-between">
           <div className="flex gap-2">
             {(["basic", "deep"] as const).map(d => (
               <button key={d} onClick={() => setBrief(b => ({ ...b, outputDepth: d }))}
                 className={cn("px-3 py-1 text-xs rounded-lg border capitalize transition-colors",
-                  brief.outputDepth === d ? "bg-blue-600/20 border-blue-500/50 text-primary" : "border-border/30 text-muted-foreground hover:border-border/50")}>
+                  brief.outputDepth === d ? "bg-blue-600/20 border-primary/50 text-primary" : "border-border/30 text-muted-foreground hover:border-border/50")}>
                 {d}
               </button>
             ))}
@@ -1358,7 +1358,7 @@ function RelationshipIntelPanel() {
                     <div className="flex gap-1 shrink-0">
                       {node.email && <Mail className="w-3 h-3 text-emerald-400" />}
                       {node.phone && <Phone className="w-3 h-3 text-primary" />}
-                      {node.linkedin && <Globe className="w-3 h-3 text-blue-500" />}
+                      {node.linkedin && <Globe className="w-3 h-3 text-primary" />}
                     </div>
                   </div>
                 ))}
@@ -1387,7 +1387,7 @@ function RelationshipIntelPanel() {
                         )}
                       </div>
                       <button onClick={() => setSelectedContact(contact)}
-                        className="text-[10px] text-primary hover:text-blue-300 flex items-center gap-1 shrink-0">
+                        className="text-[10px] text-primary hover:text-primary flex items-center gap-1 shrink-0">
                         <Sparkles className="w-3 h-3" /> Copy
                       </button>
                     </div>
@@ -1413,19 +1413,19 @@ function RelationshipIntelPanel() {
               {selectedContact.outreachEmail && (
                 <div>
                   <p className="text-[10px] font-semibold text-muted-foreground mb-1">EMAIL</p>
-                  <pre className="whitespace-pre-wrap text-[11px] text-slate-300 font-mono bg-card rounded-lg p-3 leading-relaxed">{selectedContact.outreachEmail}</pre>
+                  <pre className="whitespace-pre-wrap text-[11px] text-muted-foreground font-mono bg-card rounded-lg p-3 leading-relaxed">{selectedContact.outreachEmail}</pre>
                 </div>
               )}
               {selectedContact.outreachLinkedin && (
                 <div>
                   <p className="text-[10px] font-semibold text-muted-foreground mb-1">LINKEDIN</p>
-                  <p className="text-[11px] text-slate-300 bg-card rounded-lg p-3">{selectedContact.outreachLinkedin}</p>
+                  <p className="text-[11px] text-muted-foreground bg-card rounded-lg p-3">{selectedContact.outreachLinkedin}</p>
                 </div>
               )}
               {selectedContact.whatsappOpener && (
                 <div>
                   <p className="text-[10px] font-semibold text-muted-foreground mb-1">WHATSAPP</p>
-                  <p className="text-[11px] text-slate-300 bg-card rounded-lg p-3">{selectedContact.whatsappOpener}</p>
+                  <p className="text-[11px] text-muted-foreground bg-card rounded-lg p-3">{selectedContact.whatsappOpener}</p>
                 </div>
               )}
               {selectedContact.culturalNote && (
@@ -1689,13 +1689,13 @@ export default function LeadFactoryPage() {
                     <div className="relative">
                       <Search className="w-3.5 h-3.5 absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
                       <Input value={searchQ} onChange={e => setSearchQ(e.target.value)} placeholder="Search leads…"
-                        className="pl-7 h-7 text-xs bg-card border-border/30 text-slate-300 w-48" />
+                        className="pl-7 h-7 text-xs bg-card border-border/30 text-muted-foreground w-48" />
                     </div>
                     <div className="flex gap-1">
                       {(["all", "A", "B", "C"] as const).map(t => (
                         <button key={t} onClick={() => setFilterTier(t)}
                           className={cn("px-2 py-0.5 text-[10px] rounded border transition-colors",
-                            filterTier === t ? "border-blue-500/50 bg-blue-600/20 text-primary" : "border-border/30 text-muted-foreground hover:border-border/50")}>
+                            filterTier === t ? "border-primary/50 bg-blue-600/20 text-primary" : "border-border/30 text-muted-foreground hover:border-border/50")}>
                           {t}
                         </button>
                       ))}
@@ -1708,7 +1708,7 @@ export default function LeadFactoryPage() {
               <div className="flex-1 overflow-y-auto p-4">
                 {!isRunning && displayLeads.length === 0 && (
                   <div className="h-full flex flex-col items-center justify-center text-center px-8">
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600/20 to-violet-600/20 border border-blue-500/20 flex items-center justify-center mb-4">
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600/20 to-violet-600/20 border border-primary/20 flex items-center justify-center mb-4">
                       <Zap className="w-8 h-8 text-primary" />
                     </div>
                     <h3 className="text-sm font-semibold text-foreground mb-2">Ready to generate leads</h3>

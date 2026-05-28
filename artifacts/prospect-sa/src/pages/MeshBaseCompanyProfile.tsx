@@ -185,8 +185,8 @@ export default function MeshBaseCompanyProfile() {
                 onError={e => { (e.target as HTMLImageElement).style.display = "none"; }}
               />
             ) : (
-              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500/20 to-indigo-600/20 border border-blue-500/20 flex items-center justify-center shrink-0">
-                <span className="text-2xl font-bold text-blue-400">{initials(company.nameEn)}</span>
+              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500/20 to-indigo-600/20 border border-primary/20 flex items-center justify-center shrink-0">
+                <span className="text-2xl font-bold text-primary">{initials(company.nameEn)}</span>
               </div>
             )}
             <div className="flex-1 min-w-0 space-y-2">
@@ -250,7 +250,7 @@ export default function MeshBaseCompanyProfile() {
       {(company.revenue || company.profit || company.marketCap || company.capitalAmount || company.growthRate) && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {company.revenue && <StatCard label="Annual Revenue" value={revenue} icon={DollarSign} color="border-emerald-500/20 bg-emerald-500/5" />}
-          {company.profit && <StatCard label="Profit" value={profit} icon={TrendingUp} color="border-blue-500/20 bg-blue-500/5" />}
+          {company.profit && <StatCard label="Profit" value={profit} icon={TrendingUp} color="border-primary/20 bg-blue-500/5" />}
           {company.marketCap && <StatCard label="Market Cap" value={marketCap} icon={BarChart3} color="border-violet-500/20 bg-violet-500/5" />}
           {company.capitalAmount && <StatCard label="Capital" value={capital} icon={Award} color="border-amber-500/20 bg-amber-500/5" />}
           {company.growthRate && (
@@ -266,7 +266,7 @@ export default function MeshBaseCompanyProfile() {
             <Card className="border-border/50 bg-card/70">
               <CardHeader className="pb-2 pt-4 px-5">
                 <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                  <Info className="w-4 h-4 text-blue-400" />About
+                  <Info className="w-4 h-4 text-primary" />About
                 </CardTitle>
               </CardHeader>
               <CardContent className="px-5 pb-4">

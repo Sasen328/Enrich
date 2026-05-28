@@ -85,7 +85,7 @@ interface MasaarReport {
 // ─── Agent config ─────────────────────────────────────────────────────────
 
 const AGENTS = [
-  { num: 1, name: "MC.gov.sa Browser",        icon: Globe,      color: "text-blue-400",   desc: "Stealth browser navigates mc.gov.sa — AI auto-solves CAPTCHA" },
+  { num: 1, name: "MC.gov.sa Browser",        icon: Globe,      color: "text-primary",   desc: "Stealth browser navigates mc.gov.sa — AI auto-solves CAPTCHA" },
   { num: 2, name: "Claude CR Parser",          icon: Layers,     color: "text-violet-400", desc: "Extracts all CR fields bilingually from the page text" },
   { num: 3, name: "Emagazine Search",          icon: Search,     color: "text-amber-400",  desc: "Searches emagazine.aamaly.sa for articles and AOA PDFs" },
   { num: 4, name: "AOA PDF Parser",            icon: FileText,   color: "text-emerald-400",desc: "Downloads Arabic AOA PDF and extracts all 15+ legal fields" },
@@ -261,7 +261,7 @@ function AgentCard({ agent, state }: { agent: typeof AGENTS[0]; state: AgentStat
                 line.startsWith("🤖") ? "text-violet-300" :
                 line.startsWith("🥷") ? "text-violet-400" :
                 line.startsWith("🛡") ? "text-violet-300" :
-                line.startsWith("⏳") ? "text-blue-300" :
+                line.startsWith("⏳") ? "text-primary" :
                 line.startsWith("ERROR") ? "text-rose-400" :
                 "text-foreground/60"
               )}>
@@ -718,7 +718,7 @@ export default function MasaarPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
             { label: "CR Number",  value: report.crNumber,                                     icon: Hash,          color: "text-amber-400" },
-            { label: "Company",    value: report.parsed.nameEn || report.parsed.nameAr || "—", icon: Building2,     color: "text-blue-400" },
+            { label: "Company",    value: report.parsed.nameEn || report.parsed.nameAr || "—", icon: Building2,     color: "text-primary" },
             { label: "City",       value: report.parsed.headquarterCity || "—",                icon: Landmark,      color: "text-emerald-400" },
             { label: "Conflicts",  value: String(report.conflicts.length),                      icon: AlertTriangle, color: report.conflicts.length > 0 ? "text-rose-400" : "text-emerald-400" },
           ].map(({ label, value, icon: Icon, color }) => (
@@ -839,7 +839,7 @@ export default function MasaarPage() {
             <TabsContent value="structured" className="flex-1 mt-4 overflow-y-auto space-y-4 pb-4">
               <Card className="bg-card/75 border-white/8">
                 <CardHeader className="pb-2 px-5 pt-4">
-                  <CardTitle className="text-sm text-foreground flex items-center gap-2"><Building2 className="w-4 h-4 text-blue-400" /> Company Identity</CardTitle>
+                  <CardTitle className="text-sm text-foreground flex items-center gap-2"><Building2 className="w-4 h-4 text-primary" /> Company Identity</CardTitle>
                 </CardHeader>
                 <CardContent className="px-5 pb-4">
                   <FieldRow label="Company Name"      value={report.parsed.nameEn}           valueAr={report.parsed.nameAr} />

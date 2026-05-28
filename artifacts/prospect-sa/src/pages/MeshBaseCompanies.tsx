@@ -313,8 +313,8 @@ export default function MeshBaseCompanies() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500/20 to-indigo-600/20 border border-blue-500/20 flex items-center justify-center">
-            <Building2 className="w-5 h-5 text-blue-400" />
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500/20 to-indigo-600/20 border border-primary/20 flex items-center justify-center">
+            <Building2 className="w-5 h-5 text-primary" />
           </div>
           <div>
             <h1 className="text-xl font-bold text-foreground">Companies</h1>
@@ -525,8 +525,8 @@ export default function MeshBaseCompanies() {
                         onError={e => { (e.target as HTMLImageElement).style.display = "none"; }}
                       />
                     ) : (
-                      <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500/20 to-indigo-600/20 border border-blue-500/20 flex items-center justify-center shrink-0">
-                        <span className="text-xs font-bold text-blue-400">{initials(c.nameEn)}</span>
+                      <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500/20 to-indigo-600/20 border border-primary/20 flex items-center justify-center shrink-0">
+                        <span className="text-xs font-bold text-primary">{initials(c.nameEn)}</span>
                       </div>
                     )}
                     <div className="flex-1 min-w-0">

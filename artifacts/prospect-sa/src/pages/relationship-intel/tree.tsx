@@ -33,6 +33,8 @@ interface OrgNode {
   nationality?: string;
   source?: string;
   signalData?: Record<string, unknown>;
+  trustScore?: number;
+  certainty?: "verified" | "likely" | "unverified" | "estimated";
   children?: OrgNode[];
 }
 
@@ -138,6 +140,15 @@ function OrgNodeRow({
           {node.nameAr && <div className="text-[10px] text-muted-foreground truncate" dir="rtl">{node.nameAr}</div>}
         </div>
         <div className="flex items-center gap-1 shrink-0">
+          {typeof node.trustScore === "number" && (
+            <Badge
+              variant="outline"
+              className="text-[9px] bg-primary/10 border-primary/30 text-primary"
+              title={`Source credibility: ${node.certainty || "unrated"}`}
+            >
+              ◆ {node.trustScore}
+            </Badge>
+          )}
           {node.seniority && <Badge variant="outline" className="text-[9px]">{node.seniority}</Badge>}
           {node.ownership && <Badge variant="outline" className="text-[9px] bg-cyan-500/10 border-cyan-500/30 text-cyan-400">{node.ownership}</Badge>}
           {node.email && <Mail className="w-3 h-3 text-emerald-400" />}

@@ -3,7 +3,7 @@ import { db, prosengineResearchTable, leadListsTable, leadListItemsTable } from 
 import { desc, eq, sql } from "drizzle-orm";
 import { enterJob } from "../lib/paid-api-guard.js";
 import OpenAI from "openai";
-import Anthropic from "@anthropic-ai/sdk";
+import { lazyAnthropic } from "../lib/llm-clients.js";
 import { synthesizeWithGemini, isGeminiConfigured, deepResearchWithGemini } from "../gemini-search.js";
 import { runWebSeeder } from "../lib/web-seeder.js";
 import { nexusGenerate, getLLMStatus } from "../lib/nexus/index.js";
@@ -15,9 +15,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || "dummy",
-});
+const anthropic = lazyAnthropic("Person Intel");
 
 // ── Web search: Perplexity → Gemini Google Search fallback ───────────────────
 async function perplexityPersonSearch(query: string, maxTokens = 2000): Promise<string> {

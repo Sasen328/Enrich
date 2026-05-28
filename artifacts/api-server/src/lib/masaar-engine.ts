@@ -10,7 +10,7 @@
 
 import axios from "axios";
 import * as cheerio from "cheerio";
-import Anthropic from "@anthropic-ai/sdk";
+import { lazyAnthropic } from "./llm-clients.js";
 import { EventEmitter } from "events";
 import { StealthBrowser, autoSolveCaptcha, HumanBehavior } from "./stealth-browser.js";
 import { openai as sharedOpenai } from "./openai.js";
@@ -20,9 +20,7 @@ import { scoutSignalsRegulatory, scoutSiteIntel } from "./scout-client.js";
 import { onMasaarComplete } from "./activepieces-client.js";
 import { scrapePage } from "./power-scraper.js";
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || "dummy",
-});
+const anthropic = lazyAnthropic("Masaar engine");
 const openai = sharedOpenai;
 
 // ─── Perplexity Helper ────────────────────────────────────────────────────────
@@ -1689,8 +1687,25 @@ Return the report as plain markdown text. Start with: ## Company Intelligence Re
     if (text.length > 200) reportEn = text;
   }
 
+  // NEXUS synthesis fallback — when both Claude and GPT-4o are down/unconfigured,
+  // route through the multi-LLM fabric (Gemini → DeepSeek → OpenRouter → …) so
+  // the report still compiles instead of failing hard.
   if (!reportEn) {
-    log(emitter, agentNum, agentName, "⚠ Both Claude and GPT-4o failed to compile English report");
+    try {
+      const nexusEn = await nexusSynthesize(
+        enPrompt,
+        "You are a Saudi business intelligence analyst. Write comprehensive English intelligence reports in markdown.",
+        { maxTokens: 6000 },
+      );
+      if (nexusEn.text.length > 200) {
+        reportEn = nexusEn.text;
+        log(emitter, agentNum, agentName, `ℹ English report via NEXUS ${nexusEn.provider}/${nexusEn.model}`);
+      }
+    } catch { /* fall through to hard failure */ }
+  }
+
+  if (!reportEn) {
+    log(emitter, agentNum, agentName, "⚠ Claude, GPT-4o, and NEXUS all failed to compile English report");
     emit(emitter, { type: "agent_complete", agentNum, agentName, data: {} });
     return {
       reportEn: "Report compilation failed — please try again.",

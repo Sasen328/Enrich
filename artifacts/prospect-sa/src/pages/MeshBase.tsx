@@ -87,7 +87,7 @@ export default function MeshBaseOverview() {
       {/* Stats Bar */}
       <div className="grid grid-cols-3 gap-4">
         {[
-          { label: "Total Companies", value: stats?.totalCompanies?.toLocaleString() ?? "…", icon: Building2, color: "from-blue-500/20 to-blue-600/10 border-blue-500/20", iconColor: "text-blue-400" },
+          { label: "Total Companies", value: stats?.totalCompanies?.toLocaleString() ?? "…", icon: Building2, color: "from-blue-500/20 to-blue-600/10 border-primary/20", iconColor: "text-primary" },
           { label: "Total Executives", value: stats?.totalExecutives?.toLocaleString() ?? "…", icon: Users, color: "from-violet-500/20 to-violet-600/10 border-violet-500/20", iconColor: "text-violet-400" },
           { label: "Industries Covered", value: stats?.totalIndustries?.toLocaleString() ?? "…", icon: Layers, color: "from-emerald-500/20 to-emerald-600/10 border-emerald-500/20", iconColor: "text-emerald-400" },
         ].map((s) => (
@@ -177,7 +177,7 @@ export default function MeshBaseOverview() {
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
-              <Building2 className="w-4 h-4 text-blue-400" />
+              <Building2 className="w-4 h-4 text-primary" />
               Featured Companies
             </h2>
             <Button asChild variant="ghost" size="sm" className="gap-1 text-muted-foreground hover:text-foreground">
@@ -192,8 +192,8 @@ export default function MeshBaseOverview() {
                     {c.logoUrl ? (
                       <img src={c.logoUrl} alt={c.nameEn} className="w-10 h-10 rounded-lg object-contain bg-background border border-border/50" />
                     ) : (
-                      <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500/20 to-indigo-600/20 border border-blue-500/20 flex items-center justify-center">
-                        <span className="text-xs font-bold text-blue-400">{initials(c.nameEn)}</span>
+                      <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500/20 to-indigo-600/20 border border-primary/20 flex items-center justify-center">
+                        <span className="text-xs font-bold text-primary">{initials(c.nameEn)}</span>
                       </div>
                     )}
                     <div className="flex-1 min-w-0">

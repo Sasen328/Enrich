@@ -302,7 +302,7 @@ export default function MeshBaseExecutives() {
   const seniorityColor: Record<string, string> = {
     "C-Suite": "text-amber-400 bg-amber-500/10 border-amber-500/30",
     "VP": "text-violet-400 bg-violet-500/10 border-violet-500/30",
-    "Director": "text-blue-400 bg-blue-500/10 border-blue-500/30",
+    "Director": "text-primary bg-blue-500/10 border-primary/30",
     "Senior": "text-emerald-400 bg-emerald-500/10 border-emerald-500/30",
     "Mid": "text-sky-400 bg-sky-500/10 border-sky-500/30",
   };
@@ -564,7 +564,7 @@ export default function MeshBaseExecutives() {
                           href={linkedinLink}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-muted-foreground hover:text-blue-400 transition-colors"
+                          className="text-muted-foreground hover:text-primary transition-colors"
                           onClick={ev => ev.stopPropagation()}
                           title="LinkedIn Profile"
                         >

@@ -45,7 +45,7 @@ function ExportButtons({ onExport, exporting, reportId }: {
     <div className="flex gap-1.5 flex-wrap">
       {[
         { fmt: "pdf",   label: "PDF",   cls: "border-rose-500/30 text-rose-400" },
-        { fmt: "word",  label: "Word",  cls: "border-blue-500/30 text-blue-400" },
+        { fmt: "word",  label: "Word",  cls: "border-primary/30 text-primary" },
         { fmt: "excel", label: "Excel", cls: "border-emerald-500/30 text-emerald-400" },
         { fmt: "json",  label: "JSON",  cls: "border-white/15 text-muted-foreground" },
       ].map(({ fmt, label, cls }) => (
@@ -66,7 +66,7 @@ function ExportButtons({ onExport, exporting, reportId }: {
 const ENRICH_AGENTS = [
   { id: "perplexity", label: "Perplexity Search",   icon: Search,       color: "text-violet-400", bg: "bg-violet-500/10 border-violet-500/20" },
   { id: "crawler",    label: "Web Crawler",          icon: Globe,        color: "text-emerald-400",bg: "bg-emerald-500/10 border-emerald-500/20" },
-  { id: "openai",     label: "OpenAI GPT-4o",        icon: Brain,        color: "text-blue-400",   bg: "bg-blue-500/10 border-blue-500/20" },
+  { id: "openai",     label: "OpenAI GPT-4o",        icon: Brain,        color: "text-primary",   bg: "bg-blue-500/10 border-primary/20" },
   { id: "apollo",     label: "Apollo Contact Intel", icon: User,         color: "text-cyan-400",   bg: "bg-cyan-500/10 border-cyan-500/20" },
   { id: "playwright", label: "Playwright Render",    icon: Layers,       color: "text-orange-400", bg: "bg-orange-500/10 border-orange-500/20" },
   { id: "crossverify",label: "Cross-Verify",         icon: ShieldCheck,  color: "text-rose-400",   bg: "bg-rose-500/10 border-rose-500/20" },
@@ -451,7 +451,7 @@ function EnrichmentTab() {
 
 const SCRAPE_AGENTS = [
   { id: "playwright", label: "Playwright Crawler",  desc: "JS-rendered page extraction",  icon: Globe,    color: "text-emerald-400", bg: "bg-emerald-500/10 border-emerald-500/20" },
-  { id: "crawl4ai",   label: "Crawl4AI",            desc: "AI-ready markdown extraction", icon: Brain,    color: "text-blue-400",    bg: "bg-blue-500/10 border-blue-500/20" },
+  { id: "crawl4ai",   label: "Crawl4AI",            desc: "AI-ready markdown extraction", icon: Brain,    color: "text-primary",    bg: "bg-blue-500/10 border-primary/20" },
   { id: "browser",    label: "BrowserHelper",        desc: "DOM processing & JS exec",     icon: Layers,   color: "text-orange-400",  bg: "bg-orange-500/10 border-orange-500/20" },
   { id: "perplexity", label: "Perplexity Search",   desc: "AI search fallback",           icon: Search,   color: "text-violet-400",  bg: "bg-violet-500/10 border-violet-500/20" },
 ];
@@ -705,7 +705,7 @@ function ScrapeTab() {
                       {p.industry && <span className="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-[10px] font-medium">{String(p.industry)}</span>}
                       {p.city && <span className="bg-muted/40 text-foreground/60 px-2 py-0.5 rounded-full text-[10px]">{String(p.city)}</span>}
                       {p.crNumber && <span className="bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded-full text-[10px] font-mono">CR: {String(p.crNumber)}</span>}
-                      {p.employees && <span className="bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded-full text-[10px]">{String(p.employees)} emp.</span>}
+                      {p.employees && <span className="bg-blue-500/10 text-primary px-2 py-0.5 rounded-full text-[10px]">{String(p.employees)} emp.</span>}
                       {p.revenue && <span className="bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full text-[10px]">{String(p.revenue)}</span>}
                     </div>
 
@@ -752,7 +752,7 @@ function ScrapeTab() {
                               </div>
                               {person.linkedin && (
                                 <a href={String(person.linkedin)} target="_blank" rel="noreferrer"
-                                  className="shrink-0 text-blue-400 hover:text-blue-300 ml-auto">
+                                  className="shrink-0 text-primary hover:text-primary ml-auto">
                                   <ExternalLink className="w-2.5 h-2.5" />
                                 </a>
                               )}
@@ -765,7 +765,7 @@ function ScrapeTab() {
                     {/* Social media */}
                     {social && Object.values(social).some(Boolean) && (
                       <div className="flex gap-2 flex-wrap">
-                        {social.linkedin && <a href={String(social.linkedin)} target="_blank" rel="noreferrer" className="text-[10px] text-blue-400 hover:underline">LinkedIn</a>}
+                        {social.linkedin && <a href={String(social.linkedin)} target="_blank" rel="noreferrer" className="text-[10px] text-primary hover:underline">LinkedIn</a>}
                         {social.twitter && <a href={String(social.twitter)} target="_blank" rel="noreferrer" className="text-[10px] text-sky-400 hover:underline">Twitter</a>}
                         {social.instagram && <a href={String(social.instagram)} target="_blank" rel="noreferrer" className="text-[10px] text-pink-400 hover:underline">Instagram</a>}
                         {social.youtube && <a href={String(social.youtube)} target="_blank" rel="noreferrer" className="text-[10px] text-rose-400 hover:underline">YouTube</a>}
@@ -861,7 +861,7 @@ const RESEARCH_PHASES = [
 
 const DATA_SOURCES = [
   { id: "perplexity", label: "Perplexity AI", color: "text-violet-400 border-violet-500/30 bg-violet-500/10" },
-  { id: "apollo",     label: "Apollo.io",     color: "text-blue-400 border-blue-500/30 bg-blue-500/10"       },
+  { id: "apollo",     label: "Apollo.io",     color: "text-primary border-primary/30 bg-blue-500/10"       },
   { id: "web",        label: "Web Crawler",   color: "text-emerald-400 border-emerald-500/30 bg-emerald-500/10" },
 ];
 
@@ -1362,7 +1362,7 @@ function TemplatesTab() {
   };
 
   const CATEGORY_COLORS: Record<string, string> = {
-    research:     "text-blue-400 border-blue-500/20 bg-blue-500/10",
+    research:     "text-primary border-primary/20 bg-blue-500/10",
     enrichment:   "text-violet-400 border-violet-500/20 bg-violet-500/10",
     prospecting:  "text-emerald-400 border-emerald-500/20 bg-emerald-500/10",
     analysis:     "text-orange-400 border-orange-500/20 bg-orange-500/10",
@@ -1440,7 +1440,7 @@ function BulkExportTab() {
   const FORMATS = [
     { id: "csv",  label: "CSV Spreadsheet",  icon: FileText,   color: "text-emerald-400" },
     { id: "xlsx", label: "Excel Workbook",   icon: BarChart3,  color: "text-green-400"   },
-    { id: "json", label: "JSON Data",        icon: Cpu,        color: "text-blue-400"    },
+    { id: "json", label: "JSON Data",        icon: Cpu,        color: "text-primary"    },
     { id: "pdf",  label: "PDF Report",       icon: FileOutput, color: "text-rose-400"    },
   ];
 

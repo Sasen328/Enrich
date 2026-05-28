@@ -119,7 +119,7 @@ const SOURCES = [
 ];
 
 const PERSON_TYPE_BADGE: Record<string, { color: string; label: string }> = {
-  executive:    { color: "bg-blue-500/15 text-blue-300 border-blue-500/20",       label: "Executive" },
+  executive:    { color: "bg-blue-500/15 text-primary border-primary/20",       label: "Executive" },
   owner:        { color: "bg-amber-500/15 text-amber-300 border-amber-500/20",    label: "Owner" },
   shareholder:  { color: "bg-violet-500/15 text-violet-300 border-violet-500/20", label: "Shareholder" },
   board_member: { color: "bg-emerald-500/15 text-emerald-300 border-emerald-500/20", label: "Board" },
@@ -127,7 +127,7 @@ const PERSON_TYPE_BADGE: Record<string, { color: string; label: string }> = {
 };
 
 const SOURCE_BADGE: Record<string, { color: string; label: string }> = {
-  orcbase:   { color: "bg-blue-500/15 text-blue-300 border-blue-500/20",      label: "OrcBase" },
+  orcbase:   { color: "bg-blue-500/15 text-primary border-primary/20",      label: "OrcBase" },
   masaar:    { color: "bg-amber-500/15 text-amber-300 border-amber-500/20",   label: "Masaar" },
   builder:   { color: "bg-violet-500/15 text-violet-300 border-violet-500/20", label: "Builder" },
   sa_market: { color: "bg-emerald-500/15 text-emerald-300 border-emerald-500/20", label: "SA Market" },
@@ -176,7 +176,7 @@ function statusBadge(status: string) {
   if (status === "done")    return <Badge className="bg-emerald-500/15 text-emerald-300 border-emerald-500/20 border">Done</Badge>;
   if (status === "running") return <Badge className="bg-amber-500/15 text-amber-300 border-amber-500/20 border"><Loader2 className="w-3 h-3 mr-1 animate-spin inline" />Running</Badge>;
   if (status === "failed")  return <Badge className="bg-red-500/15 text-red-300 border-red-500/20 border">Failed</Badge>;
-  return <Badge className="bg-zinc-500/15 text-zinc-300 border-zinc-500/20 border">Pending</Badge>;
+  return <Badge className="bg-zinc-500/15 text-muted-foreground border-border/20 border">Pending</Badge>;
 }
 
 function initials(name: string) {
@@ -556,7 +556,7 @@ function LeadProfileDialog({ item, listId, open, onClose, onDeleted }: {
           {/* Contact */}
           <div className="space-y-2">
             {item.phone && <a href={`tel:${item.phone}`} className="flex items-center gap-2 p-2.5 rounded-lg bg-emerald-500/8 border border-emerald-500/15 text-sm text-emerald-300 hover:bg-emerald-500/15 transition-colors"><Phone className="w-4 h-4 shrink-0" />{item.phone}</a>}
-            {item.email && <a href={`mailto:${item.email}`} className="flex items-center gap-2 p-2.5 rounded-lg bg-blue-500/8 border border-blue-500/15 text-sm text-blue-300 hover:bg-blue-500/15 transition-colors"><Mail className="w-4 h-4 shrink-0" />{item.email}</a>}
+            {item.email && <a href={`mailto:${item.email}`} className="flex items-center gap-2 p-2.5 rounded-lg bg-blue-500/8 border border-primary/15 text-sm text-primary hover:bg-blue-500/15 transition-colors"><Mail className="w-4 h-4 shrink-0" />{item.email}</a>}
             {item.linkedin && <a href={item.linkedin.startsWith("http") ? item.linkedin : `https://${item.linkedin}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 p-2.5 rounded-lg bg-sky-500/8 border border-sky-500/15 text-sm text-sky-300 hover:bg-sky-500/15 transition-colors"><Linkedin className="w-4 h-4 shrink-0" />View LinkedIn Profile</a>}
             {item.website && <a href={item.website.startsWith("http") ? item.website : `https://${item.website}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 p-2.5 rounded-lg bg-violet-500/8 border border-violet-500/15 text-sm text-violet-300 hover:bg-violet-500/15 transition-colors"><Globe className="w-4 h-4 shrink-0" />{item.website.replace(/^https?:\/\//, "").split("/")[0]}</a>}
           </div>
@@ -588,7 +588,7 @@ function LeadProfileDialog({ item, listId, open, onClose, onDeleted }: {
               )}
             </div>
             {(item.aiScore ?? item.matchScore) != null && (
-              <span className={`text-sm font-bold ${(item.aiScore ?? item.matchScore ?? 0) >= 75 ? "text-emerald-400" : (item.aiScore ?? item.matchScore ?? 0) >= 50 ? "text-amber-400" : "text-zinc-400"}`}>
+              <span className={`text-sm font-bold ${(item.aiScore ?? item.matchScore ?? 0) >= 75 ? "text-emerald-400" : (item.aiScore ?? item.matchScore ?? 0) >= 50 ? "text-amber-400" : "text-muted-foreground"}`}>
                 Score: {item.aiScore ?? item.matchScore}
               </span>
             )}
@@ -619,7 +619,7 @@ function LeadCard({ item, listId, onDeleted }: { item: LeadListItem; listId: num
   const score = item.aiScore ?? item.matchScore ?? 0;
   const typeBadge = item.personType ? PERSON_TYPE_BADGE[item.personType] : null;
   const srcBadge  = item.source     ? SOURCE_BADGE[item.source]           : null;
-  const color = score >= 75 ? "text-emerald-400" : score >= 50 ? "text-amber-400" : "text-zinc-400";
+  const color = score >= 75 ? "text-emerald-400" : score >= 50 ? "text-amber-400" : "text-muted-foreground";
   const barColor = score >= 75 ? "bg-emerald-500" : score >= 50 ? "bg-amber-500" : "bg-zinc-500";
 
   return (
@@ -660,7 +660,7 @@ function LeadCard({ item, listId, onDeleted }: { item: LeadListItem; listId: num
               {/* Contact preview */}
               <div className="flex flex-wrap gap-3 mt-2">
                 {item.phone && <span className="flex items-center gap-1 text-xs text-emerald-400"><Phone className="w-3 h-3" />{item.phone}</span>}
-                {item.email && <span className="flex items-center gap-1 text-xs text-blue-400"><Mail className="w-3 h-3" />{item.email}</span>}
+                {item.email && <span className="flex items-center gap-1 text-xs text-primary"><Mail className="w-3 h-3" />{item.email}</span>}
                 {item.linkedin && <span className="flex items-center gap-1 text-xs text-sky-400"><Linkedin className="w-3 h-3" />LinkedIn</span>}
               </div>
 
@@ -801,7 +801,7 @@ function ListDetailView({ list, onBack }: { list: LeadList; onBack: () => void }
             <DropdownMenuContent align="end" className="bg-card border-border/40">
               <DropdownMenuItem onClick={() => downloadExport("csv")} className="gap-2 cursor-pointer"><FileText className="w-4 h-4 text-emerald-400" />CSV</DropdownMenuItem>
               <DropdownMenuItem onClick={() => downloadExport("excel")} className="gap-2 cursor-pointer"><FileSpreadsheet className="w-4 h-4 text-green-400" />Excel (.xlsx)</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => downloadExport("json")} className="gap-2 cursor-pointer"><Braces className="w-4 h-4 text-blue-400" />JSON</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => downloadExport("json")} className="gap-2 cursor-pointer"><Braces className="w-4 h-4 text-primary" />JSON</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -815,7 +815,7 @@ function ListDetailView({ list, onBack }: { list: LeadList; onBack: () => void }
               <Badge key={l} className="bg-primary/10 text-primary border-primary/20 border text-xs">{l}</Badge>
             ))}
             {criteria.industries?.slice(0,4).map(i => <Badge key={i} className="bg-violet-500/15 text-violet-300 border-violet-500/20 border text-xs">{i}</Badge>)}
-            {criteria.cities?.slice(0,3).map(c => <Badge key={c} className="bg-blue-500/15 text-blue-300 border-blue-500/20 border text-xs"><MapPin className="w-2.5 h-2.5 mr-0.5 inline" />{c}</Badge>)}
+            {criteria.cities?.slice(0,3).map(c => <Badge key={c} className="bg-blue-500/15 text-primary border-primary/20 border text-xs"><MapPin className="w-2.5 h-2.5 mr-0.5 inline" />{c}</Badge>)}
             {criteria.revenueRange && criteria.revenueRange !== "any" && <Badge className="bg-emerald-500/15 text-emerald-300 border-emerald-500/20 border text-xs">{REVENUE_RANGES.find(r=>r.id===criteria.revenueRange)?.label}</Badge>}
             {criteria.compensationRange && criteria.compensationRange !== "any" && <Badge className="bg-amber-500/15 text-amber-300 border-amber-500/20 border text-xs">{COMPENSATION_RANGES.find(r=>r.id===criteria.compensationRange)?.label}</Badge>}
             <Badge className="bg-muted/40 text-muted-foreground border-border/40 border text-xs">Max {criteria.maxLeads ?? "?"} leads</Badge>
@@ -1066,9 +1066,9 @@ function ProsEngineTab() {
                 {/* Company Analysis */}
                 {company && (
                   <div>
-                    <p className="text-xs font-semibold text-blue-400 uppercase tracking-wider mb-2 flex items-center gap-1"><Building2 className="w-3 h-3" />Company Analysis</p>
+                    <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-2 flex items-center gap-1"><Building2 className="w-3 h-3" />Company Analysis</p>
                     <div className="space-y-2">
-                      {company.performance && <div className="p-2.5 rounded-lg bg-blue-500/8 border border-blue-500/15"><p className="text-xs font-medium text-blue-300 mb-0.5">{company.name || item.company}</p><p className="text-xs text-foreground/70">{company.performance}</p></div>}
+                      {company.performance && <div className="p-2.5 rounded-lg bg-blue-500/8 border border-primary/15"><p className="text-xs font-medium text-primary mb-0.5">{company.name || item.company}</p><p className="text-xs text-foreground/70">{company.performance}</p></div>}
                       <div className="grid grid-cols-2 gap-2">
                         {company.revenue_estimate && <div className="p-2.5 rounded-lg bg-muted/40 border border-white/8"><p className="text-xs text-muted-foreground mb-0.5">Revenue</p><p className="text-xs font-medium text-foreground">{company.revenue_estimate}</p></div>}
                         {company.employees && <div className="p-2.5 rounded-lg bg-muted/40 border border-white/8"><p className="text-xs text-muted-foreground mb-0.5">Employees</p><p className="text-xs font-medium text-foreground">{company.employees}</p></div>}

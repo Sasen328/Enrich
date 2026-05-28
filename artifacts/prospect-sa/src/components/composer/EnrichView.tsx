@@ -92,7 +92,7 @@ export function EnrichView({ onBack, onReset }: Props) {
         <strong>Gates:</strong>
         <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 font-semibold">✓ pass</span>
         <span className="px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-700 font-semibold">⚠ unverified</span>
-        <span className="px-2 py-0.5 rounded-full bg-slate-500/15 text-slate-700 font-semibold">🛡 dup</span>
+        <span className="px-2 py-0.5 rounded-full bg-slate-500/15 text-foreground font-semibold">🛡 dup</span>
         <span className="px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-700 font-semibold">✗ rejected</span>
       </div>
 

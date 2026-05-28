@@ -565,7 +565,7 @@ export default function RelationshipIntelPage() {
                       <div className="flex gap-2">
                         {node.email    && <Mail  className="w-3.5 h-3.5 text-primary" />}
                         {node.phone    && <Phone className="w-3.5 h-3.5 text-emerald-400" />}
-                        {node.linkedin && <Globe className="w-3.5 h-3.5 text-blue-400" />}
+                        {node.linkedin && <Globe className="w-3.5 h-3.5 text-primary" />}
                       </div>
                     </div>
                   ))}

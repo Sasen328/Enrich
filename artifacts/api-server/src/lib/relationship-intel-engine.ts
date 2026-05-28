@@ -17,6 +17,9 @@ import { eq } from "drizzle-orm";
 import { generateWithGemini, isGeminiConfigured } from "../gemini-search.js";
 import { scoutSiteIntel, scoutSignalsIndividualFull } from "./scout-client.js";
 import { nexusSynthesize } from "./nexus/index.js";
+import { sherlockLookup } from "./scrapers/sherlock-client.js";
+import { harvestEmails } from "./scrapers/theharvester-client.js";
+import { scoreFact, type FactSource, type Certainty } from "./credibility/verdict.js";
 
 // ─── Job Registry ─────────────────────────────────────────────────────────────
 
@@ -64,6 +67,9 @@ export interface OrgNode {
   nationality?: string;
   source?: string;
   signalData?: Record<string, unknown>;
+  /** Source-credibility verdict (§7) — drives the trust pill on each tree node. */
+  trustScore?: number;
+  certainty?: Certainty;
   children?: OrgNode[];
 }
 
@@ -261,9 +267,24 @@ async function agent2_enrichStakeholders(nodes: OrgNode[], brief: RelationshipIn
   emit(emitter, { type: "agent_start", agent: 2, label: "Stakeholder Enricher" });
   const enriched: OrgNode[] = [];
 
+  // TheHarvester runs once per company domain (not per person) — collect the
+  // company's exposed emails up front so each node can be matched against them.
+  let harvestedEmails: string[] = [];
+  if (brief.outputDepth === "deep" && brief.targetWebsite) {
+    try {
+      const raw = brief.targetWebsite.startsWith("http") ? brief.targetWebsite : `https://${brief.targetWebsite}`;
+      const host = new URL(raw).hostname.replace(/^www\./, "");
+      const th = await harvestEmails(host);
+      if (th.available && th.emails.length) harvestedEmails = th.emails;
+    } catch {}
+  }
+
   for (let i = 0; i < nodes.length; i++) {
     const node = { ...nodes[i] };
     emit(emitter, { type: "agent_progress", agent: 2, current: i + 1, total: nodes.length });
+
+    // Track which sources corroborate this stakeholder → credibility verdict.
+    const sources: FactSource[] = [{ provider: node.source || "org-mapper", tier: "secondary" }];
 
     try {
       // Scout individual signals
@@ -279,6 +300,36 @@ async function agent2_enrichStakeholders(nodes: OrgNode[], brief: RelationshipIn
         node.email = node.email || (d.email as string) || "";
         node.phone = node.phone || (d.phone as string) || "";
         node.linkedin = node.linkedin || (d.linkedin_url as string) || "";
+        sources.push({ provider: "scout", tier: "secondary" });
+      }
+
+      // Sherlock OSINT — find hidden social presence + a LinkedIn URL if missing
+      if (brief.outputDepth === "deep") {
+        try {
+          const uname = node.nameEn.toLowerCase().replace(/[^a-z0-9]/g, "");
+          if (uname.length >= 3) {
+            const sh = await sherlockLookup(uname);
+            if (sh.available && sh.hits.length) {
+              node.signalData = { ...node.signalData, sherlock: sh.hits };
+              sources.push({ provider: "sherlock", tier: "secondary" });
+              if (!node.linkedin) {
+                const li = sh.hits.find((h) => /linkedin/i.test(h.site));
+                if (li) node.linkedin = li.url;
+              }
+            }
+          }
+        } catch {}
+
+        // TheHarvester — attach a domain email matching this person's surname
+        if (!node.email && harvestedEmails.length) {
+          const ln = (lastName || firstName).toLowerCase();
+          const match = ln ? harvestedEmails.find((e) => e.toLowerCase().includes(ln)) : undefined;
+          if (match) {
+            node.email = match;
+            node.signalData = { ...node.signalData, harvestedEmail: match };
+            sources.push({ provider: "theharvester", tier: "secondary" });
+          }
+        }
       }
 
       // NEXUS synthesis for high-seniority nodes
@@ -291,12 +342,18 @@ async function agent2_enrichStakeholders(nodes: OrgNode[], brief: RelationshipIn
           );
           if (nexusResult?.text) {
             node.signalData = { ...node.signalData, nexusProfile: nexusResult.text };
+            sources.push({ provider: "nexus", tier: "inferred" });
           }
         } catch {}
       }
 
       emit(emitter, { type: "stakeholder_enriched", agent: 2, nodeId: node.id, name: node.nameEn });
     } catch {}
+
+    // Attach a credibility verdict → trust pill on the tree node.
+    const verdict = scoreFact("stakeholder", node.nameEn, sources);
+    node.trustScore = verdict.trustScore;
+    node.certainty = verdict.certainty;
 
     enriched.push(node);
   }

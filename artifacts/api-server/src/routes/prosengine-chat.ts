@@ -1,6 +1,6 @@
 import { Router, type Request, type Response } from "express";
 import OpenAI from "openai";
-import Anthropic from "@anthropic-ai/sdk";
+import { lazyAnthropic } from "../lib/llm-clients.js";
 import { crawl4ai } from "../crawl4ai-engine.js";
 import { StealthBrowser, HumanBehavior } from "../lib/stealth-browser.js";
 import { deepResearchWithGemini, synthesizeWithGemini, isGeminiConfigured } from "../gemini-search.js";
@@ -84,9 +84,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY || "dummy",
-});
+const anthropic = lazyAnthropic("ProsEngine chat");
 
 // ── Intent classifier: decides what research actions are needed ──────────────
 type ChatIntent =
