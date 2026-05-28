@@ -1,0 +1,53 @@
+{
+  "name": "ProspectSA Dev Container",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspaces/ProspectSA_Full",
+  "shutdownAction": "stopCompose",
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "postStartCommand": "bash .devcontainer/post-start.sh",
+  "forwardPorts": [3000, 5173, 8099, 5432],
+  "portsAttributes": {
+    "3000": {
+      "label": "API Server",
+      "onAutoForward": "openPreview"
+    },
+    "5173": {
+      "label": "Frontend Dev",
+      "onAutoForward": "notify"
+    },
+    "8099": {
+      "label": "Python Scout",
+      "onAutoForward": "silent"
+    },
+    "5432": {
+      "label": "PostgreSQL",
+      "onAutoForward": "silent"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "bradlc.vscode-tailwindcss",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "ms-vscode.vscode-typescript-next",
+        "Prisma.prisma",
+        "ms-python.python",
+        "ms-playwright.playwright"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "typescript.tsdk": "node_modules/typescript/lib",
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+      }
+    }
+  },
+  "remoteEnv": {
+    "DATABASE_URL": "postgresql://prospectsa:prospectsa_secret@db:5432/prospectsa",
+    "NODE_ENV": "development",
+    "PORT": "3000",
+    "SCOUT_URL": "http://localhost:8099"
+  }
+}
