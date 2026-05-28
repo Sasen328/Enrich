@@ -18,7 +18,7 @@ export type AgentRole =
   | "tree";        // map relationships
 
 export const ROLE_TO_TIER: Record<AgentRole, TaskTier> = {
-  planner:    "synthesis",
+  planner:    "planning",
   researcher: "realtime",
   extractor:  "extraction",
   arabic:     "arabic",

@@ -16,6 +16,7 @@ import { Router, type IRouter, type Request, type Response } from "express";
 import { runSwarm } from "../lib/agents/swarm.js";
 import type { OrchestratorEvent } from "../lib/agents/orchestrator.js";
 import { enterJob } from "../lib/paid-api-guard.js";
+import { publishEvent } from "../lib/event-bus.js";
 
 const router: IRouter = Router();
 
@@ -45,10 +46,12 @@ router.post("/swarm/start", async (req: Request, res: Response): Promise<void> =
 
   try {
     enterJob(`swarm:${Date.now()}`);
+    publishEvent({ kind: "swarm.start", ico: "🐝", source: "swarm", text: `Swarm started: ${brief.slice(0, 60)}` });
     await runSwarm(brief, emit, {
       useKimi: body.useKimi !== false,
       maxAgents: Number(body.maxAgents) || undefined,
     });
+    publishEvent({ kind: "swarm.complete", ico: "🐝", source: "swarm", text: `Swarm completed: ${brief.slice(0, 60)}` });
   } catch (e) {
     emit({ event: "error", data: { message: e instanceof Error ? e.message : String(e) } });
     emit({ event: "final", data: { text: "" } });
