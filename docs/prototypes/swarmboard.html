@@ -254,6 +254,45 @@ document.getElementById('view-live').innerHTML = `
    </div>
    <div class="surf feed"><h4>Activity feed</h4>
      ${feed.map(f=>`<div class="fitem"><span class="t">${f[0]}</span><span class="a" style="color:${f[3]?'var(--primary)':'var(--ink)'}">${f[1]}</span><span class="m">· ${f[2]}</span></div>`).join('')}</div>
+ </div>
+ <div class="section-h" style="margin-top:30px">▦ Visual Report <span style="font-weight:400;color:var(--muted);font-size:11px">— phase 4, after the run</span></div>
+ <div class="grid4">
+   ${[["◳","Agents","8"],["▦","Records","1,284"],["◷","Time","12.4s"],["◆","Success","100%"]].map(s=>
+     `<div class="surf phase"><div style="color:var(--primary);font-size:16px">${s[0]}</div><div class="display" style="font-size:22px;font-weight:700;margin-top:4px">${s[2]}</div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px">${s[1]}</div></div>`).join('')}
+ </div>
+ <div class="surf" style="padding:16px;margin-top:12px">
+   <div style="font-size:13px;font-weight:700;margin-bottom:8px">Engaged agents</div>
+   <div>${liveAgents.map(n=>{const a=AGENTS.find(z=>z.n===n)||{cat:'Discovery'};return `<span class="badge" style="background:${CAT_COLOR[a.cat]};margin:0 5px 5px 0;display:inline-block">${n}</span>`;}).join('')}</div>
+ </div>
+ <div class="surf" style="padding:18px;margin-top:12px">
+   <div style="font-size:13px;font-weight:700;margin-bottom:10px">Fused report <span style="font-weight:400;color:var(--primary);font-size:10px">◆ 94 trust</span></div>
+   <div style="font-size:12.5px;line-height:1.65;color:#2A2740">
+     <p style="margin:0 0 10px"><b>Saudi fintech — 50–500 employee segment.</b> The swarm identified <b>1,284 companies</b> matching the brief across MASAR registry, Scout OSINT, and Company Intel, of which 312 are high-fit (ICP ≥ 0.7).</p>
+     <p style="margin:0 0 10px"><b>Market signal.</b> 41 targets showed funding or hiring signals in the last 90 days; 7 carried regulatory flags (SAMA sandbox graduations) and were prioritised. No sanctions matches.</p>
+     <p style="margin:0 0 10px"><b>Leadership coverage.</b> Person Intel + Sherlock resolved verified contacts for 268 executives (LinkedIn + domain email), each carrying a source-credibility verdict.</p>
+     <p style="margin:0"><b>Recommendation.</b> Push the top 50 to Lead Genome and open a Person Hunt on the 7 SAMA-graduated targets first.</p>
+   </div>
+ </div>
+ <div class="surf" style="padding:0;margin-top:12px;overflow:hidden">
+   <table style="width:100%;border-collapse:collapse;font-size:11.5px">
+     <thead><tr style="background:rgba(123,94,167,.08);text-align:left">
+       <th style="padding:9px 12px">Company</th><th style="padding:9px 12px">Sector</th><th style="padding:9px 12px">City</th><th style="padding:9px 12px">ICP</th><th style="padding:9px 12px">Signal</th></tr></thead>
+     <tbody>
+       ${[["Tamara","BNPL / Fintech","Riyadh","0.94","Series C"],
+          ["Lean Technologies","Open Banking","Riyadh","0.91","Hiring +38%"],
+          ["Mod5r","Payments","Jeddah","0.86","SAMA sandbox"],
+          ["Hakbah","Savings","Riyadh","0.81","Partnership"],
+          ["Foodics","SME SaaS","Riyadh","0.78","Expansion"]].map(r=>
+       `<tr style="border-top:1px solid var(--bd)"><td style="padding:8px 12px;font-weight:600">${r[0]}</td><td style="padding:8px 12px;color:var(--muted)">${r[1]}</td><td style="padding:8px 12px;color:var(--muted)">${r[2]}</td><td style="padding:8px 12px;color:var(--primary);font-weight:600">${r[3]}</td><td style="padding:8px 12px;color:var(--muted)">${r[4]}</td></tr>`).join('')}
+     </tbody>
+   </table>
+ </div>
+ <div class="grid4" style="margin-top:12px">
+   ${[["Push to Lead Genome","Save the top 50 high-fit targets as a tracked list."],
+      ["Open Person Hunt","Resolve decision-maker contacts for the 7 priority targets."],
+      ["Export","Download as XLSX / PDF / PPTX with the verdict column."],
+      ["Run new swarm","Refine the brief and re-launch the orbit."]].map(c=>
+     `<div class="surf phase"><h4>${c[0]}</h4><p>${c[1]}</p></div>`).join('')}
  </div>`;
 
 document.getElementById('view-about').classList.remove('hidden');

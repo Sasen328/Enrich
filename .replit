@@ -1,0 +1,30 @@
+# Replit configuration for ProspectSA.
+# Provision the modules below from the Replit "Configure" panel if not auto-detected,
+# and set Secrets (see docs/REPLIT.md): DATABASE_URL + at least one LLM key.
+
+entrypoint = "README.md"
+modules = ["nodejs-24", "python-3.11", "postgresql-16"]
+
+run = "bash replit-run.sh"
+
+[nix]
+channel = "stable-24_05"
+
+[env]
+PORT = "3000"
+NODE_ENV = "production"
+SCOUT_URL = "http://localhost:8099"
+# Playwright/Chromium for the scraper stack:
+PLAYWRIGHT_BROWSERS_PATH = "0"
+
+[deployment]
+run = ["bash", "replit-run.sh"]
+deploymentTarget = "cloudrun"
+
+[[ports]]
+localPort = 3000
+externalPort = 80
+
+[[ports]]
+localPort = 8099
+externalPort = 3001
